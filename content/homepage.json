@@ -1,0 +1,20 @@
+{
+  "hero": {
+    "title": "اكتشف عالم الفخامة",
+    "subtitle": "عطور شرقية أصيلة"
+  },
+  "sections": [
+    {
+      "type": "products",
+      "title": "تشكيلتنا"
+    },
+    {
+      "type": "faq",
+      "title": "الأسئلة الشائعة"
+    },
+    {
+      "type": "policies",
+      "title": "السياسات"
+    }
+  ]
+}

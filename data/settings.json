@@ -1,0 +1,18 @@
+{
+  "store": {
+    "name": "Parfums De Foda",
+    "website": "https://parfumsdefoda.com",
+    "currency": "EGP",
+    "language": "ar",
+    "direction": "rtl"
+  },
+  "grid": {
+    "desktop": 3,
+    "tablet": 2,
+    "mobile": 1
+  },
+  "shipping": {
+    "cost": 60,
+    "freeAbove": 500
+  }
+}

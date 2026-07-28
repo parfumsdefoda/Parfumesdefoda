@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "products": "منتجاتنا",
+    "faq": "الأسئلة الشائعة",
+    "policies": "السياسات",
+    "contact": "اتصل بنا"
+  },
+  "home": {
+    "pageTitle": "Parfums De Foda — عطور فاخرة",
+    "pageDescription": "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة",
+    "filters": "تصفية",
+    "clearFilters": "إزالة التصفية",
+    "noProducts": "لا توجد منتجات تطابق اختيارك",
+    "noProductsHint": "جرب تغيير معايير البحث أو التصفية",
+    "searchPlaceholder": "ابحث عن عطرك...",
+    "addToCart": "أضف إلى السلة",
+    "addedToCart": "✓ تمت الإضافة",
+    "outOfStock": "غير متوفر",
+    "viewCart": "عرض السلة"
+  },
+  "sort": {
+    "label": "ترتيب المنتجات",
+    "featured": "المميزة",
+    "newest": "الأحدث",
+    "priceAsc": "السعر: من الأقل للأعلى",
+    "priceDesc": "السعر: من الأعلى للأقل",
+    "rating": "الأعلى تقييماً",
+    "alphabetical": "أبجدي"
+  },
+  "product": {
+    "selectSize": "اختر الحجم",
+    "size": "الحجم",
+    "price": "السعر",
+    "egp": "ج.م",
+    "sample": "عينة",
+    "rating": "التقييم",
+    "brand": "العلامة التجارية",
+    "description": "الوصف",
+    "niche": "نيش",
+    "bestSeller": "Best Seller",
+    "new": "جديد",
+    "limited": "إصدار محدود"
+  },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلة التسوق فارغة",
+    "emptyDescription": "أضف منتجات إلى السلة للمتابعة",
+    "total": "المجموع",
+    "checkout": "إتمام الطلب",
+    "remove": "إزالة",
+    "quantity": "الكمية"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "name": "الاسم",
+    "namePlaceholder": "أدخل اسمك الكامل",
+    "phone": "رقم الهاتف",
+    "phonePlaceholder": "أدخل رقم هاتفك",
+    "address": "العنوان",
+    "addressPlaceholder": "أدخل عنوانك بالتفصيل",
+    "notes": "ملاحظات",
+    "notesPlaceholder": "أي ملاحظات إضافية (اختياري)",
+    "submit": "إرسال الطلب",
+    "orderSummary": "ملخص الطلب",
+    "sendWhatsApp": "أرسل عبر واتساب",
+    "sendEmail": "أرسل عبر البريد الإلكتروني",
+    "success": "تم إرسال طلبك بنجاح",
+    "successDescription": "سيتم التواصل معك قريباً لتأكيد الطلب",
+    "browseMore": "تصفح المزيد"
+  },
+  "footer": {
+    "rights": "جميع الحقوق محفوظة",
+    "description": "وجهتك الأولى للعطور الفاخرة"
+  },
+  "faq": {
+    "title": "الأسئلة الشائعة"
+  },
+  "policies": {
+    "title": "السياسات"
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "description": "تواصل معنا لأي استفسار أو طلب",
+    "whatsapp": "راسلنا عبر واتساب",
+    "email": "أرسل لنا بريداً إلكترونياً",
+    "phone": "اتصل بنا"
+  },
+  "errors": {
+    "loadFailed": "عذراً، حدث خطأ في تحميل البيانات",
+    "loadDescription": "يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تواصل معنا.",
+    "retry": "إعادة المحاولة",
+    "required": "هذا الحقل مطلوب",
+    "invalidPhone": "يرجى إدخال رقم هاتف صحيح",
+    "pageNotFound": "الصفحة غير موجودة",
+    "pageNotFoundDescription": "عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "backToHome": "العودة إلى الرئيسية",
+    "settingsFailed": "فشل تحميل إعدادات المتجر",
+    "contentFailed": "فشل تحميل المحتوى",
+    "filtersFailed": "فشل تحميل خيارات التصفية",
+    "seoFailed": "فشل تحميل إعدادات SEO",
+    "localeFailed": "فشل تحميل النصوص"
+  }
+}

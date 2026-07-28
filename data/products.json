@@ -1,0 +1,142 @@
+[
+  {
+    "id": "001",
+    "slug": "noor-al-ward",
+    "sku": "FD-NEW-001",
+    "name": "نور الورد",
+    "brand": "Parfums De Foda",
+    "description": "عطر نسائي رقيق يجمع بين أنوار الورد الفرنسي والياسمين المصري مع لمسة من المسك الأبيض.",
+    "gender": "حريمي",
+    "categories": ["حريمي", "شرقي"],
+    "tags": ["ورد", "ياسمين", "نسائي", "رقيق"],
+    "badge": "new",
+    "featured": true,
+    "type": "niche",
+    "rating": 4.8,
+    "reviews": 12,
+    "image": "/products/001.webp",
+    "gallery": ["/products/001.webp"],
+    "sizes": [
+      { "label": "50 مللى", "price": 550, "stock": 15 },
+      { "label": "30 مللى", "price": 380, "stock": 20 },
+      { "label": "2.5 مللى", "price": 55, "stock": 80 }
+    ],
+    "stock": 115,
+    "notes": {
+      "top": ["برغموت", "ورد"],
+      "middle": ["ياسمين", "سوسن"],
+      "base": ["مسك", "خشب الصندل"]
+    },
+    "status": "active",
+    "sortOrder": 2,
+    "seo": {
+      "title": "نور الورد | Parfums De Foda",
+      "description": "نور الورد من فوده للعطور، عطر نسائي رقيق بلمسات من الورد والياسمين."
+    }
+  },
+  {
+    "id": "002",
+    "slug": "sajdah",
+    "sku": "FD-SAJ-001",
+    "name": "عطر سجدة",
+    "brand": "Parfums De Foda",
+    "description": "عطر شرقي فاخر يمزج بين العود والعنبر والمسك مع لمسات من الورد والتوابل الشرقية ليمنحك حضورًا يدوم طوال اليوم.",
+    "gender": "رجالي",
+    "categories": ["رجالي", "شرقي", "نيش"],
+    "tags": ["عود", "عنبر", "مسك", "شرقي", "فاخر"],
+    "badge": "best-seller",
+    "featured": true,
+    "type": "gold",
+    "rating": 5,
+    "reviews": 18,
+    "image": "/products/002.webp",
+    "gallery": ["/products/002.webp"],
+    "sizes": [
+      { "label": "50 مللى", "price": 600, "stock": 20 },
+      { "label": "30 مللى", "price": 420, "stock": 25 },
+      { "label": "2.5 مللى", "price": 60, "stock": 100 }
+    ],
+    "stock": 145,
+    "notes": {
+      "top": ["زعفران", "هيل"],
+      "middle": ["ورد", "ياسمين"],
+      "base": ["عود", "عنبر", "مسك"]
+    },
+    "status": "active",
+    "sortOrder": 1,
+    "seo": {
+      "title": "عطر سجدة | Parfums De Foda",
+      "description": "عطر سجدة من فوده للعطور، عطر شرقي فاخر بلمسات من العود والعنبر والمسك."
+    }
+  },
+  {
+    "id": "003",
+    "slug": "oud-imperial",
+    "sku": "FD-OUD-003",
+    "name": "عود إمبراطوري",
+    "brand": "Parfums De Foda",
+    "description": "عطر رجالي قوي بنفحات العود الكمبودي مع العنبر واللابdanum لحضور ملكي لا يُنسى.",
+    "gender": "رجالي",
+    "categories": ["رجالي", "شرقي", "بريميم"],
+    "tags": ["عود", "عنبر", "لابdanum", "قوي", "ملكي"],
+    "badge": "limited",
+    "featured": false,
+    "type": "gold",
+    "rating": 4.9,
+    "reviews": 8,
+    "image": "/products/003.webp",
+    "gallery": ["/products/003.webp"],
+    "sizes": [
+      { "label": "50 مللى", "price": 650, "stock": 15 },
+      { "label": "30 مللى", "price": 450, "stock": 20 },
+      { "label": "2.5 مللى", "price": 75, "stock": 50 }
+    ],
+    "stock": 75,
+    "notes": {
+      "top": ["لابdanum", "فلفل وردي"],
+      "middle": ["ورد دمشقي", "سدر"],
+      "base": ["عود كمبودي", "عنبر", "مسك"]
+    },
+    "status": "active",
+    "sortOrder": 3,
+    "seo": {
+      "title": "عود إمبراطوري | Parfums De Foda",
+      "description": "عود إمبراطوري من فوده للعطور، عطر رجالي قوي بنفحات العود الكمبودي."
+    }
+  },
+  {
+    "id": "004",
+    "slug": "french-oud",
+    "sku": "FD-FR-004",
+    "name": "فرنش عود",
+    "brand": "Parfums De Foda",
+    "description": "عطر غربي شرقي يجمع بين أصالة العود الفرنسي مع لمسات عصرية من الليمون والبرغموت.",
+    "gender": "رجالي",
+    "categories": ["رجالي", "غربي"],
+    "tags": ["عود", "ليمون", "برغموت", "عصري", "غربي"],
+    "badge": "new",
+    "featured": true,
+    "type": "normal",
+    "rating": 4.7,
+    "reviews": 6,
+    "image": "/products/004.webp",
+    "gallery": ["/products/004.webp"],
+    "sizes": [
+      { "label": "50 مللى", "price": 450, "stock": 20 },
+      { "label": "30 مللى", "price": 320, "stock": 25 },
+      { "label": "2.5 مللى", "price": 45, "stock": 60 }
+    ],
+    "stock": 105,
+    "notes": {
+      "top": ["ليمون", "برغموت"],
+      "middle": ["خزامى", "ياسمين"],
+      "base": ["عود فرنسي", "فولtonia", "مسك"]
+    },
+    "status": "active",
+    "sortOrder": 4,
+    "seo": {
+      "title": "فرنش عود | Parfums De Foda",
+      "description": "فرنش عود من فوده للعطور، عطر غربي شرقي يجمع بين الأصالة والعصرية."
+    }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "description": "وجهتك الأولى للعطور الفاخرة. عطور أصلية بجودة استثنائية.",
+  "columns": [
+    {
+      "title": "روابط سريعة",
+      "links": [
+        { "label": "الرئيسية", "path": "/" }
+      ]
+    },
+    {
+      "title": "تواصل معنا",
+      "links": [
+        { "label": "واتساب", "url": "https://wa.me/201234567890" },
+        { "label": "انستغرام", "url": "https://instagram.com/parfumsdefoda" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "colors": {
+    "primary": "#FFFFFF",
+    "secondary": "#9CD676",
+    "accent": "#632989",
+    "gold": "#D4AF37"
+  },
+  "typography": {
+    "fontFamily": "Cairo",
+    "headingWeight": "700",
+    "bodyWeight": "400",
+    "baseSize": "1rem",
+    "scaleRatio": "1.25"
+  },
+  "spacing": {
+    "section": "5rem",
+    "cardGap": "1.5rem",
+    "containerPadding": "1.5rem"
+  },
+  "radius": {
+    "card": "0.75rem",
+    "button": "0.5rem",
+    "full": "9999px"
+  },
+  "shadows": {
+    "card": "0 2px 16px rgba(0,0,0,0.06)",
+    "cardHover": "0 8px 30px rgba(0,0,0,0.1)",
+    "drawer": "-4px 0 24px rgba(0,0,0,0.1)"
+  },
+  "animations": {
+    "default": "0.3s ease",
+    "slow": "0.5s ease",
+    "fast": "0.15s ease"
+  }
+}

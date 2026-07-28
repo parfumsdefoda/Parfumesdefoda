@@ -1,0 +1,7 @@
+# Parfums De Foda — robots.txt
+# Allow all crawlers, point to sitemap
+
+User-agent: *
+Allow: /
+
+Sitemap: https://parfumsdefoda.com/sitemap.xml

@@ -1,0 +1,6 @@
+[
+  { "slug": "best-seller", "label": "Best Seller", "color": "secondary" },
+  { "slug": "new", "label": "جديد", "color": "accent" },
+  { "slug": "limited", "label": "إصدار محدود", "color": "gold" },
+  { "slug": "niche", "label": "نيش", "color": "gold" }
+]
