@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logOrderCreated, logOrderError } from "@/lib/logger";
 
 /**
  * Order item received from the checkout form.
@@ -41,6 +42,8 @@ interface Order {
 const orders: Order[] = [];
 
 export async function POST(request: Request) {
+  const requestId = request.headers.get("x-vercel-id") || request.headers.get("x-request-id") || null;
+
   try {
     const order: Order = await request.json();
 
@@ -63,13 +66,8 @@ export async function POST(request: Request) {
     // Store order
     orders.push(order);
 
-    // Log order for now (in production, send email/WhatsApp)
-    console.log("New order received:", {
-      orderNumber: order.orderNumber,
-      customer: order.customer.name,
-      total: order.total,
-      itemCount: order.items.length,
-    });
+    // Structured production log
+    logOrderCreated(order, { requestId });
 
     return NextResponse.json(
       {
@@ -79,7 +77,9 @@ export async function POST(request: Request) {
       },
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
+    logOrderError(error, { requestId });
+
     return NextResponse.json(
       { error: "خطأ في معالجة الطلب" },
       { status: 500 },
