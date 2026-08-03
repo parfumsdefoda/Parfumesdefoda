@@ -122,3 +122,25 @@ body {
 .skeleton-pulse {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
+
+/* ──────────────────────────────────────────
+   Hero Background — Responsive images with dark overlay
+   Mobile-first: hero-mobile.webp up to 768px, hero-desktop.webp from 768px+
+   ────────────────────────────────────────── */
+
+.hero-bg {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url('/images/hero-mobile.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+  .hero-bg {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+      url('/images/hero-desktop.webp');
+  }
+}

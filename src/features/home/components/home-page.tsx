@@ -22,6 +22,7 @@ import { useCart } from "@/providers/CartProvider";
 
 import type { Product } from "@/types";
 import type { FullSettings, FilterData, SiteContent, LocaleMessages } from "@/types/services";
+import type { SortOption } from "@/lib/sort-helpers";
 
 /**
  * Props for the client-side HomePage component.
@@ -70,7 +71,7 @@ export function HomePageClient({
   const t = locale.t;
 
   // Destructure frequently used values to avoid useMemo dependency issues
-  const { activeFilters, toggleFilter } = products;
+  const { activeFilters, toggleFilter, sortBy, setSortBy, clearFilters } = products;
 
   // Map products to ProductCard format
   const cardProducts: ProductCardProduct[] = useMemo(
@@ -93,19 +94,34 @@ export function HomePageClient({
     [products.products],
   );
 
-  // Map filter groups to sidebar format
+  // Map filter groups to sidebar format.
+  // The "الترتيب" (sort) group is treated specially: instead of toggling
+  // filter checkboxes, it calls products.setSortBy() to reorder the list.
+  const isSortGroup = (group: { name: string }) => group.name === "الترتيب";
+
   const filterSidebarGroups = useMemo(
     () =>
-      filters.filterGroups.map((group) => ({
-        name: group.name,
-        options: group.options.map((opt) => ({
-          slug: opt.slug,
-          label: opt.label,
-        })),
-        activeSlugs: activeFilters[group.name] ?? [],
-        onToggle: (slug: string) => toggleFilter(group.name, slug),
-      })),
-    [filters.filterGroups, activeFilters, toggleFilter],
+      filters.filterGroups.map((group) => {
+        const sortGroup = isSortGroup(group);
+        return {
+          name: group.name,
+          options: group.options.map((opt) => ({
+            slug: opt.slug,
+            label: opt.label,
+          })),
+          activeSlugs: sortGroup
+            ? [sortBy]
+            : (activeFilters[group.name] ?? []),
+          onToggle: (slug: string) => {
+            if (sortGroup) {
+              setSortBy(slug as SortOption);
+            } else {
+              toggleFilter(group.name, slug);
+            }
+          },
+        };
+      }),
+    [filters.filterGroups, activeFilters, toggleFilter, sortBy, setSortBy],
   );
 
   // Cart items mapped to CartDrawer format
@@ -142,6 +158,12 @@ export function HomePageClient({
     router.push("/checkout");
   };
 
+  // Clear all filters AND reset sort to default
+  const handleClearAll = () => {
+    clearFilters();
+    setSortBy("featured");
+  };
+
   return (
     <PageLayout
       headerProps={{
@@ -155,7 +177,7 @@ export function HomePageClient({
       }}
     >
       {/* ─── Hero Section ─── */}
-      <section className="relative overflow-hidden bg-gradient-to-l from-[var(--color-accent)] to-[var(--color-accent)]/80 text-white">
+      <section className="hero-bg relative overflow-hidden text-white">
         <div className="container mx-auto px-4 py-16 md:py-24 text-center">
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
             {content.hero.title || t("home.pageTitle", "Parfums De Foda")}
@@ -169,41 +191,14 @@ export function HomePageClient({
 
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">
-        {/* Search + Sort */}
-        <div className="flex items-center gap-4 mb-8">
+        {/* Search */}
+        <div className="mb-8">
           <SearchBar
             value={products.searchQuery}
             onChange={products.setSearchQuery}
             placeholder={t("home.searchPlaceholder", "ابحث عن عطرك...")}
-            className="flex-1 max-w-md"
+            className="w-full max-w-md"
           />
-          <label htmlFor="sort-select" className="sr-only">
-            {t("sort.label", "ترتيب المنتجات")}
-          </label>
-          <select
-            id="sort-select"
-            value={products.sortBy}
-            onChange={(e) =>
-              products.setSortBy(
-                e.target.value as
-                  | "newest"
-                  | "price-asc"
-                  | "price-desc"
-                  | "rating"
-                  | "alphabetical"
-                  | "featured",
-              )
-            }
-            className="h-10 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 text-sm text-[var(--neutral-700)] outline-none focus:border-[var(--color-accent)]"
-            aria-label={t("sort.label", "ترتيب المنتجات")}
-          >
-            <option value="featured">{t("sort.featured", "المميزة")}</option>
-            <option value="newest">{t("sort.newest", "الأحدث")}</option>
-            <option value="price-asc">{t("sort.priceAsc", "السعر: من الأقل للأعلى")}</option>
-            <option value="price-desc">{t("sort.priceDesc", "السعر: من الأعلى للأقل")}</option>
-            <option value="rating">{t("sort.rating", "الأعلى تقييماً")}</option>
-            <option value="alphabetical">{t("sort.alphabetical", "أبجدي")}</option>
-          </select>
         </div>
 
         {/* Active filters bar */}
@@ -228,7 +223,7 @@ export function HomePageClient({
             heading={t("home.filters", "تصفية")}
             clearLabel={t("home.clearFilters", "إزالة التصفية")}
             activeCount={products.activeFilterCount}
-            onClearAll={products.clearFilters}
+            onClearAll={handleClearAll}
             open={filterOpen}
             onClose={() => setFilterOpen(false)}
           />

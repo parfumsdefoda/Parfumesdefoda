@@ -49,7 +49,7 @@ export interface HeaderProps {
  * - Always visible (sticky)
  */
 export function Header({
-  storeName = "Parfums De Foda",
+  storeName = "",
   logoSrc = "/logos/logo.svg",
   logoAlt,
   navItems = [],
@@ -151,9 +151,6 @@ export function Header({
             className="h-20 w-auto"
             priority
           />
-          <span className="hidden sm:block text-lg font-bold text-[var(--color-accent)]">
-            {storeName}
-          </span>
         </Link>
 
         {/* Desktop nav */}

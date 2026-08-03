@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { logOrderCreated, logOrderError } from "@/lib/logger";
+import { sendOrderEmail } from "@/lib/email";
 
 /**
  * Order item received from the checkout form.
@@ -22,6 +23,7 @@ interface Order {
     name: string;
     phone: string;
     address: string;
+    notes?: string;
   };
   items: OrderItem[];
   subtotal: number;
@@ -37,8 +39,8 @@ interface Order {
  * Receives a new order from the checkout page.
  * Currently stores the order in-memory (array).
  * In production, this would save to a database and trigger
- * email/WhatsApp notifications.
- */
+     * email notifications to the store owner (see sendOrderEmail).
+   */
 const orders: Order[] = [];
 
 export async function POST(request: Request) {
@@ -68,6 +70,16 @@ export async function POST(request: Request) {
 
     // Structured production log
     logOrderCreated(order, { requestId });
+
+    // Send order notification email to store owner (non-blocking)
+    try {
+      await sendOrderEmail(order);
+    } catch (emailError) {
+      console.error(
+        "[email] Failed to send order notification email:",
+        emailError instanceof Error ? emailError.message : String(emailError),
+      );
+    }
 
     return NextResponse.json(
       {
