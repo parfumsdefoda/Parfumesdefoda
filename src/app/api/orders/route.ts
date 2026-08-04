@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { logOrderCreated, logOrderError } from "@/lib/logger";
 import { sendOrderEmail } from "@/lib/email";
+import { sendOrderWhatsApp } from "@/lib/whatsapp";
 
 /**
  * Order item received from the checkout form.
@@ -78,6 +79,16 @@ export async function POST(request: Request) {
       console.error(
         "[email] Failed to send order notification email:",
         emailError instanceof Error ? emailError.message : String(emailError),
+      );
+    }
+
+    // Send order notification via WhatsApp to store owner (non-blocking)
+    try {
+      await sendOrderWhatsApp(order);
+    } catch (whatsAppError) {
+      console.error(
+        "[whatsapp] Failed to send order notification WhatsApp:",
+        whatsAppError instanceof Error ? whatsAppError.message : String(whatsAppError),
       );
     }
 

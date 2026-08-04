@@ -1,53 +1,67 @@
-import type { CartItem } from "@/providers/CartProvider";
-import type { CheckoutFormData } from "@/schemas/checkout";
+import type { Order } from "@/types/order";
+import { formatPrice } from "@/lib/currency";
 
 /**
- * Generate a WhatsApp order message URL.
- *
- * Constructs a wa.me link with a pre-formatted order message
- * containing order number, all cart items, and customer details.
+ * Build a concise Arabic WhatsApp message for a new order notification.
+ * Keeps the message short to fit within WhatsApp/URL length limits.
  */
-export function generateWhatsAppUrl(
-  phone: string,
-  items: CartItem[],
-  customer: CheckoutFormData,
-  total: number,
-  orderNumber?: string,
-): string {
-  const phoneNumber = phone.replace(/[^0-9]/g, "");
-  const message = buildOrderMessage(items, customer, total, orderNumber);
-  return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-}
+function buildOrderWhatsAppMessage(order: Order): string {
+  const lines: string[] = [];
 
-function buildOrderMessage(
-  items: CartItem[],
-  customer: CheckoutFormData,
-  total: number,
-  orderNumber?: string,
-): string {
-  const lines = [
-    orderNumber
-      ? `مرحباً، هذا طلب جديد رقم ${orderNumber}:`
-      : "مرحباً، أريد طلب المنتجات التالية:",
-    "",
-    ...items.map(
-      (item) => `• ${item.name} (${item.sizeLabel}) × ${item.quantity} = ${(item.price * item.quantity).toLocaleString("ar-EG")} ج.م`,
-    ),
-    "",
-    `المجموع: ${total.toLocaleString("ar-EG")} ج.م`,
-    "",
-    "---",
-  ];
+  lines.push("🛒 طلب جديد — Parfums De Foda");
+  lines.push(`رقم الطلب: ${order.orderNumber}`);
+  lines.push(`العميل: ${order.customer.name}`);
+  lines.push(`الهاتف: ${order.customer.phone}`);
+  lines.push(`العنوان: ${order.customer.address}`);
+  lines.push("المنتجات:");
 
-  if (orderNumber) {
-    lines.push(`رقم الطلب: ${orderNumber}`);
+  const MAX_ITEMS = 5;
+  const displayItems = order.items.slice(0, MAX_ITEMS);
+  for (const item of displayItems) {
+    const itemTotal = item.price * item.quantity;
+    lines.push(`• ${item.name} — ${item.sizeLabel} × ${item.quantity} = ${formatPrice(itemTotal)}`);
   }
 
-  lines.push(
-    `الاسم: ${customer.name}`,
-    `رقم الهاتف: ${customer.phone}`,
-    `العنوان: ${customer.address}`,
-  );
+  if (order.items.length > MAX_ITEMS) {
+    lines.push(`... + ${order.items.length - MAX_ITEMS} منتج إضافي`);
+  }
+
+  lines.push(`المجموع: ${formatPrice(order.total)}`);
 
   return lines.join("\n");
+}
+
+/**
+ * Send a new order notification via WhatsApp using the CallMeBot API.
+ *
+ * Required environment variables:
+ *   CALLMEBOT_PHONE    — owner's WhatsApp number in international format (e.g. 201117569506)
+ *   CALLMEBOT_API_KEY  — CallMeBot API key
+ *
+ * @throws {Error} if CALLMEBOT_PHONE or CALLMEBOT_API_KEY is missing,
+ *   or if the CallMeBot API returns a non-200 response
+ */
+export async function sendOrderWhatsApp(order: Order): Promise<void> {
+  const phone = process.env.CALLMEBOT_PHONE;
+  if (!phone) {
+    throw new Error("CALLMEBOT_PHONE environment variable is not set");
+  }
+
+  const apiKey = process.env.CALLMEBOT_API_KEY;
+  if (!apiKey) {
+    throw new Error("CALLMEBOT_API_KEY environment variable is not set");
+  }
+
+  const text = buildOrderWhatsAppMessage(order);
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(
+      `CallMeBot API error: ${response.status} ${response.statusText}${body ? ` — ${body}` : ""}`,
+    );
+  }
 }
