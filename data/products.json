@@ -1,178 +1,2540 @@
 [
   {
-    "id": "001",
-    "slug": "noor-al-ward",
-    "sku": "FD-NEW-001",
-    "name": "نور الورد",
+    "id": "PF010",
+    "slug": "pf010",
+    "sku": "PF010",
+    "name": "أفترنون سويم",
     "brand": "Parfums De Foda",
-    "description": "عطر نسائي رقيق يجمع بين أنوار الورد الفرنسي والياسمين المصري مع لمسة من المسك الأبيض.",
-    "gender": "حريمي",
-    "categories": ["حريمي", "شرقي"],
-    "tags": ["ورد", "ياسمين", "نسائي", "رقيق"],
-    "badge": "new",
-    "featured": true,
-    "type": "niche",
-    "rating": 4.8,
-    "reviews": 12,
-    "image": "/products/001.webp",
-    "gallery": ["/products/001.webp"],
-    "sizes": [
-      { "label": "50 مللى", "price": 550, "stock": 15 },
-      { "label": "30 مللى", "price": 380, "stock": 20 },
-      { "label": "2.5 مللى", "price": 55, "stock": 80 }
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF010.webp",
+    "gallery": [
+      "/products/PF010.webp"
     ],
-    "stock": 115,
-    "notes": {
-      "top": ["برغموت", "ورد"],
-      "middle": ["ياسمين", "سوسن"],
-      "base": ["مسك", "خشب الصندل"]
-    },
-    "status": "active",
-    "sortOrder": 2,
-    "seo": {
-      "title": "نور الورد | Parfums De Foda",
-      "description": "نور الورد من فوده للعطور، عطر نسائي رقيق بلمسات من الورد والياسمين."
-    }
-  },
-  {
-    "id": "002",
-    "slug": "sajdah",
-    "sku": "FD-SAJ-001",
-    "name": "عطر سجدة",
-    "brand": "Parfums De Foda",
-    "description": "عطر شرقي فاخر يمزج بين العود والعنبر والمسك مع لمسات من الورد والتوابل الشرقية ليمنحك حضورًا يدوم طوال اليوم.",
-    "gender": "رجالي",
-    "categories": ["رجالي", "شرقي", "نيش"],
-    "tags": ["عود", "عنبر", "مسك", "شرقي", "فاخر"],
-    "badge": "best-seller",
-    "featured": true,
-    "type": "gold",
-    "rating": 5,
-    "reviews": 18,
-    "image": "/products/002.webp",
-    "gallery": ["/products/002.webp"],
     "sizes": [
-      { "label": "50 مللى", "price": 600, "stock": 20 },
-      { "label": "30 مللى", "price": 420, "stock": 25 },
-      { "label": "2.5 مللى", "price": 60, "stock": 100 }
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
     ],
-    "stock": 145,
+    "stock": null,
     "notes": {
-      "top": ["زعفران", "هيل"],
-      "middle": ["ورد", "ياسمين"],
-      "base": ["عود", "عنبر", "مسك"]
+      "top": [],
+      "middle": [],
+      "base": []
     },
     "status": "active",
     "sortOrder": 1,
     "seo": {
-      "title": "عطر سجدة | Parfums De Foda",
-      "description": "عطر سجدة من فوده للعطور، عطر شرقي فاخر بلمسات من العود والعنبر والمسك."
+      "title": "أفترنون سويم | Parfums De Foda",
+      "description": ""
     }
   },
   {
-    "id": "003",
-    "slug": "oud-imperial",
-    "sku": "FD-OUD-003",
-    "name": "عود إمبراطوري",
+    "id": "PF020",
+    "slug": "pf020",
+    "sku": "PF020",
+    "name": "أفريكان ليذر",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي قوي بنفحات العود الكمبودي مع العنبر واللابdanum لحضور ملكي لا يُنسى.",
-    "gender": "رجالي",
-    "categories": ["رجالي", "شرقي", "ديزاينر"],
-    "tags": ["عود", "عنبر", "لابdanum", "قوي", "ملكي"],
-    "badge": "limited",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
     "featured": false,
-    "type": "gold",
-    "rating": 4.9,
-    "reviews": 8,
-    "image": "/products/003.webp",
-    "gallery": ["/products/003.webp"],
-    "sizes": [
-      { "label": "50 مللى", "price": 650, "stock": 15 },
-      { "label": "30 مللى", "price": 450, "stock": 20 },
-      { "label": "2.5 مللى", "price": 75, "stock": 50 }
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF020.webp",
+    "gallery": [
+      "/products/PF020.webp"
     ],
-    "stock": 75,
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
     "notes": {
-      "top": ["لابdanum", "فلفل وردي"],
-      "middle": ["ورد دمشقي", "سدر"],
-      "base": ["عود كمبودي", "عنبر", "مسك"]
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 2,
+    "seo": {
+      "title": "أفريكان ليذر | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF030",
+    "slug": "pf030",
+    "sku": "PF030",
+    "name": "أكوا دي جيو برفومو",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF030.webp",
+    "gallery": [
+      "/products/PF030.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
     },
     "status": "active",
     "sortOrder": 3,
     "seo": {
-      "title": "عود إمبراطوري | Parfums De Foda",
-      "description": "عود إمبراطوري من فوده للعطور، عطر رجالي قوي بنفحات العود الكمبودي."
+      "title": "أكوا دي جيو برفومو | Parfums De Foda",
+      "description": ""
     }
   },
   {
-    "id": "004",
-    "slug": "french-oud",
-    "sku": "FD-FR-004",
-    "name": "فرنش عود",
+    "id": "PF040",
+    "slug": "pf040",
+    "sku": "PF040",
+    "name": "أكوا دي جيو",
     "brand": "Parfums De Foda",
-    "description": "عطر غربي شرقي يجمع بين أصالة العود الفرنسي مع لمسات عصرية من الليمون والبرغموت.",
-    "gender": "رجالي",
-    "categories": ["رجالي", "غربي"],
-    "tags": ["عود", "ليمون", "برغموت", "عصري", "غربي"],
-    "badge": "new",
-    "featured": true,
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
     "type": "normal",
-    "rating": 4.7,
-    "reviews": 6,
-    "image": "/products/004.webp",
-    "gallery": ["/products/004.webp"],
-    "sizes": [
-      { "label": "50 مللى", "price": 450, "stock": 20 },
-      { "label": "30 مللى", "price": 320, "stock": 25 },
-      { "label": "2.5 مللى", "price": 45, "stock": 60 }
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF040.webp",
+    "gallery": [
+      "/products/PF040.webp"
     ],
-    "stock": 105,
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
     "notes": {
-      "top": ["ليمون", "برغموت"],
-      "middle": ["خزامى", "ياسمين"],
-      "base": ["عود فرنسي", "فولtonia", "مسك"]
+      "top": [],
+      "middle": [],
+      "base": []
     },
     "status": "active",
     "sortOrder": 4,
     "seo": {
-      "title": "فرنش عود | Parfums De Foda",
-      "description": "فرنش عود من فوده للعطور، عطر غربي شرقي يجمع بين الأصالة والعصرية."
+      "title": "أكوا دي جيو | Parfums De Foda",
+      "description": ""
     }
   },
   {
-    "id": "005",
-    "slug": "dylan",
-    "sku": "FD-FR-005",
-    "name": "ديلان بلو",
+    "id": "PF050",
+    "slug": "pf050",
+    "sku": "PF050",
+    "name": "الثائر",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي يجمع بين الانتعاش البحري والأخشاب الدافئة، بلمسات من البرغموت، الجريب فروت، البخور، والمسك. أنيق، فخم، وثابت، مناسب للاستخدام اليومي والمناسبات.",
-    "gender": "رجالي",
-    "categories": ["رجالي", "غربي"],
-    "tags": ["بخور", "جريب فروت", "خشبى", "عصري", "غربي"],
-    "badge": "new",
-    "featured": true,
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
     "type": "normal",
-    "rating": 4.8,
-    "reviews": 1,
-    "image": "/products/005.webp",
-    "gallery": ["/products/005.webp"],
-    "sizes": [
-      { "label": "100 مللى", "price": 1200, "stock": 20 },
-      { "label": "50 مللى", "price": 650, "stock": 25 },
-      { "label": "30 مللى", "price": 450, "stock": 25 },
-      { "label": "10 مللى", "price": 180, "stock": 60 }
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF050.webp",
+    "gallery": [
+      "/products/PF050.webp"
     ],
-    "stock": 105,
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
     "notes": {
-      "top": ["ليمون", "برغموت"],
-      "middle": ["خزامى", "ياسمين"],
-      "base": ["عود فرنسي", "فولtonia", "مسك"]
+      "top": [],
+      "middle": [],
+      "base": []
     },
     "status": "active",
     "sortOrder": 5,
     "seo": {
-      "title": "ديلان بلو| Parfums De Foda",
-      "description": "عطر رجالي يجمع بين الانتعاش البحري والأخشاب الدافئة، بلمسات من البرغموت، الجريب فروت، البخور، والمسك. أنيق، فخم، وثابت، مناسب للاستخدام اليومي والمناسبات."
+      "title": "الثائر | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF060",
+    "slug": "pf060",
+    "sku": "PF060",
+    "name": "العود الأزرق من إبراق",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF060.webp",
+    "gallery": [
+      "/products/PF060.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 6,
+    "seo": {
+      "title": "العود الأزرق من إبراق | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF070",
+    "slug": "pf070",
+    "sku": "PF070",
+    "name": "الوسام",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF070.webp",
+    "gallery": [
+      "/products/PF070.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 7,
+    "seo": {
+      "title": "الوسام | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF080",
+    "slug": "pf080",
+    "sku": "PF080",
+    "name": "امبريال فالي",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF080.webp",
+    "gallery": [
+      "/products/PF080.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 8,
+    "seo": {
+      "title": "امبريال فالي | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF090",
+    "slug": "pf090",
+    "sku": "PF090",
+    "name": "انترلود",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF090.webp",
+    "gallery": [
+      "/products/PF090.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 9,
+    "seo": {
+      "title": "انترلود | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF100",
+    "slug": "pf100",
+    "sku": "PF100",
+    "name": "أومبري نوماد",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF100.webp",
+    "gallery": [
+      "/products/PF100.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 10,
+    "seo": {
+      "title": "أومبري نوماد | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF110",
+    "slug": "pf110",
+    "sku": "PF110",
+    "name": "ايربابيورا",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF110.webp",
+    "gallery": [
+      "/products/PF110.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 11,
+    "seo": {
+      "title": "ايربابيورا | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF120",
+    "slug": "pf120",
+    "sku": "PF120",
+    "name": "ايماجينيشن",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF120.webp",
+    "gallery": [
+      "/products/PF120.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 12,
+    "seo": {
+      "title": "ايماجينيشن | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF130",
+    "slug": "pf130",
+    "sku": "PF130",
+    "name": "باسفيك تشيل",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF130.webp",
+    "gallery": [
+      "/products/PF130.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 13,
+    "seo": {
+      "title": "باسفيك تشيل | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF140",
+    "slug": "pf140",
+    "sku": "PF140",
+    "name": "بخور العرائس - كليك فلير",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF140.webp",
+    "gallery": [
+      "/products/PF140.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 14,
+    "seo": {
+      "title": "بخور العرائس - كليك فلير | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF150",
+    "slug": "pf150",
+    "sku": "PF150",
+    "name": "بكرات روج",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF150.webp",
+    "gallery": [
+      "/products/PF150.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 15,
+    "seo": {
+      "title": "بكرات روج | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF160",
+    "slug": "pf160",
+    "sku": "PF160",
+    "name": "بلاك أفغانو",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF160.webp",
+    "gallery": [
+      "/products/PF160.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 16,
+    "seo": {
+      "title": "بلاك أفغانو | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF170",
+    "slug": "pf170",
+    "sku": "PF170",
+    "name": "بلاك أوركيد",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF170.webp",
+    "gallery": [
+      "/products/PF170.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 17,
+    "seo": {
+      "title": "بلاك أوركيد | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF180",
+    "slug": "pf180",
+    "sku": "PF180",
+    "name": "بلاك عود",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF180.webp",
+    "gallery": [
+      "/products/PF180.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 18,
+    "seo": {
+      "title": "بلاك عود | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF190",
+    "slug": "pf190",
+    "sku": "PF190",
+    "name": "بلو تاليسمان",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF190.webp",
+    "gallery": [
+      "/products/PF190.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 19,
+    "seo": {
+      "title": "بلو تاليسمان | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF200",
+    "slug": "pf200",
+    "sku": "PF200",
+    "name": "بلو دي شانيل",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF200.webp",
+    "gallery": [
+      "/products/PF200.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 20,
+    "seo": {
+      "title": "بلو دي شانيل | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF210",
+    "slug": "pf210",
+    "sku": "PF210",
+    "name": "بوا امبريال",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF210.webp",
+    "gallery": [
+      "/products/PF210.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 21,
+    "seo": {
+      "title": "بوا امبريال | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF220",
+    "slug": "pf220",
+    "sku": "PF220",
+    "name": "ترف",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF220.webp",
+    "gallery": [
+      "/products/PF220.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 22,
+    "seo": {
+      "title": "ترف | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF230",
+    "slug": "pf230",
+    "sku": "PF230",
+    "name": "توباكو فاني",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF230.webp",
+    "gallery": [
+      "/products/PF230.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 23,
+    "seo": {
+      "title": "توباكو فاني | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF240",
+    "slug": "pf240",
+    "sku": "PF240",
+    "name": "تيروني",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF240.webp",
+    "gallery": [
+      "/products/PF240.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 24,
+    "seo": {
+      "title": "تيروني | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF250",
+    "slug": "pf250",
+    "sku": "PF250",
+    "name": "جايدنس",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF250.webp",
+    "gallery": [
+      "/products/PF250.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 25,
+    "seo": {
+      "title": "جايدنس | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF260",
+    "slug": "pf260",
+    "sku": "PF260",
+    "name": "ديلان بلو",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF260.webp",
+    "gallery": [
+      "/products/PF260.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 26,
+    "seo": {
+      "title": "ديلان بلو | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF270",
+    "slug": "pf270",
+    "sku": "PF270",
+    "name": "روزس فاني",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF270.webp",
+    "gallery": [
+      "/products/PF270.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 27,
+    "seo": {
+      "title": "روزس فاني | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF280",
+    "slug": "pf280",
+    "sku": "PF280",
+    "name": "روسيندو ماتيو فايف",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF280.webp",
+    "gallery": [
+      "/products/PF280.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 28,
+    "seo": {
+      "title": "روسيندو ماتيو فايف | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF290",
+    "slug": "pf290",
+    "sku": "PF290",
+    "name": "زد بانثيون روما",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF290.webp",
+    "gallery": [
+      "/products/PF290.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 29,
+    "seo": {
+      "title": "زد بانثيون روما | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF300",
+    "slug": "pf300",
+    "sku": "PF300",
+    "name": "سانتال رويال",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF300.webp",
+    "gallery": [
+      "/products/PF300.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 30,
+    "seo": {
+      "title": "سانتال رويال | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF310",
+    "slug": "pf310",
+    "sku": "PF310",
+    "name": "سايد إفيكت",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF310.webp",
+    "gallery": [
+      "/products/PF310.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 31,
+    "seo": {
+      "title": "سايد إفيكت | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF320",
+    "slug": "pf320",
+    "sku": "PF320",
+    "name": "سترونجر ويز يو انتنسلي",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF320.webp",
+    "gallery": [
+      "/products/PF320.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 32,
+    "seo": {
+      "title": "سترونجر ويز يو انتنسلي | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF330",
+    "slug": "pf330",
+    "sku": "PF330",
+    "name": "سلفر ماونتن ووتر",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF330.webp",
+    "gallery": [
+      "/products/PF330.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 33,
+    "seo": {
+      "title": "سلفر ماونتن ووتر | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF340",
+    "slug": "pf340",
+    "sku": "PF340",
+    "name": "سوفاج",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF340.webp",
+    "gallery": [
+      "/products/PF340.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 34,
+    "seo": {
+      "title": "سوفاج | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF350",
+    "slug": "pf350",
+    "sku": "PF350",
+    "name": "عود ساتن موود",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF350.webp",
+    "gallery": [
+      "/products/PF350.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 35,
+    "seo": {
+      "title": "عود ساتن موود | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF360",
+    "slug": "pf360",
+    "sku": "PF360",
+    "name": "عود مركوجا",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF360.webp",
+    "gallery": [
+      "/products/PF360.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 36,
+    "seo": {
+      "title": "عود مركوجا | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF370",
+    "slug": "pf370",
+    "sku": "PF370",
+    "name": "فيرزاتشي",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF370.webp",
+    "gallery": [
+      "/products/PF370.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 37,
+    "seo": {
+      "title": "فيرزاتشي | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF380",
+    "slug": "pf380",
+    "sku": "PF380",
+    "name": "قائد الفرسان",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF380.webp",
+    "gallery": [
+      "/products/PF380.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 38,
+    "seo": {
+      "title": "قائد الفرسان | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF390",
+    "slug": "pf390",
+    "sku": "PF390",
+    "name": "كريد أفنتوس",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF390.webp",
+    "gallery": [
+      "/products/PF390.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 39,
+    "seo": {
+      "title": "كريد أفنتوس | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF400",
+    "slug": "pf400",
+    "sku": "PF400",
+    "name": "لاكوست اسنشال",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF400.webp",
+    "gallery": [
+      "/products/PF400.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 40,
+    "seo": {
+      "title": "لاكوست اسنشال | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF410",
+    "slug": "pf410",
+    "sku": "PF410",
+    "name": "لاكوست وايت",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF410.webp",
+    "gallery": [
+      "/products/PF410.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 41,
+    "seo": {
+      "title": "لاكوست وايت | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF420",
+    "slug": "pf420",
+    "sku": "PF420",
+    "name": "لايتون",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF420.webp",
+    "gallery": [
+      "/products/PF420.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 42,
+    "seo": {
+      "title": "لايتون | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF430",
+    "slug": "pf430",
+    "sku": "PF430",
+    "name": "مضاوي",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF430.webp",
+    "gallery": [
+      "/products/PF430.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 43,
+    "seo": {
+      "title": "مضاوي | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF440",
+    "slug": "pf440",
+    "sku": "PF440",
+    "name": "ميجامير",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF440.webp",
+    "gallery": [
+      "/products/PF440.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 44,
+    "seo": {
+      "title": "ميجامير | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF450",
+    "slug": "pf450",
+    "sku": "PF450",
+    "name": "هاشيفات",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF450.webp",
+    "gallery": [
+      "/products/PF450.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 45,
+    "seo": {
+      "title": "هاشيفات | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF460",
+    "slug": "pf460",
+    "sku": "PF460",
+    "name": "هيبسكس ماهيجاد",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF460.webp",
+    "gallery": [
+      "/products/PF460.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 46,
+    "seo": {
+      "title": "هيبسكس ماهيجاد | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF470",
+    "slug": "pf470",
+    "sku": "PF470",
+    "name": "يارا",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "gender": "",
+    "categories": [],
+    "tags": [],
+    "badge": null,
+    "featured": false,
+    "type": "normal",
+    "rating": 0,
+    "reviews": 0,
+    "image": "/products/PF470.webp",
+    "gallery": [
+      "/products/PF470.webp"
+    ],
+    "sizes": [
+      {
+        "label": "100 ملل",
+        "price": 900,
+        "stock": null
+      },
+      {
+        "label": "50 ملل",
+        "price": 500,
+        "stock": null
+      },
+      {
+        "label": "30 ملل",
+        "price": 350,
+        "stock": null
+      },
+      {
+        "label": "10 ملل",
+        "price": 50,
+        "stock": null
+      }
+    ],
+    "stock": null,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "status": "active",
+    "sortOrder": 47,
+    "seo": {
+      "title": "يارا | Parfums De Foda",
+      "description": ""
     }
   }
 ]
