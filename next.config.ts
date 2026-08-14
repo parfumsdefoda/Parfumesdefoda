@@ -25,6 +25,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
   },
 
+  // Runtime JSON files (data/, content/, locales/) are read via node:fs in
+  // src/lib/json-loader.ts using process.cwd() + relativePath. Next.js's
+  // automatic file tracing can't detect dynamic fs reads, so without this the
+  // JSON files are excluded from the serverless bundle and every page request
+  // fails at runtime with ENOENT (Vercel /var/task). Force-include them.
+  outputFileTracingIncludes: {
+    "/**": ["./locales/**/*", "./data/**/*", "./content/**/*"],
+  },
+
   // Security headers applied to every response
   async headers() {
     return [
