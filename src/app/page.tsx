@@ -3,6 +3,7 @@ import { loadFullSettings } from "@/services/settings";
 import { loadFilterData } from "@/services/filters";
 import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
+import { getProductSalesCounts } from "@/lib/sales-tracking";
 import { HomePageClient } from "@/features/home";
 
 /**
@@ -12,18 +13,24 @@ import { HomePageClient } from "@/features/home";
  * Data is passed as props to the client-side HomePageClient component,
  * which handles interactivity (filters, search, sorting, cart, checkout).
  *
- * No client-side data fetching. No fetch() calls. All file I/O is server-side.
+ * Product sales counts are fetched server-side from Upstash Redis (best-selling
+ * sort). getProductSalesCounts() never throws — if Redis is unreachable it
+ * returns an empty object and the homepage renders with the default order.
+ *
+ * No client-side data fetching. No fetch() calls for local files. All file I/O
+ * and Redis access is server-side.
  * Data flow: JSON files → Services → Server Component → Client Component → Hooks → UI
  */
 export default async function HomePage() {
   // ─── Load all data server-side ───
-  const [products, settings, filterData, content, localeMessages] =
+  const [products, settings, filterData, content, localeMessages, salesCounts] =
     await Promise.all([
       loadProducts(),
       loadFullSettings(),
       loadFilterData(),
       loadContent(),
       loadLocale(),
+      getProductSalesCounts(),
     ]);
 
   // ─── Server-side error handling ───
@@ -50,6 +57,7 @@ export default async function HomePage() {
       filterData={filterData}
       content={content}
       localeMessages={localeMessages}
+      salesCounts={salesCounts}
     />
   );
 }

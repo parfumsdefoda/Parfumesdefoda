@@ -44,12 +44,22 @@ export interface UseProductsReturn {
  *
  * Data is pre-loaded by the Server Component and passed as initialProducts.
  * No client-side fetching — all file I/O happens server-side.
+ *
+ * @param initialSalesCounts Optional map of productId -> total quantity sold,
+ *   loaded server-side from Redis and passed down. Used by the
+ *   "best-selling" sort; falls back to original order when absent.
  */
-export function useProducts(initialProducts: Product[] = []): UseProductsReturn {
+export function useProducts(
+  initialProducts: Product[] = [],
+  initialSalesCounts?: Record<string, number>,
+): UseProductsReturn {
   const [allProducts] = useState<Product[]>(initialProducts);
+  const [salesCounts] = useState<Record<string, number> | undefined>(
+    initialSalesCounts,
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
-  const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [sortBy, setSortBy] = useState<SortOption>("best-selling");
 
   const toggleFilter = useCallback(
     (groupKey: string, slug: string) => {
@@ -82,10 +92,10 @@ export function useProducts(initialProducts: Product[] = []): UseProductsReturn 
     result = searchProducts(result, searchQuery);
 
     // Sort
-    result = sortProducts(result, sortBy);
+    result = sortProducts(result, sortBy, salesCounts);
 
     return result;
-  }, [allProducts, activeFilters, searchQuery, sortBy]);
+  }, [allProducts, activeFilters, searchQuery, sortBy, salesCounts]);
 
   const activeFilterCount = useMemo(
     () =>

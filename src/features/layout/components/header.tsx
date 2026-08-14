@@ -32,6 +32,10 @@ export interface HeaderProps {
   menuLabel?: string;
   /** Called when cart icon is clicked */
   onCartClick?: () => void;
+  /** Called when the mobile filter toggle is tapped */
+  onFilterClick?: () => void;
+  /** Whether the mobile filter sidebar is open (drives aria-expanded) */
+  filterOpen?: boolean;
   className?: string;
 }
 
@@ -56,8 +60,10 @@ export function Header({
   cartCount = 0,
   cartLabel = "سلة التسوق",
   navLabel = "القائمة الرئيسية",
-  menuLabel = "القائمة",
+  menuLabel = "فلتر",
   onCartClick,
+  onFilterClick,
+  filterOpen = false,
   className,
 }: HeaderProps) {
   const [isVisible, setIsVisible] = useState(true);
@@ -192,18 +198,22 @@ export function Header({
             )}
           </Button>
 
-          {/* Mobile menu toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            aria-label={menuLabel}
-            aria-expanded="false"
-            aria-haspopup="true"
-            disabled
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+          {/* Mobile filter toggle — hidden on desktop (md:hidden).
+              Only rendered when a filter handler is provided (homepage) so
+              the button never appears as a dead/no-op control on other pages. */}
+          {onFilterClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label={menuLabel}
+              aria-expanded={filterOpen}
+              aria-haspopup="true"
+              onClick={onFilterClick}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </div>
     </header>

@@ -46,14 +46,33 @@ describe("sortProducts", () => {
     expect(result[0].id).toBe("1");
   });
 
-  it("sorts by rating", () => {
-    const result = sortProducts(mockProducts, "rating");
-    expect(result[0].id).toBe("2");
+  it("sorts by best-selling using sales counts (descending)", () => {
+    const salesCounts = { "1": 5, "2": 10 };
+    const result = sortProducts(mockProducts, "best-selling", salesCounts);
+    expect(result.map((p) => p.id)).toEqual(["2", "1"]);
   });
 
-  it("sorts by featured", () => {
-    const result = sortProducts(mockProducts, "featured");
-    expect(result[0].id).toBe("1");
+  it("keeps original order for best-selling when sales counts are missing", () => {
+    const result = sortProducts(mockProducts, "best-selling");
+    expect(result.map((p) => p.id)).toEqual(["1", "2"]);
+  });
+
+  it("sorts products with missing/zero sales counts last, ties stay stable", () => {
+    const salesCounts = { "2": 3 };
+    const result = sortProducts(mockProducts, "best-selling", salesCounts);
+    expect(result.map((p) => p.id)).toEqual(["2", "1"]);
+
+    const tieResult = sortProducts(
+      mockProducts,
+      "best-selling",
+      { "1": 3, "2": 3 },
+    );
+    expect(tieResult.map((p) => p.id)).toEqual(["1", "2"]);
+  });
+
+  it("sorts alphabetically", () => {
+    const result = sortProducts(mockProducts, "alphabetical");
+    expect(result[0].id).toBe("2");
   });
 
   it("does not mutate original array", () => {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { logOrderCreated, logOrderError } from "@/lib/logger";
 import { sendOrderEmail } from "@/lib/email";
 import { sendOrderWhatsApp } from "@/lib/whatsapp";
+import { incrementProductSales } from "@/lib/sales-tracking";
 
 /**
  * Order item received from the checkout form.
@@ -89,6 +90,18 @@ export async function POST(request: Request) {
       console.error(
         "[whatsapp] Failed to send order notification WhatsApp:",
         whatsAppError instanceof Error ? whatsAppError.message : String(whatsAppError),
+      );
+    }
+
+    // Track product sales in Redis (non-blocking)
+    // incrementProductSales never throws (failures are logged internally),
+    // so this can never block or fail the customer's success response.
+    try {
+      await incrementProductSales(order.items);
+    } catch (salesError) {
+      console.error(
+        "[sales-tracking] Failed to track product sales for order:",
+        salesError instanceof Error ? salesError.message : String(salesError),
       );
     }
 

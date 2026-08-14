@@ -34,6 +34,8 @@ export interface HomePageClientProps {
   filterData: FilterData;
   content: SiteContent;
   localeMessages: LocaleMessages;
+  /** Product sales counts (productId -> total quantity sold), loaded server-side from Redis. */
+  salesCounts?: Record<string, number>;
 }
 
 /**
@@ -51,11 +53,12 @@ export function HomePageClient({
   filterData: initialFilterData,
   content: initialContent,
   localeMessages: initialMessages,
+  salesCounts = {},
 }: HomePageClientProps) {
   const router = useRouter();
 
   // ─── Hooks (receive pre-loaded data) ───
-  const products = useProducts(initialProducts);
+  const products = useProducts(initialProducts, salesCounts);
   const filters = useFilters(initialFilterData);
   const settings = useSettings(initialSettings);
   const locale = useLocalization(initialMessages);
@@ -161,7 +164,7 @@ export function HomePageClient({
   // Clear all filters AND reset sort to default
   const handleClearAll = () => {
     clearFilters();
-    setSortBy("featured");
+    setSortBy("best-selling");
   };
 
   return (
@@ -170,6 +173,9 @@ export function HomePageClient({
         navItems: settings.navigation,
         cartCount: cart.totalItems,
         onCartClick: () => setCartOpen(true),
+        menuLabel: t("home.filters", "تصفية"),
+        filterOpen,
+        onFilterClick: () => setFilterOpen(true),
       }}
       footerProps={{
         description: settings.footerDescription,
