@@ -1,18 +1,18 @@
 {
   "title": "",
-  "description": "",
+  "description": "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
   "keywords": "عطور, عربية, فاخرة, بارفان, مسك, عود, برفانات",
   "openGraph": {
-    "title": "",
-    "description": "",
+    "title": "Parfums De Foda — عطور فاخرة",
+    "description": "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
     "image": "/logos/og-image.jpg",
     "type": "website",
     "locale": "ar_AR"
   },
   "twitter": {
     "card": "summary_large_image",
-    "title": "",
-    "description": ""
+    "title": "Parfums De Foda",
+    "description": "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود"
   },
   "canonical": "https://parfumsdefoda.com",
   "robots": "index, follow",
