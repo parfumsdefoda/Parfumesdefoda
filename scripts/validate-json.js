@@ -10,6 +10,22 @@
 const fs = require("fs");
 const path = require("path");
 
+// Zod schema for data/products.json — the single source of truth for product
+// shape (src/schemas/product-schema.ts). Node 22.6+ strips TS natively, so
+// the CommonJS script can require() the .ts schema directly.
+// If this fails, schema validation is unavailable → fail loudly.
+let productSchema;
+try {
+  ({ productSchema } = require("../src/schemas/product-schema.ts"));
+} catch (err) {
+  console.error(
+    `❌ Unable to load product schema (src/schemas/product-schema.ts): ${
+      err instanceof Error ? err.message : String(err)
+    }`,
+  );
+  process.exit(1);
+}
+
 const FILES = [
   { path: "data/products.json", type: "array-or-object", required: true },
   { path: "data/categories.json", type: "array", required: true },
@@ -61,6 +77,29 @@ for (const file of FILES) {
       hasErrors = true;
     } else {
       console.log(`✅ ${file.path} — valid`);
+    }
+
+    // Extra: run each product through the Zod schema (catches field-level
+    // drift, wrong types, missing enums — the class of bug that silently
+    // zeroes out the catalog).
+    if (file.path === "data/products.json") {
+      const list = Array.isArray(parsed) ? parsed : [parsed];
+      for (const [index, product] of list.entries()) {
+        const result = productSchema.safeParse(product);
+        if (!result.success) {
+          hasErrors = true;
+          const idLabel =
+            typeof product === "object" && product !== null &&
+            typeof product.id === "string"
+              ? product.id
+              : `[${index}]`;
+          console.error(`❌ ${file.path}: Product ${idLabel} failed schema validation`);
+          for (const issue of result.error.issues) {
+            const fieldName = issue.path.length ? issue.path.join(".") : "(root)";
+            console.error(`   - ${fieldName}: ${issue.message}`);
+          }
+        }
+      }
     }
   } catch (err) {
     console.error(`❌ ${file.path}: Invalid JSON — ${err.message}`);

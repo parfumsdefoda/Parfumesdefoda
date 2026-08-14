@@ -5,31 +5,55 @@ import type { Product } from "@/types";
 const mockProducts: Product[] = [
   {
     id: "1",
+    sku: "1",
     slug: "product-1",
     name: "Test Product 1",
     brand: "Test Brand",
     description: "Test description",
-    gender: "رجالي",
-    categories: ["رجالي", "شرقي"],
-    type: "normal",
     image: "/test.webp",
-    sizes: [{ label: "50ml", price: 100 }],
-    stock: 10,
-    badge: "new",
+    gallery: ["/test.webp"],
+    gender: "رجالي",
+    type: "شرقي",
+    house: "ديزاينر",
+    oily: false,
+    season: "صيفي",
+    performance: "أداء ضعيف",
+    featured: false,
+    badge: "",
+    rating: 0,
+    reviews: 0,
+    status: "active",
+    sortOrder: 1,
+    sizes: [{ label: "50ml", price: 100, inStock: true }],
+    inStock: true,
+    notes: { top: [], middle: [], base: [] },
+    seo: { title: "", description: "" },
   },
   {
     id: "2",
+    sku: "2",
     slug: "product-2",
     name: "Test Product 2",
     brand: "Test Brand",
     description: "Test description",
-    gender: "حريمي",
-    categories: ["حريمي", "غربي"],
-    type: "niche",
     image: "/test2.webp",
-    sizes: [{ label: "30ml", price: 200 }],
-    stock: 5,
-    badge: "best-seller",
+    gallery: ["/test2.webp"],
+    gender: "نسائي",
+    type: "غربي",
+    house: "نيش",
+    oily: true,
+    season: "شتوي",
+    performance: "أداء صاروخي",
+    featured: false,
+    badge: "",
+    rating: 0,
+    reviews: 0,
+    status: "active",
+    sortOrder: 2,
+    sizes: [{ label: "30ml", price: 200, inStock: true }],
+    inStock: true,
+    notes: { top: [], middle: [], base: [] },
+    seo: { title: "", description: "" },
   },
 ];
 
@@ -50,6 +74,42 @@ describe("filterProducts", () => {
       النوع: ["شرقي"],
     });
     expect(result).toHaveLength(1);
+  });
+
+  it("filters by type", () => {
+    const result = filterProducts(mockProducts, { النوع: ["غربي"] });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("2");
+  });
+
+  it("filters by house (الدار)", () => {
+    const result = filterProducts(mockProducts, { الدار: ["نيش"] });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("2");
+  });
+
+  it("filters by oily group (boolean checkbox)", () => {
+    const result = filterProducts(mockProducts, {
+      "عطور زيتية": ["العود والأدهان"],
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("2");
+  });
+
+  it("filters by season", () => {
+    const result = filterProducts(mockProducts, { الفصل: ["صيفي"] });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("1");
+  });
+
+  it("filters by performance", () => {
+    const result = filterProducts(mockProducts, { الأداء: ["أداء قوي"] });
+    expect(result).toHaveLength(0);
+  });
+
+  it("ignores unknown groups", () => {
+    const result = filterProducts(mockProducts, { "غير معروف": ["x"] });
+    expect(result).toHaveLength(2);
   });
 });
 

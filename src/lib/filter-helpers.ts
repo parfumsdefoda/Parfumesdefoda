@@ -1,6 +1,18 @@
 import type { Product } from "@/types";
 import type { ActiveFilters } from "@/types";
 
+/** Maps a filter group name to the product field it filters against. */
+const GROUP_TO_FIELD: Record<string, keyof Product> = {
+  الجنس: "gender",
+  النوع: "type",
+  الدار: "house",
+  الفصل: "season",
+  الأداء: "performance",
+};
+
+/** Boolean checkbox group — any active slug means `oily === true` only. */
+const OILY_GROUP = "عطور زيتية";
+
 /**
  * Filter products by multiple active filter groups.
  * A product matches if it satisfies at least one filter within each group.
@@ -17,14 +29,18 @@ export function filterProducts(
   if (activeGroups.length === 0) return products;
 
   return products.filter((product) =>
-    activeGroups.every(([, slugs]) =>
-      slugs.some(
-        (slug) =>
-          product.categories.includes(slug) ||
-          product.gender === slug ||
-          product.badge === slug,
-      ),
-    ),
+    activeGroups.every(([group, slugs]) => {
+      // "عطور زيتية" is a single boolean checkbox → oily products only
+      if (group === OILY_GROUP) {
+        return product.oily === true;
+      }
+
+      const field = GROUP_TO_FIELD[group];
+      if (!field) return true; // unknown group (e.g. sort) — ignore
+
+      const value = product[field];
+      return typeof value === "string" && slugs.includes(value);
+    }),
   );
 }
 

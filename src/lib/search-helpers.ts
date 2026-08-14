@@ -2,8 +2,8 @@ import type { Product } from "@/types";
 
 /**
  * Search products by query string.
- * Matches against name, brand, description, categories, and tags.
- * Supports both Arabic and English text.
+ * Matches against name, brand, description, gender, type, house,
+ * season, performance, and notes. Supports both Arabic and English text.
  */
 export function searchProducts(
   products: Product[],
@@ -18,23 +18,27 @@ export function searchProducts(
     const nameMatch = product.name.toLowerCase().includes(q);
     const brandMatch = product.brand.toLowerCase().includes(q);
     const descMatch = product.description.toLowerCase().includes(q);
-    const shortDescMatch = product.shortDescription
-      ?.toLowerCase()
-      .includes(q);
-    const categoryMatch = product.categories.some((c) =>
-      c.toLowerCase().includes(q),
-    );
-    const tagMatch = product.tags?.some((t) =>
-      t.toLowerCase().includes(q),
-    );
+    const genderMatch = product.gender.toLowerCase().includes(q);
+    const typeMatch = product.type.toLowerCase().includes(q);
+    const houseMatch = product.house.toLowerCase().includes(q);
+    const seasonMatch = product.season.toLowerCase().includes(q);
+    const performanceMatch = product.performance.toLowerCase().includes(q);
+    const notesMatch = [
+      ...(product.notes?.top ?? []),
+      ...(product.notes?.middle ?? []),
+      ...(product.notes?.base ?? []),
+    ].some((note) => note.toLowerCase().includes(q));
 
     return (
       nameMatch ||
       brandMatch ||
       descMatch ||
-      shortDescMatch ||
-      categoryMatch ||
-      tagMatch
+      genderMatch ||
+      typeMatch ||
+      houseMatch ||
+      seasonMatch ||
+      performanceMatch ||
+      notesMatch
     );
   });
 }

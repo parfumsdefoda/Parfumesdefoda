@@ -13,9 +13,10 @@ export function isValidProduct(product: unknown): product is Product {
   if (typeof p.brand !== "string") return false;
   if (typeof p.description !== "string") return false;
   if (typeof p.gender !== "string") return false;
-  if (!Array.isArray(p.categories)) return false;
+  if (typeof p.type !== "string") return false;
+  if (typeof p.house !== "string") return false;
   if (typeof p.image !== "string") return false;
-  if (typeof p.stock !== "number") return false;
+  if (typeof p.inStock !== "boolean") return false;
   if (!Array.isArray(p.sizes)) return false;
 
   // Validate sizes
@@ -24,6 +25,7 @@ export function isValidProduct(product: unknown): product is Product {
     const s = size as Record<string, unknown>;
     if (typeof s.label !== "string") return false;
     if (typeof s.price !== "number") return false;
+    if (typeof s.inStock !== "boolean") return false;
   }
 
   return true;
@@ -45,9 +47,9 @@ export function isProductInStock(
 ): boolean {
   if (sizeLabel) {
     const size = product.sizes.find((s) => s.label === sizeLabel);
-    if (size?.stock !== undefined) return size.stock > 0;
+    if (size) return size.inStock;
   }
-  return product.stock > 0;
+  return product.inStock;
 }
 
 /**

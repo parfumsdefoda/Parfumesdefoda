@@ -90,9 +90,7 @@ export function HomePageClient({
         sizes: p.sizes,
         notes: p.notes,
         gender: p.gender,
-        categories: p.categories,
-        tags: p.tags,
-        totalStock: p.stock,
+        house: p.house,
       })),
     [products.products],
   );

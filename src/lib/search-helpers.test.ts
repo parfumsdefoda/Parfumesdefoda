@@ -5,17 +5,29 @@ import type { Product } from "@/types";
 const mockProducts: Product[] = [
   {
     id: "1",
+    sku: "1",
     slug: "sajdah",
     name: "عطر سجدة",
     brand: "Parfums De Foda",
     description: "عطر شرقي فاخر",
-    gender: "رجالي",
-    categories: ["رجالي", "شرقي"],
-    type: "gold",
     image: "/test.webp",
-    sizes: [{ label: "50ml", price: 600 }],
-    stock: 10,
-    tags: ["عود", "عنبر"],
+    gallery: ["/test.webp"],
+    gender: "رجالي",
+    type: "شرقي",
+    house: "نيش",
+    oily: false,
+    season: "شتوي",
+    performance: "أداء قوي",
+    featured: false,
+    badge: "",
+    rating: 4.5,
+    reviews: 12,
+    status: "active",
+    sortOrder: 1,
+    sizes: [{ label: "50ml", price: 600, inStock: true }],
+    inStock: true,
+    notes: { top: ["عود"], middle: ["عنبر"], base: ["مسك"] },
+    seo: { title: "", description: "" },
   },
 ];
 
@@ -32,7 +44,15 @@ describe("searchProducts", () => {
     expect(searchProducts(mockProducts, "Parfums")).toHaveLength(1);
   });
 
-  it("matches by tag", () => {
+  it("matches by house", () => {
+    expect(searchProducts(mockProducts, "نيش")).toHaveLength(1);
+  });
+
+  it("matches by gender", () => {
+    expect(searchProducts(mockProducts, "رجالي")).toHaveLength(1);
+  });
+
+  it("matches by fragrance note", () => {
     expect(searchProducts(mockProducts, "عود")).toHaveLength(1);
   });
 

@@ -1,39 +1,7 @@
 /**
- * Product type — matches the schema in data/products.json.
+ * Product types — single source of truth is src/schemas/product-schema.ts.
+ *
+ * These types are derived via `z.infer` from the Zod schema so the TS type
+ * can never drift from the runtime validator. Do NOT redefine Product here.
  */
-export interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  brand: string;
-  description: string;
-  shortDescription?: string;
-  gender: string;
-  categories: string[];
-  badge?: string;
-  rating?: number;
-  featured?: boolean;
-  type: "normal" | "niche" | "gold";
-  image: string;
-  gallery?: string[];
-  sizes: ProductSize[];
-  stock: number;
-  sku?: string;
-  barcode?: string;
-  tags?: string[];
-  notes?: ProductNotes;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ProductNotes {
-  top?: string[];
-  middle?: string[];
-  base?: string[];
-}
-
-export interface ProductSize {
-  label: string;
-  price: number;
-  stock?: number;
-}
+export type { Product, ProductNotes, ProductSize } from "@/schemas/product-schema";

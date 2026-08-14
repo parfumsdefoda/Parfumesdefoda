@@ -11,16 +11,29 @@ import type { Product } from "@/types";
 
 const validProduct: Product = {
   id: "1",
+  sku: "1",
   slug: "test",
   name: "Test",
   brand: "Brand",
   description: "Desc",
-  gender: "male",
-  categories: ["cat"],
-  type: "normal",
   image: "/test.webp",
-  sizes: [{ label: "50ml", price: 100 }],
-  stock: 10,
+  gallery: ["/test.webp"],
+  gender: "للجنسين",
+  type: "شرقي",
+  house: "نيش",
+  oily: false,
+  season: "صيفي",
+  performance: "أداء قوي",
+  featured: false,
+  badge: "",
+  rating: 0,
+  reviews: 0,
+  status: "active",
+  sortOrder: 1,
+  sizes: [{ label: "50ml", price: 100, inStock: true }],
+  inStock: true,
+  notes: { top: [], middle: [], base: [] },
+  seo: { title: "Test", description: "" },
 };
 
 describe("isValidProduct", () => {
@@ -34,6 +47,18 @@ describe("isValidProduct", () => {
 
   it("returns false for missing required fields", () => {
     expect(isValidProduct({ id: "1" })).toBe(false);
+  });
+
+  it("returns false when inStock is not a boolean", () => {
+    expect(isValidProduct({ ...validProduct, inStock: 1 })).toBe(false);
+  });
+
+  it("returns false when a size lacks inStock", () => {
+    const bad = {
+      ...validProduct,
+      sizes: [{ label: "50ml", price: 100 }],
+    };
+    expect(isValidProduct(bad)).toBe(false);
   });
 });
 
@@ -50,11 +75,19 @@ describe("isProductInStock", () => {
   });
 
   it("returns false when out of stock", () => {
-    expect(isProductInStock({ ...validProduct, stock: 0 })).toBe(false);
+    expect(isProductInStock({ ...validProduct, inStock: false })).toBe(false);
   });
 
   it("checks specific size stock", () => {
     expect(isProductInStock(validProduct, "50ml")).toBe(true);
+  });
+
+  it("returns false when requested size is out of stock", () => {
+    const product = {
+      ...validProduct,
+      sizes: [{ label: "50ml", price: 100, inStock: false }],
+    };
+    expect(isProductInStock(product, "50ml")).toBe(false);
   });
 });
 

@@ -6,7 +6,7 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 1. `data/settings.json` — store config (currency, grid: 3/2/1, shipping: 60 EGP, free above 500)
 2. `data/theme.json` — design tokens (colors, spacing, shadows)
-3. `data/products.json` — product catalog (array of 4 products, sizes: 50/30/2.5 مللى)
+3. `data/products.json` — product catalog (array of 47 products, sizes: 50/30/2.5 مللى)
 4. `locales/ar.json` — all user-facing Arabic text (with fallback defaults in components)
 5. `data/contact.json` — WhatsApp number + email for orders
 6. `content/faq.json`, `content/policies.json` — page content
@@ -15,9 +15,10 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 ```
 npm run validate-json   # validates all 18 JSON files (scripts/validate-json.js — CommonJS)
+npm run validate-products  # Zod schema check on data/products.json (src/schemas/product-schema.ts)
 npm run typecheck       # tsc --noEmit (strict)
 npm run lint            # ESLint (scripts/ is ignored — uses require())
-npm run test            # vitest run (41 tests in src/lib/*.test.ts)
+npm run test            # vitest run (58 tests across src/lib/*.test.ts + src/services/products.test.ts)
 npm run build           # production build (Turbopack)
 ```
 
@@ -62,6 +63,8 @@ Client components must **never import types from service files** (e.g., `@/servi
 - **Owner edits JSON files** to manage the site. Never require editing TypeScript for common tasks.
 - **Product sizes** — Only three allowed: `50 مللى`, `30 مللى`, `2.5 مللى`. No other sizes.
 - **`products.json` format:** Always an array `[{...}, {...}]`.
+- **`products.json` changes must pass `npm run validate-json`** (which now runs Zod schema validation via `src/schemas/product-schema.ts`). **Do not edit product fields without checking `src/schemas/product-schema.ts` first** — it is the single source of truth for the `Product` type. Never add/remove/rename a product field in the JSON without updating the schema in the same change (and vice versa).
+- **Product schema** — `src/schemas/product-schema.ts` derives `Product`, `ProductNotes`, `ProductSize` via `z.infer`. `src/types/product.ts` only re-exports from it. Client components may import the schema file (`import type` only) — it is zod-pure with no `node:fs` dependency.
 - **`FullSettings` type** includes `shipping: { cost: number; freeAbove?: number }` — always load from settings, never hardcode shipping.
 - **Default values** in `src/services/settings.ts` and `src/hooks/use-settings.ts` must match `data/settings.json`.
 

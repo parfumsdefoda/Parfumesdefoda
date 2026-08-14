@@ -13,7 +13,7 @@ import { formatPrice } from "@/lib/currency";
 export interface ProductSize {
   label: string;
   price: number;
-  stock?: number;
+  inStock: boolean;
 }
 
 export interface ProductCardProduct {
@@ -21,7 +21,7 @@ export interface ProductCardProduct {
   name: string;
   brand: string;
   image: string;
-  type: "normal" | "niche" | "gold";
+  type: "شرقي" | "غربي";
   /** Optional short description — shown below product name */
   description?: string;
   badge?: string;
@@ -29,14 +29,10 @@ export interface ProductCardProduct {
   sizes: ProductSize[];
   /** Fragrance notes pyramid */
   notes?: { top?: string[]; middle?: string[]; base?: string[] };
-  /** Gender classification (e.g., "رجالي", "حريمي") */
-  gender?: string;
-  /** Product categories */
-  categories?: string[];
-  /** Product tags */
-  tags?: string[];
-  /** Total stock across all sizes */
-  totalStock?: number;
+  /** Gender classification */
+  gender?: "رجالي" | "نسائي" | "للجنسين";
+  /** House (الدار): ديزاينر / نيش / دووب */
+  house?: string;
 }
 
 export interface ProductCardProps {
@@ -121,12 +117,8 @@ export const ProductCard = memo(function ProductCard({
   const cardRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const isGold = product.type === "gold";
-
   const isOutOfStock =
-    selectedSize !== null &&
-    selectedSize.stock !== undefined &&
-    selectedSize.stock <= 0;
+    selectedSize !== null && !selectedSize.inStock;
 
   // Intersection Observer for fade-in animation
   useEffect(() => {
@@ -209,13 +201,11 @@ export const ProductCard = memo(function ProductCard({
             <span
               className={cn(
                 "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none tracking-wide",
-                isGold
-                  ? "bg-gradient-to-l from-[#D4AF37] to-[#B8941F] text-white shadow-[0_2px_8px_rgba(212,175,55,0.3)]"
-                  : badgeLabel === "الأكثر مبيعاً"
-                    ? "bg-[var(--color-secondary)] text-white"
-                    : badgeLabel === "نيش"
-                      ? "border border-[var(--color-accent)]/30 bg-[var(--bg-primary)]/90 text-[var(--color-accent)]"
-                      : "bg-[var(--color-gold)] text-white",
+                badgeLabel === "الأكثر مبيعاً"
+                  ? "bg-[var(--color-secondary)] text-white"
+                  : badgeLabel === "نيش"
+                    ? "border border-[var(--color-accent)]/30 bg-[var(--bg-primary)]/90 text-[var(--color-accent)]"
+                    : "bg-[var(--color-gold)] text-white",
               )}
             >
               {badgeLabel}
@@ -226,11 +216,11 @@ export const ProductCard = memo(function ProductCard({
 
       {/* ─── Content ─── */}
       <div className="flex flex-1 flex-col gap-3 p-4">
-        {/* Category Badge */}
-        {product.categories && product.categories.length > 0 && (
+        {/* House Badge (الدار) */}
+        {product.house && (
           <div>
             <span className="inline-flex items-center rounded-full bg-[var(--color-gold)]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
-              {product.categories[0]}
+              {product.house}
             </span>
           </div>
         )}
@@ -261,8 +251,7 @@ export const ProductCard = memo(function ProductCard({
             <div className="flex gap-1.5">
               {product.sizes.map((size) => {
                 const isSelected = selectedSize?.label === size.label;
-                const sizeOutOfStock =
-                  size.stock !== undefined && size.stock <= 0;
+                const sizeOutOfStock = !size.inStock;
                 return (
                   <button
                     key={size.label}
