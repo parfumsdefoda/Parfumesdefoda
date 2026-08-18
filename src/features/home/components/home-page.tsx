@@ -181,7 +181,9 @@ export function HomePageClient({
       }}
     >
       {/* ─── Hero Section ─── */}
-      <section className="hero-bg relative overflow-hidden" />
+      <section className="hero-bg relative overflow-hidden">
+        <div className="container mx-auto px-4 py-16 md:py-24" />
+      </section>
 
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">
