@@ -16,6 +16,7 @@ const mockProducts: Product[] = [
     type: "شرقي",
     house: "نيش",
     oily: false,
+    fodaOriginal: false,
     season: "شتوي",
     performance: "أداء قوي",
     featured: false,

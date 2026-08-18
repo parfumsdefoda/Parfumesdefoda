@@ -27,7 +27,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://parfumsdefoda.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Parfums De Foda — عطور فاخرة",
+    default: "Parfums De Foda",
     template: "%s | Parfums De Foda",
   },
   description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",

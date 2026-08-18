@@ -22,6 +22,7 @@ const validProduct: Product = {
   type: "شرقي",
   house: "نيش",
   oily: false,
+  fodaOriginal: false,
   season: "صيفي",
   performance: "أداء قوي",
   featured: false,

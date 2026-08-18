@@ -42,6 +42,7 @@ export const productSchema = z.object({
   type: z.enum(["شرقي", "غربي"]),
   house: z.enum(["ديزاينر", "نيش", "دووب"]),
   oily: z.boolean(),
+  fodaOriginal: z.boolean(),
   season: z.enum(["صيفي", "شتوي", "خريفي", "ربيعي"]),
   performance: z.enum(["أداء ضعيف", "أداء متوسط", "أداء قوي", "أداء صاروخي"]),
   featured: z.boolean(),

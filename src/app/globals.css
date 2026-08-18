@@ -130,7 +130,6 @@ body {
 
 .hero-bg {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
     url('/images/hero-mobile.webp');
   background-size: cover;
   background-position: center;
@@ -140,7 +139,6 @@ body {
 @media (min-width: 768px) {
   .hero-bg {
     background-image:
-      linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
       url('/images/hero-desktop.webp');
   }
 }

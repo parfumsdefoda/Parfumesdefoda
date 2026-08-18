@@ -181,17 +181,7 @@ export function HomePageClient({
       }}
     >
       {/* ─── Hero Section ─── */}
-      <section className="hero-bg relative overflow-hidden text-white">
-        <div className="container mx-auto px-4 py-16 md:py-24 text-center">
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">
-            {content.hero.title || t("home.pageTitle", "Parfums De Foda")}
-          </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-xl mx-auto">
-            {content.hero.description ||
-              t("home.pageDescription", "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة")}
-          </p>
-        </div>
-      </section>
+      <section className="hero-bg relative overflow-hidden" />
 
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">

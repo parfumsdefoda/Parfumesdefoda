@@ -13,6 +13,9 @@ const GROUP_TO_FIELD: Record<string, keyof Product> = {
 /** Boolean checkbox group — any active slug means `oily === true` only. */
 const OILY_GROUP = "عطور زيتية";
 
+/** Boolean checkbox group — any active slug means `fodaOriginal === true` only. */
+const FODA_ORIGINAL_GROUP = "فوده";
+
 /**
  * Filter products by multiple active filter groups.
  * A product matches if it satisfies at least one filter within each group.
@@ -33,6 +36,11 @@ export function filterProducts(
       // "عطور زيتية" is a single boolean checkbox → oily products only
       if (group === OILY_GROUP) {
         return product.oily === true;
+      }
+
+      // "فوده" is a single boolean checkbox → original Foda products only
+      if (group === FODA_ORIGINAL_GROUP) {
+        return product.fodaOriginal === true;
       }
 
       const field = GROUP_TO_FIELD[group];
