@@ -16,6 +16,9 @@ const OILY_GROUP = "عطور زيتية";
 /** Boolean checkbox group — any active slug means `fodaOriginal === true` only. */
 const FODA_ORIGINAL_GROUP = "فوده";
 
+/** Boolean checkbox group — any active slug means `featured === true` only. */
+const FEATURED_GROUP = "عطور مميزة";
+
 /**
  * Filter products by multiple active filter groups.
  * A product matches if it satisfies at least one filter within each group.
@@ -41,6 +44,11 @@ export function filterProducts(
       // "فوده" is a single boolean checkbox → original Foda products only
       if (group === FODA_ORIGINAL_GROUP) {
         return product.fodaOriginal === true;
+      }
+
+      // "عطور مميزة" is a single boolean checkbox → featured products only
+      if (group === FEATURED_GROUP) {
+        return product.featured === true;
       }
 
       const field = GROUP_TO_FIELD[group];

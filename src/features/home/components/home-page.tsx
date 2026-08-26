@@ -81,6 +81,7 @@ export function HomePageClient({
     () =>
       products.products.map((p) => ({
         id: p.id,
+        slug: p.slug,
         name: p.name,
         brand: p.brand,
         image: p.image,
@@ -91,6 +92,7 @@ export function HomePageClient({
         notes: p.notes,
         gender: p.gender,
         house: p.house,
+        featured: p.featured,
       })),
     [products.products],
   );
@@ -180,11 +182,6 @@ export function HomePageClient({
         columns: settings.footerColumns,
       }}
     >
-      {/* ─── Hero Section ─── */}
-      <section className="hero-bg relative overflow-hidden">
-        <div className="container mx-auto px-4 py-16 md:py-24" />
-      </section>
-
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">
         {/* Search */}

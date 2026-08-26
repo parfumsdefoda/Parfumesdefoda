@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, memo, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export interface ProductSize {
 
 export interface ProductCardProduct {
   id: string;
+  slug?: string;
   name: string;
   brand: string;
   image: string;
@@ -33,6 +35,8 @@ export interface ProductCardProduct {
   gender?: "رجالي" | "نسائي" | "للجنسين";
   /** House (الدار): ديزاينر / نيش / دووب */
   house?: string;
+  /** Featured product flag — triggers gold premium card style */
+  featured?: boolean;
 }
 
 export interface ProductCardProps {
@@ -170,16 +174,27 @@ export const ProductCard = memo(function ProductCard({
         "group relative flex flex-col overflow-hidden rounded-2xl",
         "transition-all duration-300 ease-out",
         "bg-[var(--bg-primary)]",
-        "border border-[var(--neutral-100)]",
-        "shadow-[0_2px_16px_rgba(0,0,0,0.04)]",
-        "hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]",
+        "border",
+        product.featured
+          ? "border-transparent shadow-[0_2px_20px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_40px_rgba(212,175,55,0.25)]"
+          : "border-[var(--neutral-100)] shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]",
         "hover:-translate-y-1",
         // Fade-in animation
         "transition-opacity transition-transform",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5",
         className,
       )}
-      style={{ transitionDuration: "500ms" }}
+      style={{
+        transitionDuration: "500ms",
+        ...(product.featured
+          ? {
+              backgroundImage:
+                "linear-gradient(var(--bg-primary), var(--bg-primary)), linear-gradient(135deg, #d4af37, #f5d060, #d4af37, #b8960c)",
+              backgroundOrigin: "border-box",
+              backgroundClip: "padding-box, border-box",
+            }
+          : undefined),
+      }}
     >
       {/* ─── Image ─── */}
       <div className="relative overflow-hidden bg-[var(--bg-primary)]">
@@ -212,6 +227,15 @@ export const ProductCard = memo(function ProductCard({
             </span>
           </div>
         )}
+
+        {/* Featured ribbon — top left */}
+        {product.featured && (
+          <div className="absolute top-3 start-3 z-10">
+            <span className="inline-flex items-center rounded-full bg-gradient-to-l from-[#d4af37] to-[#f5d060] px-2.5 py-1 text-[10px] font-bold leading-none tracking-wide text-white shadow-md">
+              مميز
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ─── Content ─── */}
@@ -225,10 +249,19 @@ export const ProductCard = memo(function ProductCard({
           </div>
         )}
 
-        {/* Product Name */}
-        <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
-          {product.name}
-        </h3>
+        {/* Product Name — links to PDP */}
+        {product.slug ? (
+          <Link
+            href={`/product/${product.slug}`}
+            className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+          >
+            {product.name}
+          </Link>
+        ) : (
+          <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
+            {product.name}
+          </h3>
+        )}
 
         {/* Short Description */}
         {shortDescription && (

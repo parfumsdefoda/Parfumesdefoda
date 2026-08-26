@@ -123,22 +123,4 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* ──────────────────────────────────────────
-   Hero Background — Responsive images
-   Mobile-first: hero-mobile.webp up to 768px, hero-desktop.webp from 768px+
-   ────────────────────────────────────────── */
 
-.hero-bg {
-  background-image:
-    url('/images/hero-mobile.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-@media (min-width: 768px) {
-  .hero-bg {
-    background-image:
-      url('/images/hero-desktop.webp');
-  }
-}
