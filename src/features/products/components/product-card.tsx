@@ -167,7 +167,9 @@ export const ProductCard = memo(function ProductCard({
       : product.description
     : null;
 
-  const cardContent = (
+  const detailHref = product.slug ? `/product/${product.slug}` : null;
+
+  return (
     <article
       ref={cardRef}
       className={cn(
@@ -198,17 +200,38 @@ export const ProductCard = memo(function ProductCard({
     >
       {/* ─── Image ─── */}
       <div className="relative overflow-hidden bg-[var(--bg-primary)]">
-        <div className="aspect-square w-full">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes={getImageSizes(columns)}
-            className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-            quality={85}
-            loading="lazy"
-          />
-        </div>
+        {detailHref ? (
+          <Link
+            href={detailHref}
+            className="block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
+            aria-label={product.name}
+            tabIndex={-1}
+          >
+            <div className="aspect-square w-full">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes={getImageSizes(columns)}
+                className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+                quality={85}
+                loading="lazy"
+              />
+            </div>
+          </Link>
+        ) : (
+          <div className="aspect-square w-full">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes={getImageSizes(columns)}
+              className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+              quality={85}
+              loading="lazy"
+            />
+          </div>
+        )}
 
         {/* Badge — top corner */}
         {badgeLabel && (
@@ -250,9 +273,18 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Product Name */}
-        <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
-          {product.name}
-        </h3>
+        {detailHref ? (
+          <Link
+            href={detailHref}
+            className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+          >
+            {product.name}
+          </Link>
+        ) : (
+          <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
+            {product.name}
+          </h3>
+        )}
 
         {/* Short Description */}
         {shortDescription && (
@@ -281,10 +313,7 @@ export const ProductCard = memo(function ProductCard({
                     key={size.label}
                     type="button"
                     disabled={sizeOutOfStock}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedSize(size);
-                    }}
+                    onClick={() => setSelectedSize(size)}
                     aria-label={`${size.label} — ${formatPrice(size.price)}`}
                     aria-pressed={isSelected}
                     className={cn(
@@ -328,10 +357,7 @@ export const ProductCard = memo(function ProductCard({
 
         {/* Add to Cart Button */}
         <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAddToCart();
-          }}
+          onClick={handleAddToCart}
           disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
           variant="default"
           className={cn(
@@ -369,17 +395,5 @@ export const ProductCard = memo(function ProductCard({
         </Button>
       </div>
     </article>
-  );
-
-  if (!product.slug) return cardContent;
-
-  return (
-    <Link
-      href={`/product/${product.slug}`}
-      className="block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-2xl"
-      aria-label={product.name}
-    >
-      {cardContent}
-    </Link>
   );
 });
