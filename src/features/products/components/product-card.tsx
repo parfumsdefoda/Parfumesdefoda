@@ -167,7 +167,7 @@ export const ProductCard = memo(function ProductCard({
       : product.description
     : null;
 
-  return (
+  const cardContent = (
     <article
       ref={cardRef}
       className={cn(
@@ -249,19 +249,10 @@ export const ProductCard = memo(function ProductCard({
           </div>
         )}
 
-        {/* Product Name — links to PDP */}
-        {product.slug ? (
-          <Link
-            href={`/product/${product.slug}`}
-            className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
-          >
-            {product.name}
-          </Link>
-        ) : (
-          <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
-            {product.name}
-          </h3>
-        )}
+        {/* Product Name */}
+        <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
+          {product.name}
+        </h3>
 
         {/* Short Description */}
         {shortDescription && (
@@ -290,7 +281,10 @@ export const ProductCard = memo(function ProductCard({
                     key={size.label}
                     type="button"
                     disabled={sizeOutOfStock}
-                    onClick={() => setSelectedSize(size)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedSize(size);
+                    }}
                     aria-label={`${size.label} — ${formatPrice(size.price)}`}
                     aria-pressed={isSelected}
                     className={cn(
@@ -334,7 +328,10 @@ export const ProductCard = memo(function ProductCard({
 
         {/* Add to Cart Button */}
         <Button
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddToCart();
+          }}
           disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
           variant="default"
           className={cn(
@@ -372,5 +369,17 @@ export const ProductCard = memo(function ProductCard({
         </Button>
       </div>
     </article>
+  );
+
+  if (!product.slug) return cardContent;
+
+  return (
+    <Link
+      href={`/product/${product.slug}`}
+      className="block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-2xl"
+      aria-label={product.name}
+    >
+      {cardContent}
+    </Link>
   );
 });
