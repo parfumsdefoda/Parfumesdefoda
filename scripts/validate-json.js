@@ -2,7 +2,7 @@
  * JSON Schema Validator — Parfums De Foda
  *
  * Validates all JSON data and content files against their expected schemas.
- * Run with: node scripts/validate-json.js
+ * Run with: npm run validate-json (uses tsx to handle .ts imports)
  *
  * Future: Replace with full JSON Schema validation (using Ajv or similar).
  */
@@ -11,8 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Zod schema for data/products.json — the single source of truth for product
-// shape (src/schemas/product-schema.ts). Node 22.6+ strips TS natively, so
-// the CommonJS script can require() the .ts schema directly.
+// shape (src/schemas/product-schema.ts). Loaded via tsx so .ts imports work.
 // If this fails, schema validation is unavailable → fail loudly.
 let productSchema;
 try {

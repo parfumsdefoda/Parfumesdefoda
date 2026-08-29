@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "validate-json": "node scripts/validate-json.js",
+    "validate-json": "tsx scripts/validate-json.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -40,6 +40,7 @@
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }
