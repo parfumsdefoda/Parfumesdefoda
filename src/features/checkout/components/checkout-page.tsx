@@ -13,10 +13,12 @@ import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/currency";
 import { generateOrderNumber } from "@/lib/order-number";
+import { SHIPPING_FEE } from "@/config/constants";
 import type { CheckoutFormData } from "@/schemas/checkout";
 
 export interface CheckoutPageClientProps {
-  shipping: { cost: number; freeAbove?: number };
+  /** Shipping config (deprecated — now uses fixed SHIPPING_FEE constant) */
+  shipping?: { cost: number; freeAbove?: number };
 }
 
 /**
@@ -25,15 +27,15 @@ export interface CheckoutPageClientProps {
  * Left column: order summary with payment method.
  */
 export function CheckoutPageClient({
-  shipping,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for backward compatibility
+  shipping: _shipping,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   const cart = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = cart.totalPrice;
-  const isFreeShipping = shipping.freeAbove ? subtotal >= shipping.freeAbove : false;
-  const shippingCost = isFreeShipping ? 0 : shipping.cost;
+  const shippingCost = SHIPPING_FEE;
   const total = subtotal + shippingCost;
 
   const handleSubmit = async (data: CheckoutFormData) => {
@@ -43,13 +45,15 @@ export function CheckoutPageClient({
 
     const orderNumber = generateOrderNumber();
 
-    // Build order object
+    // Build order object with structured address
     const order = {
       orderNumber,
       customer: {
         name: data.name,
         phone: data.phone,
-        address: data.address,
+        governorate: data.governorate,
+        city: data.city,
+        addressDetails: data.addressDetails,
       },
       items: cart.items.map((item) => ({
         productId: item.productId,
@@ -145,10 +149,12 @@ export function CheckoutPageClient({
               title="بيانات التوصيل"
               nameLabel="الاسم بالكامل"
               namePlaceholder="أدخل اسمك الكامل"
-              phoneLabel="رقم الهاتف"
+              phoneLabel="رقم الموبايل"
               phonePlaceholder="01XXXXXXXXX"
-              addressLabel="العنوان"
-              addressPlaceholder="الشارع، المنطقة، رقم المبنى"
+              governorateLabel="المحافظة"
+              cityLabel="المدينة"
+              addressDetailsLabel="العنوان بالتفصيل — أقرب علامة مميزة"
+              addressDetailsPlaceholder="الشارع، رقم المبنى، العلامة القريبة"
               submitLabel={`تأكيد الطلب — ${formatPrice(total)}`}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
@@ -253,16 +259,11 @@ export function CheckoutPageClient({
                   <span className="text-[var(--neutral-700)]">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--neutral-500)]">الشحن</span>
-                  <span className={isFreeShipping ? "text-[var(--color-success)] font-medium" : "text-[var(--neutral-700)]"}>
-                    {isFreeShipping ? "مجاني" : formatPrice(shippingCost)}
+                  <span className="text-[var(--neutral-500)]">مصاريف الشحن</span>
+                  <span className="text-[var(--neutral-700)]">
+                    {formatPrice(shippingCost)}
                   </span>
                 </div>
-                {isFreeShipping && shipping.freeAbove && (
-                  <p className="text-[11px] text-[var(--color-success)]">
-                    شحن مجاني للطلبات فوق {formatPrice(shipping.freeAbove)}
-                  </p>
-                )}
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between">
                   <span className="text-base font-bold text-[var(--neutral-800)]">الإجمالي</span>

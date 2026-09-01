@@ -8,6 +8,7 @@ import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
+import { SHIPPING_FEE } from "@/config/constants";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -174,13 +175,15 @@ export const ProductCard = memo(function ProductCard({
       ref={cardRef}
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl",
-        "transition-all duration-300 ease-out",
+        "transition-all duration-500 ease-out",
         "bg-[var(--bg-primary)]",
         "border",
         product.featured
-          ? "border-transparent shadow-[0_2px_20px_rgba(212,175,55,0.15)] hover:shadow-[0_12px_40px_rgba(212,175,55,0.25)]"
+          ? "border-transparent shadow-[0_2px_24px_rgba(212,175,55,0.12)] hover:shadow-[0_16px_48px_rgba(212,175,55,0.3)]"
           : "border-[var(--neutral-100)] shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]",
-        "hover:-translate-y-1",
+        product.featured
+          ? "hover:-translate-y-1.5 hover:scale-[1.01]"
+          : "hover:-translate-y-1",
         // Fade-in animation
         "transition-opacity transition-transform",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5",
@@ -191,7 +194,7 @@ export const ProductCard = memo(function ProductCard({
         ...(product.featured
           ? {
               backgroundImage:
-                "linear-gradient(var(--bg-primary), var(--bg-primary)), linear-gradient(135deg, #d4af37, #f5d060, #d4af37, #b8960c)",
+                "linear-gradient(var(--bg-primary), var(--bg-primary)), linear-gradient(135deg, #b8960c, #d4af37, #f5d060, #d4af37, #b8960c)",
               backgroundOrigin: "border-box",
               backgroundClip: "padding-box, border-box",
             }
@@ -199,7 +202,12 @@ export const ProductCard = memo(function ProductCard({
       }}
     >
       {/* ─── Image ─── */}
-      <div className="relative overflow-hidden bg-[var(--bg-primary)]">
+      <div className={cn(
+        "relative overflow-hidden",
+        product.featured
+          ? "bg-gradient-to-b from-[#fdf8e8] to-[var(--bg-primary)]"
+          : "bg-[var(--bg-primary)]",
+      )}>
         {detailHref ? (
           <Link
             href={detailHref}
@@ -253,11 +261,16 @@ export const ProductCard = memo(function ProductCard({
 
         {/* Featured ribbon — top left */}
         {product.featured && (
-          <div className="absolute top-3 start-3 z-10">
-            <span className="inline-flex items-center rounded-full bg-gradient-to-l from-[#d4af37] to-[#f5d060] px-2.5 py-1 text-[10px] font-bold leading-none tracking-wide text-white shadow-md">
-              مميز
-            </span>
-          </div>
+          <>
+            <div className="absolute top-3 start-3 z-10">
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060] px-3 py-1 text-[10px] font-bold leading-none tracking-wider text-white shadow-[0_2px_8px_rgba(212,175,55,0.4)] ring-1 ring-[#f5d060]/30">
+                <span className="text-[8px]">★</span>
+                فاخر
+              </span>
+            </div>
+            {/* Gold shimmer overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#f5d060]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-[5]" />
+          </>
         )}
       </div>
 
@@ -266,7 +279,12 @@ export const ProductCard = memo(function ProductCard({
         {/* House Badge (الدار) */}
         {product.house && (
           <div>
-            <span className="inline-flex items-center rounded-full bg-[var(--color-gold)]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
+            <span className={cn(
+              "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold",
+              product.featured
+                ? "bg-[var(--color-gold)]/15 text-[#b8960c]"
+                : "bg-[var(--color-gold)]/10 text-[var(--color-gold)]",
+            )}>
               {product.house}
             </span>
           </div>
@@ -276,12 +294,22 @@ export const ProductCard = memo(function ProductCard({
         {detailHref ? (
           <Link
             href={detailHref}
-            className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+            className={cn(
+              "text-lg leading-snug line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded",
+              product.featured
+                ? "font-extrabold tracking-wide text-[var(--neutral-900)]"
+                : "font-bold text-[var(--neutral-800)]",
+            )}
           >
             {product.name}
           </Link>
         ) : (
-          <h3 className="text-lg font-bold leading-snug text-[var(--neutral-800)] line-clamp-1">
+          <h3 className={cn(
+            "text-lg leading-snug line-clamp-1",
+            product.featured
+              ? "font-extrabold tracking-wide text-[var(--neutral-900)]"
+              : "font-bold text-[var(--neutral-800)]",
+          )}>
             {product.name}
           </h3>
         )}
@@ -354,6 +382,14 @@ export const ProductCard = memo(function ProductCard({
             </p>
           </div>
         )}
+
+        {/* Shipping Fee Badge */}
+        <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-secondary)]/10 px-2.5 py-1">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-secondary)]" />
+          <span className="text-[11px] font-medium text-[var(--color-secondary)]">
+            مصاريف الشحن {formatPrice(SHIPPING_FEE)} فقط
+          </span>
+        </div>
 
         {/* Add to Cart Button */}
         <Button

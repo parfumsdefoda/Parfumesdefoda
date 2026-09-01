@@ -4,8 +4,10 @@ import { z } from "zod";
  * Checkout form validation schema.
  *
  * - Name: required, minimum 2 characters
- * - Phone: required, must be a valid Egyptian phone number
- * - Address: required, minimum 5 characters
+ * - Phone: required, must be a valid Egyptian mobile number
+ * - Governorate: required, from predefined list
+ * - City: required, from predefined list (dependent on governorate)
+ * - AddressDetails: required, minimum 5 characters (street, building, landmark)
  */
 export const checkoutSchema = z.object({
   name: z
@@ -18,9 +20,15 @@ export const checkoutSchema = z.object({
       /^(?:\+20|0020|0)1[0-25]{1}[0-9]{8}$/,
       "يرجى إدخال رقم هاتف مصري صحيح",
     ),
-  address: z
+  governorate: z
     .string()
-    .min(5, "العنوان يجب أن يكون على الأقل 5 أحرف"),
+    .min(1, "يرجى اختيار المحافظة"),
+  city: z
+    .string()
+    .min(1, "يرجى اختيار المدينة"),
+  addressDetails: z
+    .string()
+    .min(5, "العنوان بالتفصيل يجب أن يكون على الأقل 5 أحرف"),
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutSchema>;

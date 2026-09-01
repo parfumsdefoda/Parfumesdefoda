@@ -17,7 +17,7 @@ const OILY_GROUP = "عطور زيتية";
 const FODA_ORIGINAL_GROUP = "فوده";
 
 /** Boolean checkbox group — any active slug means `featured === true` only. */
-const FEATURED_GROUP = "عطور مميزة";
+const FEATURED_GROUP = "فاخر";
 
 /**
  * Filter products by multiple active filter groups.
@@ -46,7 +46,7 @@ export function filterProducts(
         return product.fodaOriginal === true;
       }
 
-      // "عطور مميزة" is a single boolean checkbox → featured products only
+      // "فاخر" is a single boolean checkbox → featured products only
       if (group === FEATURED_GROUP) {
         return product.featured === true;
       }

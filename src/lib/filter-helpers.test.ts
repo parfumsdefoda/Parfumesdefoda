@@ -98,6 +98,18 @@ describe("filterProducts", () => {
     expect(result[0].id).toBe("2");
   });
 
+  it("filters by featured group (boolean checkbox)", () => {
+    const featuredProducts = mockProducts.map((p) => ({
+      ...p,
+      featured: p.id === "1",
+    }));
+    const result = filterProducts(featuredProducts, {
+      "فاخر": ["مميز"],
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("1");
+  });
+
   it("filters by season", () => {
     const result = filterProducts(mockProducts, { الفصل: ["صيفي"] });
     expect(result).toHaveLength(1);

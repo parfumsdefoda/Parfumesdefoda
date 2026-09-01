@@ -24,7 +24,9 @@ interface Order {
   customer: {
     name: string;
     phone: string;
-    address: string;
+    governorate: string;
+    city: string;
+    addressDetails: string;
     notes?: string;
   };
   items: OrderItem[];
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
     }
 
     // Validate customer data
-    if (!order.customer.name || !order.customer.phone || !order.customer.address) {
+    if (!order.customer.name || !order.customer.phone || !order.customer.governorate || !order.customer.city || !order.customer.addressDetails) {
       return NextResponse.json(
         { error: "بيانات العميل غير مكتملة" },
         { status: 400 },

@@ -17,7 +17,9 @@ function buildOrderWhatsAppMessage(order: Order): string {
   lines.push(`رقم الطلب: ${order.orderNumber}`);
   lines.push(`العميل: ${order.customer.name}`);
   lines.push(`الهاتف: ${order.customer.phone}`);
-  lines.push(`العنوان: ${order.customer.address}`);
+  lines.push(`المحافظة: ${order.customer.governorate}`);
+  lines.push(`المدينة: ${order.customer.city}`);
+  lines.push(`العنوان بالتفصيل: ${order.customer.addressDetails}`);
   lines.push("المنتجات:");
 
   const MAX_ITEMS = 5;

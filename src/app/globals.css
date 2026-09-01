@@ -123,4 +123,18 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
+/* Premium card shimmer animation for featured products */
+@keyframes premium-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.group:hover .premium-shimmer {
+  animation: premium-shimmer 3s ease-in-out infinite;
+}
+
 

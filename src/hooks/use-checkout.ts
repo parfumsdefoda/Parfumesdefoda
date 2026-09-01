@@ -44,7 +44,9 @@ export function useCheckout(): UseCheckoutReturn {
         customer: {
           name: data.name,
           phone: data.phone,
-          address: data.address,
+          governorate: data.governorate,
+          city: data.city,
+          addressDetails: data.addressDetails,
         },
         items: cart.items.map((item) => ({
           productId: item.productId,

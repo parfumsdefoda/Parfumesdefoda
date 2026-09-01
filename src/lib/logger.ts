@@ -12,7 +12,9 @@ export interface OrderLogInput {
   customer: {
     name: string;
     phone: string;
-    address: string;
+    governorate: string;
+    city: string;
+    addressDetails: string;
   };
   items: {
     productId: string;
@@ -48,7 +50,9 @@ export function logOrderCreated(order: OrderLogInput, options?: LogOptions): voi
     orderNumber: order.orderNumber,
     customer: order.customer.name,
     phone: order.customer.phone,
-    address: order.customer.address,
+    governorate: order.customer.governorate,
+    city: order.customer.city,
+    addressDetails: order.customer.addressDetails,
     total: order.total,
     currency: settings.store.currency,
     paymentMethod: order.paymentMethod,

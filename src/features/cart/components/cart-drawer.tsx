@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, Truck } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/currency";
+import { SHIPPING_FEE } from "@/config/constants";
 
 export interface CartItemData {
   productId: string;
@@ -205,13 +206,31 @@ export function CartDrawer({
 
         {items.length > 0 && (
           <SheetFooter>
-            <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-sm text-[var(--neutral-600)]">
-                {totalLabel}
-              </span>
-              <span className="text-lg font-bold text-[var(--neutral-800)]">
-                {formatPrice(totalPrice)}
-              </span>
+            <div className="space-y-2 w-full mb-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[var(--neutral-600)]">
+                  {totalLabel}
+                </span>
+                <span className="text-[var(--neutral-800)]">
+                  {formatPrice(totalPrice)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-1.5 text-[var(--neutral-600)]">
+                  <Truck className="h-3.5 w-3.5" />
+                  مصاريف الشحن
+                </span>
+                <span className="text-[var(--neutral-800)]">
+                  {formatPrice(SHIPPING_FEE)}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-base font-bold text-[var(--neutral-800)]">الإجمالي</span>
+                <span className="text-lg font-bold text-[var(--color-accent)]">
+                  {formatPrice(totalPrice + SHIPPING_FEE)}
+                </span>
+              </div>
             </div>
             <Button
               className="w-full"

@@ -12,7 +12,9 @@ export interface OrderEmailData {
   customer: {
     name: string;
     phone: string;
-    address: string;
+    governorate: string;
+    city: string;
+    addressDetails: string;
     notes?: string;
   };
   items: {
@@ -109,7 +111,9 @@ function buildOrderEmailHtml(data: OrderEmailData): string {
       <h2 style="color: #374151; font-size: 18px; margin: 0 0 12px; padding-right: 8px; border-right: 3px solid #9cd676;">بيانات العميل</h2>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">الاسم:</strong> ${escapeHtml(customer.name)}</p>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">رقم الهاتف:</strong> ${escapeHtml(customer.phone)}</p>
-      <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">العنوان:</strong> ${escapeHtml(customer.address)}</p>
+      <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">المحافظة:</strong> ${escapeHtml(customer.governorate)}</p>
+      <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">المدينة:</strong> ${escapeHtml(customer.city)}</p>
+      <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">العنوان بالتفصيل:</strong> ${escapeHtml(customer.addressDetails)}</p>
       ${notes
         ? `<p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">ملاحظات:</strong> ${escapeHtml(notes)}</p>`
         : `<p style="margin: 4px 0; font-size: 14px; color: #9ca3af;"><strong>ملاحظات:</strong> لا توجد</p>`
@@ -245,7 +249,9 @@ function buildEmailBody(
     "بيانات العميل:",
     `الاسم: ${customer.name}`,
     `رقم الهاتف: ${customer.phone}`,
-    `العنوان: ${customer.address}`,
+    `المحافظة: ${customer.governorate}`,
+    `المدينة: ${customer.city}`,
+    `العنوان بالتفصيل: ${customer.addressDetails}`,
   );
 
   return lines.join("\n");

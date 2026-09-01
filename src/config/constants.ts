@@ -26,6 +26,9 @@ export const GRID_COLUMNS = {
   MOBILE: 1,
 } as const;
 
+// Fixed shipping fee (EGP) — displayed on product cards and added to order total
+export const SHIPPING_FEE = 100;
+
 // Breakpoints
 export const BREAKPOINTS = {
   DESKTOP: 1024,

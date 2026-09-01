@@ -4,7 +4,9 @@
 export interface OrderFormData {
   name: string;
   phone: string;
-  address: string;
+  governorate: string;
+  city: string;
+  addressDetails: string;
 }
 
 export interface OrderItem {
@@ -21,7 +23,9 @@ export interface Order {
   customer: {
     name: string;
     phone: string;
-    address: string;
+    governorate: string;
+    city: string;
+    addressDetails: string;
   };
   items: OrderItem[];
   subtotal: number;
