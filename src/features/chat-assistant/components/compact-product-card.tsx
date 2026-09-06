@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
-import { Check, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowUpLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import type { ChatProduct } from "../types";
@@ -12,51 +11,39 @@ import type { ChatProduct } from "../types";
 
 interface CompactProductCardProps {
   product: ChatProduct;
-  onAddToCart?: (product: ChatProduct, sizeLabel: string, price: number) => void;
 }
-
-type ButtonState = "idle" | "loading" | "success";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
  * CompactProductCard — a small product card for inline chat recommendations.
  *
- * Shows: image, name, price, size selector, and add-to-cart button.
- * Much more compact than the full ProductCard — designed for chat bubbles.
+ * Self-contained: links to the product detail page where the customer can
+ * choose a size and add to cart. No cart/toast provider dependencies —
+ * the whole chat feature renders independently of the app's provider tree.
+ *
+ * Shows: image, name, brand, starting price, and available size count.
  */
-export function CompactProductCard({ product, onAddToCart }: CompactProductCardProps) {
+export function CompactProductCard({ product }: CompactProductCardProps) {
   const inStockSizes = product.sizes.filter((s) => s.inStock);
-  const [selectedSize, setSelectedSize] = useState(
-    inStockSizes[0] ?? product.sizes[0],
-  );
-  const [buttonState, setButtonState] = useState<ButtonState>("idle");
-  const timerRef = useRef<{ loading?: ReturnType<typeof setTimeout>; success?: ReturnType<typeof setTimeout> }>({});
-
-  const isOutOfStock = !selectedSize?.inStock;
-
-  const handleAddToCart = useCallback(() => {
-    if (!selectedSize || isOutOfStock || buttonState !== "idle") return;
-
-    setButtonState("loading");
-    onAddToCart?.(product, selectedSize.label, selectedSize.price);
-
-    timerRef.current.loading = setTimeout(() => {
-      setButtonState("success");
-      timerRef.current.success = setTimeout(() => {
-        setButtonState("idle");
-      }, 1500);
-    }, 350);
-  }, [selectedSize, isOutOfStock, buttonState, onAddToCart, product]);
+  const minPrice =
+    inStockSizes.length > 0
+      ? Math.min(...inStockSizes.map((s) => s.price))
+      : product.sizes[0]?.price;
 
   return (
-    <div
+    <Link
+      href={`/product/${product.slug}`}
       className={cn(
-        "flex overflow-hidden rounded-xl border",
+        "group flex overflow-hidden rounded-xl border text-start",
         "border-[var(--neutral-100)] bg-[var(--bg-primary)]",
         "shadow-[0_2px_12px_rgba(0,0,0,0.06)]",
         "w-full max-w-[280px]",
+        "transition-all duration-200",
+        "hover:border-[var(--color-accent)]/40 hover:shadow-[0_6px_20px_rgba(99,41,137,0.12)]",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
       )}
+      aria-label={`${product.name} — ${minPrice !== undefined ? formatPrice(minPrice) : ""} — عرض المنتج`}
     >
       {/* Product Image */}
       <div className="relative h-24 w-24 shrink-0 bg-[var(--bg-secondary)]">
@@ -65,7 +52,7 @@ export function CompactProductCard({ product, onAddToCart }: CompactProductCardP
           alt={product.name}
           fill
           sizes="96px"
-          className="object-contain p-2"
+          className="object-contain p-2 transition-transform duration-200 group-hover:scale-105"
           quality={80}
         />
       </div>
@@ -82,62 +69,34 @@ export function CompactProductCard({ product, onAddToCart }: CompactProductCardP
           </p>
         </div>
 
-        {/* Size selector — tiny pills */}
+        {/* Sizes info */}
         {inStockSizes.length > 0 && (
-          <div className="flex gap-1">
-            {inStockSizes.map((size) => (
-              <button
-                key={size.label}
-                type="button"
-                onClick={() => setSelectedSize(size)}
-                aria-pressed={selectedSize?.label === size.label}
-                className={cn(
-                  "rounded-full px-1.5 py-0.5 text-[9px] font-medium whitespace-nowrap transition-colors",
-                  "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-accent)]",
-                  selectedSize?.label === size.label
-                    ? "bg-[var(--color-accent)] text-white"
-                    : "bg-[var(--bg-secondary)] text-[var(--neutral-500)] hover:text-[var(--neutral-700)]",
-                )}
-              >
-                {size.label}
-              </button>
-            ))}
-          </div>
+          <p className="text-[10px] text-[var(--neutral-400)] truncate">
+            {inStockSizes.map((s) => s.label).join(" · ")}
+          </p>
         )}
 
-        {/* Price + Add button row */}
+        {/* Price + View link row */}
         <div className="mt-auto flex items-center justify-between gap-2">
-          {selectedSize && (
+          {minPrice !== undefined && (
             <span className="text-sm font-bold text-[var(--color-accent)] leading-none">
-              {formatPrice(selectedSize.price)}
+              {formatPrice(minPrice)}
             </span>
           )}
 
-          <Button
-            size="xs"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || buttonState !== "idle"}
+          <span
             className={cn(
-              "h-6 rounded-full px-2 text-[10px] font-semibold",
+              "inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-semibold",
               "bg-[var(--color-secondary)] text-white",
-              "hover:bg-[var(--color-accent)]",
               "transition-all duration-200",
-              buttonState === "success" && "!bg-[var(--color-success)]",
+              "group-hover:bg-[var(--color-accent)]",
             )}
-            aria-label={isOutOfStock ? "غير متوفر" : buttonState === "success" ? "تمت الإضافة" : "أضف للسلة"}
           >
-            {isOutOfStock ? (
-              "غير متوفر"
-            ) : buttonState === "loading" ? (
-              <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
-            ) : buttonState === "success" ? (
-              <Check className="h-3 w-3" aria-hidden="true" />
-            ) : (
-              "أضف للسلة"
-            )}
-          </Button>
+            <ArrowUpLeft className="h-3 w-3" aria-hidden="true" />
+            عرض المنتج
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

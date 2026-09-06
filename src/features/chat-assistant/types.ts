@@ -7,8 +7,8 @@ export interface ChatMessageData {
   id: string;
   role: "user" | "assistant";
   content: string;
-  /** Product codes recommended by the AI (only on assistant messages) */
-  recommendedProductCodes?: string[];
+  /** Products recommended by the AI (only on assistant messages) */
+  products?: ChatProduct[];
   /** Timestamp */
   timestamp: number;
 }
@@ -16,6 +16,8 @@ export interface ChatMessageData {
 /** Product shape needed by the compact chat card (subset of full Product) */
 export interface ChatProduct {
   id: string;
+  /** URL slug for linking to the product detail page */
+  slug: string;
   name: string;
   brand: string;
   image: string;
@@ -31,5 +33,7 @@ export interface ChatProduct {
 export interface ChatApiResponse {
   reply: string;
   recommended_product_codes: string[];
+  /** Full details of the recommended products (resolved server-side) */
+  products?: ChatProduct[];
   error?: string;
 }

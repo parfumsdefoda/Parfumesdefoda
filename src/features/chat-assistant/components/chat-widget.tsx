@@ -5,21 +5,13 @@ import { MessageCircle, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ChatProduct } from "../types";
 import { useChat } from "../hooks/use-chat";
 import { ChatWindow } from "./chat-window";
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface ChatWidgetProps {
-  /** All products for resolving recommendation codes */
-  products: ChatProduct[];
-}
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
 /** Delay before showing the tooltip (ms) */
-const TOOLTIP_DELAY_MS = 5000;
+const TOOLTIP_DELAY_MS = 4000;
 
 /** How long the tooltip stays visible before auto-dismissing (ms) */
 const TOOLTIP_DISMISS_MS = 6000;
@@ -32,14 +24,18 @@ const TOOLTIP_SHOWN_KEY = "parfumsdefoda-chat-tooltip-seen";
 /**
  * ChatWidget — floating chat button and expandable chat window.
  *
- * Redesigned for maximum visibility and brand consistency:
- *   - 60px purple (#632989) button with gold (#D4AF37) glow pulse
- *   - First-visit tooltip in Egyptian Arabic
- *   - Hover scale effect with smooth transition
- *   - Positioned bottom-right (RTL start) to avoid toast overlap
- *   - Gold sparkle icon on the button
+ * Design (brand-consistent):
+ *   - 60px purple (--color-accent) round button with gold (--color-gold) glow
+ *   - First-visit tooltip in Egyptian Arabic (sessionStorage-gated)
+ *   - Hover/tap scale feedback
+ *   - Positioned bottom-start (bottom-right in RTL) — free corner,
+ *     no other fixed element occupies it (header: top, toasts: bottom-center)
+ *
+ * Self-contained client component: no environment variables, no server data
+ * loading, no provider dependencies. Wrapped in ChatErrorBoundary at the
+ * mount point so a failure here never takes down the rest of the site.
  */
-export function ChatWidget({ products }: ChatWidgetProps) {
+export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -47,11 +43,8 @@ export function ChatWidget({ products }: ChatWidgetProps) {
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
 
-  // Show tooltip after delay (first visit only, guarded by sessionStorage)
+  // First-visit tooltip — sessionStorage access is inside useEffect only
   useEffect(() => {
-    // Guard: skip if we're on the server (shouldn't happen with "use client", but defensive)
-    if (typeof window === "undefined") return;
-
     try {
       const alreadySeen = sessionStorage.getItem(TOOLTIP_SHOWN_KEY);
       if (alreadySeen) return;
@@ -110,6 +103,7 @@ export function ChatWidget({ products }: ChatWidgetProps) {
             className={cn(
               "fixed bottom-24 start-4 z-50",
               "h-[520px] w-[370px] max-w-[calc(100vw-2rem)]",
+              "max-h-[calc(100dvh-8rem)]",
               "overflow-hidden rounded-2xl",
               "border border-[var(--neutral-100)]",
               "shadow-[0_20px_60px_rgba(0,0,0,0.18)]",
@@ -142,7 +136,6 @@ export function ChatWidget({ products }: ChatWidgetProps) {
               error={error}
               onSendMessage={sendMessage}
               onClearMessages={clearMessages}
-              products={products}
             />
           </motion.div>
         )}
@@ -175,6 +168,7 @@ export function ChatWidget({ products }: ChatWidgetProps) {
                 "mt-1.5 text-[11px] font-medium",
                 "text-[var(--color-accent)] hover:text-[var(--color-secondary)]",
                 "transition-colors",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
               )}
               aria-label="إغلاق"
             >
@@ -186,8 +180,10 @@ export function ChatWidget({ products }: ChatWidgetProps) {
         )}
       </AnimatePresence>
 
-      {/* ─── Floating Button ─── */}
-      <div className="fixed bottom-5 start-4 z-50">
+      {/* ─── Floating Button ───
+          z-[60] keeps the FAB above toasts (z-50, bottom-center) so it is
+          always visible and tappable even when a toast briefly slides in. */}
+      <div className="fixed bottom-5 start-4 z-[60]">
         {/* Gold glow ring — always visible, subtle continuous pulse */}
         <span
           className={cn(
@@ -199,6 +195,7 @@ export function ChatWidget({ products }: ChatWidgetProps) {
         />
 
         <Button
+          data-testid="chat-widget-button"
           onClick={toggleChat}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -211,10 +208,12 @@ export function ChatWidget({ products }: ChatWidgetProps) {
             "transition-all duration-300 ease-out",
             "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-gold)]",
             "hover:bg-[var(--color-accent)]/90 hover:shadow-[0_8px_32px_rgba(99,41,137,0.5)]",
-            // Scale on hover (desktop) — subtle lift
-            isHovered && !isOpen && "scale-105",
-            // When chat is open, slightly smaller and different bg
-            isOpen && "h-12 w-12 bg-[var(--neutral-600)] hover:bg-[var(--neutral-700)] shadow-[0_4px_16px_rgba(0,0,0,0.2)]",
+            // Hover/tap scale feedback
+            (isHovered || isOpen) && "scale-105",
+            "active:scale-95",
+            // When chat is open, slightly smaller with different bg
+            isOpen &&
+              "h-12 w-12 bg-[var(--neutral-600)] hover:bg-[var(--neutral-700)] shadow-[0_4px_16px_rgba(0,0,0,0.2)]",
           )}
         >
           <AnimatePresence mode="wait">

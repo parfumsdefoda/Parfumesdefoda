@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { ChatMessageData, ChatApiResponse } from "../types";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -24,6 +24,13 @@ export function useChat(): UseChatReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const messagesRef = useRef<ChatMessageData[]>([]);
+
+  // Keep a live ref of messages (updated post-render) so sendMessage
+  // never builds history from a stale closure
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const sendMessage = useCallback(async (content: string) => {
     const trimmed = content.trim();
@@ -49,7 +56,7 @@ export function useChat(): UseChatReturn {
 
     try {
       // Build conversation history for API
-      const apiMessages = [...messages, userMessage].map((m) => ({
+      const apiMessages = [...messagesRef.current, userMessage].map((m) => ({
         role: m.role,
         content: m.content,
       }));
@@ -67,12 +74,12 @@ export function useChat(): UseChatReturn {
 
       const data: ChatApiResponse = await response.json();
 
-      // Add assistant message
+      // Add assistant message (with any recommended products resolved server-side)
       const assistantMessage: ChatMessageData = {
         id: generateId(),
         role: "assistant",
         content: data.reply,
-        recommendedProductCodes: data.recommended_product_codes,
+        products: data.products,
         timestamp: Date.now(),
       };
 
@@ -95,7 +102,7 @@ export function useChat(): UseChatReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [isLoading]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);

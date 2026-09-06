@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cairo } from "./fonts";
 import { Providers } from "./providers";
 import { loadTheme } from "@/services/theme";
-import { ChatWidgetLoader } from "@/features/chat-assistant/components/chat-widget-loader";
-import { ChatErrorBoundary } from "@/features/chat-assistant/components/chat-error-boundary";
+import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
 import "./globals.css";
 
 /**
@@ -177,10 +176,12 @@ export default async function RootLayout({
         </a>
         <Providers theme={theme}>
           {children}
-          <ChatErrorBoundary>
-            <ChatWidgetLoader />
-          </ChatErrorBoundary>
         </Providers>
+        {/* AI chat assistant — mounted as a sibling of Providers, inside <body>,
+            wrapped in its own error boundary so a failure here never takes
+            down the rest of the site. Self-contained client component: no
+            server data loading, no provider dependencies. */}
+        <ChatAssistant />
       </body>
     </html>
   );

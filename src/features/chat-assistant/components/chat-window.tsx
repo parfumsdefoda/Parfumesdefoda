@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useCart } from "@/providers/CartProvider";
-import { useToast } from "@/features/toast";
-import type { ChatMessageData, ChatProduct } from "../types";
+import type { ChatMessageData } from "../types";
 import { CompactProductCard } from "./compact-product-card";
 import { TypingIndicator } from "./typing-indicator";
 
@@ -18,20 +16,18 @@ interface ChatWindowProps {
   error: string | null;
   onSendMessage: (content: string) => void;
   onClearMessages: () => void;
-  /** Products to resolve recommendation codes against */
-  products: ChatProduct[];
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * ChatWindow — the main chat interface with message list, input, and product cards.
+ * ChatWindow — the chat interface with message list, input, and product cards.
  *
  * Features:
  *   - Auto-scroll to bottom on new messages
- *   - Product cards rendered inline for recommendations
- *   - Add-to-cart wired to CartProvider
+ *   - Product cards rendered inline for recommendations (data comes from the API)
  *   - RTL Arabic UI
+ *   - No provider dependencies — works standalone
  */
 export function ChatWindow({
   messages,
@@ -39,16 +35,10 @@ export function ChatWindow({
   error,
   onSendMessage,
   onClearMessages,
-  products,
 }: ChatWindowProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { addItem } = useCart();
-  const { showToast } = useToast();
-
-  // Build a lookup map from product code → product
-  const productMap = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -69,33 +59,6 @@ export function ChatWindow({
       setInput("");
     },
     [input, isLoading, onSendMessage],
-  );
-
-  const handleAddToCart = useCallback(
-    (product: ChatProduct, sizeLabel: string, price: number) => {
-      const inStockSize = product.sizes.find((s) => s.label === sizeLabel);
-      if (!inStockSize || !inStockSize.inStock) return;
-
-      addItem({
-        productId: product.id,
-        sizeLabel,
-        price,
-        name: product.name,
-        image: product.image,
-      });
-      showToast(`تمت إضافة ${product.name} (${sizeLabel}) إلى السلة`, "success");
-    },
-    [addItem, showToast],
-  );
-
-  // Resolve product codes to actual products
-  const resolveProducts = useCallback(
-    (codes: string[]): ChatProduct[] => {
-      return codes
-        .map((code) => productMap.get(code))
-        .filter((p): p is ChatProduct => p !== undefined);
-    },
-    [productMap],
   );
 
   return (
@@ -155,6 +118,7 @@ export function ChatWindow({
                     "px-3 py-1.5 text-[11px] font-medium text-[var(--neutral-600)]",
                     "hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]",
                     "transition-colors",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
                   )}
                 >
                   {suggestion}
@@ -185,14 +149,10 @@ export function ChatWindow({
               </p>
 
               {/* Product recommendation cards */}
-              {msg.recommendedProductCodes && msg.recommendedProductCodes.length > 0 && (
+              {msg.products && msg.products.length > 0 && (
                 <div className="mt-3 flex flex-col gap-2">
-                  {resolveProducts(msg.recommendedProductCodes).map((product) => (
-                    <CompactProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
-                    />
+                  {msg.products.map((product) => (
+                    <CompactProductCard key={product.id} product={product} />
                   ))}
                 </div>
               )}

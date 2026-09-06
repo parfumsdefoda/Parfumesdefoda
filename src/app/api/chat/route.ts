@@ -6,6 +6,7 @@ import {
   loadCatalog,
 } from "@/lib/product-grounding";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import type { ChatProduct } from "@/features/chat-assistant/types";
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
@@ -89,6 +90,7 @@ export async function POST(request: Request) {
         {
           reply: "عذراً، فيه مشكلة في تحميل المنتجات دلوقتي. جرب تاني شوية.",
           recommended_product_codes: [],
+          products: [],
         },
         { status: 200 },
       );
@@ -109,10 +111,29 @@ export async function POST(request: Request) {
       validIds,
     );
 
+    // Resolve grounded codes to product details for the chat cards
+    // (the client widget is self-contained and does no catalog loading)
+    const chatProducts: ChatProduct[] = products
+      .filter((p) => p.status === "active" && groundedCodes.includes(p.id))
+      .map((p) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        brand: p.brand,
+        image: p.image,
+        type: p.type,
+        gender: p.gender,
+        house: p.house,
+        season: p.season,
+        performance: p.performance,
+        sizes: p.sizes,
+      }));
+
     return NextResponse.json(
       {
         reply: result.reply,
         recommended_product_codes: groundedCodes,
+        products: chatProducts,
       },
       {
         headers: {
@@ -126,6 +147,7 @@ export async function POST(request: Request) {
       {
         reply: "عذراً، حصل مشكلة تقنية. جرب تاني شوية!",
         recommended_product_codes: [],
+        products: [],
       },
       { status: 200 }, // Return 200 so frontend can display the error message
     );

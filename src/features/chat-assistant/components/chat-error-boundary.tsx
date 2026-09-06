@@ -13,10 +13,10 @@ interface State {
 
 /**
  * ChatErrorBoundary — catches errors from the ChatWidget tree
- * so a failure in the chat feature never crashes the entire layout.
+ * so a failure in the chat feature never crashes the rest of the site.
  *
- * Renders nothing on error (silent failure) — the site works fine
- * without the chat widget.
+ * Renders nothing on error (silent failure) and logs the full error
+ * to the console so the next debugging session has evidence.
  */
 export class ChatErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -28,9 +28,9 @@ export class ChatErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
-    // Log but don't show to user — the site works without the chat widget
-    console.warn("[ChatWidget] Failed to render:", error.message);
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    // Log fully but don't show to user — the site works without the chat widget
+    console.error("[ChatWidget] Failed to render:", error, info?.componentStack);
   }
 
   render() {
