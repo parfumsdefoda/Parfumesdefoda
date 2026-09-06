@@ -1,11 +1,14 @@
 /**
  * Chat Assistant feature — barrel export.
  *
- * The ChatWidget is mounted globally in layout.tsx via ChatWidgetLoader (Server Component).
- * ChatWindow and CompactProductCard are used internally.
+ * NOTE: ChatWidgetLoader is a Server Component (loads products via node:fs)
+ * and must NEVER be exported from this barrel — it is imported directly
+ * by layout.tsx via the explicit component path to prevent Turbopack from
+ * tracing server-only dependencies into client bundles.
+ *
+ * All exports below are client-safe ("use client" components or pure types).
  */
 export { ChatWidget } from "./components/chat-widget";
-export { ChatWidgetLoader } from "./components/chat-widget-loader";
 export { ChatWindow } from "./components/chat-window";
 export { CompactProductCard } from "./components/compact-product-card";
 export { TypingIndicator } from "./components/typing-indicator";

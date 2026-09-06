@@ -137,4 +137,28 @@ body {
   animation: premium-shimmer 3s ease-in-out infinite;
 }
 
+/* Chat widget — gold glow pulse animation */
+@keyframes chat-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4),
+                0 4px 16px rgba(99, 41, 137, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(212, 175, 55, 0),
+                0 4px 24px rgba(99, 41, 137, 0.5);
+  }
+}
+
+/* Chat widget — tooltip fade-in */
+@keyframes chat-tooltip-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 

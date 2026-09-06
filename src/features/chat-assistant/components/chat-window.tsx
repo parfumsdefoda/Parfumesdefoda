@@ -102,17 +102,20 @@ export function ChatWindow({
     <div className="flex h-full flex-col bg-[var(--bg-primary)]">
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between border-b border-[var(--neutral-100)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent)]">
-            <span className="text-sm text-white" aria-hidden="true">💬</span>
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-accent)] shadow-[0_2px_8px_rgba(99,41,137,0.3)]">
+            <span className="text-base text-white" aria-hidden="true">✨</span>
           </div>
           <div>
             <h2 className="text-sm font-bold text-[var(--neutral-800)]">
               مساعد العطور
             </h2>
-            <p className="text-[10px] text-[var(--neutral-400)]">
-              Parfums De Foda
-            </p>
+            <div className="flex items-center gap-1">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" />
+              <p className="text-[10px] text-[var(--neutral-400)]">
+                Parfums De Foda
+              </p>
+            </div>
           </div>
         </div>
         {messages.length > 0 && (
@@ -132,15 +135,32 @@ export function ChatWindow({
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)]/10">
-              <span className="text-2xl" aria-hidden="true">🌸</span>
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)]/10 shadow-[0_0_20px_rgba(99,41,137,0.1)]">
+              <span className="text-3xl" aria-hidden="true">🌸</span>
             </div>
-            <p className="text-sm font-medium text-[var(--neutral-600)] mb-1">
-              أهلاً! 👋
+            <p className="text-sm font-bold text-[var(--neutral-700)] mb-1">
+              أهلاً بيك! 👋
             </p>
-            <p className="text-xs text-[var(--neutral-400)] leading-relaxed">
-              أنا مساعد العطور بتاع Parfums De Foda. قولي إيه اللي بتدور عليه وأنا هرشحلك أحلى عطر يناسبك!
+            <p className="text-xs text-[var(--neutral-400)] leading-relaxed max-w-[240px]">
+              أنا مساعد العطور الافتراضي. قولي إيه اللي بتدور عليه وهأرشحلك أحلى عطر يناسبك!
             </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+              {["عطر شتوي", "هدية لحد", "عطر رجالي", "عطر نسائي"].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => onSendMessage(suggestion)}
+                  className={cn(
+                    "rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
+                    "px-3 py-1.5 text-[11px] font-medium text-[var(--neutral-600)]",
+                    "hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]",
+                    "transition-colors",
+                  )}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -229,8 +249,9 @@ export function ChatWindow({
               "h-9 w-9 rounded-full shrink-0",
               "bg-[var(--color-accent)] text-white",
               "hover:bg-[var(--color-secondary)]",
+              "hover:shadow-[0_2px_12px_rgba(156,214,118,0.4)]",
               "disabled:opacity-40",
-              "transition-colors",
+              "transition-all duration-200",
             )}
             aria-label="إرسال"
           >

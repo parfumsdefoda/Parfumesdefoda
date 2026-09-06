@@ -18,54 +18,83 @@ interface ChatWidgetProps {
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
-/** Delay before showing the pulse hint (ms) */
-const PULSE_DELAY_MS = 5000;
+/** Delay before showing the tooltip (ms) */
+const TOOLTIP_DELAY_MS = 5000;
 
-/** Session storage key to track if the hint was already shown */
-const HINT_SHOWN_KEY = "parfumsdefoda-chat-hint-shown";
+/** How long the tooltip stays visible before auto-dismissing (ms) */
+const TOOLTIP_DISMISS_MS = 6000;
+
+/** Session storage key to track if the tooltip was already shown */
+const TOOLTIP_SHOWN_KEY = "parfumsdefoda-chat-tooltip-seen";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
  * ChatWidget — floating chat button and expandable chat window.
  *
- * Features:
- *   - Floating button in bottom-left corner (RTL: start side)
- *   - Pulse animation hint after delay (first visit only)
- *   - Expandable chat window with framer-motion
- *   - All UI in Arabic, RTL layout
+ * Redesigned for maximum visibility and brand consistency:
+ *   - 60px purple (#632989) button with gold (#D4AF37) glow pulse
+ *   - First-visit tooltip in Egyptian Arabic
+ *   - Hover scale effect with smooth transition
+ *   - Positioned bottom-right (RTL start) to avoid toast overlap
+ *   - Gold sparkle icon on the button
  */
 export function ChatWidget({ products }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showPulse, setShowPulse] = useState(false);
-  const pulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
 
-  // Show pulse hint after delay (first visit only)
+  // Show tooltip after delay (first visit only, guarded by sessionStorage)
   useEffect(() => {
-    const alreadyShown = sessionStorage.getItem(HINT_SHOWN_KEY);
-    if (alreadyShown) return;
+    // Guard: skip if we're on the server (shouldn't happen with "use client", but defensive)
+    if (typeof window === "undefined") return;
 
-    pulseTimerRef.current = setTimeout(() => {
-      setShowPulse(true);
-      sessionStorage.setItem(HINT_SHOWN_KEY, "true");
+    try {
+      const alreadySeen = sessionStorage.getItem(TOOLTIP_SHOWN_KEY);
+      if (alreadySeen) return;
+    } catch {
+      // sessionStorage unavailable (private browsing edge case) — skip
+      return;
+    }
 
-      // Auto-hide pulse after 8 seconds
-      setTimeout(() => setShowPulse(false), 8000);
-    }, PULSE_DELAY_MS);
+    tooltipTimerRef.current = setTimeout(() => {
+      setShowTooltip(true);
+
+      try {
+        sessionStorage.setItem(TOOLTIP_SHOWN_KEY, "true");
+      } catch {
+        // Ignore — worst case, tooltip shows again next time
+      }
+
+      // Auto-dismiss tooltip after delay
+      dismissTimerRef.current = setTimeout(() => {
+        setShowTooltip(false);
+      }, TOOLTIP_DISMISS_MS);
+    }, TOOLTIP_DELAY_MS);
 
     return () => {
-      if (pulseTimerRef.current) clearTimeout(pulseTimerRef.current);
+      if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
     };
   }, []);
 
   const toggleChat = useCallback(() => {
     setIsOpen((prev) => !prev);
-    setShowPulse(false);
+    setShowTooltip(false);
+    // Cancel pending tooltip timers if user clicks before they fire
+    if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+    if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
   }, []);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
+  }, []);
+
+  const dismissTooltip = useCallback(() => {
+    setShowTooltip(false);
   }, []);
 
   return (
@@ -74,16 +103,16 @@ export function ChatWidget({ products }: ChatWidgetProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.92, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: 0.92, y: 16 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
             className={cn(
-              "fixed bottom-20 start-4 z-50",
-              "h-[500px] w-[360px] max-w-[calc(100vw-2rem)]",
+              "fixed bottom-24 start-4 z-50",
+              "h-[520px] w-[370px] max-w-[calc(100vw-2rem)]",
               "overflow-hidden rounded-2xl",
               "border border-[var(--neutral-100)]",
-              "shadow-[0_16px_64px_rgba(0,0,0,0.15)]",
+              "shadow-[0_20px_60px_rgba(0,0,0,0.18)]",
               "flex flex-col",
               "bg-[var(--bg-primary)]",
             )}
@@ -119,20 +148,73 @@ export function ChatWidget({ products }: ChatWidgetProps) {
         )}
       </AnimatePresence>
 
+      {/* ─── First-visit Tooltip ─── */}
+      <AnimatePresence>
+        {showTooltip && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn(
+              "fixed bottom-24 start-4 z-50",
+              "max-w-[240px] rounded-2xl rounded-br-md",
+              "border border-[var(--color-gold)]/30",
+              "bg-[var(--bg-primary)] px-4 py-3",
+              "shadow-[0_8px_32px_rgba(212,175,55,0.15)]",
+            )}
+            role="status"
+          >
+            <p className="text-[13px] leading-relaxed text-[var(--neutral-700)]">
+              محتاج مساعدة في اختيار عطرك؟ 👋
+            </p>
+            <button
+              type="button"
+              onClick={dismissTooltip}
+              className={cn(
+                "mt-1.5 text-[11px] font-medium",
+                "text-[var(--color-accent)] hover:text-[var(--color-secondary)]",
+                "transition-colors",
+              )}
+              aria-label="إغلاق"
+            >
+              لا شكراً
+            </button>
+            {/* Arrow pointing to the button */}
+            <div className="absolute -bottom-1.5 start-6 h-3 w-3 rotate-45 border-b border-s border-[var(--color-gold)]/30 bg-[var(--bg-primary)]" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ─── Floating Button ─── */}
-      <div className="fixed bottom-4 start-4 z-50">
+      <div className="fixed bottom-5 start-4 z-50">
+        {/* Gold glow ring — always visible, subtle continuous pulse */}
+        <span
+          className={cn(
+            "absolute inset-0 rounded-full pointer-events-none",
+            "border-2 border-[var(--color-gold)]/40",
+            !isOpen && "animate-[chat-glow_3s_ease-in-out_infinite]",
+          )}
+          aria-hidden="true"
+        />
+
         <Button
           onClick={toggleChat}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           aria-label={isOpen ? "إغلاق المحادثة" : "فتح مساعد العطور"}
           aria-expanded={isOpen}
           className={cn(
-            "h-14 w-14 rounded-full shadow-lg",
+            "relative h-[60px] w-[60px] rounded-full",
             "bg-[var(--color-accent)] text-white",
-            "hover:bg-[var(--color-secondary)]",
-            "transition-all duration-300",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
-            // Pulse animation
-            showPulse && !isOpen && "animate-[pulse_2s_ease-in-out_3]",
+            "shadow-[0_6px_24px_rgba(99,41,137,0.4)]",
+            "transition-all duration-300 ease-out",
+            "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-gold)]",
+            "hover:bg-[var(--color-accent)]/90 hover:shadow-[0_8px_32px_rgba(99,41,137,0.5)]",
+            // Scale on hover (desktop) — subtle lift
+            isHovered && !isOpen && "scale-105",
+            // When chat is open, slightly smaller and different bg
+            isOpen && "h-12 w-12 bg-[var(--neutral-600)] hover:bg-[var(--neutral-700)] shadow-[0_4px_16px_rgba(0,0,0,0.2)]",
           )}
         >
           <AnimatePresence mode="wait">
@@ -144,7 +226,7 @@ export function ChatWidget({ products }: ChatWidgetProps) {
                 exit={{ rotate: 90, opacity: 0 }}
                 transition={{ duration: 0.15 }}
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </motion.div>
             ) : (
               <motion.div
@@ -153,17 +235,13 @@ export function ChatWidget({ products }: ChatWidgetProps) {
                 animate={{ rotate: 0, opacity: 1 }}
                 exit={{ rotate: -90, opacity: 0 }}
                 transition={{ duration: 0.15 }}
+                className="flex items-center justify-center"
               >
                 <MessageCircle className="h-6 w-6" />
               </motion.div>
             )}
           </AnimatePresence>
         </Button>
-
-        {/* Pulse ring animation */}
-        {showPulse && !isOpen && (
-          <span className="absolute inset-0 rounded-full animate-[ping_2s_ease-in-out_3] bg-[var(--color-accent)]/30 pointer-events-none" />
-        )}
       </div>
     </>
   );

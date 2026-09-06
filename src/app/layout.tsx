@@ -3,6 +3,7 @@ import { cairo } from "./fonts";
 import { Providers } from "./providers";
 import { loadTheme } from "@/services/theme";
 import { ChatWidgetLoader } from "@/features/chat-assistant/components/chat-widget-loader";
+import { ChatErrorBoundary } from "@/features/chat-assistant/components/chat-error-boundary";
 import "./globals.css";
 
 /**
@@ -176,7 +177,9 @@ export default async function RootLayout({
         </a>
         <Providers theme={theme}>
           {children}
-          <ChatWidgetLoader />
+          <ChatErrorBoundary>
+            <ChatWidgetLoader />
+          </ChatErrorBoundary>
         </Providers>
       </body>
     </html>
