@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cairo } from "./fonts";
 import { Providers } from "./providers";
 import { loadTheme } from "@/services/theme";
+import { ChatWidgetLoader } from "@/features/chat-assistant/components/chat-widget-loader";
 import "./globals.css";
 
 /**
@@ -173,7 +174,10 @@ export default async function RootLayout({
         >
           انتقل إلى المحتوى الرئيسي
         </a>
-        <Providers theme={theme}>{children}</Providers>
+        <Providers theme={theme}>
+          {children}
+          <ChatWidgetLoader />
+        </Providers>
       </body>
     </html>
   );
