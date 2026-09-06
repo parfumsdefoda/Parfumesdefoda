@@ -52,7 +52,7 @@ async function callGemini(
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model: GenerativeModel = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+    model: "gemini-3.6-flash",
     systemInstruction: systemPrompt,
     generationConfig: {
       responseMimeType: "application/json",
