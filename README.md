@@ -37,32 +37,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## AI Chat Assistant
 
-An AI-powered fragrance recommendation widget, powered by OpenAI by default
-(`gpt-4o-mini`), with Google Gemini (`gemini-3.6-flash`) as an alternative
-provider. The provider is selected at runtime via the `AI_PROVIDER` env var —
-no code changes needed to switch.
+An AI-powered fragrance recommendation widget, powered by OpenAI
+(`gpt-4o-mini`).
 
 ### Environment Variables
 
-Add these to your `.env.local` (see `.env.example`):
+Add this to your `.env.local` (see `.env.example`):
 
 ```
-# AI Provider: "openai" (default) or "gemini"
-AI_PROVIDER=openai
-
-# OpenAI API key (used when AI_PROVIDER=openai — the default)
 OPENAI_API_KEY=your_api_key_here
-
-# Google Gemini API key (only needed when AI_PROVIDER=gemini)
-GEMINI_API_KEY=your_api_key_here
 ```
-
-### Switching Providers
-
-- **OpenAI (default):** set `AI_PROVIDER=openai` and provide `OPENAI_API_KEY`.
-  If `AI_PROVIDER` is unset or contains an unknown value, the assistant falls
-  back to OpenAI automatically.
-- **Gemini:** set `AI_PROVIDER=gemini` and provide `GEMINI_API_KEY` instead.
 
 ### Getting an OpenAI API Key
 
@@ -72,14 +56,6 @@ GEMINI_API_KEY=your_api_key_here
    replies. If OpenAI ever deprecates it (404 / "model no longer available"
    errors), update the single `OPENAI_MODEL` constant in
    `src/lib/ai-provider.ts` with the replacement name suggested in the error.
-
-### Getting a Free Gemini API Key
-
-1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
-2. Sign in with your Google account
-3. Click **"Create API Key"**
-4. Copy the key and paste it as `GEMINI_API_KEY` in `.env.local`
-5. The free tier includes 15 RPM / 1M tokens per day — more than enough for a shopping assistant
 
 ### How It Works
 
