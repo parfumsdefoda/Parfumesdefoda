@@ -354,9 +354,11 @@ export async function getChatCompletion(
         // Non-rate-limit failure — don't burn the fallback provider
         break;
       }
-      console.info(
-        `[ai-provider] Provider "${candidate}" hit a rate-limit/quota error — retrying once with "${fallback}"`,
-      );
+      if (candidate === provider) {
+        console.info(
+          `[ai-provider] Provider "${candidate}" hit a rate-limit/quota error — retrying once with "${fallback}"`,
+        );
+      }
     }
   }
 
