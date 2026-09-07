@@ -118,46 +118,87 @@ async function callGemini(
   messages: ChatMessage[],
   systemPrompt: string,
 ): Promise<ChatCompletionResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("[ai-provider] GEMINI_API_KEY is not set in environment variables");
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("[ai-provider] GEMINI_API_KEY is not set in environment variables");
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model: GenerativeModel = genAI.getGenerativeModel({
+      model: "gemini-3.6-flash",
+      systemInstruction: systemPrompt,
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+      },
+    });
+
+    // Convert our message format to Gemini's format
+    // Gemini uses alternating user/model turns (no system role in history)
+    const geminiHistory = messages.slice(0, -1).map((msg) => ({
+      role: msg.role === "model" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    }));
+
+    const lastUserMessage = messages[messages.length - 1];
+    if (!lastUserMessage || lastUserMessage.role !== "user") {
+      throw new Error("[ai-provider] Last message must be from user");
+    }
+
+    const chat = model.startChat({ history: geminiHistory });
+    const result = await chat.sendMessage(lastUserMessage.content);
+    const responseText = result.response.text();
+
+    return parseAIResponse(responseText);
+  } catch (error) {
+    // Never crash the chat route or leak raw API error details to the frontend.
+    logError("chat.provider_error", error, { provider: "gemini", model: "gemini-3.6-flash" });
+    return { reply: FALLBACK_REPLY, recommended_product_codes: [] };
   }
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model: GenerativeModel = genAI.getGenerativeModel({
-    model: "gemini-3.6-flash",
-    systemInstruction: systemPrompt,
-    generationConfig: {
-      responseMimeType: "application/json",
-      temperature: 0.7,
-      maxOutputTokens: 1024,
-    },
-  });
-
-  // Convert our message format to Gemini's format
-  // Gemini uses alternating user/model turns (no system role in history)
-  const geminiHistory = messages.slice(0, -1).map((msg) => ({
-    role: msg.role === "model" ? "model" : "user",
-    parts: [{ text: msg.content }],
-  }));
-
-  const lastUserMessage = messages[messages.length - 1];
-  if (!lastUserMessage || lastUserMessage.role !== "user") {
-    throw new Error("[ai-provider] Last message must be from user");
-  }
-
-  const chat = model.startChat({ history: geminiHistory });
-  const result = await chat.sendMessage(lastUserMessage.content);
-  const responseText = result.response.text();
-
-  return parseAIResponse(responseText);
 }
 
 // ─── Response Parser ────────────────────────────────────────────────────────
 
+/** Extract product codes from a `"recommended_product_codes": [...]` fragment. */
+function extractCodesFromJsonFragment(fragment: string): string[] {
+  const match = fragment.match(/"recommended_product_codes"\s*:\s*\[([^\]]*)\]/);
+  if (!match) return [];
+  return match[1]
+    .split(",")
+    .map((s) => s.trim().replace(/^"|"$/g, "").replace(/\\"/g, "\""))
+    .filter((s) => /^PF\d{3}$/.test(s));
+}
+
+/** Extract product codes written inline in prose, e.g. "امبريال فالي (PF090)". */
+function extractCodesFromProse(text: string): string[] {
+  const matches = text.match(/\bPF\d{3}\b/g);
+  return matches ? [...new Set(matches)] : [];
+}
+
+/**
+ * Lenient unwrap for double-encoded JSON whose inner JSON is malformed
+ * (Gemini often leaves Arabic quotes unescaped inside the nested string).
+ * Best-effort: extract the reply text between the outer markers and any
+ * codes fragment. Returns null when the text doesn't look nested at all.
+ */
+function repairNestedJson(raw: string): { reply: string; codes: string[] } | null {
+  const codes = extractCodesFromJsonFragment(raw);
+  // Greedy match to the LAST `", "recommended_product_codes"` so unescaped
+  // quotes inside the reply don't truncate it.
+  const match = raw.match(/\{\s*"reply"\s*:\s*"([\s\S]*)"\s*,\s*"recommended_product_codes"/);
+  if (!match) return null;
+  return {
+    reply: match[1].replace(/\\n/g, "\n").replace(/\\"/g, "\"").replace(/\\\//g, "/"),
+    codes,
+  };
+}
+
 /**
  * Parse the AI response into structured output.
- * Handles both JSON mode responses and fallback text parsing.
+ * Handles JSON mode responses, markdown fences, double-encoded JSON
+ * (valid or malformed), and plain-text fallbacks.
  */
 function parseAIResponse(text: string): ChatCompletionResult {
   try {
@@ -201,8 +242,19 @@ function parseAIResponse(text: string): ChatCompletionResult {
           );
         }
       } catch {
-        break; // plain text reply — nothing to unwrap
+        // The nested JSON may be malformed (unescaped quotes) — repair it
+        const repaired = repairNestedJson(reply);
+        if (!repaired) break; // plain text reply — nothing to unwrap
+        reply = repaired.reply;
+        codes = repaired.codes;
       }
+    }
+
+    // Last resort: the model often writes codes inline in the prose
+    // ("امبريال فالي (PF090)") even when it omits the JSON field.
+    // The route validates/grounds these against the catalog anyway.
+    if (codes.length === 0) {
+      codes = extractCodesFromProse(reply);
     }
 
     return { reply, recommended_product_codes: codes };

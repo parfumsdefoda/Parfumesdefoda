@@ -211,4 +211,49 @@ describe("getChatCompletion (openai provider)", () => {
       recommended_product_codes: [],
     });
   });
+
+  it("repairs malformed nested JSON (unescaped quotes inside the reply)", async () => {
+    // Gemini nested the object with unescaped Arabic quotes inside the reply
+    const nested = `{"reply": "أرشحلك عطر \"امبريال فالي\" و \"تيروني\" للشتاء", "recommended_product_codes": ["PF090", "PF170"]}`;
+    mockResponse(JSON.stringify({ reply: nested }));
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result).toEqual({
+      reply: "أرشحلك عطر \"امبريال فالي\" و \"تيروني\" للشتاء",
+      recommended_product_codes: ["PF090", "PF170"],
+    });
+  });
+
+  it("extracts codes written inline in prose when the JSON field is missing", async () => {
+    mockResponse(
+      JSON.stringify({
+        reply: "برشحلك امبريال فالي (PF090) وتيروني (PF170) — ثباتهم صاروخي",
+      }),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.reply).toContain("امبريال فالي");
+    expect(result.recommended_product_codes).toEqual(["PF090", "PF170"]);
+  });
+
+  it("does not invent codes from prose when none are present", async () => {
+    mockResponse(
+      JSON.stringify({ reply: "تمام! حابب أعرف أكتر عن ذوقك الأول", recommended_product_codes: [] }),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.recommended_product_codes).toEqual([]);
+  });
 });

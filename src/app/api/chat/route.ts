@@ -33,8 +33,9 @@ IMPORTANT: Always respond in valid JSON with exactly this structure:
   "reply": "نص الرد الطبيعي بالعربي",
   "recommended_product_codes": ["PFXXX", "PFYYY"]
 }
-If you are still asking questions (no recommendations yet), return an empty array for recommended_product_codes.
-Never include product codes that are not in the catalog provided below.`;
+كود كل عطر بترشحه لازم يتحط في الحقل recommended_product_codes في الـ JSON — مش بس في نص الرد. If you are still asking questions (no recommendations yet), return an empty array for recommended_product_codes.
+Never include product codes that are not in the catalog provided below.
+ممنوع نهائيًا تكتب JSON جوه نص الرد نفسه أو تحط نص الرد جوه علامات تنصيص متداخلة — الرد دا كله JSON واحد سليم من غير طبقات زيادة.`;
 
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
