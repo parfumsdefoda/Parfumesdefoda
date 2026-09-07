@@ -149,15 +149,84 @@ body {
   }
 }
 
-/* Chat widget — tooltip fade-in */
-@keyframes chat-tooltip-in {
-  0% {
-    opacity: 0;
-    transform: translateY(8px) scale(0.95);
+/* Chat widget — first-visit attention pulse (card scale heartbeat) */
+@keyframes chat-attract {
+  0%, 100% {
+    transform: scale(1);
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  10% {
+    transform: scale(1.06);
+  }
+  20% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.05);
+  }
+  45% {
+    transform: scale(1);
+  }
+}
+
+/* Chat widget — shimmer sweep across the trigger card */
+@keyframes chat-sweep {
+  0% {
+    transform: translateX(-150%) rotate(12deg);
+  }
+  55%, 100% {
+    transform: translateX(350%) rotate(12deg);
+  }
+}
+
+/* Hero showcase — infinite product marquee (seamless via duplicated track) */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 45s linear infinite;
+  will-change: transform;
+}
+
+/* Pause the marquee while hovering it */
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Hero showcase — slow-moving warm gradient mesh behind the band */
+@keyframes hero-mesh {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.hero-mesh {
+  background: linear-gradient(
+    120deg,
+    #fdf8e8 0%,
+    #faf3e0 30%,
+    #f6ecfa 60%,
+    #fdf8e8 100%
+  );
+  background-size: 200% 200%;
+  animation: hero-mesh 14s ease-in-out infinite;
+}
+
+/* Respect reduced-motion: disable marquee, mesh, shimmer sweeps */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .hero-mesh {
+    animation: none;
   }
 }
 

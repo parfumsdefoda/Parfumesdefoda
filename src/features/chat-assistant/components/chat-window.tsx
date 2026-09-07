@@ -16,6 +16,8 @@ interface ChatWindowProps {
   error: string | null;
   onSendMessage: (content: string) => void;
   onClearMessages: () => void;
+  /** Called when a recommended product card is clicked — the widget minimizes (conversation stays in memory) */
+  onNavigateToProduct?: () => void;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -35,6 +37,7 @@ export function ChatWindow({
   error,
   onSendMessage,
   onClearMessages,
+  onNavigateToProduct,
 }: ChatWindowProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -152,7 +155,11 @@ export function ChatWindow({
               {msg.products && msg.products.length > 0 && (
                 <div className="mt-3 flex flex-col gap-2">
                   {msg.products.map((product) => (
-                    <CompactProductCard key={product.id} product={product} />
+                    <CompactProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={onNavigateToProduct}
+                    />
                   ))}
                 </div>
               )}

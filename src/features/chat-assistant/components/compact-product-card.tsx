@@ -11,6 +11,8 @@ import type { ChatProduct } from "../types";
 
 interface CompactProductCardProps {
   product: ChatProduct;
+  /** Fired on click (before navigation) — used to minimize the chat window */
+  onClick?: () => void;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -24,7 +26,7 @@ interface CompactProductCardProps {
  *
  * Shows: image, name, brand, starting price, and available size count.
  */
-export function CompactProductCard({ product }: CompactProductCardProps) {
+export function CompactProductCard({ product, onClick }: CompactProductCardProps) {
   const inStockSizes = product.sizes.filter((s) => s.inStock);
   const minPrice =
     inStockSizes.length > 0
@@ -34,6 +36,7 @@ export function CompactProductCard({ product }: CompactProductCardProps) {
   return (
     <Link
       href={`/product/${product.slug}`}
+      onClick={onClick}
       className={cn(
         "group flex overflow-hidden rounded-xl border text-start",
         "border-[var(--neutral-100)] bg-[var(--bg-primary)]",

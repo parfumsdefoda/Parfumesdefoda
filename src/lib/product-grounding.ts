@@ -34,6 +34,7 @@ export function buildProductContext(products: Product[]): string {
       return [
         `كود: ${p.id}`,
         `اسم: ${p.name}`,
+        `فاخر: ${p.featured ? "نعم ✅ (منتجات مميزة فاخرة)" : "لا"}`,
         `ماركة: ${p.brand}`,
         `نوع: ${p.type}`,
         `الدار: ${p.house}`,
@@ -62,6 +63,25 @@ export function validateProductCodes(
   validIds: Set<string>,
 ): string[] {
   return codes.filter((code) => validIds.has(code));
+}
+
+/**
+ * Deterministic luxury-first ordering backstop (don't rely on the LLM alone).
+ *
+ * Stable-sorts validated recommendation codes so "فاخر" (featured) products
+ * come first, while PRESERVING the model's relative ordering within each
+ * group — the LLM's relevance judgment inside each tier is respected.
+ */
+export function prioritySortCodes(
+  codes: string[],
+  featuredIds: Set<string>,
+): string[] {
+  const featured: string[] = [];
+  const regular: string[] = [];
+  for (const code of codes) {
+    (featuredIds.has(code) ? featured : regular).push(code);
+  }
+  return [...featured, ...regular];
 }
 
 // ─── Catalog Loader ─────────────────────────────────────────────────────────

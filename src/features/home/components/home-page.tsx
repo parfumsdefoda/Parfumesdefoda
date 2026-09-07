@@ -7,6 +7,7 @@ import { PageLayout } from "@/features/layout";
 import { SearchBar } from "@/features/search";
 import { FilterSidebar } from "@/features/filters";
 import { ProductGrid, type ProductCardProduct } from "@/features/products";
+import { HeroShowcase, type HeroShowcaseItem } from "./hero-showcase";
 import { CartDrawer } from "@/features/cart";
 import { FaqAccordion } from "@/features/faq";
 import { PoliciesAccordion } from "@/features/policies";
@@ -36,6 +37,8 @@ export interface HomePageClientProps {
   localeMessages: LocaleMessages;
   /** Product sales counts (productId -> total quantity sold), loaded server-side from Redis. */
   salesCounts?: Record<string, number>;
+  /** Randomized product set for the animated hero marquee (computed server-side). */
+  heroProducts?: HeroShowcaseItem[];
 }
 
 /**
@@ -54,6 +57,7 @@ export function HomePageClient({
   content: initialContent,
   localeMessages: initialMessages,
   salesCounts = {},
+  heroProducts = [],
 }: HomePageClientProps) {
   const router = useRouter();
 
@@ -182,6 +186,15 @@ export function HomePageClient({
         columns: settings.footerColumns,
       }}
     >
+      {/* ─── Animated Hero Showcase (living catalog marquee) ─── */}
+      {heroProducts.length > 0 && (
+        <HeroShowcase
+          items={heroProducts}
+          title={t("home.heroTitle", "اكتشف تشكيلتنا المميزة")}
+          ariaLabel={t("home.heroAria", "تشكيلة العطور المميزة")}
+        />
+      )}
+
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">
         {/* Search */}

@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { validateProductCodes, buildProductContext } from "./product-grounding";
+import {
+  validateProductCodes,
+  buildProductContext,
+  prioritySortCodes,
+} from "./product-grounding";
 import type { Product } from "@/schemas/product-schema";
 
 // ─── Test Data ──────────────────────────────────────────────────────────────
@@ -121,6 +125,43 @@ describe("validateProductCodes", () => {
   });
 });
 
+// ─── prioritySortCodes ──────────────────────────────────────────────────────
+
+describe("prioritySortCodes", () => {
+  it("moves فاخر (featured) codes first, preserving order within each group", () => {
+    const featured = new Set(["PF050", "PF170"]);
+    const input = ["PF010", "PF050", "PF020", "PF170", "PF030"];
+    const result = prioritySortCodes(input, featured);
+    // Featured first in model order: PF050, PF170 — then regular in order
+    expect(result).toEqual(["PF050", "PF170", "PF010", "PF020", "PF030"]);
+  });
+
+  it("keeps original order when nothing is featured", () => {
+    const input = ["PF010", "PF020", "PF030"];
+    const result = prioritySortCodes(input, new Set());
+    expect(result).toEqual(input);
+  });
+
+  it("keeps original order when everything is featured", () => {
+    const featured = new Set(["PF010", "PF020", "PF030"]);
+    const input = ["PF030", "PF010", "PF020"];
+    const result = prioritySortCodes(input, featured);
+    expect(result).toEqual(input);
+  });
+
+  it("handles empty input", () => {
+    expect(prioritySortCodes([], new Set(["PF010"]))).toEqual([]);
+  });
+
+  it("never introduces codes that were not in the input", () => {
+    const featured = new Set(["PF050", "PF999"]);
+    const input = ["PF010", "PF050"];
+    const result = prioritySortCodes(input, featured);
+    expect(result).toEqual(["PF050", "PF010"]);
+    expect(result.every((c) => input.includes(c))).toBe(true);
+  });
+});
+
 // ─── buildProductContext ────────────────────────────────────────────────────
 
 describe("buildProductContext", () => {
@@ -140,6 +181,23 @@ describe("buildProductContext", () => {
     expect(context).toContain("الفصل: صيفي");
     expect(context).toContain("جنس: للجنسين");
     expect(context).toContain("جنس: رجالي");
+  });
+
+  it("flags the فاخر (luxury) attribute explicitly for every product", () => {
+    const context = buildProductContext(mockProducts);
+    // Both mock products are non-featured → clear "لا" flags
+    expect(context).toContain("فاخر: لا");
+    expect(context.match(/فاخر: لا/g)?.length).toBe(2);
+  });
+
+  it("prominently flags featured products as فاخر", () => {
+    const featuredProduct: Product = {
+      ...mockProducts[0],
+      id: "PF999",
+      featured: true,
+    };
+    const context = buildProductContext([featuredProduct]);
+    expect(context).toContain("فاخر: نعم ✅");
   });
 
   it("includes notes when available", () => {

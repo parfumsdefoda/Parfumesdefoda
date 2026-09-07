@@ -4,6 +4,7 @@ import { loadFilterData } from "@/services/filters";
 import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
 import { getProductSalesCounts } from "@/lib/sales-tracking";
+import { selectHeroShowcase } from "@/lib/hero-selection";
 import { HomePageClient } from "@/features/home";
 
 /**
@@ -49,6 +50,9 @@ export default async function HomePage() {
     );
   }
 
+  // Randomize the hero marquee set per page load (featured first, then random)
+  const heroProducts = selectHeroShowcase(products);
+
   // ─── Render client component with pre-loaded data ───
   return (
     <HomePageClient
@@ -58,6 +62,7 @@ export default async function HomePage() {
       content={content}
       localeMessages={localeMessages}
       salesCounts={salesCounts}
+      heroProducts={heroProducts}
     />
   );
 }

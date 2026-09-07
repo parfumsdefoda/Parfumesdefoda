@@ -3,6 +3,7 @@ import { getChatCompletion, type ChatMessage } from "@/lib/ai-provider";
 import {
   buildProductContext,
   validateProductCodes,
+  prioritySortCodes,
   loadCatalog,
 } from "@/lib/product-grounding";
 import { checkRateLimit } from "@/lib/rate-limiter";
@@ -25,6 +26,7 @@ const SYSTEM_PROMPT = `أنت مساعد ذكي متخصص في اختيار ا�
 لما ترشح منتج، اذكر كوده بالظبط زي ما هو مكتوب في القائمة عشان الواجهة تقدر تربطه بكارت المنتج.
 始终保持 ردودك قصيرة (٢-٤ جمل كحد أقصى) — أنت مساعد تسوقي للعطور، مش محادثة طويلة.
 إذا العميل سأل عن حاجة مش متعلقة بالعطور بأي شكل، رد بلطف: "أنا هنا بس عشان أساعدك تختار العطر المناسب 😊 تحب أرشحلك حاجة؟"
+لما تقترح أكتر من عطر مناسب لنفس الطلب، رتب الاقتراحات بحيث العطور المصنّفة "فاخر: نعم" تظهر أولاً في الترتيب، طالما هي فعلاً مناسبة لذوق العميل ومعناها الموصوف — متقترحش عطر فاخر مش مناسب فعلاً بس عشان يبقى الأول.
 
 IMPORTANT: Always respond in valid JSON with exactly this structure:
 {
@@ -111,10 +113,18 @@ export async function POST(request: Request) {
       validIds,
     );
 
+    // Deterministic backstop: luxury (فاخر) products move first, preserving
+    // the model's relative ordering within each group. Runs AFTER validation
+    // so hallucinated codes are never sorted into the response.
+    const featuredIds = new Set(
+      products.filter((p) => p.featured).map((p) => p.id),
+    );
+    const sortedCodes = prioritySortCodes(groundedCodes, featuredIds);
+
     // Resolve grounded codes to product details for the chat cards
     // (the client widget is self-contained and does no catalog loading)
     const chatProducts: ChatProduct[] = products
-      .filter((p) => p.status === "active" && groundedCodes.includes(p.id))
+      .filter((p) => p.status === "active" && sortedCodes.includes(p.id))
       .map((p) => ({
         id: p.id,
         slug: p.slug,
@@ -132,7 +142,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         reply: result.reply,
-        recommended_product_codes: groundedCodes,
+        recommended_product_codes: sortedCodes,
         products: chatProducts,
       },
       {
