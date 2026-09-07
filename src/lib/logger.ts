@@ -93,3 +93,29 @@ export function logOrderError(error: unknown, options?: LogOptions): void {
 
   console.error(`❌ ORDER CREATION FAILED\n${JSON.stringify(log, null, 2)}`);
 }
+
+/**
+ * Log an arbitrary server-side error (e.g. AI provider failures).
+ *
+ * Emits structured JSON to stderr so Vercel can index it. Includes the
+ * error message/stack plus any safe extra context — never secrets.
+ */
+export function logError(
+  event: string,
+  error: unknown,
+  extra?: Record<string, unknown>,
+): void {
+  const message = error instanceof Error ? error.message : "Unknown error";
+  const stack = error instanceof Error ? error.stack : undefined;
+
+  const log = {
+    event,
+    level: "error",
+    message,
+    stack,
+    environment: process.env.NODE_ENV ?? "unknown",
+    ...extra,
+  };
+
+  console.error(`❌ ${event.toUpperCase()} FAILED\n${JSON.stringify(log, null, 2)}`);
+}

@@ -37,19 +37,41 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## AI Chat Assistant
 
-An AI-powered fragrance recommendation widget powered by Google Gemini (free tier).
+An AI-powered fragrance recommendation widget, powered by OpenAI by default
+(`gpt-4o-mini`), with Google Gemini (`gemini-3.6-flash`) as an alternative
+provider. The provider is selected at runtime via the `AI_PROVIDER` env var —
+no code changes needed to switch.
 
 ### Environment Variables
 
-Add these to your `.env.local`:
+Add these to your `.env.local` (see `.env.example`):
 
 ```
-# AI Provider: "gemini" (default), "groq", or "openai"
-AI_PROVIDER=gemini
+# AI Provider: "openai" (default) or "gemini"
+AI_PROVIDER=openai
 
-# Google Gemini API key (free tier)
+# OpenAI API key (used when AI_PROVIDER=openai — the default)
+OPENAI_API_KEY=your_api_key_here
+
+# Google Gemini API key (only needed when AI_PROVIDER=gemini)
 GEMINI_API_KEY=your_api_key_here
 ```
+
+### Switching Providers
+
+- **OpenAI (default):** set `AI_PROVIDER=openai` and provide `OPENAI_API_KEY`.
+  If `AI_PROVIDER` is unset or contains an unknown value, the assistant falls
+  back to OpenAI automatically.
+- **Gemini:** set `AI_PROVIDER=gemini` and provide `GEMINI_API_KEY` instead.
+
+### Getting an OpenAI API Key
+
+1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Create a key and paste it as `OPENAI_API_KEY` in `.env.local`
+3. `gpt-4o-mini` is a lightweight, low-cost model suitable for short assistant
+   replies. If OpenAI ever deprecates it (404 / "model no longer available"
+   errors), update the single `OPENAI_MODEL` constant in
+   `src/lib/ai-provider.ts` with the replacement name suggested in the error.
 
 ### Getting a Free Gemini API Key
 
@@ -61,7 +83,7 @@ GEMINI_API_KEY=your_api_key_here
 
 ### How It Works
 
-- **Floating widget** appears on every page (bottom-left corner)
+- **Floating widget** appears on every page (bottom-right corner)
 - **Pulse hint** shows after 5 seconds on first visit
 - **Product grounding**: The AI only recommends products from `data/products.json` — hallucinated codes are rejected server-side before reaching the frontend
 - **Rate limiting**: 20 requests per minute per IP
