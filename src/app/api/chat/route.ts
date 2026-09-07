@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getChatCompletion, type ChatMessage } from "@/lib/ai-provider";
+import { getChatCompletion, resolveProvider, type ChatMessage } from "@/lib/ai-provider";
 import {
   buildProductContext,
   validateProductCodes,
@@ -40,6 +40,10 @@ Never include product codes that are not in the catalog provided below.
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  // Provider-selection diagnostics — visible directly in Vercel runtime logs
+  const { provider, reason } = resolveProvider();
+  console.info(`[chat] Selected provider: ${provider} (${reason})`);
+
   // Rate limiting by IP
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded?.split(",")[0]?.trim() || "unknown";

@@ -1,30 +1,55 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Mock the OpenAI SDK before importing the module under test.
-// The client is replaced with a stub whose completions.create is controlled
-// per-test via createMock. A class implementation is required so the stub
-// can be constructed with `new OpenAI({ apiKey })`.
-const { createMock, OpenAIStub } = vi.hoisted(() => {
+// Mock both SDKs before importing the module under test.
+// OpenAI: completions.create controlled per-test via createMock.
+// Gemini: sendMessage controlled per-test via geminiSendMock.
+// Class implementations are required so the stubs can be constructed
+// (`new OpenAI({ apiKey })`, `new GoogleGenerativeAI(apiKey)`).
+const { createMock, geminiSendMock, OpenAIStub, GeminiStub } = vi.hoisted(() => {
   const createMock = vi.fn();
+  const geminiSendMock = vi.fn();
   class OpenAIStub {
     chat = { completions: { create: createMock } };
   }
-  return { createMock, OpenAIStub };
+  class GeminiModelStub {
+    startChat() {
+      return {
+        // Mirror the real SDK: rejections surface from `await sendMessage(...)`
+        sendMessage: async () => {
+          const text = await geminiSendMock();
+          return { response: { text: () => text } };
+        },
+      };
+    }
+  }
+  class GeminiStub {
+    getGenerativeModel() {
+      return new GeminiModelStub();
+    }
+  }
+  return { createMock, geminiSendMock, OpenAIStub, GeminiStub };
 });
 
 vi.mock("openai", () => ({
   default: OpenAIStub,
 }));
 
+vi.mock("@google/generative-ai", () => ({
+  GoogleGenerativeAI: GeminiStub,
+}));
+
 import { getChatCompletion } from "./ai-provider";
 
 const ORIGINAL_PROVIDER = process.env.AI_PROVIDER;
-const ORIGINAL_KEY = process.env.OPENAI_API_KEY;
+const ORIGINAL_OPENAI_KEY = process.env.OPENAI_API_KEY;
+const ORIGINAL_GEMINI_KEY = process.env.GEMINI_API_KEY;
 
 beforeEach(() => {
   process.env.AI_PROVIDER = "openai";
   process.env.OPENAI_API_KEY = "test-key";
+  process.env.GEMINI_API_KEY = "gemini-test-key";
   createMock.mockReset();
+  geminiSendMock.mockReset();
 });
 
 afterEach(() => {
@@ -33,10 +58,15 @@ afterEach(() => {
   } else {
     process.env.AI_PROVIDER = ORIGINAL_PROVIDER;
   }
-  if (ORIGINAL_KEY === undefined) {
+  if (ORIGINAL_OPENAI_KEY === undefined) {
     delete process.env.OPENAI_API_KEY;
   } else {
-    process.env.OPENAI_API_KEY = ORIGINAL_KEY;
+    process.env.OPENAI_API_KEY = ORIGINAL_OPENAI_KEY;
+  }
+  if (ORIGINAL_GEMINI_KEY === undefined) {
+    delete process.env.GEMINI_API_KEY;
+  } else {
+    process.env.GEMINI_API_KEY = ORIGINAL_GEMINI_KEY;
   }
 });
 
@@ -255,5 +285,106 @@ describe("getChatCompletion (openai provider)", () => {
     );
 
     expect(result.recommended_product_codes).toEqual([]);
+  });
+});
+
+// ─── Provider fallback on rate-limit / quota errors ─────────────────────────
+
+describe("getChatCompletion (rate-limit fallback)", () => {
+  function geminiReply() {
+    geminiSendMock.mockReturnValue(
+      JSON.stringify({ reply: "رد من جيميني", recommended_product_codes: ["PF010"] }),
+    );
+  }
+
+  it("retries the same request with Gemini when OpenAI returns a 429", async () => {
+    createMock.mockRejectedValue(Object.assign(new Error("429 Too Many Requests"), { status: 429 }));
+    geminiReply();
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result).toEqual({
+      reply: "رد من جيميني",
+      recommended_product_codes: ["PF010"],
+    });
+    expect(geminiSendMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries with Gemini when OpenAI hits a quota error (message-based detection)", async () => {
+    createMock.mockRejectedValue(
+      new Error("Quota exceeded for metric: generate_content_free_tier_requests"),
+    );
+    geminiReply();
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.reply).toBe("رد من جيميني");
+  });
+
+  it("serves via OpenAI when Gemini (primary) is rate-limited", async () => {
+    process.env.AI_PROVIDER = "gemini";
+    geminiSendMock.mockRejectedValue(
+      Object.assign(new Error("[429 Too Many Requests] quota"), { status: 429 }),
+    );
+    mockResponse(JSON.stringify({ reply: "رد من أوبن إيه آي", recommended_product_codes: [] }));
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.reply).toBe("رد من أوبن إيه آي");
+    expect(createMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the graceful fallback when both providers are rate-limited", async () => {
+    createMock.mockRejectedValue(Object.assign(new Error("429 Too Many Requests"), { status: 429 }));
+    geminiSendMock.mockRejectedValue(
+      Object.assign(new Error("429 Too Many Requests"), { status: 429 }),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.reply).toContain("مشكلة تقنية");
+    expect(result.recommended_product_codes).toEqual([]);
+  });
+
+  it("does NOT fall back on non-rate-limit errors (e.g. 401 invalid key)", async () => {
+    createMock.mockRejectedValue(new Error("401 Invalid API key"));
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result.reply).toContain("مشكلة تقنية");
+    expect(geminiSendMock).not.toHaveBeenCalled();
+  });
+
+  it("logs which provider actually served the final response", async () => {
+    const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      createMock.mockRejectedValue(Object.assign(new Error("429"), { status: 429 }));
+      geminiReply();
+
+      await getChatCompletion([{ role: "user", content: "عايز عطر" }], systemPrompt);
+
+      const servedLine = infoSpy.mock.calls
+        .map((c) => String(c[0]))
+        .find((line) => line.includes("Serving response via provider"));
+      expect(servedLine).toContain("gemini");
+      expect(servedLine).toContain("fallback");
+    } finally {
+      infoSpy.mockRestore();
+    }
   });
 });

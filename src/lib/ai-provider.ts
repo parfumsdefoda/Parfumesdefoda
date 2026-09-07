@@ -46,117 +46,141 @@ const DEFAULT_PROVIDER: AIProvider = "openai";
  */
 const OPENAI_MODEL = "gpt-4o-mini";
 
+const GEMINI_MODEL = "gemini-3.6-flash";
+
 /** Graceful fallback shown to the user when a provider call fails. */
 const FALLBACK_REPLY = "معلش، حصلت مشكلة تقنية، جرب تاني كمان شوية 🙏";
 
-function getProvider(): AIProvider {
+export interface ProviderSelection {
+  provider: AIProvider;
+  /** Human-readable reason — used for Vercel-log diagnostics. */
+  reason: string;
+}
+
+/**
+ * Resolve which provider AI_PROVIDER selects, and why.
+ * Exported so the /api/chat route can log the decision per request.
+ */
+export function resolveProvider(): ProviderSelection {
   const configured = process.env.AI_PROVIDER;
   if (!configured) {
-    return DEFAULT_PROVIDER;
+    return {
+      provider: DEFAULT_PROVIDER,
+      reason: `AI_PROVIDER env var not set — using default "${DEFAULT_PROVIDER}"`,
+    };
   }
   const provider = configured as AIProvider;
   const valid: AIProvider[] = ["gemini", "groq", "openai"];
   if (!valid.includes(provider)) {
-    console.warn(
-      `[ai-provider] Unknown provider "${configured}", falling back to ${DEFAULT_PROVIDER}`,
-    );
-    return DEFAULT_PROVIDER;
+    return {
+      provider: DEFAULT_PROVIDER,
+      reason: `AI_PROVIDER env var was "${configured}" (unknown) — using default "${DEFAULT_PROVIDER}"`,
+    };
   }
-  return provider;
+  return { provider, reason: `AI_PROVIDER env var was "${configured}"` };
+}
+
+/**
+ * True when a provider error is a rate-limit (429) or quota-exhaustion
+ * failure — the only errors that trigger the cross-provider fallback.
+ * Matches both the OpenAI SDK (error.status) and Google's SDK
+ * (message text, e.g. "[429 Too Many Requests] ... Quota exceeded ...").
+ */
+function isRateLimitOrQuotaError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const e = error as { status?: number; message?: string };
+  if (e.status === 429) return true;
+  if (
+    typeof e.message === "string" &&
+    /(429|quota|too many requests|rate[ -]?limit)/i.test(e.message)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 // ─── OpenAI Adapter ─────────────────────────────────────────────────────────
 
+/** Throws on any failure — the orchestrator handles fallback + logging. */
 async function callOpenAI(
   messages: ChatMessage[],
   systemPrompt: string,
 ): Promise<ChatCompletionResult> {
-  try {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error("[ai-provider] OPENAI_API_KEY is not set in environment variables");
-    }
-
-    const client = new OpenAI({ apiKey });
-
-    // Convert our message format to OpenAI's format: system prompt first,
-    // then the conversation history (model role maps to "assistant").
-    const openaiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      { role: "system", content: systemPrompt },
-      ...messages.map((m) => ({
-        role: m.role === "model" ? ("assistant" as const) : ("user" as const),
-        content: m.content,
-      })),
-    ];
-
-    const response = await client.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: openaiMessages,
-      // JSON mode: the system prompt instructs the model to answer with
-      // { reply, recommended_product_codes } and "json" appears in the prompt.
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 1024,
-    });
-
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error("[ai-provider] OpenAI returned an empty response");
-    }
-
-    return parseAIResponse(content);
-  } catch (error) {
-    // Never crash the chat route or leak raw API error details to the frontend.
-    logError("chat.provider_error", error, { provider: "openai", model: OPENAI_MODEL });
-    return { reply: FALLBACK_REPLY, recommended_product_codes: [] };
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("[ai-provider] OPENAI_API_KEY is not set in environment variables");
   }
+
+  const client = new OpenAI({ apiKey });
+
+  // Convert our message format to OpenAI's format: system prompt first,
+  // then the conversation history (model role maps to "assistant").
+  const openaiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+    { role: "system", content: systemPrompt },
+    ...messages.map((m) => ({
+      role: m.role === "model" ? ("assistant" as const) : ("user" as const),
+      content: m.content,
+    })),
+  ];
+
+  const response = await client.chat.completions.create({
+    model: OPENAI_MODEL,
+    messages: openaiMessages,
+    // JSON mode: the system prompt instructs the model to answer with
+    // { reply, recommended_product_codes } and "json" appears in the prompt.
+    response_format: { type: "json_object" },
+    temperature: 0.7,
+    max_tokens: 1024,
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error("[ai-provider] OpenAI returned an empty response");
+  }
+
+  return parseAIResponse(content);
 }
 
 // ─── Gemini Adapter ─────────────────────────────────────────────────────────
 
+/** Throws on any failure — the orchestrator handles fallback + logging. */
 async function callGemini(
   messages: ChatMessage[],
   systemPrompt: string,
 ): Promise<ChatCompletionResult> {
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("[ai-provider] GEMINI_API_KEY is not set in environment variables");
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model: GenerativeModel = genAI.getGenerativeModel({
-      model: "gemini-3.6-flash",
-      systemInstruction: systemPrompt,
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.7,
-        maxOutputTokens: 1024,
-      },
-    });
-
-    // Convert our message format to Gemini's format
-    // Gemini uses alternating user/model turns (no system role in history)
-    const geminiHistory = messages.slice(0, -1).map((msg) => ({
-      role: msg.role === "model" ? "model" : "user",
-      parts: [{ text: msg.content }],
-    }));
-
-    const lastUserMessage = messages[messages.length - 1];
-    if (!lastUserMessage || lastUserMessage.role !== "user") {
-      throw new Error("[ai-provider] Last message must be from user");
-    }
-
-    const chat = model.startChat({ history: geminiHistory });
-    const result = await chat.sendMessage(lastUserMessage.content);
-    const responseText = result.response.text();
-
-    return parseAIResponse(responseText);
-  } catch (error) {
-    // Never crash the chat route or leak raw API error details to the frontend.
-    logError("chat.provider_error", error, { provider: "gemini", model: "gemini-3.6-flash" });
-    return { reply: FALLBACK_REPLY, recommended_product_codes: [] };
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("[ai-provider] GEMINI_API_KEY is not set in environment variables");
   }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model: GenerativeModel = genAI.getGenerativeModel({
+    model: GEMINI_MODEL,
+    systemInstruction: systemPrompt,
+    generationConfig: {
+      responseMimeType: "application/json",
+      temperature: 0.7,
+      maxOutputTokens: 1024,
+    },
+  });
+
+  // Convert our message format to Gemini's format
+  // Gemini uses alternating user/model turns (no system role in history)
+  const geminiHistory = messages.slice(0, -1).map((msg) => ({
+    role: msg.role === "model" ? "model" : "user",
+    parts: [{ text: msg.content }],
+  }));
+
+  const lastUserMessage = messages[messages.length - 1];
+  if (!lastUserMessage || lastUserMessage.role !== "user") {
+    throw new Error("[ai-provider] Last message must be from user");
+  }
+
+  const chat = model.startChat({ history: geminiHistory });
+  const result = await chat.sendMessage(lastUserMessage.content);
+  const responseText = result.response.text();
+
+  return parseAIResponse(responseText);
 }
 
 // ─── Response Parser ────────────────────────────────────────────────────────
@@ -266,8 +290,21 @@ function parseAIResponse(text: string): ChatCompletionResult {
 
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
+const MODEL_BY_PROVIDER: Record<AIProvider, string> = {
+  openai: OPENAI_MODEL,
+  gemini: GEMINI_MODEL,
+  groq: "unimplemented",
+};
+
 /**
  * Get a chat completion from the configured AI provider.
+ *
+ * Provider selection: `AI_PROVIDER` env var (defaults to "openai").
+ * Safety fallback: if the primary provider fails with a rate-limit (429)
+ * or quota error, the SAME request is retried ONCE with the other
+ * implemented provider (if its API key is present). Any other error is
+ * NOT retried — it degrades straight to the graceful Arabic fallback so
+ * the chat route never crashes or leaks raw API errors.
  *
  * @param messages - Full conversation history (user/model alternating)
  * @param systemPrompt - System instruction for the AI
@@ -277,18 +314,57 @@ export async function getChatCompletion(
   messages: ChatMessage[],
   systemPrompt: string,
 ): Promise<ChatCompletionResult> {
-  const provider = getProvider();
+  const { provider, reason } = resolveProvider();
 
-  switch (provider) {
-    case "openai":
-      return callOpenAI(messages, systemPrompt);
-    case "gemini":
-      return callGemini(messages, systemPrompt);
-    case "groq":
-      throw new Error(
-        `[ai-provider] Provider "groq" is not yet implemented. Use AI_PROVIDER=openai or gemini.`,
+  // Primary first; on rate-limit/quota we retry once with the other one
+  const fallback: AIProvider = provider === "openai" ? "gemini" : "openai";
+  const candidates: AIProvider[] = [provider, fallback];
+
+  let lastError: unknown = null;
+
+  for (const candidate of candidates) {
+    if (candidate === "groq") {
+      lastError = new Error(
+        `[ai-provider] Provider "groq" is not implemented. Use AI_PROVIDER=openai or gemini.`,
       );
-    default:
-      throw new Error(`[ai-provider] Unknown provider: ${provider}`);
+      continue;
+    }
+
+    try {
+      const result =
+        candidate === "openai"
+          ? await callOpenAI(messages, systemPrompt)
+          : await callGemini(messages, systemPrompt);
+
+      // Log clearly which provider actually served the final response
+      console.info(
+        candidate === provider
+          ? `[ai-provider] Serving response via provider: ${candidate} (primary — ${reason})`
+          : `[ai-provider] Serving response via provider: ${candidate} (fallback — primary "${provider}" failed after rate-limit/quota)`,
+      );
+      return result;
+    } catch (error) {
+      lastError = error;
+      logError("chat.provider_error", error, {
+        provider: candidate,
+        model: MODEL_BY_PROVIDER[candidate],
+      });
+
+      if (!isRateLimitOrQuotaError(error)) {
+        // Non-rate-limit failure — don't burn the fallback provider
+        break;
+      }
+      console.info(
+        `[ai-provider] Provider "${candidate}" hit a rate-limit/quota error — retrying once with "${fallback}"`,
+      );
+    }
   }
+
+  // Every attempt failed — never crash or leak raw errors to the frontend
+  if (lastError) {
+    console.info(
+      `[ai-provider] All providers failed; returning graceful fallback (last error: ${lastError instanceof Error ? lastError.message.slice(0, 120) : "unknown"})`,
+    );
+  }
+  return { reply: FALLBACK_REPLY, recommended_product_codes: [] };
 }
