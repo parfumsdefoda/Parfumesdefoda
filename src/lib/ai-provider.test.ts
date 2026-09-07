@@ -81,7 +81,7 @@ describe("getChatCompletion (openai provider)", () => {
     expect(params.messages[1]).toEqual({ role: "user", content: "مرحبا" });
     expect(params.messages[2]).toEqual({ role: "assistant", content: "أهلاً" });
     expect(params.messages[3]).toEqual({ role: "user", content: "عايز عطر رجالي" });
-    expect(params.model).toBe("gpt-4o-mini");
+    expect(params.model).toBe("gpt-5.6-luna");
     expect(params.response_format).toEqual({ type: "json_object" });
   });
 
@@ -248,7 +248,7 @@ describe("getChatCompletion (openai provider)", () => {
         .map((c) => String(c[0]))
         .find((line) => line.includes("Serving response via provider"));
       expect(servedLine).toContain("openai");
-      expect(servedLine).toContain("gpt-4o-mini");
+      expect(servedLine).toContain("gpt-5.6-luna");
     } finally {
       infoSpy.mockRestore();
     }

@@ -38,7 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## AI Chat Assistant
 
 An AI-powered fragrance recommendation widget, powered by OpenAI
-(`gpt-4o-mini`).
+(`gpt-5.6-luna`).
 
 ### Environment Variables
 
@@ -52,7 +52,7 @@ OPENAI_API_KEY=your_api_key_here
 
 1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 2. Create a key and paste it as `OPENAI_API_KEY` in `.env.local`
-3. `gpt-4o-mini` is a lightweight, low-cost model suitable for short assistant
+3. `gpt-5.6-luna` is a lightweight, low-cost model suitable for short assistant
    replies. If OpenAI ever deprecates it (404 / "model no longer available"
    errors), update the single `OPENAI_MODEL` constant in
    `src/lib/ai-provider.ts` with the replacement name suggested in the error.

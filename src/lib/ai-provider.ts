@@ -1,7 +1,7 @@
 /**
  * AI Provider — OpenAI only (server-only).
  *
- * Single `getChatCompletion()` function that calls OpenAI (gpt-4o-mini).
+ * Single `getChatCompletion()` function that calls OpenAI (gpt-5.6-luna).
  *
  * IMPORTANT: This file must NEVER be imported from a "use client" component.
  * It reads API keys from process.env, imports server-only SDKs, and would
@@ -26,7 +26,7 @@ export interface ChatCompletionResult {
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
-const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_MODEL = "gpt-5.6-luna";
 
 /** Graceful fallback shown to the user when the provider call fails. */
 const FALLBACK_REPLY = "معلش، حصلت مشكلة تقنية، جرب تاني كمان شوية 🙏";
@@ -43,7 +43,7 @@ export interface ProviderSelection {
 export function resolveProvider(): ProviderSelection {
   return {
     provider: "openai",
-    reason: `AI_PROVIDER=openai (gpt-4o-mini)`,
+    reason: `AI_PROVIDER=openai (gpt-5.6-luna)`,
   };
 }
 
@@ -179,7 +179,7 @@ async function callOpenAI(
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
 /**
- * Get a chat completion from OpenAI (gpt-4o-mini).
+ * Get a chat completion from OpenAI (gpt-5.6-luna).
  *
  * On failure (rate-limit, invalid key, quota, deprecated model), logs the
  * full error and returns a graceful Arabic fallback — never crashes the route
@@ -191,7 +191,7 @@ export async function getChatCompletion(
 ): Promise<ChatCompletionResult> {
   try {
     const result = await callOpenAI(messages, systemPrompt);
-    console.info("[ai-provider] Serving response via provider: openai (gpt-4o-mini)");
+    console.info("[ai-provider] Serving response via provider: openai (gpt-5.6-luna)");
     return result;
   } catch (error) {
     logError("chat.provider_error", error, { provider: "openai", model: OPENAI_MODEL });

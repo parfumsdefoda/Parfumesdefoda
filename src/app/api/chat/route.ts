@@ -42,7 +42,7 @@ Never include product codes that are not in the catalog provided below.
 export async function POST(request: Request) {
   // Provider-selection diagnostics — visible directly in Vercel runtime logs
   const { provider, reason } = resolveProvider();
-  console.info(`[chat] provider: "${provider}", model: "gpt-4o-mini", reason: ${reason}`);
+  console.info(`[chat] provider: "${provider}", model: "gpt-5.6-luna", reason: ${reason}`);
 
   // Rate limiting by IP
   const forwarded = request.headers.get("x-forwarded-for");
