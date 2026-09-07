@@ -155,4 +155,60 @@ describe("getChatCompletion (openai provider)", () => {
     expect(result.reply).toBe("مرحبا بك! كيف أساعدك؟");
     expect(result.recommended_product_codes).toEqual([]);
   });
+
+  it("unwraps double-encoded JSON (nested object inside reply)", async () => {
+    // Gemini occasionally wraps the whole JSON object as a string inside `reply`
+    mockResponse(
+      JSON.stringify({
+        reply: JSON.stringify({
+          reply: "برشحلك امبريال فالي وتيروني",
+          recommended_product_codes: ["PF090", "PF170"],
+        }),
+      }),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر شتوي" }],
+      systemPrompt,
+    );
+
+    expect(result).toEqual({
+      reply: "برشحلك امبريال فالي وتيروني",
+      recommended_product_codes: ["PF090", "PF170"],
+    });
+  });
+
+  it("unwraps a top-level stringified JSON object", async () => {
+    mockResponse(
+      JSON.stringify(
+        JSON.stringify({ reply: "ترشيحاتي جاهزة", recommended_product_codes: ["PF010"] }),
+      ),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result).toEqual({
+      reply: "ترشيحاتي جاهزة",
+      recommended_product_codes: ["PF010"],
+    });
+  });
+
+  it("stops unwrapping at plain text replies", async () => {
+    mockResponse(
+      JSON.stringify({ reply: "ده رد عادي مش JSON", recommended_product_codes: [] }),
+    );
+
+    const result = await getChatCompletion(
+      [{ role: "user", content: "عايز عطر" }],
+      systemPrompt,
+    );
+
+    expect(result).toEqual({
+      reply: "ده رد عادي مش JSON",
+      recommended_product_codes: [],
+    });
+  });
 });

@@ -163,14 +163,47 @@ function parseAIResponse(text: string): ChatCompletionResult {
   try {
     // Strip markdown code fences if the model wrapped the JSON in them
     const cleaned = text.trim().replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
-    const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+    const parsed = JSON.parse(cleaned) as unknown;
 
-    const reply = typeof parsed.reply === "string" ? parsed.reply : cleaned;
-    const codes = Array.isArray(parsed.recommended_product_codes)
-      ? (parsed.recommended_product_codes as unknown[]).filter(
-          (c): c is string => typeof c === "string",
-        )
-      : [];
+    let reply: string;
+    let codes: string[];
+    if (typeof parsed === "string") {
+      // Top-level stringified JSON (model double-encoded the whole object)
+      reply = parsed;
+      codes = [];
+    } else if (typeof parsed === "object" && parsed !== null) {
+      const obj = parsed as Record<string, unknown>;
+      reply = typeof obj.reply === "string" ? obj.reply : cleaned;
+      codes = Array.isArray(obj.recommended_product_codes)
+        ? (obj.recommended_product_codes as unknown[]).filter(
+            (c): c is string => typeof c === "string",
+          )
+        : [];
+    } else {
+      reply = cleaned;
+      codes = [];
+    }
+
+    // Some models (Gemini especially) occasionally double-encode the JSON:
+    // the whole { reply, recommended_product_codes } object comes back as a
+    // string inside `reply`, leaving codes empty. Unwrap a few levels so the
+    // real reply text and product codes are extracted instead of showing raw
+    // JSON to the user.
+    for (let depth = 0; depth < 3 && codes.length === 0; depth++) {
+      if (typeof reply !== "string") break;
+      try {
+        const nested = JSON.parse(reply) as Record<string, unknown>;
+        if (typeof nested.reply !== "string") break;
+        reply = nested.reply;
+        if (Array.isArray(nested.recommended_product_codes)) {
+          codes = (nested.recommended_product_codes as unknown[]).filter(
+            (c): c is string => typeof c === "string",
+          );
+        }
+      } catch {
+        break; // plain text reply — nothing to unwrap
+      }
+    }
 
     return { reply, recommended_product_codes: codes };
   } catch {
