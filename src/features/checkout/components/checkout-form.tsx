@@ -83,8 +83,6 @@ export function CheckoutForm({
   addressDetailsPlaceholder = "الشارع، رقم المبنى، العلامة القريبة",
   submitLabel = "تأكيد الطلب",
   disabled = false,
-  whatsappLabel,
-  whatsappPlaceholder,
   onSubmit,
   isSubmitting = false,
   className,
