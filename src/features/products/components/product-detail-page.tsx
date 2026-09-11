@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Loader2, Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { FeaturedBadge } from "./featured-badge";
 import { PageLayout } from "@/features/layout";
 import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
@@ -162,12 +163,10 @@ export function ProductDetailPageClient({
                 </motion.div>
               </AnimatePresence>
 
-              {/* Featured badge */}
+              {/* Featured badge — shared with the grid card so label + styling stay in sync */}
               {product.featured && (
                 <div className="absolute top-4 start-4 z-10">
-                  <span className="inline-flex items-center rounded-full bg-gradient-to-l from-[#d4af37] to-[#f5d060] px-3 py-1.5 text-xs font-bold text-white shadow-md">
-                    مميز
-                  </span>
+                  <FeaturedBadge size="md" />
                 </div>
               )}
 

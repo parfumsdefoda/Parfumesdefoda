@@ -34,7 +34,7 @@ export function buildProductContext(products: Product[]): string {
       return [
         `كود: ${p.id}`,
         `اسم: ${p.name}`,
-        `فاخر: ${p.featured ? "نعم ✅ (منتجات مميزة فاخرة)" : "لا"}`,
+        `فاخر: ${p.featured ? "نعم ✅ (منتج فاخر — يُقدَّم أولاً عند تساوي الملاءمة)" : "لا"}`,
         `ماركة: ${p.brand}`,
         `نوع: ${p.type}`,
         `الدار: ${p.house}`,

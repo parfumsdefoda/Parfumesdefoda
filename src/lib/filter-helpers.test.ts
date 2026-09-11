@@ -104,7 +104,7 @@ describe("filterProducts", () => {
       featured: p.id === "1",
     }));
     const result = filterProducts(featuredProducts, {
-      "فاخر": ["مميز"],
+      "فاخر": ["فاخر"],
     });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("1");

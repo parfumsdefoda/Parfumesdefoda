@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { FeaturedBadge } from "./featured-badge";
 import { formatPrice } from "@/lib/currency";
 import { SHIPPING_FEE } from "@/config/constants";
 
@@ -263,10 +264,7 @@ export const ProductCard = memo(function ProductCard({
         {product.featured && (
           <>
             <div className="absolute top-3 start-3 z-10">
-              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060] px-3 py-1 text-[10px] font-bold leading-none tracking-wider text-white shadow-[0_2px_8px_rgba(212,175,55,0.4)] ring-1 ring-[#f5d060]/30">
-                <span className="text-[8px]">★</span>
-                فاخر
-              </span>
+              <FeaturedBadge size="sm" />
             </div>
             {/* Gold shimmer overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#f5d060]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-[5]" />

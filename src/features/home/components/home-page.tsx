@@ -190,8 +190,8 @@ export function HomePageClient({
       {heroProducts.length > 0 && (
         <HeroShowcase
           items={heroProducts}
-          title={t("home.heroTitle", "اكتشف تشكيلتنا المميزة")}
-          ariaLabel={t("home.heroAria", "تشكيلة العطور المميزة")}
+          title={t("home.heroTitle", "اكتشف تشكيلتنا الفاخرة")}
+          ariaLabel={t("home.heroAria", "تشكيلة العطور الفاخرة")}
         />
       )}
 
