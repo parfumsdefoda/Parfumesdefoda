@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface HeroShowcaseItem {
   id: string;
+  /** Product slug — frames link to `/product/{slug}` */
+  slug: string;
   name: string;
   image: string;
   /** فاخر (featured) products get the gold frame treatment */
@@ -29,6 +32,7 @@ interface HeroShowcaseProps {
  *
  * An infinite horizontal marquee of product images in elegant frames:
  *   - Seamless loop via the duplicated-track trick (CSS translateX -50%)
+ *   - Every frame is clickable and navigates to the product's page
  *   - فاخر (featured) products get a soft gold outline + glow
  *   - Pauses on hover, disabled under prefers-reduced-motion
  *   - next/image with priority for the first frames, lazy for the rest
@@ -47,42 +51,74 @@ export function HeroShowcase({
   // The track renders the list twice for the seamless infinite loop;
   // the second copy is aria-hidden — it is purely visual.
 
-  const renderFrame = (item: HeroShowcaseItem, index: number) => (
-    <div
-      key={`${item.id}-${index}`}
-      title={item.name}
-      className={cn(
-        "relative mx-2 h-24 w-24 shrink-0 overflow-hidden rounded-2xl sm:h-28 sm:w-28",
-        "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
-        item.featured
-          ? "border-2 border-[var(--color-gold)]/70 shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
-          : "border border-[var(--neutral-100)]",
-      )}
-    >
-      <Image
-        src={item.image}
-        alt={item.name}
-        fill
-        sizes="112px"
-        className="object-contain p-3"
-        quality={80}
-        priority={index < 2}
-        loading={index < 2 ? undefined : "lazy"}
-      />
-      {/* فاخر mini-badge on featured frames */}
-      {item.featured && (
-        <span
+  const renderFrame = (item: HeroShowcaseItem, index: number) => {
+    const frame = (
+      <>
+        <Image
+          src={item.image}
+          alt={item.name}
+          fill
+          sizes="(max-width: 640px) 160px, 224px"
+          className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
+          quality={80}
+          priority={index < 2}
+          loading={index < 2 ? undefined : "lazy"}
+        />
+        {/* فاخر mini-badge on featured frames */}
+        {item.featured && (
+          <span
+            className={cn(
+              "absolute end-1.5 top-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold text-white",
+              "bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]",
+              "shadow-[0_1px_4px_rgba(212,175,55,0.4)]",
+            )}
+          >
+            ★ فاخر
+          </span>
+        )}
+      </>
+    );
+
+    // Clickable frame — navigates to the product's own page (same route
+    // pattern as product-card.tsx).
+    if (item.slug) {
+      return (
+        <Link
+          key={`${item.id}-${index}`}
+          href={`/product/${item.slug}`}
+          title={item.name}
+          aria-label={item.name}
           className={cn(
-            "absolute end-1 top-1 rounded-full px-1.5 py-0.5 text-[8px] font-bold text-white",
-            "bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]",
-            "shadow-[0_1px_4px_rgba(212,175,55,0.4)]",
+            "group relative mx-2 block h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",
+            "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
+            "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.14)]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2",
+            item.featured
+              ? "border-2 border-[var(--color-gold)]/70 shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
+              : "border border-[var(--neutral-100)]",
           )}
         >
-          ★ فاخر
-        </span>
-      )}
-    </div>
-  );
+          {frame}
+        </Link>
+      );
+    }
+
+    return (
+      <div
+        key={`${item.id}-${index}`}
+        title={item.name}
+        className={cn(
+          "relative mx-2 h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",
+          "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
+          item.featured
+            ? "border-2 border-[var(--color-gold)]/70 shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
+            : "border border-[var(--neutral-100)]",
+        )}
+      >
+        {frame}
+      </div>
+    );
+  };
 
   return (
     <section

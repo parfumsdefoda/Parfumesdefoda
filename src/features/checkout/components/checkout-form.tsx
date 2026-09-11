@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { User, Phone, MapPin, Send, Building2, Map } from "lucide-react";
+import { User, Phone, MessageCircle, MapPin, Send, Building2, Map } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,10 @@ export interface CheckoutFormProps {
   phoneLabel?: string;
   /** Phone placeholder */
   phonePlaceholder?: string;
+  /** WhatsApp label */
+  whatsappLabel?: string;
+  /** WhatsApp placeholder */
+  whatsappPlaceholder?: string;
   /** Governorate label */
   governorateLabel?: string;
   /** City label */
@@ -71,12 +75,16 @@ export function CheckoutForm({
   namePlaceholder = "أدخل اسمك الكامل",
   phoneLabel = "رقم الموبايل",
   phonePlaceholder = "01XXXXXXXXX",
+  whatsappLabel = "رقم واتساب للتواصل",
+  whatsappPlaceholder = "01XXXXXXXXX",
   governorateLabel = "المحافظة",
   cityLabel = "المدينة",
-  addressDetailsLabel = "العنوان بالتفصيل — أقرب علامة مميزة",
+  addressDetailsLabel = "العنوان بالتفصيل — أقرب معلم",
   addressDetailsPlaceholder = "الشارع، رقم المبنى، العلامة القريبة",
   submitLabel = "تأكيد الطلب",
   disabled = false,
+  whatsappLabel,
+  whatsappPlaceholder,
   onSubmit,
   isSubmitting = false,
   className,
@@ -99,6 +107,7 @@ export function CheckoutForm({
     defaultValues: {
       name: "",
       phone: "",
+      whatsapp: "",
       governorate: "",
       city: "",
       addressDetails: "",
@@ -168,6 +177,28 @@ export function CheckoutForm({
             {errors.phone && (
               <p className="text-xs text-[var(--color-error)]" role="alert">
                 {errors.phone.message}
+              </p>
+            )}
+          </div>
+
+          {/* WhatsApp */}
+          <div className="space-y-1.5">
+            <Label htmlFor="checkout-whatsapp" className="gap-1.5">
+              <MessageCircle className="h-3.5 w-3.5 text-[var(--neutral-400)]" />
+              {whatsappLabel}
+            </Label>
+            <Input
+              id="checkout-whatsapp"
+              {...register("whatsapp")}
+              placeholder={whatsappPlaceholder}
+              dir="ltr"
+              type="tel"
+              aria-invalid={!!errors.whatsapp}
+              className="h-11"
+            />
+            {errors.whatsapp && (
+              <p className="text-xs text-[var(--color-error)]" role="alert">
+                {errors.whatsapp.message}
               </p>
             )}
           </div>

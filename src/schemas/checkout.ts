@@ -5,6 +5,7 @@ import { z } from "zod";
  *
  * - Name: required, minimum 2 characters
  * - Phone: required, must be a valid Egyptian mobile number
+ * - Whatsapp: required, must be a valid Egyptian mobile number (may equal phone)
  * - Governorate: required, from predefined list
  * - City: required, from predefined list (dependent on governorate)
  * - AddressDetails: required, minimum 5 characters (street, building, landmark)
@@ -19,6 +20,13 @@ export const checkoutSchema = z.object({
     .regex(
       /^(?:\+20|0020|0)1[0-25]{1}[0-9]{8}$/,
       "يرجى إدخال رقم هاتف مصري صحيح",
+    ),
+  whatsapp: z
+    .string()
+    .min(10, "يرجى إدخال رقم واتساب صحيح")
+    .regex(
+      /^(?:\+20|0020|0)1[0-25]{1}[0-9]{8}$/,
+      "يرجى إدخال رقم واتساب مصري صحيح",
     ),
   governorate: z
     .string()

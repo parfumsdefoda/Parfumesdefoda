@@ -4,6 +4,8 @@
 export interface OrderFormData {
   name: string;
   phone: string;
+  /** WhatsApp contact number — required, may be the same as phone */
+  whatsapp: string;
   governorate: string;
   city: string;
   addressDetails: string;
@@ -23,6 +25,7 @@ export interface Order {
   customer: {
     name: string;
     phone: string;
+    whatsapp: string;
     governorate: string;
     city: string;
     addressDetails: string;

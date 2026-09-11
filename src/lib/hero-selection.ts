@@ -11,6 +11,8 @@ import type { Product } from "@/schemas/product-schema";
 
 export interface HeroShowcaseItem {
   id: string;
+  /** Product slug — used for the clickable link to the product page */
+  slug: string;
   name: string;
   image: string;
   /** فاخر (featured) products get the gold frame treatment in the marquee */
@@ -43,6 +45,7 @@ export function selectHeroShowcase(
     .slice(0, total)
     .map((p) => ({
       id: p.id,
+      slug: p.slug,
       name: p.name,
       image: p.image,
       featured: p.featured,

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Banknote } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PageLayout } from "@/features/layout";
@@ -51,6 +51,7 @@ export function CheckoutPageClient({
       customer: {
         name: data.name,
         phone: data.phone,
+        whatsapp: data.whatsapp,
         governorate: data.governorate,
         city: data.city,
         addressDetails: data.addressDetails,
@@ -151,9 +152,11 @@ export function CheckoutPageClient({
               namePlaceholder="أدخل اسمك الكامل"
               phoneLabel="رقم الموبايل"
               phonePlaceholder="01XXXXXXXXX"
+              whatsappLabel="رقم واتساب للتواصل"
+              whatsappPlaceholder="01XXXXXXXXX"
               governorateLabel="المحافظة"
               cityLabel="المدينة"
-              addressDetailsLabel="العنوان بالتفصيل — أقرب علامة مميزة"
+              addressDetailsLabel="العنوان بالتفصيل — أقرب معلم"
               addressDetailsPlaceholder="الشارع، رقم المبنى، العلامة القريبة"
               submitLabel={`تأكيد الطلب — ${formatPrice(total)}`}
               onSubmit={handleSubmit}
@@ -273,24 +276,6 @@ export function CheckoutPageClient({
                 </div>
               </div>
 
-              <Separator className="my-4" />
-
-              {/* Payment Method */}
-              <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-secondary)]/10">
-                    <Banknote className="h-5 w-5 text-[var(--color-secondary)]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-[var(--neutral-800)]">
-                      الدفع عند الاستلام
-                    </p>
-                    <p className="text-xs text-[var(--neutral-500)]">
-                      ادفع نقداً عند استلام الطلب
-                    </p>
-                  </div>
-                </div>
-              </div>
             </motion.div>
           </div>
         </div>

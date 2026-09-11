@@ -12,6 +12,7 @@ export interface OrderLogInput {
   customer: {
     name: string;
     phone: string;
+    whatsapp: string;
     governorate: string;
     city: string;
     addressDetails: string;
@@ -50,6 +51,7 @@ export function logOrderCreated(order: OrderLogInput, options?: LogOptions): voi
     orderNumber: order.orderNumber,
     customer: order.customer.name,
     phone: order.customer.phone,
+    whatsapp: order.customer.whatsapp,
     governorate: order.customer.governorate,
     city: order.customer.city,
     addressDetails: order.customer.addressDetails,

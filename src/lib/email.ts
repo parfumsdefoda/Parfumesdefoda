@@ -12,6 +12,7 @@ export interface OrderEmailData {
   customer: {
     name: string;
     phone: string;
+    whatsapp: string;
     governorate: string;
     city: string;
     addressDetails: string;
@@ -111,6 +112,7 @@ function buildOrderEmailHtml(data: OrderEmailData): string {
       <h2 style="color: #374151; font-size: 18px; margin: 0 0 12px; padding-right: 8px; border-right: 3px solid #9cd676;">بيانات العميل</h2>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">الاسم:</strong> ${escapeHtml(customer.name)}</p>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">رقم الهاتف:</strong> ${escapeHtml(customer.phone)}</p>
+      <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">رقم واتساب:</strong> ${escapeHtml(customer.whatsapp)}</p>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">المحافظة:</strong> ${escapeHtml(customer.governorate)}</p>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">المدينة:</strong> ${escapeHtml(customer.city)}</p>
       <p style="margin: 4px 0; font-size: 14px;"><strong style="color: #374151;">العنوان بالتفصيل:</strong> ${escapeHtml(customer.addressDetails)}</p>
@@ -249,6 +251,7 @@ function buildEmailBody(
     "بيانات العميل:",
     `الاسم: ${customer.name}`,
     `رقم الهاتف: ${customer.phone}`,
+    `رقم واتساب: ${customer.whatsapp}`,
     `المحافظة: ${customer.governorate}`,
     `المدينة: ${customer.city}`,
     `العنوان بالتفصيل: ${customer.addressDetails}`,

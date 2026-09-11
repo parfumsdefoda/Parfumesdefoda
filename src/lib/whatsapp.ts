@@ -17,6 +17,7 @@ function buildOrderWhatsAppMessage(order: Order): string {
   lines.push(`رقم الطلب: ${order.orderNumber}`);
   lines.push(`العميل: ${order.customer.name}`);
   lines.push(`الهاتف: ${order.customer.phone}`);
+  lines.push(`واتساب: ${order.customer.whatsapp}`);
   lines.push(`المحافظة: ${order.customer.governorate}`);
   lines.push(`المدينة: ${order.customer.city}`);
   lines.push(`العنوان بالتفصيل: ${order.customer.addressDetails}`);
