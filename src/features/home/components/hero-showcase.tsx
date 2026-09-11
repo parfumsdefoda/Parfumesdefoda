@@ -137,8 +137,18 @@ export function HeroShowcase({
         </div>
       )}
 
-      <div className="marquee overflow-hidden py-6">
-        {/* dir="ltr" keeps the translateX loop predictable regardless of page RTL */}
+      {/*
+        dir="ltr" MUST be on this overflow container, not just on the track.
+        In an RTL document a `width: max-content` child is laid out from the
+        container's RIGHT edge, so the track's origin sits at
+        `container.right - trackWidth` and the visible window shows the tail of
+        the duplicated set. The animation then slides content off into empty
+        space on the right and snaps back — the seam this fixes.
+        With the container LTR, the track starts at the container's left edge
+        and translateX(-50%) lands the duplicate set exactly where set 1 began.
+      */}
+      <div dir="ltr" className="marquee overflow-hidden py-6">
+        {/* The track itself is also LTR so the loop math is direction-agnostic */}
         <div dir="ltr" className="marquee-track flex w-max">
           <div className="flex">
             {items.map((item, i) => renderFrame(item, i))}

@@ -1,12 +1,17 @@
 import type { Product } from "@/types";
 import type { ActiveFilters } from "@/types";
 
-/** Maps a filter group name to the product field it filters against. */
+/**
+ * Maps a filter group name to the product field it filters against.
+ *
+ * NOTE: the season filter group is intentionally absent — it was removed from
+ * the sidebar (see data/filters.json). The `season` field still exists on
+ * products for search/sort/display; it is simply no longer filterable.
+ */
 const GROUP_TO_FIELD: Record<string, keyof Product> = {
   الجنس: "gender",
   النوع: "type",
   الدار: "house",
-  الفصل: "season",
   الأداء: "performance",
 };
 

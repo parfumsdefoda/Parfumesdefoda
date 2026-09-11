@@ -110,10 +110,11 @@ describe("filterProducts", () => {
     expect(result[0].id).toBe("1");
   });
 
-  it("filters by season", () => {
+  it("ignores the removed season group entirely (no longer a filter)", () => {
+    // The season filter was removed from the sidebar, so an active "الفصل"
+    // entry (e.g. from a stale shared URL) must not filter anything out.
     const result = filterProducts(mockProducts, { الفصل: ["صيفي"] });
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("1");
+    expect(result).toHaveLength(mockProducts.length);
   });
 
   it("filters by performance", () => {
