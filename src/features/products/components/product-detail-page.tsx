@@ -401,43 +401,80 @@ export function ProductDetailPageClient({
               </div>
             )}
 
-            {/* Add to cart button */}
-            <Button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock || isProductOutOfStock || buttonState !== "idle"}
-              variant="default"
-              className={`h-12 w-full rounded-full text-sm font-semibold ${
-                buttonState === "success"
-                  ? "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]"
-                  : ""
-              }`}
-              aria-label={
-                isOutOfStock || isProductOutOfStock
-                  ? "غير متوفر"
-                  : buttonState === "success"
-                    ? "تمت الإضافة"
-                    : "أضف إلى السلة"
-              }
-            >
-              {isOutOfStock || isProductOutOfStock ? (
-                "غير متوفر"
-              ) : buttonState === "loading" ? (
-                <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  <span>جاري الإضافة...</span>
-                </span>
-              ) : buttonState === "success" ? (
-                <span className="inline-flex items-center gap-2">
-                  <Check className="h-4 w-4" aria-hidden="true" />
-                  <span>تمت الإضافة إلى السلة</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-2">
-                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-                  <span>أضف إلى السلة</span>
-                </span>
-              )}
-            </Button>
+            {/* Buy Now shortcut + Add to Cart */}
+            <div className="flex flex-col gap-2.5">
+              {/* Buy Now — add to cart then immediately go to checkout */}
+              {!isOutOfStock &&
+                !isProductOutOfStock &&
+                buttonState === "idle" &&
+                selectedSize && (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      // Add the selected variant to the cart (merge, don't replace other items)
+                      cart.addItem({
+                        productId: product.id,
+                        sizeLabel: selectedSize.label,
+                        price: selectedSize.price,
+                        name: product.name,
+                        image: product.image,
+                      });
+                      showToast(`تمت إضافة ${product.name} إلى السلة`, "success");
+                      setButtonState("loading");
+                      // Navigate straight to checkout with whatever is now in the cart
+                      window.location.href = "/checkout";
+                    }}
+                    variant="secondary"
+                    className={`rounded-full text-sm font-semibold ${
+                      "bg-[var(--color-gold)] text-[var(--neutral-900)]",
+                      "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
+                      "transition-all duration-300",
+                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
+                    }`}
+                    aria-label="اشتر الآن"
+                  >
+                    اشتر الآن
+                  </Button>
+                )}
+
+              {/* Add to Cart button */}
+              <Button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || isProductOutOfStock || buttonState !== "idle"}
+                variant="default"
+                className={`h-12 w-full rounded-full text-sm font-semibold ${
+                  buttonState === "success"
+                    ? "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]"
+                    : ""
+                }`}
+                aria-label={
+                  isOutOfStock || isProductOutOfStock
+                    ? "غير متوفر"
+                    : buttonState === "success"
+                      ? "تمت الإضافة"
+                      : "أضف إلى السلة"
+                }
+              >
+                {isOutOfStock || isProductOutOfStock ? (
+                  "غير متوفر"
+                ) : buttonState === "loading" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    <span>جاري الإضافة...</span>
+                  </span>
+                ) : buttonState === "success" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                    <span>تمت الإضافة إلى السلة</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                    <span>أضف إلى السلة</span>
+                  </span>
+                )}
+              </Button>
+            </div>
 
             {/* Continue shopping link */}
             <Link

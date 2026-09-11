@@ -55,8 +55,12 @@ export interface ProductCardProps {
   selectSizeLabel?: string;
   /** Label shown below price */
   taxIncludedLabel?: string;
+  /** Label for the "Buy Now" shortcut button */
+  buyNowLabel?: string;
   /** Called when user clicks "add to cart" */
   onAddToCart?: (product: ProductCardProduct, size: ProductSize) => void;
+  /** Called when user clicks "Buy Now" — navigate straight to checkout */
+  onBuyNow?: () => void;
   className?: string;
 }
 
@@ -389,44 +393,73 @@ export const ProductCard = memo(function ProductCard({
           </span>
         </div>
 
-        {/* Add to Cart Button */}
-        <Button
-          onClick={handleAddToCart}
-          disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
-          variant="default"
-          className={cn(
-            "h-10 w-full rounded-full text-[13px] font-semibold",
-            "bg-[var(--color-secondary)] text-white",
-            "hover:bg-[var(--color-accent)] hover:text-white",
-            "transition-all duration-300",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
-            buttonState === "success" &&
-              "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]",
+        {/* Buy Now + Add to Cart buttons */}
+        <div className="flex flex-col gap-2">
+          {/* Buy Now — navigate straight to checkout after adding */}
+          {!isOutOfStock && selectedSize && (
+            <Button
+              type="button"
+              onClick={() => {
+                // 1. Add the selected variant to cart (merge, don't replace)
+                onAddToCart?.(product, selectedSize);
+                // 2. Immediately navigate to checkout (full cart, including other items)
+                onBuyNow?.();
+              }}
+              disabled={buttonState !== "idle"}
+              variant="secondary"
+              className={cn(
+                "rounded-full text-sm font-semibold",
+                "bg-[var(--color-gold)] text-[var(--neutral-900)]",
+                "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
+                "transition-all duration-300",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
+                buttonState === "success" && "!bg-[var(--color-success)] !text-white",
+              )}
+              aria-label={buyNowLabel}
+            >
+              {buyNowLabel}
+            </Button>
           )}
-          aria-label={
-            isOutOfStock
-              ? outOfStockLabel
-              : buttonState === "success"
-                ? addedLabel
-                : addToCartLabel
-          }
-        >
-          {isOutOfStock ? (
-            outOfStockLabel
-          ) : buttonState === "loading" ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              <span>{addToCartLabel}</span>
-            </span>
-          ) : buttonState === "success" ? (
-            <span className="inline-flex items-center gap-2">
-              <Check className="h-4 w-4" aria-hidden="true" />
-              <span>{addedLabel}</span>
-            </span>
-          ) : (
-            addToCartLabel
-          )}
-        </Button>
+
+          {/* Add to Cart — standard green button */}
+          <Button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
+            variant="default"
+            className={cn(
+              "h-10 w-full rounded-full text-[13px] font-semibold",
+              "bg-[var(--color-secondary)] text-white",
+              "hover:bg-[var(--color-accent)] hover:text-white",
+              "transition-all duration-300",
+              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
+              buttonState === "success" &&
+                "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]",
+            )}
+            aria-label={
+              isOutOfStock
+                ? outOfStockLabel
+                : buttonState === "success"
+                  ? addedLabel
+                  : addToCartLabel
+            }
+          >
+            {isOutOfStock ? (
+              outOfStockLabel
+            ) : buttonState === "loading" ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <span>{addToCartLabel}</span>
+              </span>
+            ) : buttonState === "success" ? (
+              <span className="inline-flex items-center gap-2">
+                <Check className="h-4 w-4" aria-hidden="true" />
+                <span>{addedLabel}</span>
+              </span>
+            ) : (
+              addToCartLabel
+            )}
+          </Button>
+        </div>
       </div>
     </article>
   );

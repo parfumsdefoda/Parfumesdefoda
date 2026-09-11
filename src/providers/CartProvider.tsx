@@ -31,13 +31,24 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
-export function useCart() {
+export function useCart(): CartContextValue {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }
+
+export function useCartDrawerOpen(): boolean {
+  const context = useContext(DrawerOpenContext);
+  if (!context) {
+    throw new Error("useCartDrawerOpen must be used within a CartProvider");
+  }
+  return context;
+}
+
+const DrawerOpenContext = createContext<boolean | undefined>(undefined);
+
 
 const STORAGE_KEY = "parfumsdefoda-cart";
 
@@ -146,6 +157,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     0,
   );
 
+  const [drawerOpen, setDrawerOpenState] = useState(false);
+  const openDrawer = useCallback(() => setDrawerOpenState(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpenState(false), []);
+
   return (
     <CartContext.Provider
       value={{
@@ -158,7 +173,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         totalPrice,
       }}
     >
-      {children}
+      <DrawerOpenContext.Provider value={drawerOpen}>
+        {children}
+      </DrawerOpenContext.Provider>
     </CartContext.Provider>
   );
 }
