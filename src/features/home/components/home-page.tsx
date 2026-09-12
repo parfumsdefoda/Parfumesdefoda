@@ -259,7 +259,9 @@ export function HomePageClient({
                   addedLabel: t("home.addedToCart", "✓ تمت الإضافة"),
                   outOfStockLabel: t("home.outOfStock", "غير متوفر"),
                   selectSizeLabel: t("product.selectSize", "اختر الحجم"),
+                  buyNowLabel: t("home.buyNow", "اشتر الآن"),
                   onAddToCart: handleAddToCart,
+                  onBuyNow: () => router.push("/checkout"),
                 }}
               />
             )}

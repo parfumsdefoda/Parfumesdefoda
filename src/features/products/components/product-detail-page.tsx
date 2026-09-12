@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Loader2, Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { FeaturedBadge } from "./featured-badge";
 import { PageLayout } from "@/features/layout";
 import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/features/toast";
 import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
@@ -39,6 +41,7 @@ export function ProductDetailPageClient({
   settings,
 }: ProductDetailPageClientProps) {
   const cart = useCart();
+  const router = useRouter();
   const { showToast } = useToast();
   const settingsData = useSettings(settings);
 
@@ -422,15 +425,16 @@ export function ProductDetailPageClient({
                       showToast(`تمت إضافة ${product.name} إلى السلة`, "success");
                       setButtonState("loading");
                       // Navigate straight to checkout with whatever is now in the cart
-                      window.location.href = "/checkout";
+                      router.push("/checkout");
                     }}
                     variant="secondary"
-                    className={`rounded-full text-sm font-semibold ${
+                    className={cn(
+                      "rounded-full text-sm font-semibold",
                       "bg-[var(--color-gold)] text-[var(--neutral-900)]",
                       "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
                       "transition-all duration-300",
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
-                    }`}
+                    )}
                     aria-label="اشتر الآن"
                   >
                     اشتر الآن

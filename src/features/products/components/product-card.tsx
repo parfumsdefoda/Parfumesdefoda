@@ -116,7 +116,9 @@ export const ProductCard = memo(function ProductCard({
   outOfStockLabel = "غير متوفر",
   selectSizeLabel = "اختر الحجم",
   taxIncludedLabel = "شامل الضريبة",
+  buyNowLabel = "اشتر الآن",
   onAddToCart,
+  onBuyNow,
   className,
 }: ProductCardProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(
