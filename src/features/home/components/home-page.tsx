@@ -71,7 +71,8 @@ export function HomePageClient({
   const { showToast } = useToast();
 
   // ─── UI State ───
-  const [cartOpen, setCartOpen] = useState(false);
+  // Drawer open/close lives in CartProvider (shared with the chat widget so it
+  // can unmount while the drawer is open) — no local state here.
   const [filterOpen, setFilterOpen] = useState(false);
 
   // ─── Derived ───
@@ -161,7 +162,7 @@ export function HomePageClient({
   };
 
   const handleCartCheckout = () => {
-    setCartOpen(false);
+    cart.closeDrawer();
     router.push("/checkout");
   };
 
@@ -176,7 +177,7 @@ export function HomePageClient({
       headerProps={{
         navItems: settings.navigation,
         cartCount: cart.totalItems,
-        onCartClick: () => setCartOpen(true),
+        onCartClick: () => cart.openDrawer(),
         menuLabel: t("home.filters", "تصفية"),
         filterOpen,
         onFilterClick: () => setFilterOpen(true),
@@ -323,8 +324,8 @@ export function HomePageClient({
 
       {/* ─── Cart Drawer ─── */}
       <CartDrawer
-        open={cartOpen}
-        onOpenChange={setCartOpen}
+        open={cart.isDrawerOpen}
+        onOpenChange={(open) => (open ? cart.openDrawer() : cart.closeDrawer())}
         items={cartDrawerItems}
         title={t("cart.title", "سلة التسوق")}
         emptyTitle={t("cart.empty", "سلة التسوق فارغة")}

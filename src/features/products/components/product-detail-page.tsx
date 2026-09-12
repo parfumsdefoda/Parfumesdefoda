@@ -53,7 +53,6 @@ export function ProductDetailPageClient({
   });
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [buttonState, setButtonState] = useState<ButtonState>("idle");
-  const [cartOpen, setCartOpen] = useState(false);
 
   // ─── Derived ───
   const selectedSize = product.sizes[selectedSizeIndex];
@@ -86,9 +85,9 @@ export function ProductDetailPageClient({
   }, [selectedSize, isOutOfStock, buttonState, cart, product, showToast]);
 
   const handleCartCheckout = useCallback(() => {
-    setCartOpen(false);
-    window.location.href = "/checkout";
-  }, []);
+    cart.closeDrawer();
+    router.push("/checkout");
+  }, [cart, router]);
 
   // ─── Cart items mapped to CartDrawer format ───
   const cartDrawerItems = cart.items.map((item) => ({
@@ -112,7 +111,7 @@ export function ProductDetailPageClient({
       headerProps={{
         navItems: settingsData.navigation,
         cartCount: cart.totalItems,
-        onCartClick: () => setCartOpen(true),
+        onCartClick: () => cart.openDrawer(),
       }}
       footerProps={{
         description: settingsData.footerDescription,
@@ -493,9 +492,8 @@ export function ProductDetailPageClient({
       </div>
 
       {/* Cart Drawer */}
-      <CartDrawer
-        open={cartOpen}
-        onOpenChange={setCartOpen}
+      <CartDrawer open={cart.isDrawerOpen}
+        onOpenChange={(open) => (open ? cart.openDrawer() : cart.closeDrawer())}
         items={cartDrawerItems}
         title="سلة التسوق"
         emptyTitle="سلة التسوق فارغة"

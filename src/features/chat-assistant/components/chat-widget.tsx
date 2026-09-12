@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/providers/CartProvider";
 import { useChat } from "../hooks/use-chat";
 import { ChatWindow } from "./chat-window";
 import { ChatTriggerCard } from "./chat-trigger-card";
@@ -35,10 +37,14 @@ const ATTRACT_SHOWN_KEY = "parfumsdefoda-chat-attract-seen";
  *   - z-[60] keeps the trigger above toasts (z-50) so it stays tappable
  *   - Clicking a recommended product inside the chat minimizes the window
  *     (conversation state is preserved in useChat — reopening restores it)
+ *   - FULLY UNMOUNTS (returns null) while the cart drawer is open or on the
+ *     /checkout routes — the floating card overlaps the drawer's checkout
+ *     button on mobile. Unmount (not CSS hiding) guarantees zero tap targets.
  *
- * Self-contained client component: no environment variables, no server data
- * loading, no provider dependencies. Wrapped in ChatErrorBoundary at the
- * mount point so a failure here never takes down the rest of the site.
+ * Client component with one provider dependency (CartProvider, for drawer
+ * state) — which is why it is mounted INSIDE <Providers> in layout.tsx.
+ * Wrapped in ChatErrorBoundary at the mount point so a failure here never
+ * takes down the rest of the site.
  */
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +53,22 @@ export function ChatWidget() {
   const attractTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const attractEndRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
+  const { isDrawerOpen } = useCart();
+  const pathname = usePathname();
+
+  /** True on the checkout flow, where no floating UI may overlap the form */
+  const isCheckoutRoute = pathname?.startsWith("/checkout") ?? false;
+
+  // Collapse the chat window when the drawer opens — render-time state
+  // adjustment (the documented pattern for reacting to prop/context changes;
+  // setState-in-effect is disallowed by lint). Without this, a chat window
+  // that was open when the drawer opened would pop back open the moment the
+  // drawer closes. Must run BEFORE the unmount return below.
+  const [prevDrawerOpen, setPrevDrawerOpen] = useState(isDrawerOpen);
+  if (prevDrawerOpen !== isDrawerOpen) {
+    setPrevDrawerOpen(isDrawerOpen);
+    if (isDrawerOpen) setIsOpen(false);
+  }
 
   // First-visit attention pulse — sessionStorage access inside useEffect only
   useEffect(() => {
@@ -95,6 +117,12 @@ export function ChatWidget() {
   const handleNavigateToProduct = useCallback(() => {
     setIsOpen(false);
   }, []);
+
+  // While the cart drawer is open or on the checkout flow, unmount EVERYTHING
+  // (trigger + window). A real conditional return — not CSS hiding — so there
+  // is zero chance of an invisible-but-tappable element overlapping the
+  // drawer's checkout button.
+  if (isDrawerOpen || isCheckoutRoute) return null;
 
   return (
     <>

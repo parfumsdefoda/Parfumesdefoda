@@ -27,6 +27,10 @@ interface CartContextValue {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  /** Cart drawer visibility — shared so floating UI (chat widget) can unmount while it's open */
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -38,17 +42,6 @@ export function useCart(): CartContextValue {
   }
   return context;
 }
-
-export function useCartDrawerOpen(): boolean {
-  const context = useContext(DrawerOpenContext);
-  if (!context) {
-    throw new Error("useCartDrawerOpen must be used within a CartProvider");
-  }
-  return context;
-}
-
-const DrawerOpenContext = createContext<boolean | undefined>(undefined);
-
 
 const STORAGE_KEY = "parfumsdefoda-cart";
 
@@ -171,11 +164,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        isDrawerOpen: drawerOpen,
+        openDrawer,
+        closeDrawer,
       }}
     >
-      <DrawerOpenContext.Provider value={drawerOpen}>
-        {children}
-      </DrawerOpenContext.Provider>
+      {children}
     </CartContext.Provider>
   );
 }

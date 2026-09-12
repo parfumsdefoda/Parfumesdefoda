@@ -176,12 +176,13 @@ export default async function RootLayout({
         </a>
         <Providers theme={theme}>
           {children}
+          {/* AI chat assistant — INSIDE Providers so it can read cart/drawer
+              state (useCart) and unmount itself while the cart drawer or the
+              checkout page is open (prevents overlap with the checkout
+              button). Still wrapped in its own error boundary so a failure
+              here never takes down the rest of the site. */}
+          <ChatAssistant />
         </Providers>
-        {/* AI chat assistant — mounted as a sibling of Providers, inside <body>,
-            wrapped in its own error boundary so a failure here never takes
-            down the rest of the site. Self-contained client component: no
-            server data loading, no provider dependencies. */}
-        <ChatAssistant />
       </body>
     </html>
   );
