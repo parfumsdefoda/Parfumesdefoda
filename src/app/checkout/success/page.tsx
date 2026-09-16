@@ -61,11 +61,11 @@ export default function CheckoutSuccessPage() {
 
           {/* Title */}
           <h1 className="text-2xl font-bold text-[var(--neutral-800)] mb-2">
-            تم استلام طلبك بنجاح!
+            تم استلام طلبكم بنجاح
           </h1>
 
           <p className="text-[var(--neutral-500)] mb-6">
-            شكراً لك! سيتم التواصل معك قريباً لتأكيد الطلب.
+            وسيتم التواصل معكم على واتساب لتأكيد الطلب
           </p>
 
           {/* Order number */}

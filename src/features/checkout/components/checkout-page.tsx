@@ -33,6 +33,7 @@ export function CheckoutPageClient({
   const router = useRouter();
   const cart = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const subtotal = cart.totalPrice;
   const shippingCost = SHIPPING_FEE;
@@ -42,6 +43,7 @@ export function CheckoutPageClient({
     if (cart.items.length === 0) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
 
     const orderNumber = generateOrderNumber();
 
@@ -90,18 +92,16 @@ export function CheckoutPageClient({
         // Silent fail
       }
 
-      // Clear cart and redirect to success
+      // Clear cart and redirect to success — ONLY on confirmed success
       cart.clearCart();
       router.push("/checkout/success");
     } catch {
-      // If API fails, still proceed with local order
-      try {
-        sessionStorage.setItem("parfumsdefoda-last-order", orderNumber);
-      } catch {
-        // Silent fail
-      }
-      cart.clearCart();
-      router.push("/checkout/success");
+      // API failed — do NOT navigate to the success page.
+      // Keep the cart intact so the customer can retry without losing anything.
+      setIsSubmitting(false);
+      setSubmitError(
+        "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.",
+      );
     }
   };
 
@@ -146,6 +146,15 @@ export function CheckoutPageClient({
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
           {/* ─── Right Column: Checkout Form (RTL primary side) ─── */}
           <div className="order-1 lg:order-1">
+            {submitError && (
+              <div
+                role="alert"
+                className="mb-4 flex items-start gap-2 rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-sm text-[var(--color-error)]"
+              >
+                <span aria-hidden="true">⚠️</span>
+                <p className="leading-relaxed">{submitError}</p>
+              </div>
+            )}
             <CheckoutForm
               title="بيانات التوصيل"
               nameLabel="الاسم بالكامل"
