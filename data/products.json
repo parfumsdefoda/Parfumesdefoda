@@ -1,8 +1,8 @@
 [
   {
-    "id": "PF010",
-    "sku": "PF010",
-    "slug": "pf010",
+    "id": "PF020",
+    "sku": "PF020",
+    "slug": "pf020",
     "name": "أفريكان ليذر",
     "brand": "Parfums De Foda",
     "description": "عطر جلدي شرقي للجنسين من دار ميمو باريس، يفتتح بالهيل وإبرة الراعي والفلفل الوردي، يتوسطه الباتشولي والقرفة والورد، وتنتهي قاعدته بالجلود والعود والعنبر.",
@@ -57,9 +57,9 @@
     }
   },
   {
-    "id": "PF020",
-    "sku": "PF020",
-    "slug": "pf020",
+    "id": "PF040",
+    "sku": "PF040",
+    "slug": "pf040",
     "name": "أكوا دي جيو",
     "brand": "Parfums De Foda",
     "description": "عطر أروماتك مائي رجالي كلاسيكي من جورجيو أرماني، يجمع بين نسمات البحر والحمضيات في افتتاحيته مع قاعدة خشبية مسكية دافئة.",
@@ -114,23 +114,23 @@
     }
   },
   {
-    "id": "PF030",
-    "sku": "PF030",
-    "slug": "pf030",
-    "name": "أمواج انترلود",
+    "id": "PF070",
+    "sku": "PF070",
+    "slug": "pf070",
+    "name": "الوسام",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي رجالي قوي من أمواج، يبدأ بانفجار توابلي من الزعتر والفلفل والبرغموت، يتوسطه البخور والعنبر واللابدانوم، وتنتهي قاعدته بالعود والجلود وخشب الصندل.",
-    "image": "/products/PF090.png",
+    "description": "عطر رجالي شرقي خشبي من رصاصي، يجمع بين البرغموت وإبرة الراعي والخزامي في الافتتاحية، مع قاعدة من المسك والعود والعنبر وطحلب البلوط.",
+    "image": "/products/PF070.png",
     "gallery": [
-      "/products/PF090.png"
+      "/products/PF070.png"
     ],
     "gender": "رجالي",
-    "type": "شرقي",
-    "house": "نيش",
+    "type": "غربي",
+    "house": "دووب",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
+    "season": "صيفي",
+    "performance": "أداء متوسط",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -166,27 +166,27 @@
       "base": []
     },
     "seo": {
-      "title": "أمواج انترلود | Parfums De Foda",
+      "title": "الوسام | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF040",
-    "sku": "PF040",
-    "slug": "pf040",
-    "name": "أمواج بربوس",
+    "id": "PF080",
+    "sku": "PF080",
+    "slug": "pf080",
+    "name": "امبريال فالي",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي للجنسين من مجموعة Escape لأمواج، مستوحى من شجرة اللبان الوحيدة في صحراء عمان، يفتتح باللبان والفلفل والبرغموت وينتهي بالعود وجلد الغزال والزعفران.",
-    "image": "/products/PF500.png",
+    "description": "عطر شرقي خشبي قوي الأداء، يفتتح بالبرغموت الصقلي والفلفل الوردي والدافانا، ويتوسطه العود والعنبر الأبيض، وتنتهي قاعدته بالجلود والمسك ونجيل الهند.",
+    "image": "/products/PF080.png",
     "gallery": [
-      "/products/PF500.png"
+      "/products/PF080.png"
     ],
     "gender": "رجالي",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "خريفي",
+    "season": "شتوي",
     "performance": "أداء صاروخي",
     "featured": true,
     "badge": "",
@@ -223,29 +223,30 @@
       "base": []
     },
     "seo": {
-      "title": "أمواج بربوس | Parfums De Foda",
+      "title": "امبريال فالي | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF050",
-    "sku": "PF050",
-    "slug": "pf050",
-    "name": "أمواج جايدنس",
+    "id": "PF090",
+    "sku": "PF090",
+    "slug": "pf090",
+    "name": "أمواج انترلود",
     "brand": "Parfums De Foda",
-    "description": "نسخة مكثفة استثنائية بتركيز 46% من عطر Guidance الأصلي لأمواج، عطر شرقي زهري يجمع الورد وثمرة الكمثرى مع البندق ولمسة دخانية خفيفة من اللبان.",
-    "image": "/products/PF510.png",
+    "description": "عطر شرقي خشبي رجالي قوي من أمواج، يبدأ بانفجار توابلي من الزعتر والفلفل والبرغموت، يتوسطه البخور والعنبر واللابدانوم، وتنتهي قاعدته بالعود والجلود وخشب الصندل.",
+    "image": "/products/PF090.png",
     "gallery": [
-      "/products/PF510.png"
+      "/products/PF090.png",
+      "/products/PF091.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "خريفي",
-    "performance": "أداء صاروخي",
-    "featured": true,
+    "season": "شتوي",
+    "performance": "أداء قوي",
+    "featured": false,
     "badge": "",
     "rating": 0,
     "reviews": 0,
@@ -254,22 +255,22 @@
     "sizes": [
       {
         "label": "10 مل",
-        "price": 150,
+        "price": 120,
         "inStock": true
       },
       {
         "label": "30 مل",
-        "price": 400,
+        "price": 350,
         "inStock": true
       },
       {
         "label": "50 مل",
-        "price": 600,
+        "price": 500,
         "inStock": true
       },
       {
         "label": "100 مل",
-        "price": 850,
+        "price": 700,
         "inStock": true
       }
     ],
@@ -280,14 +281,14 @@
       "base": []
     },
     "seo": {
-      "title": "أمواج جايدنس | Parfums De Foda",
+      "title": "أمواج انترلود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF060",
-    "sku": "PF060",
-    "slug": "pf060",
+    "id": "PF100",
+    "sku": "PF100",
+    "slug": "pf100",
     "name": "أومبري نوماد",
     "brand": "Parfums De Foda",
     "description": "تحفة شرقية خشبية غنية من لويس فيتون تتمحور حول العود كنجم رئيسي، مع لمسات دخانية من البخور وتوت العليق والزعفران والورد.",
@@ -342,9 +343,9 @@
     }
   },
   {
-    "id": "PF070",
-    "sku": "PF070",
-    "slug": "pf070",
+    "id": "PF110",
+    "sku": "PF110",
+    "slug": "pf110",
     "name": "إيربابيورا",
     "brand": "Parfums De Foda",
     "description": "عطر شرقي فاكهي للجنسين من زيرجوف، يفتتح بالبرتقال الصقلي والبرغموت مع كوكتيل فواكه، وتنتهي قاعدته بالفانيليا والمسك الأبيض والعنبر.",
@@ -399,19 +400,19 @@
     }
   },
   {
-    "id": "PF080",
-    "sku": "PF080",
-    "slug": "pf080",
-    "name": "الوسام",
+    "id": "PF130",
+    "sku": "PF130",
+    "slug": "pf130",
+    "name": "باسفيك تشيل",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي شرقي خشبي من رصاصي، يجمع بين البرغموت وإبرة الراعي والخزامي في الافتتاحية، مع قاعدة من المسك والعود والعنبر وطحلب البلوط.",
-    "image": "/products/PF070.png",
+    "description": "من مجموعة Les Colognes للويس فيتون، عطر منعش للجنسين بطابع مائي حمضي صيفي خفيف.",
+    "image": "/products/PF130.png",
     "gallery": [
-      "/products/PF070.png"
+      "/products/PF130.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "غربي",
-    "house": "دووب",
+    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
     "season": "صيفي",
@@ -451,91 +452,34 @@
       "base": []
     },
     "seo": {
-      "title": "الوسام | Parfums De Foda",
+      "title": "باسفيك تشيل | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF090",
-    "sku": "PF090",
-    "slug": "pf090",
-    "name": "امبريال فالي",
+    "id": "PF140",
+    "sku": "PF140",
+    "slug": "pf140",
+    "name": "بخور العرائس كليك فلير",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي قوي الأداء، يفتتح بالبرغموت الصقلي والفلفل الوردي والدافانا، ويتوسطه العود والعنبر الأبيض، وتنتهي قاعدته بالجلود والمسك ونجيل الهند.",
-    "image": "/products/PF080.png",
+    "description": "عطر بخوري شرقي خشبي للجنسين، يفتتح بالفانيليا والتوابل، يتوسطه التوابل وخشب الأرز، وتنتهي قاعدته بأخشاب الورد والعنبر.",
+    "image": "/products/PF140.png",
     "gallery": [
-      "/products/PF080.png"
+      "/products/PF140.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء صاروخي",
-    "featured": true,
-    "badge": "",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 9,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 150,
-        "inStock": true
-      },
-      {
-        "label": "30 مل",
-        "price": 400,
-        "inStock": true
-      },
-      {
-        "label": "50 مل",
-        "price": 600,
-        "inStock": true
-      },
-      {
-        "label": "100 مل",
-        "price": 850,
-        "inStock": true
-      }
-    ],
-    "inStock": true,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "امبريال فالي | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
-    "id": "PF100",
-    "sku": "PF100",
-    "slug": "pf100",
-    "name": "باسفيك تشيل",
-    "brand": "Parfums De Foda",
-    "description": "من مجموعة Les Colognes للويس فيتون، عطر منعش للجنسين بطابع مائي حمضي صيفي خفيف.",
-    "image": "/products/PF130.png",
-    "gallery": [
-      "/products/PF130.png"
-    ],
-    "gender": "للجنسين",
-    "type": "غربي",
-    "house": "ديزاينر",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "صيفي",
-    "performance": "أداء متوسط",
+    "season": "خريفي",
+    "performance": "أداء قوي",
     "featured": false,
     "badge": "",
     "rating": 0,
     "reviews": 0,
     "status": "active",
-    "sortOrder": 10,
+    "sortOrder": 9,
     "sizes": [
       {
         "label": "10 مل",
@@ -565,27 +509,84 @@
       "base": []
     },
     "seo": {
-      "title": "باسفيك تشيل | Parfums De Foda",
+      "title": "بخور العرائس كليك فلير | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF110",
-    "sku": "PF110",
-    "slug": "pf110",
-    "name": "بخور العرائس كليك فلير",
+    "id": "PF150",
+    "sku": "PF150",
+    "slug": "pf150",
+    "name": "بكرات روج",
     "brand": "Parfums De Foda",
-    "description": "عطر بخوري شرقي خشبي للجنسين، يفتتح بالفانيليا والتوابل، يتوسطه التوابل وخشب الأرز، وتنتهي قاعدته بأخشاب الورد والعنبر.",
-    "image": "/products/PF140.png",
+    "description": "عطر عنبري خشبي فاخر للجنسين من ميزون فرانسيس كركجان، يجمع الزعفران والياسمين مع خشب الأرز والعنبر الرمادي في توليفة حلوة معدنية فريدة.",
+    "image": "/products/PF150.png",
     "gallery": [
-      "/products/PF140.png"
+      "/products/PF150.png"
     ],
     "gender": "للجنسين",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "خريفي",
+    "season": "شتوي",
+    "performance": "أداء قوي",
+    "featured": true,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 10,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 150,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 400,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 600,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 850,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "بكرات روج | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF170",
+    "sku": "PF170",
+    "slug": "pf170",
+    "name": "بلاك أوركيد",
+    "brand": "Parfums De Foda",
+    "description": "عطر شرقي فاخر للجنسين من توم فورد، غامض وحسي، يمزج السوسن الأسود والشوكولاتة الداكنة مع التوابل والباتشولي والعنبر.",
+    "image": "/products/PF170.png",
+    "gallery": [
+      "/products/PF170.png"
+    ],
+    "gender": "للجنسين",
+    "type": "شرقي",
+    "house": "ديزاينر",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "شتوي",
     "performance": "أداء قوي",
     "featured": false,
     "badge": "",
@@ -622,20 +623,20 @@
       "base": []
     },
     "seo": {
-      "title": "بخور العرائس كليك فلير | Parfums De Foda",
+      "title": "بلاك أوركيد | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF120",
-    "sku": "PF120",
-    "slug": "pf120",
-    "name": "بكرات روج",
+    "id": "PF180",
+    "sku": "PF180",
+    "slug": "pf180",
+    "name": "بلاك عود",
     "brand": "Parfums De Foda",
-    "description": "عطر عنبري خشبي فاخر للجنسين من ميزون فرانسيس كركجان، يجمع الزعفران والياسمين مع خشب الأرز والعنبر الرمادي في توليفة حلوة معدنية فريدة.",
-    "image": "/products/PF150.png",
+    "description": "عطر شرقي خشبي قوي من مونتال، يجمع العود الحاد مع الورد البلغاري وقاعدة مسكية دافئة، من أكثر عطور مونتال شهرة وثباتاً.",
+    "image": "/products/PF180.png",
     "gallery": [
-      "/products/PF150.png"
+      "/products/PF180.png"
     ],
     "gender": "للجنسين",
     "type": "شرقي",
@@ -643,8 +644,8 @@
     "oily": false,
     "fodaOriginal": false,
     "season": "شتوي",
-    "performance": "أداء قوي",
-    "featured": true,
+    "performance": "أداء صاروخي",
+    "featured": false,
     "badge": "",
     "rating": 0,
     "reviews": 0,
@@ -653,22 +654,22 @@
     "sizes": [
       {
         "label": "10 مل",
-        "price": 150,
+        "price": 120,
         "inStock": true
       },
       {
         "label": "30 مل",
-        "price": 400,
+        "price": 350,
         "inStock": true
       },
       {
         "label": "50 مل",
-        "price": 600,
+        "price": 500,
         "inStock": true
       },
       {
         "label": "100 مل",
-        "price": 850,
+        "price": 700,
         "inStock": true
       }
     ],
@@ -679,20 +680,21 @@
       "base": []
     },
     "seo": {
-      "title": "بكرات روج | Parfums De Foda",
+      "title": "بلاك عود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF130",
-    "sku": "PF130",
-    "slug": "pf130",
-    "name": "بلاك أوركيد",
+    "id": "PF230",
+    "sku": "PF230",
+    "slug": "pf230",
+    "name": "توباكو فاني",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي فاخر للجنسين من توم فورد، غامض وحسي، يمزج السوسن الأسود والشوكولاتة الداكنة مع التوابل والباتشولي والعنبر.",
-    "image": "/products/PF170.png",
+    "description": "من أشهر عطور توم فورد الشرقية، يمزج أوراق التبغ مع الفانيليا وحبوب التونكا والكاكاو، دافئ وحلو بأداء طويل مثالي للشتاء.",
+    "image": "/products/PF230.png",
     "gallery": [
-      "/products/PF170.png"
+      "/products/PF230.png",
+      "/products/PF231.png"
     ],
     "gender": "للجنسين",
     "type": "شرقي",
@@ -736,34 +738,91 @@
       "base": []
     },
     "seo": {
-      "title": "بلاك أوركيد | Parfums De Foda",
+      "title": "توباكو فاني | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF140",
-    "sku": "PF140",
-    "slug": "pf140",
-    "name": "بلاك عود",
+    "id": "PF240",
+    "sku": "PF240",
+    "slug": "pf240",
+    "name": "تيروني",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي قوي من مونتال، يجمع العود الحاد مع الورد البلغاري وقاعدة مسكية دافئة، من أكثر عطور مونتال شهرة وثباتاً.",
-    "image": "/products/PF180.png",
+    "description": "عطر شرقي خشبي مثير للجدل من أورتو باريزي، يفتتح بتوت العليق، يتوسطه أخشاب البتولا والعنبر والبنزوين، وتنتهي قاعدته بأخشاب الغاياك والمسك والباتشولي وحبوب التونكا.",
+    "image": "/products/PF240.png",
     "gallery": [
-      "/products/PF180.png"
+      "/products/PF240.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
     "season": "شتوي",
-    "performance": "أداء صاروخي",
-    "featured": false,
+    "performance": "أداء قوي",
+    "featured": true,
     "badge": "",
     "rating": 0,
     "reviews": 0,
     "status": "active",
     "sortOrder": 14,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 220,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 500,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 700,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 950,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "تيروني | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF260",
+    "sku": "PF260",
+    "slug": "pf260",
+    "name": "ديلان بلو",
+    "brand": "Parfums De Foda",
+    "description": "عطر رجالي أروماتك منعش من فيرزاتشي، يجمع الحمضيات مع نوتات مائية وخشبية دافئة.",
+    "image": "/products/PF260.png",
+    "gallery": [
+      "/products/PF260.png"
+    ],
+    "gender": "رجالي",
+    "type": "غربي",
+    "house": "ديزاينر",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "صيفي",
+    "performance": "أداء متوسط",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 15,
     "sizes": [
       {
         "label": "10 مل",
@@ -793,81 +852,24 @@
       "base": []
     },
     "seo": {
-      "title": "بلاك عود | Parfums De Foda",
+      "title": "ديلان بلو | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF150",
-    "sku": "PF150",
-    "slug": "pf150",
-    "name": "توباكو عود",
+    "id": "PF280",
+    "sku": "PF280",
+    "slug": "pf280",
+    "name": "روسيندو ماتيو فايف",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي دافئ يجمع بين أوراق التبغ الحلوة والعود، مناسب للأجواء الباردة بثبات وفوحان قويين.",
-    "image": "/products/placeholder-unavailable.webp",
+    "description": "عطر شرقي زهري للجنسين، يفتتح بالتوابل والزهور الاستوائية، يتوسطه القرنفل وزنابق الوادي، وتنتهي قاعدته بالعنبر والفانيليا والمسك في توليفة كريمية دافئة.",
+    "image": "/products/PF280.png",
     "gallery": [
-      "/products/placeholder-unavailable.webp"
+      "/products/PF280.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "غربي",
     "house": "نيش",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
-    "featured": false,
-    "badge": "غير متوفر حالياً",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 15,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 120,
-        "inStock": false
-      },
-      {
-        "label": "30 مل",
-        "price": 350,
-        "inStock": false
-      },
-      {
-        "label": "50 مل",
-        "price": 500,
-        "inStock": false
-      },
-      {
-        "label": "100 مل",
-        "price": 700,
-        "inStock": false
-      }
-    ],
-    "inStock": false,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "توباكو عود | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
-    "id": "PF160",
-    "sku": "PF160",
-    "slug": "pf160",
-    "name": "توباكو فاني",
-    "brand": "Parfums De Foda",
-    "description": "من أشهر عطور توم فورد الشرقية، يمزج أوراق التبغ مع الفانيليا وحبوب التونكا والكاكاو، دافئ وحلو بأداء طويل مثالي للشتاء.",
-    "image": "/products/PF230.png",
-    "gallery": [
-      "/products/PF230.png"
-    ],
-    "gender": "للجنسين",
-    "type": "شرقي",
-    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
     "season": "شتوي",
@@ -907,20 +909,20 @@
       "base": []
     },
     "seo": {
-      "title": "توباكو فاني | Parfums De Foda",
+      "title": "روسيندو ماتيو فايف | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF170",
-    "sku": "PF170",
-    "slug": "pf170",
-    "name": "تيروني",
+    "id": "PF290",
+    "sku": "PF290",
+    "slug": "pf290",
+    "name": "زد بانثيون روما",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي مثير للجدل من أورتو باريزي، يفتتح بتوت العليق، يتوسطه أخشاب البتولا والعنبر والبنزوين، وتنتهي قاعدته بأخشاب الغاياك والمسك والباتشولي وحبوب التونكا.",
-    "image": "/products/PF240.png",
+    "description": "عطر للجنسين من دار بانثيون روما، يفتتح بالكرز والآس والعرعر، يتوسطه الروم والتوت الأزرق والفانيليا والبنفسج، وتنتهي قاعدته بالجلود والعود والعنبر وخشب الصندل.",
+    "image": "/products/PF290.png",
     "gallery": [
-      "/products/PF240.png"
+      "/products/PF290.png"
     ],
     "gender": "رجالي",
     "type": "شرقي",
@@ -938,22 +940,22 @@
     "sizes": [
       {
         "label": "10 مل",
-        "price": 220,
+        "price": 150,
         "inStock": true
       },
       {
         "label": "30 مل",
-        "price": 500,
+        "price": 350,
         "inStock": true
       },
       {
         "label": "50 مل",
-        "price": 700,
+        "price": 600,
         "inStock": true
       },
       {
         "label": "100 مل",
-        "price": 950,
+        "price": 850,
         "inStock": true
       }
     ],
@@ -964,28 +966,28 @@
       "base": []
     },
     "seo": {
-      "title": "تيروني | Parfums De Foda",
+      "title": "زد بانثيون روما | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF180",
-    "sku": "PF180",
-    "slug": "pf180",
-    "name": "ديلان بلو",
+    "id": "PF310",
+    "sku": "PF310",
+    "slug": "pf310",
+    "name": "سايد إفيكت",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي أروماتك منعش من فيرزاتشي، يجمع الحمضيات مع نوتات مائية وخشبية دافئة.",
-    "image": "/products/PF260.png",
+    "description": "عطر شرقي فاخر للجنسين من إنيشيو، يجمع الزعفران والقرنفل مع الروم والعنبر في توليفة دافئة حلوة قوية الأداء.",
+    "image": "/products/PF310.png",
     "gallery": [
-      "/products/PF260.png"
+      "/products/PF310.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "غربي",
-    "house": "ديزاينر",
+    "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "صيفي",
-    "performance": "أداء متوسط",
+    "season": "شتوي",
+    "performance": "أداء قوي",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1021,28 +1023,28 @@
       "base": []
     },
     "seo": {
-      "title": "ديلان بلو | Parfums De Foda",
+      "title": "سايد إفيكت | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF190",
-    "sku": "PF190",
-    "slug": "pf190",
-    "name": "روسيندو ماتيو فايف",
+    "id": "PF320",
+    "sku": "PF320",
+    "slug": "pf320",
+    "name": "سترونجر ويز يو انتنسلي",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي زهري للجنسين، يفتتح بالتوابل والزهور الاستوائية، يتوسطه القرنفل وزنابق الوادي، وتنتهي قاعدته بالعنبر والفانيليا والمسك في توليفة كريمية دافئة.",
-    "image": "/products/PF280.png",
+    "description": "نسخة مكثفة من عطر إمبوريو أرماني الشهير، دافئة وحلوة تجمع الفانيليا والتوابل مع خشب الأرز.",
+    "image": "/products/PF320.png",
     "gallery": [
-      "/products/PF280.png"
+      "/products/PF320.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "غربي",
-    "house": "نيش",
+    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
     "season": "شتوي",
-    "performance": "أداء قوي",
+    "performance": "أداء متوسط",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1078,30 +1080,30 @@
       "base": []
     },
     "seo": {
-      "title": "روسيندو ماتيو فايف | Parfums De Foda",
+      "title": "سترونجر ويز يو انتنسلي | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF200",
-    "sku": "PF200",
-    "slug": "pf200",
-    "name": "رومبا",
+    "id": "PF330",
+    "sku": "PF330",
+    "slug": "pf330",
+    "name": "سلفر ماونتن ووتر",
     "brand": "Parfums De Foda",
-    "description": "عطر إيقاعي حيوي يجمع الفواكه الاستوائية مع لمسات خشبية دافئة، مناسب للأجواء الخريفية.",
-    "image": "/products/placeholder-unavailable.webp",
+    "description": "عطر حمضي منعش للجنسين من كريد، يجمع الحمضيات والتوت الأسود مع الشاي الأخضر ومسك أبيض ناعم.",
+    "image": "/products/PF330.png",
     "gallery": [
-      "/products/placeholder-unavailable.webp"
+      "/products/PF330.png"
     ],
-    "gender": "رجالي",
-    "type": "شرقي",
+    "gender": "للجنسين",
+    "type": "غربي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
+    "season": "صيفي",
+    "performance": "أداء متوسط",
     "featured": false,
-    "badge": "غير متوفر حالياً",
+    "badge": "",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -1110,47 +1112,47 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": false
+        "inStock": true
       }
     ],
-    "inStock": false,
+    "inStock": true,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "رومبا | Parfums De Foda",
+      "title": "سلفر ماونتن ووتر | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF210",
-    "sku": "PF210",
-    "slug": "pf210",
-    "name": "زد بانثيون روما",
+    "id": "PF350",
+    "sku": "PF350",
+    "slug": "pf350",
+    "name": "عود ساتن موود",
     "brand": "Parfums De Foda",
-    "description": "عطر للجنسين من دار بانثيون روما، يفتتح بالكرز والآس والعرعر، يتوسطه الروم والتوت الأزرق والفانيليا والبنفسج، وتنتهي قاعدته بالجلود والعود والعنبر وخشب الصندل.",
-    "image": "/products/PF290.png",
+    "description": "عطر شرقي فاخر من ميزون فرانسيس كركجان، يمزج العود الناعم مع الورد والزعفران وقاعدة حريرية دافئة.",
+    "image": "/products/PF350.png",
     "gallery": [
-      "/products/PF290.png"
+      "/products/PF350.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "شرقي",
     "house": "نيش",
     "oily": false,
@@ -1171,7 +1173,7 @@
       },
       {
         "label": "30 مل",
-        "price": 350,
+        "price": 400,
         "inStock": true
       },
       {
@@ -1192,28 +1194,28 @@
       "base": []
     },
     "seo": {
-      "title": "زد بانثيون روما | Parfums De Foda",
+      "title": "عود ساتن موود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF220",
-    "sku": "PF220",
-    "slug": "pf220",
-    "name": "سايد إفيكت",
+    "id": "PF370",
+    "sku": "PF370",
+    "slug": "pf370",
+    "name": "فيرزاتشي",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي فاخر للجنسين من إنيشيو، يجمع الزعفران والقرنفل مع الروم والعنبر في توليفة دافئة حلوة قوية الأداء.",
-    "image": "/products/PF310.png",
+    "description": "عطر من دار فيرزاتشي الإيطالية بطابع فاخر أنيق يجمع بين الفخامة والانتعاش.",
+    "image": "/products/PF370.png",
     "gallery": [
-      "/products/PF310.png"
+      "/products/PF370.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "غربي",
-    "house": "نيش",
+    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
+    "season": "صيفي",
+    "performance": "أداء متوسط",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1249,28 +1251,28 @@
       "base": []
     },
     "seo": {
-      "title": "سايد إفيكت | Parfums De Foda",
+      "title": "فيرزاتشي | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF230",
-    "sku": "PF230",
-    "slug": "pf230",
-    "name": "سترونجر ويز يو انتنسلي",
+    "id": "PF380",
+    "sku": "PF380",
+    "slug": "pf380",
+    "name": "قائد الفرسان",
     "brand": "Parfums De Foda",
-    "description": "نسخة مكثفة من عطر إمبوريو أرماني الشهير، دافئة وحلوة تجمع الفانيليا والتوابل مع خشب الأرز.",
-    "image": "/products/PF320.png",
+    "description": "عطر شرقي خشبي للجنسين من لطافة، يفتتح بالأناناس والزعفران، يتوسطه بلسم التنوب والياسمين، وتنتهي قاعدته بخشب الأرز والعنبر والعود.",
+    "image": "/products/PF380.png",
     "gallery": [
-      "/products/PF320.png"
+      "/products/PF380.png"
     ],
     "gender": "للجنسين",
     "type": "غربي",
-    "house": "ديزاينر",
+    "house": "دووب",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء متوسط",
+    "season": "صيفي",
+    "performance": "أداء ضعيف",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1306,28 +1308,28 @@
       "base": []
     },
     "seo": {
-      "title": "سترونجر ويز يو انتنسلي | Parfums De Foda",
+      "title": "قائد الفرسان | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF240",
-    "sku": "PF240",
-    "slug": "pf240",
-    "name": "سترونجر ويز يو عود",
+    "id": "PF390",
+    "sku": "PF390",
+    "slug": "pf390",
+    "name": "كريد أفنتوس",
     "brand": "Parfums De Foda",
-    "description": "نسخة شرقية من نفس عائلة سترونجر ويز يو تضيف العود إلى قاعدة الفانيليا والتوابل الدافئة.",
-    "image": "/products/PF490.png",
+    "description": "من أشهر العطور الرجالية في العالم، يجمع الأناناس والتفاح مع البتولا الدخانية وقاعدة خشبية مسكية قوية الأداء.",
+    "image": "/products/PF390.png",
     "gallery": [
-      "/products/PF490.png"
+      "/products/PF390.png"
     ],
-    "gender": "للجنسين",
-    "type": "شرقي",
-    "house": "ديزاينر",
+    "gender": "رجالي",
+    "type": "غربي",
+    "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
+    "season": "صيفي",
+    "performance": "أداء ضعيف",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1363,24 +1365,24 @@
       "base": []
     },
     "seo": {
-      "title": "سترونجر ويز يو عود | Parfums De Foda",
+      "title": "كريد أفنتوس | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF250",
-    "sku": "PF250",
-    "slug": "pf250",
-    "name": "سلفر ماونتن ووتر",
+    "id": "PF410",
+    "sku": "PF410",
+    "slug": "pf410",
+    "name": "لاكوست وايت",
     "brand": "Parfums De Foda",
-    "description": "عطر حمضي منعش للجنسين من كريد، يجمع الحمضيات والتوت الأسود مع الشاي الأخضر ومسك أبيض ناعم.",
-    "image": "/products/PF330.png",
+    "description": "عطر رجالي منعش من لاكوست بطابع حمضي أخضر خفيف مناسب للاستخدام اليومي.",
+    "image": "/products/PF410.png",
     "gallery": [
-      "/products/PF330.png"
+      "/products/PF410.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "غربي",
-    "house": "نيش",
+    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
     "season": "صيفي",
@@ -1420,30 +1422,30 @@
       "base": []
     },
     "seo": {
-      "title": "سلفر ماونتن ووتر | Parfums De Foda",
+      "title": "لاكوست وايت | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF260",
-    "sku": "PF260",
-    "slug": "pf260",
-    "name": "عنبر أبسلو",
+    "id": "PF430",
+    "sku": "PF430",
+    "slug": "pf430",
+    "name": "مضاوي",
     "brand": "Parfums De Foda",
-    "description": "عطر عنبري دافئ يجمع العنبر الغني مع لمسات خشبية وتوابل ناعمة، مناسب للأجواء الشتوية.",
-    "image": "/products/placeholder-unavailable.webp",
+    "description": "عطر شرقي فاخر من العربية للعود، يجمع الورد الدمشقي مع الزعفران والعود في توليفة غنية.",
+    "image": "/products/PF430.png",
     "gallery": [
-      "/products/placeholder-unavailable.webp"
+      "/products/PF430.png"
     ],
     "gender": "للجنسين",
-    "type": "غربي",
+    "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
+    "season": "خريفي",
+    "performance": "أداء صاروخي",
     "featured": false,
-    "badge": "غير متوفر حالياً",
+    "badge": "",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -1452,78 +1454,21 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": false
-      }
-    ],
-    "inStock": false,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "عنبر أبسلو | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
-    "id": "PF270",
-    "sku": "PF270",
-    "slug": "pf270",
-    "name": "عود ساتن موود",
-    "brand": "Parfums De Foda",
-    "description": "عطر شرقي فاخر من ميزون فرانسيس كركجان، يمزج العود الناعم مع الورد والزعفران وقاعدة حريرية دافئة.",
-    "image": "/products/PF350.png",
-    "gallery": [
-      "/products/PF350.png"
-    ],
-    "gender": "للجنسين",
-    "type": "شرقي",
-    "house": "نيش",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
-    "featured": true,
-    "badge": "",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 27,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 150,
-        "inStock": true
-      },
-      {
-        "label": "30 مل",
-        "price": 400,
-        "inStock": true
-      },
-      {
-        "label": "50 مل",
-        "price": 600,
-        "inStock": true
-      },
-      {
-        "label": "100 مل",
-        "price": 850,
         "inStock": true
       }
     ],
@@ -1534,20 +1479,77 @@
       "base": []
     },
     "seo": {
-      "title": "عود ساتن موود | Parfums De Foda",
+      "title": "مضاوي | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF280",
-    "sku": "PF280",
-    "slug": "pf280",
-    "name": "عود وود",
+    "id": "PF450",
+    "sku": "PF450",
+    "slug": "pf450",
+    "name": "هاشيفات",
     "brand": "Parfums De Foda",
-    "description": "عطر خشبي شرقي يجمع العود مع خشب الصندل والفلفل الوردي والعنبر، من أشهر توليفات العود الخشبية الفاخرة.",
-    "image": "/products/placeholder-unavailable.webp",
+    "description": "عطر خشبي شرقي فاخر من نيشان التركية، يجمع العود مع الفانيليا والتبغ في قاعدة دافئة حلوة.",
+    "image": "/products/PF450.png",
     "gallery": [
-      "/products/placeholder-unavailable.webp"
+      "/products/PF450.png"
+    ],
+    "gender": "رجالي",
+    "type": "غربي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "صيفي",
+    "performance": "أداء قوي",
+    "featured": true,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 27,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 180,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 350,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 500,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 700,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "هاشيفات | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF480",
+    "sku": "PF480",
+    "slug": "pf480",
+    "name": "سنتوراس",
+    "brand": "Parfums De Foda",
+    "description": "عطر رجالي شرقي خشبي قوي الأداء، مناسب للأجواء الباردة بثبات وفوحان لافتين.",
+    "image": "/products/PF480.png",
+    "gallery": [
+      "/products/PF480.png"
     ],
     "gender": "رجالي",
     "type": "شرقي",
@@ -1557,7 +1559,7 @@
     "season": "شتوي",
     "performance": "أداء قوي",
     "featured": false,
-    "badge": "غير متوفر حالياً",
+    "badge": "",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -1566,49 +1568,49 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": false
+        "inStock": true
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": false
+        "inStock": true
       }
     ],
-    "inStock": false,
+    "inStock": true,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "عود وود | Parfums De Foda",
+      "title": "سنتوراس | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF290",
-    "sku": "PF290",
-    "slug": "pf290",
-    "name": "فالانتينو جرين ستارفاجانزا",
+    "id": "PF490",
+    "sku": "PF490",
+    "slug": "pf490",
+    "name": "سترونجر ويز يو عود",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي شرقي فوجيير من فالنتينو، يفتتح بالبرغموت الكالابري، يتوسطه القهوة، وتنتهي قاعدته بنجيل الهند.",
-    "image": "/products/PF630.png",
+    "description": "نسخة شرقية من نفس عائلة سترونجر ويز يو تضيف العود إلى قاعدة الفانيليا والتوابل الدافئة.",
+    "image": "/products/PF490.png",
     "gallery": [
-      "/products/PF630.png"
+      "/products/PF490.png"
     ],
-    "gender": "رجالي",
-    "type": "غربي",
-    "house": "نيش",
+    "gender": "للجنسين",
+    "type": "شرقي",
+    "house": "ديزاينر",
     "oily": false,
     "fodaOriginal": false,
     "season": "شتوي",
@@ -1648,14 +1650,128 @@
       "base": []
     },
     "seo": {
-      "title": "فالانتينو جرين ستارفاجانزا | Parfums De Foda",
+      "title": "سترونجر ويز يو عود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF300",
-    "sku": "PF300",
-    "slug": "pf300",
+    "id": "PF500",
+    "sku": "PF500",
+    "slug": "pf500",
+    "name": "أمواج بربوس",
+    "brand": "Parfums De Foda",
+    "description": "عطر شرقي خشبي للجنسين من مجموعة Escape لأمواج، مستوحى من شجرة اللبان الوحيدة في صحراء عمان، يفتتح باللبان والفلفل والبرغموت وينتهي بالعود وجلد الغزال والزعفران.",
+    "image": "/products/PF500.png",
+    "gallery": [
+      "/products/PF500.png"
+    ],
+    "gender": "رجالي",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "خريفي",
+    "performance": "أداء صاروخي",
+    "featured": true,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 30,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 150,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 400,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 600,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 850,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "أمواج بربوس | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF510",
+    "sku": "PF510",
+    "slug": "pf510",
+    "name": "أمواج جايدنس",
+    "brand": "Parfums De Foda",
+    "description": "نسخة مكثفة استثنائية بتركيز 46% من عطر Guidance الأصلي لأمواج، عطر شرقي زهري يجمع الورد وثمرة الكمثرى مع البندق ولمسة دخانية خفيفة من اللبان.",
+    "image": "/products/PF510.png",
+    "gallery": [
+      "/products/PF510.png"
+    ],
+    "gender": "للجنسين",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "خريفي",
+    "performance": "أداء صاروخي",
+    "featured": true,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 31,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 150,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 400,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 600,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 850,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "أمواج جايدنس | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF520",
+    "sku": "PF520",
+    "slug": "pf520",
     "name": "فالايا",
     "brand": "Parfums De Foda",
     "description": "عطر خشبي دافئ للجنسين يميل للطابع الشرقي الخفيف بثبات جيد.",
@@ -1670,120 +1786,6 @@
     "fodaOriginal": false,
     "season": "خريفي",
     "performance": "أداء قوي",
-    "featured": false,
-    "badge": "",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 30,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 120,
-        "inStock": true
-      },
-      {
-        "label": "30 مل",
-        "price": 350,
-        "inStock": true
-      },
-      {
-        "label": "50 مل",
-        "price": 500,
-        "inStock": true
-      },
-      {
-        "label": "100 مل",
-        "price": 700,
-        "inStock": true
-      }
-    ],
-    "inStock": true,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "فالايا | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
-    "id": "PF310",
-    "sku": "PF310",
-    "slug": "pf310",
-    "name": "فورتي نوتس",
-    "brand": "Parfums De Foda",
-    "description": "عطر متوسط القوة يجمع نوتات خشبية وعنبرية متوازنة.",
-    "image": "/products/placeholder-unavailable.webp",
-    "gallery": [
-      "/products/placeholder-unavailable.webp"
-    ],
-    "gender": "رجالي",
-    "type": "شرقي",
-    "house": "نيش",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
-    "featured": false,
-    "badge": "غير متوفر حالياً",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 31,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 120,
-        "inStock": false
-      },
-      {
-        "label": "30 مل",
-        "price": 350,
-        "inStock": false
-      },
-      {
-        "label": "50 مل",
-        "price": 500,
-        "inStock": false
-      },
-      {
-        "label": "100 مل",
-        "price": 700,
-        "inStock": false
-      }
-    ],
-    "inStock": false,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "فورتي نوتس | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
-    "id": "PF320",
-    "sku": "PF320",
-    "slug": "pf320",
-    "name": "فوياج",
-    "brand": "Parfums De Foda",
-    "description": "عطر رجالي منعش مائي حمضي بطابع بحري خفيف مناسب للصيف.",
-    "image": "/products/PF550.png",
-    "gallery": [
-      "/products/PF550.png"
-    ],
-    "gender": "للجنسين",
-    "type": "غربي",
-    "house": "نيش",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "صيفي",
-    "performance": "أداء ضعيف",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -1819,27 +1821,27 @@
       "base": []
     },
     "seo": {
-      "title": "فوياج | Parfums De Foda",
+      "title": "فالايا | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF330",
-    "sku": "PF330",
-    "slug": "pf330",
-    "name": "فيرزاتشي",
+    "id": "PF530",
+    "sku": "PF530",
+    "slug": "pf530",
+    "name": "هواي",
     "brand": "Parfums De Foda",
-    "description": "عطر من دار فيرزاتشي الإيطالية بطابع فاخر أنيق يجمع بين الفخامة والانتعاش.",
-    "image": "/products/PF370.png",
+    "description": "عطر رجالي شرقي جذاب يجمع التوابل والعنبر مع قاعدة خشبية جذابة.",
+    "image": "/products/PF530.png",
     "gallery": [
-      "/products/PF370.png"
+      "/products/PF530.png"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "غربي",
-    "house": "ديزاينر",
+    "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "صيفي",
+    "season": "خريفي",
     "performance": "أداء متوسط",
     "featured": false,
     "badge": "",
@@ -1876,24 +1878,24 @@
       "base": []
     },
     "seo": {
-      "title": "فيرزاتشي | Parfums De Foda",
+      "title": "هواي | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF340",
-    "sku": "PF340",
-    "slug": "pf340",
-    "name": "قائد الفرسان",
+    "id": "PF550",
+    "sku": "PF550",
+    "slug": "pf550",
+    "name": "فوياج",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي خشبي للجنسين من لطافة، يفتتح بالأناناس والزعفران، يتوسطه بلسم التنوب والياسمين، وتنتهي قاعدته بخشب الأرز والعنبر والعود.",
-    "image": "/products/PF380.png",
+    "description": "عطر رجالي منعش مائي حمضي بطابع بحري خفيف مناسب للصيف.",
+    "image": "/products/PF550.png",
     "gallery": [
-      "/products/PF380.png"
+      "/products/PF550.png"
     ],
     "gender": "للجنسين",
     "type": "غربي",
-    "house": "دووب",
+    "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
     "season": "صيفي",
@@ -1933,30 +1935,30 @@
       "base": []
     },
     "seo": {
-      "title": "قائد الفرسان | Parfums De Foda",
+      "title": "فوياج | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF350",
-    "sku": "PF350",
-    "slug": "pf350",
-    "name": "كريد أفنتوس",
+    "id": "PF590",
+    "sku": "PF590",
+    "slug": "pf590",
+    "name": "توباكو عود",
     "brand": "Parfums De Foda",
-    "description": "من أشهر العطور الرجالية في العالم، يجمع الأناناس والتفاح مع البتولا الدخانية وقاعدة خشبية مسكية قوية الأداء.",
-    "image": "/products/PF390.png",
+    "description": "عطر شرقي خشبي دافئ يجمع بين أوراق التبغ الحلوة والعود، مناسب للأجواء الباردة بثبات وفوحان قويين.",
+    "image": "/products/placeholder-unavailable.webp",
     "gallery": [
-      "/products/PF390.png"
+      "/products/placeholder-unavailable.webp"
     ],
-    "gender": "رجالي",
+    "gender": "للجنسين",
     "type": "غربي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "صيفي",
-    "performance": "أداء ضعيف",
+    "season": "شتوي",
+    "performance": "أداء قوي",
     "featured": false,
-    "badge": "",
+    "badge": "غير متوفر حالياً",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -1965,55 +1967,55 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "كريد أفنتوس | Parfums De Foda",
+      "title": "توباكو عود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF360",
-    "sku": "PF360",
-    "slug": "pf360",
-    "name": "لاكوست وايت",
+    "id": "PF600",
+    "sku": "PF600",
+    "slug": "pf600",
+    "name": "رومبا",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي منعش من لاكوست بطابع حمضي أخضر خفيف مناسب للاستخدام اليومي.",
-    "image": "/products/PF410.png",
+    "description": "عطر إيقاعي حيوي يجمع الفواكه الاستوائية مع لمسات خشبية دافئة، مناسب للأجواء الخريفية.",
+    "image": "/products/placeholder-unavailable.webp",
     "gallery": [
-      "/products/PF410.png"
+      "/products/placeholder-unavailable.webp"
     ],
     "gender": "رجالي",
-    "type": "غربي",
-    "house": "ديزاينر",
+    "type": "شرقي",
+    "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "صيفي",
-    "performance": "أداء متوسط",
+    "season": "شتوي",
+    "performance": "أداء قوي",
     "featured": false,
-    "badge": "",
+    "badge": "غير متوفر حالياً",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -2022,55 +2024,55 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "لاكوست وايت | Parfums De Foda",
+      "title": "رومبا | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF370",
-    "sku": "PF370",
-    "slug": "pf370",
-    "name": "مضاوي",
+    "id": "PF610",
+    "sku": "PF610",
+    "slug": "pf610",
+    "name": "عنبر أبسلو",
     "brand": "Parfums De Foda",
-    "description": "عطر شرقي فاخر من العربية للعود، يجمع الورد الدمشقي مع الزعفران والعود في توليفة غنية.",
-    "image": "/products/PF430.png",
+    "description": "عطر عنبري دافئ يجمع العنبر الغني مع لمسات خشبية وتوابل ناعمة، مناسب للأجواء الشتوية.",
+    "image": "/products/placeholder-unavailable.webp",
     "gallery": [
-      "/products/PF430.png"
+      "/products/placeholder-unavailable.webp"
     ],
     "gender": "للجنسين",
-    "type": "شرقي",
+    "type": "غربي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "خريفي",
-    "performance": "أداء صاروخي",
+    "season": "شتوي",
+    "performance": "أداء قوي",
     "featured": false,
-    "badge": "",
+    "badge": "غير متوفر حالياً",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -2079,55 +2081,55 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "مضاوي | Parfums De Foda",
+      "title": "عنبر أبسلو | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF380",
-    "sku": "PF380",
-    "slug": "pf380",
-    "name": "هاشيفات",
+    "id": "PF620",
+    "sku": "PF620",
+    "slug": "pf620",
+    "name": "عود وود",
     "brand": "Parfums De Foda",
-    "description": "عطر خشبي شرقي فاخر من نيشان التركية، يجمع العود مع الفانيليا والتبغ في قاعدة دافئة حلوة.",
-    "image": "/products/PF450.png",
+    "description": "عطر خشبي شرقي يجمع العود مع خشب الصندل والفلفل الوردي والعنبر، من أشهر توليفات العود الخشبية الفاخرة.",
+    "image": "/products/placeholder-unavailable.webp",
     "gallery": [
-      "/products/PF450.png"
+      "/products/placeholder-unavailable.webp"
     ],
     "gender": "رجالي",
-    "type": "غربي",
+    "type": "شرقي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "صيفي",
+    "season": "شتوي",
     "performance": "أداء قوي",
-    "featured": true,
-    "badge": "",
+    "featured": false,
+    "badge": "غير متوفر حالياً",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -2135,54 +2137,54 @@
     "sizes": [
       {
         "label": "10 مل",
-        "price": 180,
-        "inStock": true
+        "price": 120,
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "هاشيفات | Parfums De Foda",
+      "title": "عود وود | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF390",
-    "sku": "PF390",
-    "slug": "pf390",
-    "name": "هواي",
+    "id": "PF630",
+    "sku": "PF630",
+    "slug": "pf630",
+    "name": "فالانتينو جرين ستارفاجانزا",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي شرقي جذاب يجمع التوابل والعنبر مع قاعدة خشبية جذابة.",
-    "image": "/products/PF530.png",
+    "description": "عطر رجالي شرقي فوجيير من فالنتينو، يفتتح بالبرغموت الكالابري، يتوسطه القهوة، وتنتهي قاعدته بنجيل الهند.",
+    "image": "/products/PF630.png",
     "gallery": [
-      "/products/PF530.png"
+      "/products/PF630.png"
     ],
-    "gender": "للجنسين",
+    "gender": "رجالي",
     "type": "غربي",
     "house": "نيش",
     "oily": false,
     "fodaOriginal": false,
-    "season": "خريفي",
-    "performance": "أداء متوسط",
+    "season": "شتوي",
+    "performance": "أداء قوي",
     "featured": false,
     "badge": "",
     "rating": 0,
@@ -2218,20 +2220,20 @@
       "base": []
     },
     "seo": {
-      "title": "هواي | Parfums De Foda",
+      "title": "فالانتينو جرين ستارفاجانزا | Parfums De Foda",
       "description": ""
     }
   },
   {
-    "id": "PF420",
-    "sku": "PF420",
-    "slug": "pf420",
-    "name": "سنتوراس",
+    "id": "PF640",
+    "sku": "PF640",
+    "slug": "pf640",
+    "name": "فورتي نوتس",
     "brand": "Parfums De Foda",
-    "description": "عطر رجالي شرقي خشبي قوي الأداء، مناسب للأجواء الباردة بثبات وفوحان لافتين.",
-    "image": "/products/PF480.png",
+    "description": "عطر متوسط القوة يجمع نوتات خشبية وعنبرية متوازنة.",
+    "image": "/products/placeholder-unavailable.webp",
     "gallery": [
-      "/products/PF480.png"
+      "/products/placeholder-unavailable.webp"
     ],
     "gender": "رجالي",
     "type": "شرقي",
@@ -2241,7 +2243,7 @@
     "season": "شتوي",
     "performance": "أداء قوي",
     "featured": false,
-    "badge": "",
+    "badge": "غير متوفر حالياً",
     "rating": 0,
     "reviews": 0,
     "status": "active",
@@ -2250,32 +2252,32 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
       "base": []
     },
     "seo": {
-      "title": "سنتوراس | Parfums De Foda",
+      "title": "فورتي نوتس | Parfums De Foda",
       "description": ""
     }
   }
