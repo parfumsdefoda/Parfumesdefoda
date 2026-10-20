@@ -52,7 +52,9 @@
     "total": "المجموع",
     "checkout": "إتمام الطلب",
     "remove": "إزالة",
-    "quantity": "الكمية"
+    "quantity": "الكمية",
+    "itemsCount": "عدد القطع",
+    "continueShopping": "متابعة التسوق"
   },
   "checkout": {
     "title": "إتمام الطلب",

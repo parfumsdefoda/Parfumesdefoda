@@ -120,7 +120,7 @@ export function ProductDetailPageClient({
         columns: settingsData.footerColumns,
       }}
     >
-      <div className="container mx-auto px-4 py-6 md:py-10">
+      <div id="main-content" className="container mx-auto px-4 py-6 md:py-10">
         {/* Breadcrumb */}
         <nav aria-label="التنقل" className="mb-6">
           <ol className="flex items-center gap-2 text-sm text-[var(--neutral-500)]">

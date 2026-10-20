@@ -31,9 +31,9 @@ export function FilterGroup({
 }: FilterGroupProps) {
   return (
     <div className={className ?? ""}>
-      <h4 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
+      <h3 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
         {name}
-      </h4>
+      </h3>
       <div className="space-y-2.5">
         {options.map((option) => {
           const id = `filter-${name}-${option.slug}`;
@@ -48,6 +48,9 @@ export function FilterGroup({
                 id={id}
                 checked={checked}
                 onCheckedChange={() => onToggle(option.slug)}
+                // The checkbox is not a native input, so the <label> does not
+                // name it — give it an explicit accessible name.
+                aria-label={option.label}
               />
               <Label
                 htmlFor={id}

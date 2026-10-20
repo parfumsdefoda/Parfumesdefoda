@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { SITE_NAME } from "@/config/constants";
 
 export interface HeaderNavItem {
   label: string;
@@ -151,7 +152,7 @@ export function Header({
         <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
             src={logoSrc}
-            alt={logoAlt ?? storeName}
+            alt={logoAlt ?? (storeName || SITE_NAME)}
             width={96}
             height={96}
             className="h-20 w-auto"
@@ -198,14 +199,16 @@ export function Header({
             )}
           </Button>
 
-          {/* Mobile filter toggle — hidden on desktop (md:hidden).
+          {/* Filter toggle — visible below lg, where the sidebar is hidden.
+              The breakpoint MUST match FilterSidebar (`hidden lg:block`),
+              otherwise tablet widths (768-1023px) have no filter UI at all.
               Only rendered when a filter handler is provided (homepage) so
               the button never appears as a dead/no-op control on other pages. */}
           {onFilterClick && (
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               aria-label={menuLabel}
               aria-expanded={filterOpen}
               aria-haspopup="true"

@@ -202,6 +202,11 @@ export function HomePageClient({
 
       {/* ─── Main Content ─── */}
       <section id="main-content" className="container mx-auto px-4 py-8">
+        {/* Section heading for the product catalogue: visually hidden, but it
+            keeps the outline sane (h1 hero -> h2 catalogue -> h3 filter
+            groups -> h2 FAQ/policies/contact). */}
+        <h2 className="sr-only">{t("nav.products", "منتجاتنا")}</h2>
+
         {/* Search */}
         <div className="mb-8">
           <SearchBar
@@ -342,6 +347,8 @@ export function HomePageClient({
         checkoutLabel={t("cart.checkout", "إتمام الطلب")}
         removeLabel={t("cart.remove", "إزالة")}
         quantityLabel={t("cart.quantity", "الكمية")}
+        itemsCountLabel={t("cart.itemsCount", "عدد القطع")}
+        continueShoppingLabel={t("cart.continueShopping", "متابعة التسوق")}
         shippingFee={shippingFee}
         onUpdateQuantity={cart.updateQuantity}
         onRemoveItem={cart.removeItem}

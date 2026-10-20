@@ -51,7 +51,11 @@ export function HeroShowcase({
   // The track renders the list twice for the seamless infinite loop;
   // the second copy is aria-hidden — it is purely visual.
 
-  const renderFrame = (item: HeroShowcaseItem, index: number) => {
+  const renderFrame = (
+    item: HeroShowcaseItem,
+    index: number,
+    decorative = false,
+  ) => {
     const frame = (
       <>
         <Image
@@ -88,6 +92,7 @@ export function HeroShowcase({
           href={`/product/${item.slug}`}
           title={item.name}
           aria-label={item.name}
+          tabIndex={decorative ? -1 : undefined}
           className={cn(
             "group relative mx-2 block h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",
             "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
@@ -127,9 +132,11 @@ export function HeroShowcase({
     >
       {title && (
         <div className="container mx-auto px-4 pt-6 text-center">
-          <h2 className="text-lg font-extrabold text-[var(--neutral-800)] sm:text-xl">
+          {/* The one real <h1> of the storefront — same visual treatment as
+              before, but the page finally has a top-level heading. */}
+          <h1 className="text-lg font-extrabold text-[var(--neutral-800)] sm:text-xl">
             {title}
-          </h2>
+          </h1>
           <div
             aria-hidden="true"
             className="mx-auto mt-2 h-1 w-16 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]"
@@ -153,8 +160,11 @@ export function HeroShowcase({
           <div className="flex">
             {items.map((item, i) => renderFrame(item, i))}
           </div>
+          {/* Duplicated track: aria-hidden AND out of the tab order — an
+              aria-hidden subtree must not contain focusable links. Clicks
+              still work, so the seam behaves like the original frames. */}
           <div className="flex" aria-hidden="true">
-            {items.map((item, i) => renderFrame(item, i))}
+            {items.map((item, i) => renderFrame(item, i, true))}
           </div>
         </div>
       </div>

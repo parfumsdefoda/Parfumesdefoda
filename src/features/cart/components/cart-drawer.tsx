@@ -45,6 +45,10 @@ export interface CartDrawerProps {
   removeLabel?: string;
   /** Quantity label */
   quantityLabel?: string;
+  /** Label for the item-count line in the drawer description */
+  itemsCountLabel?: string;
+  /** Empty-cart button label — closes the drawer */
+  continueShoppingLabel?: string;
   /**
    * Flat shipping fee from settings. Omit to hide the shipping row.
    * Resolve it with getShippingFee() — never hardcode a fee.
@@ -79,6 +83,8 @@ export function CartDrawer({
   checkoutLabel = "إتمام الطلب",
   removeLabel = "إزالة",
   quantityLabel = "الكمية",
+  itemsCountLabel = "عدد القطع",
+  continueShoppingLabel = "متابعة التسوق",
   shippingFee,
   onUpdateQuantity,
   onRemoveItem,
@@ -97,7 +103,7 @@ export function CartDrawer({
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>
-            {totalItems} {quantityLabel}
+            {itemsCountLabel}: {totalItems.toLocaleString("ar-EG")}
           </SheetDescription>
         </SheetHeader>
 
@@ -109,9 +115,12 @@ export function CartDrawer({
             <h3 className="text-base font-semibold text-[var(--neutral-800)] mb-1">
               {emptyTitle}
             </h3>
-            <p className="text-sm text-[var(--neutral-500)]">
+            <p className="text-sm text-[var(--neutral-500)] mb-6">
               {emptyDescription}
             </p>
+            <Button variant="default" onClick={() => onOpenChange(false)}>
+              {continueShoppingLabel}
+            </Button>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-4">
@@ -147,11 +156,14 @@ export function CartDrawer({
                       </p>
 
                       <div className="flex items-center justify-between mt-2">
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-1.5">
+                        {/* Quantity controls — 24px visuals, ~44px hit areas
+                            (::after), spaced so the extended areas never
+                            overlap each other. */}
+                        <div className="flex items-center gap-4">
                           <Button
                             variant="outline"
                             size="icon-xs"
+                            className="relative after:absolute after:-inset-2.5 after:content-['']"
                             onClick={() =>
                               onUpdateQuantity?.(
                                 item.productId,
@@ -169,6 +181,7 @@ export function CartDrawer({
                           <Button
                             variant="outline"
                             size="icon-xs"
+                            className="relative after:absolute after:-inset-2.5 after:content-['']"
                             onClick={() =>
                               onUpdateQuantity?.(
                                 item.productId,
@@ -196,7 +209,7 @@ export function CartDrawer({
                       onClick={() =>
                         onRemoveItem?.(item.productId, item.sizeLabel)
                       }
-                      className="self-start text-[var(--neutral-400)] hover:text-[var(--color-error)]"
+                      className="relative self-start text-[var(--neutral-400)] hover:text-[var(--color-error)] after:absolute after:-inset-2.5 after:content-['']"
                       aria-label={removeLabel}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
