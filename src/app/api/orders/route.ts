@@ -11,6 +11,13 @@ import { sendOrderWhatsApp } from "@/lib/whatsapp";
 import { incrementProductSales } from "@/lib/sales-tracking";
 import { checkOrderRateLimit } from "@/lib/rate-limiter";
 import { isSameOriginRequest } from "@/lib/request-origin";
+import { saveOrder } from "@/lib/order-store";
+import {
+  ALL_CHANNELS_FAILED_MESSAGE,
+  isOrderAccepted,
+  withTimeout,
+  type DeliveryOutcome,
+} from "@/lib/order-delivery";
 import type { Order } from "@/types/order";
 
 /**
@@ -33,6 +40,9 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const DEFAULT_PAYMENT_METHOD = "الدفع عند الاستلام";
+
+/** Persistence is an optional add-on: give it 2s, then move on. */
+const ORDER_STORE_TIMEOUT_MS = 2_000;
 
 function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -126,9 +136,17 @@ export async function POST(request: Request) {
       { requestId },
     );
 
-    // Notify the store owner — never changes the customer's HTTP status.
+    // Deliver to the owner. Each channel is independent: one failing never
+    // blocks the others, and none of them sets the HTTP status on its own.
+    const delivery: DeliveryOutcome = {
+      email: false,
+      whatsapp: false,
+      store: false,
+    };
+
     try {
       await sendOrderEmail(order);
+      delivery.email = true;
     } catch (emailError) {
       console.error(
         "[email] Failed to send order notification email:",
@@ -138,10 +156,34 @@ export async function POST(request: Request) {
 
     try {
       await sendOrderWhatsApp(order);
+      delivery.whatsapp = true;
     } catch (whatsAppError) {
       console.error(
         "[whatsapp] Failed to send order notification WhatsApp:",
         whatsAppError instanceof Error ? whatsAppError.message : String(whatsAppError),
+      );
+    }
+
+    // Optional persistence — bounded and failure-tolerant.
+    const stored = await withTimeout(
+      saveOrder(order).catch(() => ({ ok: false })),
+      ORDER_STORE_TIMEOUT_MS,
+      { ok: false },
+    );
+    delivery.store = stored.ok;
+
+    console.log(
+      `[orders] ${order.orderNumber} delivery: email=${delivery.email} whatsapp=${delivery.whatsapp} store=${delivery.store}`,
+    );
+
+    if (!isOrderAccepted(delivery)) {
+      // Production, and no channel took the order: keep the cart, let them retry.
+      console.error(
+        `[orders] ${order.orderNumber} reached no delivery channel`,
+      );
+      return NextResponse.json(
+        { error: ALL_CHANNELS_FAILED_MESSAGE },
+        { status: 503 },
       );
     }
 
