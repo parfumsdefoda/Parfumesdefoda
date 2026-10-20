@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { searchProducts } from "./search-helpers";
+import { normalizeArabic, searchProducts } from "./search-helpers";
 import type { Product } from "@/types";
 
 const mockProducts: Product[] = [
@@ -31,6 +31,65 @@ const mockProducts: Product[] = [
     seo: { title: "", description: "" },
   },
 ];
+
+const african: Product = {
+  ...mockProducts[0],
+  id: "2",
+  slug: "african-leather",
+  name: "أفريكان ليذر",
+  description: "عطر جلدي فاخر",
+};
+
+const catalog = [...mockProducts, african];
+
+describe("normalizeArabic", () => {
+  it("folds hamza forms to bare alef", () => {
+    expect(normalizeArabic("أفريكان")).toBe("افريكان");
+    expect(normalizeArabic("إفريكان")).toBe("افريكان");
+    expect(normalizeArabic("آفريكان")).toBe("افريكان");
+  });
+
+  it("folds taa marbuta to haa and alef maqsura to yaa", () => {
+    expect(normalizeArabic("سجدة")).toBe("سجده");
+    expect(normalizeArabic("هدى")).toBe("هدي");
+  });
+
+  it("strips tatweel and diacritics", () => {
+    expect(normalizeArabic("ســـجدة")).toBe("سجده");
+    expect(normalizeArabic("سَجْدَةٌ")).toBe("سجده");
+  });
+
+  it("lowercases Latin text", () => {
+    expect(normalizeArabic("Parfums De Foda")).toBe("parfums de foda");
+  });
+
+  it("leaves unrelated text intact", () => {
+    expect(normalizeArabic("عود")).toBe("عود");
+  });
+});
+
+describe("searchProducts — Arabic normalisation", () => {
+  it("finds a hamza word typed without the hamza", () => {
+    expect(searchProducts(catalog, "افريكان")).toHaveLength(1);
+    expect(searchProducts(catalog, "افريكان")[0].name).toBe("أفريكان ليذر");
+  });
+
+  it("finds a taa-marbuta word typed with haa", () => {
+    expect(searchProducts(catalog, "سجده")).toHaveLength(1);
+  });
+
+  it("finds a word typed with tatweel", () => {
+    expect(searchProducts(mockProducts, "ســجدة")).toHaveLength(1);
+  });
+
+  it("finds a word typed with diacritics", () => {
+    expect(searchProducts(mockProducts, "سَجْدَة")).toHaveLength(1);
+  });
+
+  it("matches case-insensitively for Latin", () => {
+    expect(searchProducts(mockProducts, "PARFUMS")).toHaveLength(1);
+  });
+});
 
 describe("searchProducts", () => {
   it("returns all products for empty query", () => {

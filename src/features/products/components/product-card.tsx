@@ -65,6 +65,16 @@ export interface ProductCardProps {
   onAddToCart?: (product: ProductCardProduct, size: ProductSize) => void;
   /** Called when user clicks "Buy Now" — navigate straight to checkout */
   onBuyNow?: () => void;
+  /**
+   * Preload the product image (use for the very first card in the grid).
+   * Sets fetchpriority=high and eager loading.
+   */
+  priority?: boolean;
+  /**
+   * Image loading strategy. The first few cards should be "eager" so the LCP
+   * image is not waiting on an IntersectionObserver-driven lazy fetch.
+   */
+  loading?: "eager" | "lazy";
   className?: string;
 }
 
@@ -124,6 +134,8 @@ export const ProductCard = memo(function ProductCard({
   buyNowLabel = "اشتر الآن",
   onAddToCart,
   onBuyNow,
+  priority = false,
+  loading = "lazy",
   className,
 }: ProductCardProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(
@@ -227,7 +239,9 @@ export const ProductCard = memo(function ProductCard({
             aria-label={product.name}
             tabIndex={-1}
           >
-            <div className="aspect-square w-full">
+            {/* `relative` is required: next/image with `fill` needs a
+                positioned parent, otherwise every card logs a warning. */}
+            <div className="relative aspect-square w-full">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -235,12 +249,13 @@ export const ProductCard = memo(function ProductCard({
                 sizes={getImageSizes(columns)}
                 className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
                 quality={85}
-                loading="lazy"
+                loading={loading}
+                priority={priority}
               />
             </div>
           </Link>
         ) : (
-          <div className="aspect-square w-full">
+          <div className="relative aspect-square w-full">
             <Image
               src={product.image}
               alt={product.name}
@@ -248,7 +263,8 @@ export const ProductCard = memo(function ProductCard({
               sizes={getImageSizes(columns)}
               className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
               quality={85}
-              loading="lazy"
+              loading={loading}
+              priority={priority}
             />
           </div>
         )}

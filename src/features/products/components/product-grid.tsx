@@ -46,12 +46,17 @@ export function ProductGrid({
   return (
     <div className={`grid ${gridCols} gap-6 ${className ?? ""}`}>
       <AnimatePresence mode="popLayout">
-        {products.map((product) => (
+        {products.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
             columns={desktopCols}
             {...cardProps}
+            // Above-the-fold images: the first card is the LCP candidate and
+            // is preloaded; the next three load eagerly. Everything after
+            // stays lazy so a 40-product grid does not fetch 40 images.
+            priority={index === 0}
+            loading={index < 4 ? "eager" : "lazy"}
           />
         ))}
       </AnimatePresence>

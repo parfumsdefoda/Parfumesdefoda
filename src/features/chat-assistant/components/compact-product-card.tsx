@@ -56,7 +56,7 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
           fill
           sizes="96px"
           className="object-contain p-2 transition-transform duration-200 group-hover:scale-105"
-          quality={80}
+          quality={75}
         />
       </div>
 

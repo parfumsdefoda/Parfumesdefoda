@@ -64,7 +64,7 @@ export function HeroShowcase({
           fill
           sizes="(max-width: 640px) 160px, 224px"
           className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
-          quality={80}
+          quality={75}
           priority={index < 2}
           loading={index < 2 ? undefined : "lazy"}
         />

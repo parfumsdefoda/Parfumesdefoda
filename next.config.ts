@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 768, 1024, 1280, 1536],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Only these two qualities may be requested — keeps the optimizer cache
+    // small and prevents a component from quietly inventing a new value.
+    qualities: [75, 85],
     // Remote patterns for future CMS integration
     remotePatterns: [],
   },
