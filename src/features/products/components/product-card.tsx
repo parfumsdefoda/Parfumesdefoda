@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FeaturedBadge } from "./featured-badge";
 import { formatPrice } from "@/lib/currency";
+import {
+  isUnavailableBadge,
+  isUnavailableProduct,
+} from "@/lib/product-availability";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,6 +42,10 @@ export interface ProductCardProduct {
   house?: string;
   /** Featured product flag — triggers gold premium card style */
   featured?: boolean;
+  /** Whole-product availability (per-size availability lives on `sizes`) */
+  inStock?: boolean;
+  /** Catalogue status — anything other than "active" means unavailable */
+  status?: string;
 }
 
 export interface ProductCardProps {
@@ -146,8 +154,10 @@ export const ProductCard = memo(function ProductCard({
   const cardRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  // Availability is state, never a badge string.
   const isOutOfStock =
-    selectedSize !== null && !selectedSize.inStock;
+    isUnavailableProduct(product) ||
+    (selectedSize !== null && !selectedSize.inStock);
 
   // Intersection Observer for fade-in animation
   useEffect(() => {
@@ -183,7 +193,13 @@ export const ProductCard = memo(function ProductCard({
     }, 350);
   }, [selectedSize, isOutOfStock, buttonState, onAddToCart, product]);
 
-  const badgeLabel = product.badge ? resolveBadgeLabel(product.badge) : null;
+  // A badge that says "غير متوفر حالياً" is an availability notice, not a
+  // marketing claim — showing it as a gold badge contradicts the sold-out
+  // button right below it.
+  const badgeLabel =
+    product.badge && !isUnavailableBadge(product.badge)
+      ? resolveBadgeLabel(product.badge)
+      : null;
 
   // Truncate description to 2 lines
   const shortDescription = product.description

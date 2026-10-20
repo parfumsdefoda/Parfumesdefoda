@@ -102,6 +102,8 @@ export function HomePageClient({
         gender: p.gender,
         house: p.house,
         featured: p.featured,
+        inStock: p.inStock,
+        status: p.status,
       })),
     [products.products],
   );

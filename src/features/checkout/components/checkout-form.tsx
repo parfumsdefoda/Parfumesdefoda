@@ -147,6 +147,7 @@ export function CheckoutForm({
               id="checkout-name"
               {...register("name")}
               placeholder={namePlaceholder}
+              autoComplete="name"
               aria-invalid={!!errors.name}
               className="h-11"
             />
@@ -169,6 +170,8 @@ export function CheckoutForm({
               placeholder={phonePlaceholder}
               dir="ltr"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               aria-invalid={!!errors.phone}
               className="h-11"
             />
@@ -191,6 +194,8 @@ export function CheckoutForm({
               placeholder={whatsappPlaceholder}
               dir="ltr"
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               aria-invalid={!!errors.whatsapp}
               className="h-11"
             />
@@ -211,6 +216,7 @@ export function CheckoutForm({
               id="checkout-governorate"
               value={selectedGovernorate}
               onChange={handleGovernorateChange}
+              autoComplete="address-level1"
               aria-invalid={!!errors.governorate}
               aria-describedby={errors.governorate ? "governorate-error" : undefined}
               className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
@@ -246,6 +252,7 @@ export function CheckoutForm({
               id="checkout-city"
               onChange={handleCityChange}
               disabled={!selectedGovernorate}
+              autoComplete="address-level2"
               aria-invalid={!!errors.city}
               aria-describedby={errors.city ? "city-error" : undefined}
               className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
@@ -283,6 +290,7 @@ export function CheckoutForm({
               id="checkout-address-details"
               {...register("addressDetails")}
               placeholder={addressDetailsPlaceholder}
+              autoComplete="street-address"
               aria-invalid={!!errors.addressDetails}
               className="h-11"
             />

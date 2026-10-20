@@ -17,6 +17,7 @@ import { useToast } from "@/features/toast";
 import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
+import { isUnavailableBadge } from "@/lib/product-availability";
 import type { Product } from "@/types";
 import type { FullSettings } from "@/types/services";
 
@@ -174,8 +175,8 @@ export function ProductDetailPageClient({
                 </div>
               )}
 
-              {/* Product badge */}
-              {product.badge && (
+              {/* Product badge — never a disguised "out of stock" notice */}
+              {product.badge && !isUnavailableBadge(product.badge) && (
                 <div className="absolute top-4 end-4 z-10">
                   <span className="inline-flex items-center rounded-full bg-[var(--color-gold)] px-3 py-1.5 text-xs font-semibold text-white">
                     {product.badge}

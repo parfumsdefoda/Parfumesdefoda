@@ -24,6 +24,9 @@ export interface CheckoutPageClientProps {
 /** Error thrown when the API rejects the order but explains why. */
 class OrderSubmitError extends Error {}
 
+/** Payment is cash on delivery — there is no online payment gateway. */
+const PAYMENT_METHOD = "الدفع عند الاستلام";
+
 const GENERIC_SUBMIT_ERROR =
   "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.";
 
@@ -70,7 +73,7 @@ export function CheckoutPageClient({
             sizeLabel: item.sizeLabel,
             quantity: item.quantity,
           })),
-          paymentMethod: "الدفع عند الاستلام",
+          paymentMethod: PAYMENT_METHOD,
         }),
       });
 
@@ -278,6 +281,12 @@ export function CheckoutPageClient({
                   <span className="text-[var(--neutral-500)]">مصاريف الشحن</span>
                   <span className="text-[var(--neutral-700)]">
                     {formatPrice(shippingCost)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[var(--neutral-500)]">طريقة الدفع</span>
+                  <span className="text-[var(--neutral-700)]">
+                    {PAYMENT_METHOD}
                   </span>
                 </div>
                 <Separator className="my-2" />
