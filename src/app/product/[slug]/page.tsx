@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { loadProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
+import { buildProductTitle, productPath } from "@/lib/seo";
 import { ProductDetailPageClient } from "@/features/products/components/product-detail-page";
 
 /**
@@ -35,7 +36,9 @@ export async function generateMetadata({
     };
   }
 
-  const seoTitle = product.seo?.title || `${product.name} | Parfums De Foda`;
+  // The root metadata template appends "| Parfums De Foda" — the value passed
+  // here must not already contain it, or the title renders twice.
+  const seoTitle = buildProductTitle(product);
   const seoDescription =
     product.seo?.description ||
     product.description ||
@@ -44,6 +47,11 @@ export async function generateMetadata({
   return {
     title: seoTitle,
     description: seoDescription,
+    // Each product has ONE canonical URL — without this every PDP inherits the
+    // homepage canonical and the 40 pages compete as duplicates.
+    alternates: {
+      canonical: productPath(product.slug),
+    },
     openGraph: {
       title: seoTitle,
       description: seoDescription,

@@ -54,7 +54,9 @@ export const metadata: Metadata = {
     description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
     images: [
       {
-        url: "/logos/logo.svg",
+        // Social platforms do not render SVG — this is a real 1200x630 PNG
+        // (regenerate with `node scripts/generate-og-image.mjs`).
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Parfums De Foda — عطور فاخرة",
@@ -65,11 +67,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Parfums De Foda — عطور فاخرة",
     description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
-    images: ["/logos/logo.svg"],
+    images: ["/og-image.png"],
   },
-  alternates: {
-    canonical: siteUrl,
-  },
+  // No site-wide canonical here: a root canonical is inherited by every page,
+  // which pointed all 40 product pages at the homepage. Each route declares
+  // its own canonical instead.
   icons: {
     icon: "/favicon.svg",
     apple: "/favicon.svg",
