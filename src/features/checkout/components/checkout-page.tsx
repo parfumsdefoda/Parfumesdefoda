@@ -12,7 +12,6 @@ import { PageLayout } from "@/features/layout";
 import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/currency";
-import { generateOrderNumber } from "@/lib/order-number";
 import { getShippingFee } from "@/lib/shipping";
 import type { FullSettings } from "@/types/services";
 import type { CheckoutFormData } from "@/schemas/checkout";
@@ -21,6 +20,12 @@ export interface CheckoutPageClientProps {
   /** Shipping config from data/settings.json (flat fee, no free threshold) */
   shipping: FullSettings["shipping"];
 }
+
+/** Error thrown when the API rejects the order but explains why. */
+class OrderSubmitError extends Error {}
+
+const GENERIC_SUBMIT_ERROR =
+  "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.";
 
 /**
  * CheckoutPageClient — full checkout page with two-column RTL layout.
@@ -45,47 +50,46 @@ export function CheckoutPageClient({
     setIsSubmitting(true);
     setSubmitError(null);
 
-    const orderNumber = generateOrderNumber();
-
-    // Build order object with structured address
-    const order = {
-      orderNumber,
-      customer: {
-        name: data.name,
-        phone: data.phone,
-        whatsapp: data.whatsapp,
-        governorate: data.governorate,
-        city: data.city,
-        addressDetails: data.addressDetails,
-      },
-      items: cart.items.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        sizeLabel: item.sizeLabel,
-        quantity: item.quantity,
-        price: item.price,
-        image: item.image,
-      })),
-      subtotal,
-      shippingCost,
-      total,
-      paymentMethod: "الدفع عند الاستلام",
-      createdAt: new Date().toISOString(),
-    };
-
     try {
-      // Submit order to API
+      // Only the identity of each line is sent — the server prices the order
+      // from the catalog and mints the order number itself.
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(order),
+        body: JSON.stringify({
+          customer: {
+            name: data.name,
+            phone: data.phone,
+            whatsapp: data.whatsapp,
+            governorate: data.governorate,
+            city: data.city,
+            addressDetails: data.addressDetails,
+          },
+          items: cart.items.map((item) => ({
+            productId: item.productId,
+            sizeLabel: item.sizeLabel,
+            quantity: item.quantity,
+          })),
+          paymentMethod: "الدفع عند الاستلام",
+        }),
       });
 
+      const payload = (await response
+        .json()
+        .catch(() => null)) as
+        | { orderNumber?: string; error?: string }
+        | null;
+
       if (!response.ok) {
-        throw new Error("Failed to submit order");
+        throw new OrderSubmitError(payload?.error ?? GENERIC_SUBMIT_ERROR);
       }
 
-      // Store order number in session for success page
+      const orderNumber = payload?.orderNumber;
+      if (!orderNumber) {
+        throw new Error("Missing order number in response");
+      }
+
+      // Store the SERVER order number for the success page
       try {
         sessionStorage.setItem("parfumsdefoda-last-order", orderNumber);
       } catch {
@@ -95,12 +99,12 @@ export function CheckoutPageClient({
       // Clear cart and redirect to success — ONLY on confirmed success
       cart.clearCart();
       router.push("/checkout/success");
-    } catch {
+    } catch (error) {
       // API failed — do NOT navigate to the success page.
       // Keep the cart intact so the customer can retry without losing anything.
       setIsSubmitting(false);
       setSubmitError(
-        "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.",
+        error instanceof OrderSubmitError ? error.message : GENERIC_SUBMIT_ERROR,
       );
     }
   };

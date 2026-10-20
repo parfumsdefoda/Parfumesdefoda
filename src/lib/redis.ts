@@ -16,3 +16,18 @@ import { Redis } from "@upstash/redis";
  * handled by the callers in src/lib/sales-tracking.ts.
  */
 export const redis = Redis.fromEnv();
+
+/**
+ * Whether Upstash Redis credentials are present.
+ *
+ * `Redis.fromEnv()` never throws when they are missing, so callers that have a
+ * local fallback (rate limiting, order numbering) check this first instead of
+ * waiting for a command to fail.
+ */
+export function isRedisConfigured(): boolean {
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  return Boolean(url && token);
+}

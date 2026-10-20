@@ -1,29 +1,27 @@
+import { isRedisConfigured, redis } from "./redis";
+
 /**
- * Order number generator.
+ * Order number generator — SERVER ONLY.
  *
  * Format: PDF-YYYYMMDD-NNNNN
  * Example: PDF-20260716-00125
  *
- * Counter resets daily (tracked via localStorage key + date).
+ * The number is always minted on the server so two customers can never receive
+ * the same one. The 5-character sequence comes from an atomic Upstash counter
+ * (one per day) when Redis is configured, and falls back to a random base32
+ * suffix otherwise.
+ *
+ * SERVER-ONLY: imports the Upstash client — never import this from a
+ * `"use client"` component.
  */
 
-const STORAGE_PREFIX = "parfumsdefoda-order-counter-";
+const COUNTER_TTL_SECONDS = 60 * 60 * 48;
 
-/**
- * Generate a unique order number.
- * Uses localStorage to persist the daily counter across page refreshes.
- */
-export function generateOrderNumber(): string {
-  const now = new Date();
-  const dateStr = formatDateStr(now);
-  const counter = getNextCounter(dateStr);
-  return `PDF-${dateStr}-${String(counter).padStart(5, "0")}`;
-}
+/** Unambiguous base32 alphabet (no 0/O, 1/I/L). */
+const SUFFIX_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
-/**
- * Format a date as YYYYMMDD.
- */
-function formatDateStr(date: Date): string {
+/** Format a date as YYYYMMDD (local time, matching the store's timezone). */
+export function formatDateStr(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -31,21 +29,49 @@ function formatDateStr(date: Date): string {
 }
 
 /**
- * Get and increment the daily counter.
- * Falls back to a random number if localStorage is unavailable.
+ * Assemble the final order number from a date and a sequence/suffix.
+ * Numeric sequences are zero-padded to 5 digits.
  */
-function getNextCounter(dateStr: string): number {
-  const key = `${STORAGE_PREFIX}${dateStr}`;
+export function formatOrderNumber(
+  date: Date,
+  sequence: number | string,
+): string {
+  const suffix =
+    typeof sequence === "number"
+      ? String(sequence).padStart(5, "0")
+      : sequence;
+  return `PDF-${formatDateStr(date)}-${suffix}`;
+}
+
+/** Random 5-character base32 suffix used when Redis is unavailable. */
+export function randomOrderSuffix(length = 5): string {
+  let suffix = "";
+  for (let i = 0; i < length; i++) {
+    const index = Math.floor(Math.random() * SUFFIX_ALPHABET.length);
+    suffix += SUFFIX_ALPHABET[index];
+  }
+  return suffix;
+}
+
+/**
+ * Generate the next order number for the given day.
+ * Uses Upstash INCR when configured; otherwise a random suffix.
+ */
+export async function generateOrderNumber(date: Date = new Date()): Promise<string> {
+  if (!isRedisConfigured()) {
+    return formatOrderNumber(date, randomOrderSuffix());
+  }
+
+  const key = `order-seq:${formatDateStr(date)}`;
 
   try {
-    const stored = localStorage.getItem(key);
-    const current = stored ? parseInt(stored, 10) : 0;
-    const next = current + 1;
-    localStorage.setItem(key, String(next));
-    return next;
+    const sequence = await redis.incr(key);
+    if (sequence === 1) {
+      await redis.expire(key, COUNTER_TTL_SECONDS);
+    }
+    return formatOrderNumber(date, sequence);
   } catch {
-    // localStorage unavailable (SSR or private browsing)
-    // Return a random 5-digit number as fallback
-    return Math.floor(Math.random() * 90000) + 10000;
+    // Redis hiccup must never block an order — fall back to a random suffix.
+    return formatOrderNumber(date, randomOrderSuffix());
   }
 }

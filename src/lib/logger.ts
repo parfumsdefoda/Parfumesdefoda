@@ -7,25 +7,17 @@ import settings from "../../data/settings.json";
  * can capture and index the logs without leaking secrets.
  */
 
+/**
+ * Order log payload.
+ *
+ * Deliberately PII-free: logs are retained and indexed by the host, so the
+ * customer's name, phone, WhatsApp and address never appear here. The order
+ * number is enough to look the order up (and to correlate with the owner's
+ * email/WhatsApp notification).
+ */
 export interface OrderLogInput {
   orderNumber: string;
-  customer: {
-    name: string;
-    phone: string;
-    whatsapp: string;
-    governorate: string;
-    city: string;
-    addressDetails: string;
-  };
-  items: {
-    productId: string;
-    name: string;
-    sizeLabel: string;
-    quantity: number;
-    price: number;
-  }[];
-  subtotal: number;
-  shippingCost: number;
+  itemsCount: number;
   total: number;
   paymentMethod: string;
   createdAt: string;
@@ -42,30 +34,17 @@ function getRequestId(options?: LogOptions): string | null {
 /**
  * Log a successfully created order.
  *
- * Includes customer contact details (required for order tracking) but
- * never passwords, tokens, cookies, authorization headers, or API keys.
+ * No customer PII: only the order number, item count and total. Never
+ * passwords, tokens, cookies, authorization headers, or API keys.
  */
 export function logOrderCreated(order: OrderLogInput, options?: LogOptions): void {
   const log = {
     event: "order.created",
     orderNumber: order.orderNumber,
-    customer: order.customer.name,
-    phone: order.customer.phone,
-    whatsapp: order.customer.whatsapp,
-    governorate: order.customer.governorate,
-    city: order.customer.city,
-    addressDetails: order.customer.addressDetails,
+    itemsCount: order.itemsCount,
     total: order.total,
     currency: settings.store.currency,
     paymentMethod: order.paymentMethod,
-    itemsCount: order.items.length,
-    items: order.items.map((item) => ({
-      id: item.productId,
-      name: item.name,
-      quantity: item.quantity,
-      size: item.sizeLabel,
-      price: item.price,
-    })),
     createdAt: order.createdAt,
     environment: process.env.NODE_ENV ?? "unknown",
     requestId: getRequestId(options),

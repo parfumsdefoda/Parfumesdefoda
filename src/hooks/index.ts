@@ -15,6 +15,3 @@ export type { UseSeoReturn } from "./use-seo";
 
 export { useContent } from "./use-content";
 export type { UseContentReturn } from "./use-content";
-
-export { useCheckout } from "./use-checkout";
-export type { UseCheckoutReturn } from "./use-checkout";
