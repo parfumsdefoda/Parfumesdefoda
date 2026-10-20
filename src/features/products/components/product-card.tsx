@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FeaturedBadge } from "./featured-badge";
 import { formatPrice } from "@/lib/currency";
-import { SHIPPING_FEE } from "@/config/constants";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -55,6 +54,11 @@ export interface ProductCardProps {
   selectSizeLabel?: string;
   /** Label shown below price */
   taxIncludedLabel?: string;
+  /**
+   * Flat shipping fee from settings (see getShippingFee()).
+   * Omit to hide the shipping note.
+   */
+  shippingFee?: number;
   /** Label for the "Buy Now" shortcut button */
   buyNowLabel?: string;
   /** Called when user clicks "add to cart" */
@@ -116,6 +120,7 @@ export const ProductCard = memo(function ProductCard({
   outOfStockLabel = "غير متوفر",
   selectSizeLabel = "اختر الحجم",
   taxIncludedLabel = "شامل الضريبة",
+  shippingFee,
   buyNowLabel = "اشتر الآن",
   onAddToCart,
   onBuyNow,
@@ -388,12 +393,14 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Shipping Fee Badge */}
-        <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-secondary)]/10 px-2.5 py-1">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-secondary)]" />
-          <span className="text-[11px] font-medium text-[var(--color-secondary)]">
-            مصاريف الشحن {formatPrice(SHIPPING_FEE)} فقط
-          </span>
-        </div>
+        {shippingFee !== undefined && (
+          <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-secondary)]/10 px-2.5 py-1">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-secondary)]" />
+            <span className="text-[11px] font-medium text-[var(--color-secondary)]">
+              مصاريف الشحن {formatPrice(shippingFee)} فقط
+            </span>
+          </div>
+        )}
 
         {/* Buy Now + Add to Cart buttons */}
         <div className="flex flex-col gap-2">

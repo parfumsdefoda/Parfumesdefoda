@@ -26,8 +26,8 @@ export const GRID_COLUMNS = {
   MOBILE: 1,
 } as const;
 
-// Fixed shipping fee (EGP) — displayed on product cards and added to order total
-export const SHIPPING_FEE = 100;
+// Shipping fee lives in data/settings.json (shipping.cost) and is read through
+// getShippingFee() in src/lib/shipping.ts — never hardcode it here.
 
 // Breakpoints
 export const BREAKPOINTS = {

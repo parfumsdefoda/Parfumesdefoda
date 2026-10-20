@@ -13,12 +13,13 @@ import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/currency";
 import { generateOrderNumber } from "@/lib/order-number";
-import { SHIPPING_FEE } from "@/config/constants";
+import { getShippingFee } from "@/lib/shipping";
+import type { FullSettings } from "@/types/services";
 import type { CheckoutFormData } from "@/schemas/checkout";
 
 export interface CheckoutPageClientProps {
-  /** Shipping config (deprecated — now uses fixed SHIPPING_FEE constant) */
-  shipping?: { cost: number; freeAbove?: number };
+  /** Shipping config from data/settings.json (flat fee, no free threshold) */
+  shipping: FullSettings["shipping"];
 }
 
 /**
@@ -27,8 +28,7 @@ export interface CheckoutPageClientProps {
  * Left column: order summary with payment method.
  */
 export function CheckoutPageClient({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for backward compatibility
-  shipping: _shipping,
+  shipping,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   const cart = useCart();
@@ -36,7 +36,7 @@ export function CheckoutPageClient({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const subtotal = cart.totalPrice;
-  const shippingCost = SHIPPING_FEE;
+  const shippingCost = getShippingFee({ shipping });
   const total = subtotal + shippingCost;
 
   const handleSubmit = async (data: CheckoutFormData) => {

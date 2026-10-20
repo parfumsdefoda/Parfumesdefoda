@@ -14,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/currency";
-import { SHIPPING_FEE } from "@/config/constants";
 
 export interface CartItemData {
   productId: string;
@@ -46,6 +45,11 @@ export interface CartDrawerProps {
   removeLabel?: string;
   /** Quantity label */
   quantityLabel?: string;
+  /**
+   * Flat shipping fee from settings. Omit to hide the shipping row.
+   * Resolve it with getShippingFee() — never hardcode a fee.
+   */
+  shippingFee?: number;
   /** Called when quantity changes */
   onUpdateQuantity?: (
     productId: string,
@@ -75,6 +79,7 @@ export function CartDrawer({
   checkoutLabel = "إتمام الطلب",
   removeLabel = "إزالة",
   quantityLabel = "الكمية",
+  shippingFee,
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
@@ -215,20 +220,22 @@ export function CartDrawer({
                   {formatPrice(totalPrice)}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="flex items-center gap-1.5 text-[var(--neutral-600)]">
-                  <Truck className="h-3.5 w-3.5" />
-                  مصاريف الشحن
-                </span>
-                <span className="text-[var(--neutral-800)]">
-                  {formatPrice(SHIPPING_FEE)}
-                </span>
-              </div>
+              {shippingFee !== undefined && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1.5 text-[var(--neutral-600)]">
+                    <Truck className="h-3.5 w-3.5" />
+                    مصاريف الشحن
+                  </span>
+                  <span className="text-[var(--neutral-800)]">
+                    {formatPrice(shippingFee)}
+                  </span>
+                </div>
+              )}
               <Separator />
               <div className="flex items-center justify-between">
                 <span className="text-base font-bold text-[var(--neutral-800)]">الإجمالي</span>
                 <span className="text-lg font-bold text-[var(--color-accent)]">
-                  {formatPrice(totalPrice + SHIPPING_FEE)}
+                  {formatPrice(totalPrice + (shippingFee ?? 0))}
                 </span>
               </div>
             </div>

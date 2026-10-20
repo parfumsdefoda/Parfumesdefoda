@@ -20,7 +20,7 @@ export async function loadFullSettings(): Promise<FullSettings> {
       direction: "rtl",
     },
     grid: { desktop: 3, tablet: 2, mobile: 1 },
-    shipping: { cost: 60, freeAbove: 500 },
+    shipping: { cost: 100 },
     contact: { whatsapp: "", email: "", phone: "" },
     social: {},
     navigation: [],
@@ -36,10 +36,19 @@ export async function loadFullSettings(): Promise<FullSettings> {
       readJsonFile<Record<string, unknown>>("data/footer.json", defaults.footer as unknown as Record<string, unknown>),
     ]);
 
+    const rawShipping = settings.shipping as { cost?: unknown } | undefined;
+    const shippingCost =
+      typeof rawShipping?.cost === "number" &&
+      Number.isFinite(rawShipping.cost) &&
+      rawShipping.cost >= 0
+        ? rawShipping.cost
+        : defaults.shipping.cost;
+
     return {
       store: (settings.store as FullSettings["store"]) ?? defaults.store,
       grid: (settings.grid as FullSettings["grid"]) ?? defaults.grid,
-      shipping: (settings.shipping as FullSettings["shipping"]) ?? defaults.shipping,
+      // Shipping is a flat fee only — any legacy free-shipping key is dropped.
+      shipping: { cost: shippingCost },
       contact: {
         whatsapp: contact.whatsapp ?? "",
         email: contact.email ?? "",

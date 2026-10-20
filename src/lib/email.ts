@@ -149,7 +149,7 @@ function buildOrderEmailHtml(data: OrderEmailData): string {
       </div>
       <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-size: 14px;">
         <span style="color: #6b7280;">الشحن</span>
-        <strong style="color: #374151;">${data.shippingCost > 0 ? formatPrice(data.shippingCost) : "مجاناً"}</strong>
+        <strong style="color: #374151;">${formatPrice(data.shippingCost)}</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 12px 0; font-size: 18px; border-top: 2px solid #e5e7eb;">
         <strong style="color: #632989;">الإجمالي</strong>

@@ -44,7 +44,7 @@ const defaultSettings: FullSettings = {
     direction: "rtl",
   },
   grid: { desktop: 3, tablet: 2, mobile: 1 },
-  shipping: { cost: 60, freeAbove: 500 },
+  shipping: { cost: 100 },
   contact: { whatsapp: "", email: "", phone: "" },
   social: {},
   navigation: [],

@@ -24,6 +24,7 @@ import { useCart } from "@/providers/CartProvider";
 import type { Product } from "@/types";
 import type { FullSettings, FilterData, SiteContent, LocaleMessages } from "@/types/services";
 import type { SortOption } from "@/lib/sort-helpers";
+import { getShippingFee } from "@/lib/shipping";
 
 /**
  * Props for the client-side HomePage component.
@@ -77,6 +78,9 @@ export function HomePageClient({
 
   // ─── Derived ───
   const t = locale.t;
+
+  // Flat shipping fee from data/settings.json — single source of truth.
+  const shippingFee = getShippingFee(settings);
 
   // Destructure frequently used values to avoid useMemo dependency issues
   const { activeFilters, toggleFilter, sortBy, setSortBy, clearFilters } = products;
@@ -260,6 +264,7 @@ export function HomePageClient({
                   addedLabel: t("home.addedToCart", "✓ تمت الإضافة"),
                   outOfStockLabel: t("home.outOfStock", "غير متوفر"),
                   selectSizeLabel: t("product.selectSize", "اختر الحجم"),
+                  shippingFee,
                   buyNowLabel: t("home.buyNow", "اشتر الآن"),
                   onAddToCart: handleAddToCart,
                   onBuyNow: () => router.push("/checkout"),
@@ -337,6 +342,7 @@ export function HomePageClient({
         checkoutLabel={t("cart.checkout", "إتمام الطلب")}
         removeLabel={t("cart.remove", "إزالة")}
         quantityLabel={t("cart.quantity", "الكمية")}
+        shippingFee={shippingFee}
         onUpdateQuantity={cart.updateQuantity}
         onRemoveItem={cart.removeItem}
         onCheckout={handleCartCheckout}

@@ -68,8 +68,8 @@ export interface FullSettings {
     mobile: number;
   };
   shipping: {
+    /** Flat shipping fee in EGP. No free-shipping threshold exists. */
     cost: number;
-    freeAbove?: number;
   };
   contact: ContactInfo;
   social: SocialLinks;

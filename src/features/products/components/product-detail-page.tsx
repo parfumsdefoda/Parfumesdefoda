@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/features/toast";
 import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
+import { getShippingFee } from "@/lib/shipping";
 import type { Product } from "@/types";
 import type { FullSettings } from "@/types/services";
 
@@ -44,6 +45,7 @@ export function ProductDetailPageClient({
   const router = useRouter();
   const { showToast } = useToast();
   const settingsData = useSettings(settings);
+  const shippingFee = getShippingFee(settings);
 
   // ─── State ───
   const [selectedSizeIndex, setSelectedSizeIndex] = useState<number>(() => {
@@ -502,6 +504,7 @@ export function ProductDetailPageClient({
         checkoutLabel="إتمام الطلب"
         removeLabel="إزالة"
         quantityLabel="الكمية"
+        shippingFee={shippingFee}
         onUpdateQuantity={cart.updateQuantity}
         onRemoveItem={cart.removeItem}
         onCheckout={handleCartCheckout}

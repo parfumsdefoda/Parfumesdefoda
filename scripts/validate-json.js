@@ -14,11 +14,13 @@ const path = require("path");
 // shape (src/schemas/product-schema.ts). Loaded via tsx so .ts imports work.
 // If this fails, schema validation is unavailable → fail loudly.
 let productSchema;
+let settingsSchema;
 try {
   ({ productSchema } = require("../src/schemas/product-schema.ts"));
+  ({ settingsSchema } = require("../src/schemas/settings-schema.ts"));
 } catch (err) {
   console.error(
-    `❌ Unable to load product schema (src/schemas/product-schema.ts): ${
+    `❌ Unable to load schemas (src/schemas/*.ts): ${
       err instanceof Error ? err.message : String(err)
     }`,
   );
@@ -81,6 +83,18 @@ for (const file of FILES) {
     // Extra: run each product through the Zod schema (catches field-level
     // drift, wrong types, missing enums — the class of bug that silently
     // zeroes out the catalog).
+    if (file.path === "data/settings.json") {
+      const result = settingsSchema.safeParse(parsed);
+      if (!result.success) {
+        hasErrors = true;
+        console.error(`❌ ${file.path}: failed schema validation`);
+        for (const issue of result.error.issues) {
+          const fieldName = issue.path.length ? issue.path.join(".") : "(root)";
+          console.error(`   - ${fieldName}: ${issue.message}`);
+        }
+      }
+    }
+
     if (file.path === "data/products.json") {
       const list = Array.isArray(parsed) ? parsed : [parsed];
       for (const [index, product] of list.entries()) {

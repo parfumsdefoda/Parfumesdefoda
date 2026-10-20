@@ -12,7 +12,6 @@
     "mobile": 1
   },
   "shipping": {
-    "cost": 60,
-    "freeAbove": 500
+    "cost": 100
   }
 }
