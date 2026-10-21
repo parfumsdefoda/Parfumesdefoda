@@ -23,12 +23,42 @@ const HEX_ALLOWLIST = new Map([
     "the token layer itself — every colour is declared here exactly once",
   ],
   [
+    "lib/design-tokens.ts",
+    "TypeScript mirror of the CSS token layer (brand hexes + color-mix math) so the dev page and the contrast test can measure the real palette",
+  ],
+  [
     "lib/email.ts",
     "email HTML: mail clients do not support CSS custom properties, so the order email must carry literal colours",
   ],
 ]);
 
 const MIN_FONT_PX = 14;
+
+/** Token prefixes this script owns; anything else is third-party. */
+const OWNED_PREFIXES = [
+  "--color-",
+  "--ui-",
+  "--neutral-",
+  "--purple-",
+  "--gold-",
+  "--green-",
+  "--brand-",
+  "--space-",
+  "--radius-",
+  "--shadow-",
+  "--ease-",
+  "--duration-",
+  "--gradient-",
+];
+
+function definedTokens() {
+  const css = fs.readFileSync(path.join(ROOT, "app/globals.css"), "utf8");
+  const names = new Set();
+  for (const match of css.matchAll(/(--[a-z0-9-]+)\s*:/g)) names.add(match[1]);
+  return names;
+}
+
+const DEFINED = definedTokens();
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -53,7 +83,8 @@ function report(file, line, message, snippet) {
 
 for (const file of walk(ROOT)) {
   const rel = path.relative(ROOT, file).replaceAll("\\", "/");
-  const allowedHex = HEX_ALLOWLIST.get(rel);
+  // Tests assert on literal colours on purpose; they never render.
+  const allowedHex = HEX_ALLOWLIST.get(rel) || /\.test\.tsx?$/.test(file);
   const isCss = file.endsWith(".css");
   const source = fs.readFileSync(file, "utf8");
   const lines = source.split(/\r?\n/);
@@ -88,6 +119,20 @@ for (const file of walk(ROOT)) {
           match[0],
         );
       }
+    }
+
+    // Every owned custom property must exist in globals.css: an undeclared
+    // token resolves to `transparent`, which is invisible until it matters.
+    for (const match of code.matchAll(/var\((--[a-z0-9-]+)/g)) {
+      const name = match[1];
+      if (!OWNED_PREFIXES.some((prefix) => name.startsWith(prefix))) continue;
+      if (DEFINED.has(name)) continue;
+      report(
+        file,
+        lineNo,
+        "undeclared design token — add it to src/app/globals.css",
+        name,
+      );
     }
 
     for (const match of code.matchAll(/text-\[(\d+(?:\.\d+)?)(px|rem|em)\]/g)) {

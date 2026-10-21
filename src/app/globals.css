@@ -67,9 +67,16 @@
   --ui-text-muted: var(--neutral-500);
   --ui-brand: var(--purple-600);
   --ui-brand-soft: var(--purple-50);
-  /* Public aliases used by components (resolved, not raw). */
+  /* Public aliases used by components (resolved, not raw).
+     Every colour token a component reads must be declared here — an
+     undeclared token silently computes to `transparent`.
+     `npm run check:tokens` fails if one goes missing. */
   --color-brand: var(--purple-600);
   --color-brand-soft: var(--purple-50);
+  --color-positive: var(--green-700);
+  --color-gold-text: var(--gold-700);
+  --color-danger: var(--ui-danger);
+  --color-focus: var(--purple-600);
   --ui-positive: var(--green-700);
   --ui-positive-soft: var(--green-50);
   --ui-gold-text: var(--gold-700);
