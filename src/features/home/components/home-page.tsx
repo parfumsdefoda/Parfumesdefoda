@@ -203,7 +203,7 @@ export function HomePageClient({
       )}
 
       {/* ─── Main Content ─── */}
-      <section id="main-content" className="container mx-auto px-4 py-8">
+      <section id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
         {/* Section heading for the product catalogue: visually hidden, but it
             keeps the outline sane (h1 hero -> h2 catalogue -> h3 filter
             groups -> h2 FAQ/policies/contact). */}
@@ -284,7 +284,7 @@ export function HomePageClient({
 
       {/* ─── FAQ ─── */}
       {content.faq.length > 0 && (
-        <section className="container mx-auto px-4 py-12">
+        <section className="container mx-auto px-4 py-[var(--space-section)]">
           <FaqAccordion
             items={content.faq}
             title={t("faq.title", "الأسئلة الشائعة")}
@@ -294,7 +294,7 @@ export function HomePageClient({
 
       {/* ─── Policies ─── */}
       {content.policies.length > 0 && (
-        <section className="container mx-auto px-4 py-12 border-t border-[var(--border-default)]">
+        <section className="container mx-auto px-4 py-[var(--space-section)] border-t border-[var(--border-default)]">
           <PoliciesAccordion
             sections={content.policies}
             title={t("policies.title", "السياسات")}
@@ -303,7 +303,7 @@ export function HomePageClient({
       )}
 
       {/* ─── Contact ─── */}
-      <section id="contact" className="container mx-auto px-4 py-12 border-t border-[var(--border-default)]">
+      <section id="contact" className="container mx-auto px-4 py-[var(--space-section)] border-t border-[var(--border-default)]">
         <h2 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2 text-center">
           {t("contact.title", "اتصل بنا")}
         </h2>

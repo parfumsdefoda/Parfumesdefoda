@@ -58,7 +58,7 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
 
   return (
     <PageLayout>
-      <section id="main-content" className="container mx-auto px-4 py-16">
+      <section id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
