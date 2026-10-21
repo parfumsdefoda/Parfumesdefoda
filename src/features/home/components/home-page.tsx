@@ -222,12 +222,12 @@ export function HomePageClient({
         {/* Active filters bar */}
         {products.hasActiveFilters && (
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-sm text-[var(--neutral-500)]">
+            <span className="text-caption text-[var(--neutral-500)]">
               {t("home.filters", "تصفية")} ({products.activeFilterCount})
             </span>
             <button
               onClick={products.clearFilters}
-              className="text-sm text-[var(--color-accent)] hover:underline"
+              className="text-caption text-[var(--color-accent)] hover:underline"
             >
               {t("home.clearFilters", "إزالة التصفية")}
             </button>
@@ -304,7 +304,7 @@ export function HomePageClient({
 
       {/* ─── Contact ─── */}
       <section id="contact" className="container mx-auto px-4 py-12 border-t border-[var(--border-default)]">
-        <h2 className="text-2xl font-bold text-[var(--neutral-800)] mb-2 text-center">
+        <h2 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2 text-center">
           {t("contact.title", "اتصل بنا")}
         </h2>
         <p className="text-[var(--neutral-500)] text-center mb-8">
@@ -316,7 +316,7 @@ export function HomePageClient({
               href={`https://wa.me/${settings.contact.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-6 py-3 text-sm font-medium text-[var(--neutral-700)] transition-colors hover:bg-[var(--bg-secondary)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-6 py-3 text-caption font-medium text-[var(--neutral-700)] transition-colors hover:bg-[var(--bg-secondary)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
             >
               <MessageCircle className="h-5 w-5" />
               {t("contact.whatsapp", "راسلنا عبر واتساب")}
@@ -325,7 +325,7 @@ export function HomePageClient({
           {settings.contact.email && (
             <a
               href={`mailto:${settings.contact.email}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-6 py-3 text-sm font-medium text-[var(--neutral-700)] transition-colors hover:bg-[var(--bg-secondary)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-6 py-3 text-caption font-medium text-[var(--neutral-700)] transition-colors hover:bg-[var(--bg-secondary)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
             >
               <Mail className="h-5 w-5" />
               {t("contact.email", "أرسل لنا بريداً إلكترونياً")}

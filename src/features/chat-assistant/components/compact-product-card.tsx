@@ -64,17 +64,17 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
       <div className="flex flex-1 flex-col gap-1.5 p-2.5 min-w-0">
         {/* Name & Brand */}
         <div className="min-w-0">
-          <h4 className="text-[13px] font-bold text-[var(--neutral-800)] line-clamp-1 leading-tight">
+          <h4 className="text-caption font-bold text-[var(--neutral-800)] line-clamp-1">
             {product.name}
           </h4>
-          <p className="text-[10px] text-[var(--neutral-400)] truncate">
+          <p className="text-caption text-[var(--neutral-400)] truncate">
             {product.brand} · {product.house}
           </p>
         </div>
 
         {/* Sizes info */}
         {inStockSizes.length > 0 && (
-          <p className="text-[10px] text-[var(--neutral-400)] truncate">
+          <p className="text-caption text-[var(--neutral-400)] truncate">
             {inStockSizes.map((s) => s.label).join(" · ")}
           </p>
         )}
@@ -82,14 +82,14 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
         {/* Price + View link row */}
         <div className="mt-auto flex items-center justify-between gap-2">
           {minPrice !== undefined && (
-            <span className="text-sm font-bold text-[var(--color-accent)] leading-none">
+            <span className="text-caption font-bold text-[var(--color-accent)]">
               {formatPrice(minPrice)}
             </span>
           )}
 
           <span
             className={cn(
-              "inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-semibold",
+              "inline-flex h-6 items-center gap-1 rounded-full px-2 text-caption font-bold",
               "bg-[var(--color-secondary)] text-white",
               "transition-all duration-200",
               "group-hover:bg-[var(--color-accent)]",

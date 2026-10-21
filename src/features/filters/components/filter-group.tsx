@@ -31,7 +31,7 @@ export function FilterGroup({
 }: FilterGroupProps) {
   return (
     <div className={className ?? ""}>
-      <h3 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
+      <h3 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
         {name}
       </h3>
       <div className="space-y-2.5">
@@ -54,7 +54,7 @@ export function FilterGroup({
               />
               <Label
                 htmlFor={id}
-                className="cursor-pointer text-sm text-[var(--neutral-700)] font-normal"
+                className="cursor-pointer text-caption text-[var(--neutral-700)] font-normal"
               >
                 {option.label}
               </Label>

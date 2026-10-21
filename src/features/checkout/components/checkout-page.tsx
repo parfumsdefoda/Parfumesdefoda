@@ -119,7 +119,7 @@ export function CheckoutPageClient({
           <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
             <ShoppingBag className="h-10 w-10 text-[var(--neutral-300)]" />
           </div>
-          <h1 className="text-2xl font-bold text-[var(--neutral-800)] mb-2">
+          <h1 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2">
             سلة التسوق فارغة
           </h1>
           <p className="text-[var(--neutral-500)] mb-8">
@@ -140,13 +140,13 @@ export function CheckoutPageClient({
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors mb-6"
         >
           <ArrowRight className="h-4 w-4" />
           العودة للمتجر
         </Link>
 
-        <h1 className="text-2xl font-bold text-[var(--neutral-800)] mb-8">
+        <h1 className="text-title-3 font-bold text-[var(--neutral-800)] mb-8">
           إتمام الطلب
         </h1>
 
@@ -156,10 +156,10 @@ export function CheckoutPageClient({
             {submitError && (
               <div
                 role="alert"
-                className="mb-4 flex items-start gap-2 rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-sm text-[var(--color-error)]"
+                className="mb-4 flex items-start gap-2 rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-caption text-[var(--color-error)]"
               >
                 <span aria-hidden="true">⚠️</span>
-                <p className="leading-relaxed">{submitError}</p>
+                <p className="">{submitError}</p>
               </div>
             )}
             <CheckoutForm
@@ -188,7 +188,7 @@ export function CheckoutPageClient({
               transition={{ duration: 0.35, delay: 0.1 }}
               className="sticky top-24 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6"
             >
-              <h2 className="text-lg font-bold text-[var(--neutral-800)] mb-4">
+              <h2 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
                 ملخص الطلب ({cart.totalItems} منتج)
               </h2>
 
@@ -209,10 +209,10 @@ export function CheckoutPageClient({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-[var(--neutral-800)] line-clamp-1">
+                      <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
                         {item.name}
                       </h4>
-                      <p className="text-xs text-[var(--neutral-500)]">
+                      <p className="text-caption text-[var(--neutral-500)]">
                         {item.sizeLabel}
                       </p>
                       <div className="flex items-center justify-between mt-2">
@@ -231,7 +231,7 @@ export function CheckoutPageClient({
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-xs font-semibold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
+                          <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
                             {item.quantity}
                           </span>
                           <Button
@@ -249,7 +249,7 @@ export function CheckoutPageClient({
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                        <span className="text-sm font-bold text-[var(--neutral-800)]">
+                        <span className="text-caption font-bold text-[var(--neutral-800)]">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
@@ -273,17 +273,17 @@ export function CheckoutPageClient({
 
               {/* Totals */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-caption">
                   <span className="text-[var(--neutral-500)]">المجموع الفرعي</span>
                   <span className="text-[var(--neutral-700)]">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-caption">
                   <span className="text-[var(--neutral-500)]">مصاريف الشحن</span>
                   <span className="text-[var(--neutral-700)]">
                     {formatPrice(shippingCost)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-caption">
                   <span className="text-[var(--neutral-500)]">طريقة الدفع</span>
                   <span className="text-[var(--neutral-700)]">
                     {PAYMENT_METHOD}
@@ -291,8 +291,8 @@ export function CheckoutPageClient({
                 </div>
                 <Separator className="my-2" />
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-bold text-[var(--neutral-800)]">الإجمالي</span>
-                  <span className="text-xl font-bold text-[var(--color-accent)]">
+                  <span className="text-body font-bold text-[var(--neutral-800)]">الإجمالي</span>
+                  <span className="text-title-3 font-bold text-[var(--color-accent)]">
                     {formatPrice(total)}
                   </span>
                 </div>

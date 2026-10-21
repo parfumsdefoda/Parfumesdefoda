@@ -2,13 +2,15 @@ import { Cairo } from "next/font/google";
 
 /**
  * Cairo font configuration for Arabic text.
- * Uses the Arabic character subset for optimized loading.
+ *
+ * Only the three weights the type scale uses are loaded (400 regular,
+ * 500 medium, 700 bold) so the browser never downloads or synthesises
+ * the other faces (300/600/800) that the old design relied on.
  */
 export const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic"],
   display: "swap",
   adjustFontFallback: true,
-  // Preload the most common weights
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "700"],
 });

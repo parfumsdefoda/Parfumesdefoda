@@ -76,7 +76,7 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
           </motion.div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-[var(--neutral-800)] mb-2">
+          <h1 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2">
             تم استلام طلبكم بنجاح
           </h1>
 
@@ -87,9 +87,9 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
           {/* Order number */}
           {orderNumber && (
             <div className="mb-8 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4">
-              <p className="text-xs text-[var(--neutral-400)] mb-2">رقم الطلب</p>
+              <p className="text-caption text-[var(--neutral-400)] mb-2">رقم الطلب</p>
               <div className="flex items-center justify-center gap-2">
-                <span className="text-lg font-bold text-[var(--color-accent)] tracking-wider" dir="ltr">
+                <span className="text-headline font-bold text-[var(--color-accent)] tracking-wider" dir="ltr">
                   {orderNumber}
                 </span>
                 <Button
@@ -103,14 +103,14 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
                 </Button>
               </div>
               {copied && (
-                <p className="text-xs text-[var(--color-success)] mt-1">تم النسخ!</p>
+                <p className="text-caption text-[var(--color-success)] mt-1">تم النسخ!</p>
               )}
             </div>
           )}
 
           {/* Info */}
           <div className="mb-8 rounded-xl bg-[var(--bg-secondary)] p-4 text-right">
-            <p className="text-sm text-[var(--neutral-600)] leading-relaxed">
+            <p className="text-caption text-[var(--neutral-600)]">
               <strong className="text-[var(--neutral-800)]">ملاحظة:</strong>{" "}
               يمكنك مشاركة رقم الطلب معنا عبر واتساب لتسريع عملية التوصيل.
             </p>

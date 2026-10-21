@@ -141,10 +141,10 @@ export function ChatTriggerCard({
 
             {/* Copy */}
             <span className="min-w-0">
-              <span className="block text-[13px] font-extrabold leading-snug">
+              <span className="block text-caption font-bold">
                 {HEADLINE}
               </span>
-              <span className="mt-0.5 block truncate text-[11px] font-medium text-white/85">
+              <span className="mt-0.5 block truncate text-caption font-medium text-white/85">
                 {SUBLINE}
               </span>
             </span>

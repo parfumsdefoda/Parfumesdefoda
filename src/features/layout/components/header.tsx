@@ -192,7 +192,7 @@ export function Header({
                 key={cartCount}
                 initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="absolute -top-0.5 -left-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-accent)] px-1 text-[10px] font-bold text-white"
+                className="absolute -top-0.5 -left-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-accent)] px-1 text-caption font-bold text-white"
               >
                 {cartCount > 99 ? "99+" : cartCount}
               </motion.span>

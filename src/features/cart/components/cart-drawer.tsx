@@ -110,12 +110,12 @@ export function CartDrawer({
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 text-center">
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
-              <span className="text-3xl">🛒</span>
+              <span className="text-title-2">🛒</span>
             </div>
-            <h3 className="text-base font-semibold text-[var(--neutral-800)] mb-1">
+            <h3 className="text-body font-bold text-[var(--neutral-800)] mb-1">
               {emptyTitle}
             </h3>
-            <p className="text-sm text-[var(--neutral-500)] mb-6">
+            <p className="text-caption text-[var(--neutral-500)] mb-6">
               {emptyDescription}
             </p>
             <Button variant="default" onClick={() => onOpenChange(false)}>
@@ -148,10 +148,10 @@ export function CartDrawer({
 
                     {/* Details */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-[var(--neutral-800)] line-clamp-1">
+                      <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
                         {item.name}
                       </h4>
-                      <p className="text-xs text-[var(--neutral-500)]">
+                      <p className="text-caption text-[var(--neutral-500)]">
                         {item.sizeLabel}
                       </p>
 
@@ -175,7 +175,7 @@ export function CartDrawer({
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-xs font-semibold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
+                          <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
                             {item.quantity}
                           </span>
                           <Button
@@ -196,7 +196,7 @@ export function CartDrawer({
                         </div>
 
                         {/* Price */}
-                        <span className="text-sm font-bold text-[var(--neutral-800)]">
+                        <span className="text-caption font-bold text-[var(--neutral-800)]">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
@@ -225,7 +225,7 @@ export function CartDrawer({
         {items.length > 0 && (
           <SheetFooter>
             <div className="space-y-2 w-full mb-2">
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-caption">
                 <span className="text-[var(--neutral-600)]">
                   {totalLabel}
                 </span>
@@ -234,7 +234,7 @@ export function CartDrawer({
                 </span>
               </div>
               {shippingFee !== undefined && (
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-caption">
                   <span className="flex items-center gap-1.5 text-[var(--neutral-600)]">
                     <Truck className="h-3.5 w-3.5" />
                     مصاريف الشحن
@@ -246,8 +246,8 @@ export function CartDrawer({
               )}
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-base font-bold text-[var(--neutral-800)]">الإجمالي</span>
-                <span className="text-lg font-bold text-[var(--color-accent)]">
+                <span className="text-body font-bold text-[var(--neutral-800)]">الإجمالي</span>
+                <span className="text-headline font-bold text-[var(--color-accent)]">
                   {formatPrice(totalPrice + (shippingFee ?? 0))}
                 </span>
               </div>

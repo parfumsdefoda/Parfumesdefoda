@@ -72,7 +72,7 @@ export function HeroShowcase({
         {item.featured && (
           <span
             className={cn(
-              "absolute end-1.5 top-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold text-white",
+              "absolute end-1.5 top-1.5 rounded-full px-2 py-0.5 text-caption font-bold text-white",
               "bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]",
               "shadow-[0_1px_4px_rgba(212,175,55,0.4)]",
             )}
@@ -134,7 +134,7 @@ export function HeroShowcase({
         <div className="container mx-auto px-4 pt-6 text-center">
           {/* The one real <h1> of the storefront — same visual treatment as
               before, but the page finally has a top-level heading. */}
-          <h1 className="text-lg font-extrabold text-[var(--neutral-800)] sm:text-xl">
+          <h1 className="text-headline font-bold text-[var(--neutral-800)] sm:text-title-3">
             {title}
           </h1>
           <div

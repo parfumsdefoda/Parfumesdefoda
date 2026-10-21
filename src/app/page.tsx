@@ -39,7 +39,7 @@ export default async function HomePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-16">
-          <h2 className="text-xl font-semibold text-[var(--neutral-700)] mb-2">
+          <h2 className="text-title-3 font-bold text-[var(--neutral-700)] mb-2">
             عذراً، لا توجد منتجات حالياً
           </h2>
           <p className="text-[var(--neutral-500)]">

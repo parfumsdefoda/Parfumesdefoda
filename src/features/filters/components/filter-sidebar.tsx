@@ -64,7 +64,7 @@ export function FilterSidebar({
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)]">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-[var(--neutral-600)]" />
-                <span className="font-semibold text-[var(--neutral-800)]">
+                <span className="font-bold text-[var(--neutral-800)]">
                   {heading}
                 </span>
               </div>
@@ -108,11 +108,11 @@ function SidebarContent({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-[var(--neutral-600)]" />
-          <span className="font-semibold text-[var(--neutral-800)]">
+          <span className="font-bold text-[var(--neutral-800)]">
             {heading}
           </span>
           {activeCount > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-[10px] font-bold text-white">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-caption font-bold text-white">
               {activeCount}
             </span>
           )}

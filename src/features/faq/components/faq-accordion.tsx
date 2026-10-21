@@ -38,7 +38,7 @@ export function FaqAccordion({
     <section className={className ?? ""} aria-labelledby="faq-heading">
       <h2
         id="faq-heading"
-        className="text-xl font-bold text-[var(--neutral-800)] mb-4"
+        className="text-title-3 font-bold text-[var(--neutral-800)] mb-4"
       >
         {title}
       </h2>
@@ -47,7 +47,7 @@ export function FaqAccordion({
           <AccordionItem key={i} value={`faq-${i}`}>
             <AccordionTrigger>{item.question}</AccordionTrigger>
             <AccordionContent>
-              <p className="text-[var(--neutral-600)] leading-relaxed">
+              <p className="text-[var(--neutral-600)]">
                 {item.answer}
               </p>
             </AccordionContent>

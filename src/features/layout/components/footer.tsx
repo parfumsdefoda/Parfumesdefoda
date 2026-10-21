@@ -46,7 +46,7 @@ export function Footer({
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_2fr] gap-8">
           {/* Brand description */}
           <div>
-            <p className="text-sm text-[var(--neutral-500)] leading-relaxed max-w-xs">
+            <p className="text-caption text-[var(--neutral-500)] max-w-xs">
               {description}
             </p>
           </div>
@@ -56,7 +56,7 @@ export function Footer({
             <div className="grid grid-cols-2 gap-6">
               {columns.map((col) => (
                 <div key={col.title}>
-                  <h4 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
+                  <h4 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
                     {col.title}
                   </h4>
                   <ul className="space-y-2">
@@ -65,7 +65,7 @@ export function Footer({
                         {link.href ? (
                           <Link
                             href={link.href}
-                            className="text-sm text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors"
+                            className="text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors"
                           >
                             {link.label}
                           </Link>
@@ -74,12 +74,12 @@ export function Footer({
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors"
+                            className="text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors"
                           >
                             {link.label}
                           </a>
                         ) : (
-                          <span className="text-sm text-[var(--neutral-500)]">
+                          <span className="text-caption text-[var(--neutral-500)]">
                             {link.label}
                           </span>
                         )}
@@ -94,7 +94,7 @@ export function Footer({
 
         <Separator className="my-6" />
 
-        <p className="text-center text-xs text-[var(--neutral-400)]">
+        <p className="text-center text-caption text-[var(--neutral-400)]">
           &copy; {currentYear} Parfums De Foda — {copyright}
         </p>
       </div>

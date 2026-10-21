@@ -124,7 +124,7 @@ export function ProductDetailPageClient({
       <div id="main-content" className="container mx-auto px-4 py-6 md:py-10">
         {/* Breadcrumb */}
         <nav aria-label="التنقل" className="mb-6">
-          <ol className="flex items-center gap-2 text-sm text-[var(--neutral-500)]">
+          <ol className="flex items-center gap-2 text-caption text-[var(--neutral-500)]">
             <li>
               <Link
                 href="/"
@@ -178,7 +178,7 @@ export function ProductDetailPageClient({
               {/* Product badge — never a disguised "out of stock" notice */}
               {product.badge && !isUnavailableBadge(product.badge) && (
                 <div className="absolute top-4 end-4 z-10">
-                  <span className="inline-flex items-center rounded-full bg-[var(--color-gold)] px-3 py-1.5 text-xs font-semibold text-white">
+                  <span className="inline-flex items-center rounded-full bg-[var(--color-gold)] px-3 py-1.5 text-caption font-bold text-white">
                     {product.badge}
                   </span>
                 </div>
@@ -219,19 +219,19 @@ export function ProductDetailPageClient({
             {/* House badge */}
             {product.house && (
               <div>
-                <span className="inline-flex items-center rounded-full bg-[var(--color-gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-gold)]">
+                <span className="inline-flex items-center rounded-full bg-[var(--color-gold)]/10 px-3 py-1 text-caption font-bold text-[var(--color-gold)]">
                   {product.house}
                 </span>
               </div>
             )}
 
             {/* Product name */}
-            <h1 className="text-3xl md:text-4xl font-bold text-[var(--neutral-800)] leading-tight">
+            <h1 className="text-title-2 md:text-title-1 font-bold text-[var(--neutral-800)]">
               {product.name}
             </h1>
 
             {/* Brand */}
-            <p className="text-lg text-[var(--neutral-500)]">
+            <p className="text-headline text-[var(--neutral-500)]">
               {product.brand}
             </p>
 
@@ -250,7 +250,7 @@ export function ProductDetailPageClient({
                     />
                   ))}
                 </div>
-                <span className="text-sm text-[var(--neutral-500)]">
+                <span className="text-caption text-[var(--neutral-500)]">
                   ({product.reviews} تقييم)
                 </span>
               </div>
@@ -259,7 +259,7 @@ export function ProductDetailPageClient({
             <Separator />
 
             {/* Product details grid */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-4 text-caption">
               <div>
                 <span className="block text-[var(--neutral-400)] mb-1">الجنس</span>
                 <span className="font-medium text-[var(--neutral-700)]">{product.gender}</span>
@@ -286,10 +286,10 @@ export function ProductDetailPageClient({
 
             {/* Description */}
             <div>
-              <h2 className="text-sm font-semibold text-[var(--neutral-800)] mb-2">
+              <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-2">
                 الوصف
               </h2>
-              <p className="text-[var(--neutral-600)] leading-relaxed">
+              <p className="text-[var(--neutral-600)]">
                 {product.description || "الوصف غير متوفر حالياً"}
               </p>
             </div>
@@ -299,36 +299,36 @@ export function ProductDetailPageClient({
               <>
                 <Separator />
                 <div>
-                  <h2 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
+                  <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
                     ملاحظات العطر
                   </h2>
                   <div className="space-y-3">
                     {product.notes.top && product.notes.top.length > 0 && (
                       <div>
-                        <span className="text-xs font-medium text-[var(--color-accent)]">
+                        <span className="text-caption font-medium text-[var(--color-accent)]">
                           المقدمة
                         </span>
-                        <p className="text-sm text-[var(--neutral-600)]">
+                        <p className="text-caption text-[var(--neutral-600)]">
                           {product.notes.top.join("، ")}
                         </p>
                       </div>
                     )}
                     {product.notes.middle && product.notes.middle.length > 0 && (
                       <div>
-                        <span className="text-xs font-medium text-[var(--color-accent)]">
+                        <span className="text-caption font-medium text-[var(--color-accent)]">
                           القلب
                         </span>
-                        <p className="text-sm text-[var(--neutral-600)]">
+                        <p className="text-caption text-[var(--neutral-600)]">
                           {product.notes.middle.join("، ")}
                         </p>
                       </div>
                     )}
                     {product.notes.base && product.notes.base.length > 0 && (
                       <div>
-                        <span className="text-xs font-medium text-[var(--color-accent)]">
+                        <span className="text-caption font-medium text-[var(--color-accent)]">
                           القاعدة
                         </span>
-                        <p className="text-sm text-[var(--neutral-600)]">
+                        <p className="text-caption text-[var(--neutral-600)]">
                           {product.notes.base.join("، ")}
                         </p>
                       </div>
@@ -342,7 +342,7 @@ export function ProductDetailPageClient({
 
             {/* Size selector */}
             <div>
-              <h2 className="text-sm font-semibold text-[var(--neutral-800)] mb-3">
+              <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
                 اختر الحجم
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -357,7 +357,7 @@ export function ProductDetailPageClient({
                       onClick={() => setSelectedSizeIndex(index)}
                       aria-label={`${size.label} — ${formatPrice(size.price)}${sizeOutOfStock ? " — غير متوفر" : ""}`}
                       aria-pressed={isSelected}
-                      className={`rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                      className={`rounded-full px-5 py-2.5 text-caption font-medium transition-all duration-200 ${
                         isSelected
                           ? "bg-[var(--color-accent)] text-white shadow-md"
                           : sizeOutOfStock
@@ -367,7 +367,7 @@ export function ProductDetailPageClient({
                     >
                       {size.label}
                       {!sizeOutOfStock && (
-                        <span className="ms-2 text-xs opacity-75">
+                        <span className="ms-2 text-caption opacity-75">
                           {formatPrice(size.price)}
                         </span>
                       )}
@@ -387,12 +387,12 @@ export function ProductDetailPageClient({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="text-3xl font-bold tracking-tight text-[var(--color-accent)]"
+                    className="text-title-2 font-bold text-[var(--color-accent)]"
                   >
                     {formatPrice(selectedSize.price)}
                   </motion.span>
                 </AnimatePresence>
-                <span className="text-xs text-[var(--neutral-400)]">
+                <span className="text-caption text-[var(--neutral-400)]">
                   شامل الضريبة
                 </span>
               </div>
@@ -400,7 +400,7 @@ export function ProductDetailPageClient({
 
             {/* Stock status */}
             {(isOutOfStock || isProductOutOfStock) && (
-              <div className="flex items-center gap-2 rounded-lg bg-[var(--color-error)]/10 px-4 py-2.5 text-sm text-[var(--color-error)]">
+              <div className="flex items-center gap-2 rounded-lg bg-[var(--color-error)]/10 px-4 py-2.5 text-caption text-[var(--color-error)]">
                 <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-error)]" />
                 غير متوفر حالياً
               </div>
@@ -431,7 +431,7 @@ export function ProductDetailPageClient({
                     }}
                     variant="secondary"
                     className={cn(
-                      "rounded-full text-sm font-semibold",
+                      "rounded-full text-caption font-bold",
                       "bg-[var(--color-gold)] text-[var(--neutral-900)]",
                       "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
                       "transition-all duration-300",
@@ -448,7 +448,7 @@ export function ProductDetailPageClient({
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || isProductOutOfStock || buttonState !== "idle"}
                 variant="default"
-                className={`h-12 w-full rounded-full text-sm font-semibold ${
+                className={`h-12 w-full rounded-full text-caption font-bold ${
                   buttonState === "success"
                     ? "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]"
                     : ""
@@ -485,7 +485,7 @@ export function ProductDetailPageClient({
             {/* Continue shopping link */}
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 text-sm text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center justify-center gap-2 text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
             >
               <ChevronRight className="h-4 w-4" />
               متابعة التصفح

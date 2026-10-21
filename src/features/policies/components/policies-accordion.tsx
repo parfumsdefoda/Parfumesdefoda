@@ -39,7 +39,7 @@ export function PoliciesAccordion({
     <section className={className ?? ""} aria-labelledby="policies-heading">
       <h2
         id="policies-heading"
-        className="text-xl font-bold text-[var(--neutral-800)] mb-4"
+        className="text-title-3 font-bold text-[var(--neutral-800)] mb-4"
       >
         {title}
       </h2>
@@ -48,7 +48,7 @@ export function PoliciesAccordion({
           <AccordionItem key={section.key} value={`policy-${section.key}`}>
             <AccordionTrigger>{section.title}</AccordionTrigger>
             <AccordionContent>
-              <p className="text-[var(--neutral-600)] leading-relaxed">
+              <p className="text-[var(--neutral-600)]">
                 {section.body}
               </p>
             </AccordionContent>

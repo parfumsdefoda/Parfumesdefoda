@@ -35,10 +35,10 @@ export function EmptyState({
       <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)] text-[var(--neutral-400)]">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold text-[var(--neutral-800)] mb-2">
+      <h3 className="text-headline font-bold text-[var(--neutral-800)] mb-2">
         {title}
       </h3>
-      <p className="text-sm text-[var(--neutral-500)] max-w-sm mb-6 leading-relaxed">
+      <p className="text-caption text-[var(--neutral-500)] max-w-sm mb-6">
         {description}
       </p>
       {actionLabel && onAction && (

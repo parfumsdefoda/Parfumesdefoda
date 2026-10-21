@@ -12,13 +12,13 @@ export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
       <div className="max-w-md">
-        <h1 className="text-6xl font-bold text-accent mb-4" aria-hidden="true">404</h1>
+        <h1 className="text-display font-bold text-accent mb-4" aria-hidden="true">404</h1>
 
-        <h2 className="text-2xl font-bold text-neutral-800 mb-3">
+        <h2 className="text-title-3 font-bold text-neutral-800 mb-3">
           الصفحة غير موجودة
         </h2>
 
-        <p className="text-neutral-500 mb-8 leading-relaxed">
+        <p className="text-neutral-500 mb-8">
           عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
         </p>
 

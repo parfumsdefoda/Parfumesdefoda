@@ -131,7 +131,7 @@ export function CheckoutForm({
       transition={{ duration: 0.35 }}
       className={className ?? ""}
     >
-      <h3 className="text-lg font-bold text-[var(--neutral-800)] mb-4">
+      <h3 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
         {title}
       </h3>
 
@@ -152,7 +152,7 @@ export function CheckoutForm({
               className="h-11"
             />
             {errors.name && (
-              <p className="text-xs text-[var(--color-error)]" role="alert">
+              <p className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.name.message}
               </p>
             )}
@@ -176,7 +176,7 @@ export function CheckoutForm({
               className="h-11"
             />
             {errors.phone && (
-              <p className="text-xs text-[var(--color-error)]" role="alert">
+              <p className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.phone.message}
               </p>
             )}
@@ -200,7 +200,7 @@ export function CheckoutForm({
               className="h-11"
             />
             {errors.whatsapp && (
-              <p className="text-xs text-[var(--color-error)]" role="alert">
+              <p className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.whatsapp.message}
               </p>
             )}
@@ -219,7 +219,7 @@ export function CheckoutForm({
               autoComplete="address-level1"
               aria-invalid={!!errors.governorate}
               aria-describedby={errors.governorate ? "governorate-error" : undefined}
-              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-caption text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                 backgroundPosition: "left 0.5rem center",
@@ -236,7 +236,7 @@ export function CheckoutForm({
               ))}
             </select>
             {errors.governorate && (
-              <p id="governorate-error" className="text-xs text-[var(--color-error)]" role="alert">
+              <p id="governorate-error" className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.governorate.message}
               </p>
             )}
@@ -255,7 +255,7 @@ export function CheckoutForm({
               autoComplete="address-level2"
               aria-invalid={!!errors.city}
               aria-describedby={errors.city ? "city-error" : undefined}
-              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-sm text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-caption text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                 backgroundPosition: "left 0.5rem center",
@@ -274,7 +274,7 @@ export function CheckoutForm({
               ))}
             </select>
             {errors.city && (
-              <p id="city-error" className="text-xs text-[var(--color-error)]" role="alert">
+              <p id="city-error" className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.city.message}
               </p>
             )}
@@ -295,7 +295,7 @@ export function CheckoutForm({
               className="h-11"
             />
             {errors.addressDetails && (
-              <p className="text-xs text-[var(--color-error)]" role="alert">
+              <p className="text-caption text-[var(--color-error)]" role="alert">
                 {errors.addressDetails.message}
               </p>
             )}
@@ -305,7 +305,7 @@ export function CheckoutForm({
 
           <Button
             type="submit"
-            className="w-full h-12 rounded-full text-sm font-semibold"
+            className="w-full h-12 rounded-full text-caption font-bold"
             size="lg"
             disabled={isSubmitting || disabled}
           >

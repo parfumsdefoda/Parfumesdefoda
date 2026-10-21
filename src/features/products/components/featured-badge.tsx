@@ -23,12 +23,12 @@ export function FeaturedBadge({ size = "sm", className }: FeaturedBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060] font-bold leading-none tracking-wider text-white ring-1 ring-[#f5d060]/30 shadow-[0_2px_8px_rgba(212,175,55,0.4)]",
-        size === "sm" ? "px-3 py-1 text-[10px]" : "px-3.5 py-1.5 text-xs",
+        "inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060] font-bold text-white ring-1 ring-[#f5d060]/30 shadow-[0_2px_8px_rgba(212,175,55,0.4)]",
+        size === "sm" ? "px-3 py-1 text-caption" : "px-3.5 py-1.5 text-caption",
         className,
       )}
     >
-      <span aria-hidden="true" className={size === "sm" ? "text-[8px]" : "text-[10px]"}>
+      <span aria-hidden="true" className={size === "sm" ? "text-caption" : "text-caption"}>
         ★
       </span>
       فاخر

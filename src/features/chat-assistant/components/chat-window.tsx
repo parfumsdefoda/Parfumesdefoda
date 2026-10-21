@@ -70,15 +70,15 @@ export function ChatWindow({
       <div className="flex items-center justify-between border-b border-[var(--neutral-100)] px-4 py-3">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-accent)] shadow-[0_2px_8px_rgba(99,41,137,0.3)]">
-            <span className="text-base text-white" aria-hidden="true">✨</span>
+            <span className="text-body text-white" aria-hidden="true">✨</span>
           </div>
           <div>
-            <h2 className="text-sm font-bold text-[var(--neutral-800)]">
+            <h2 className="text-caption font-bold text-[var(--neutral-800)]">
               مساعد العطور
             </h2>
             <div className="flex items-center gap-1">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" />
-              <p className="text-[10px] text-[var(--neutral-400)]">
+              <p className="text-caption text-[var(--neutral-400)]">
                 Parfums De Foda
               </p>
             </div>
@@ -102,12 +102,12 @@ export function ChatWindow({
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)]/10 shadow-[0_0_20px_rgba(99,41,137,0.1)]">
-              <span className="text-3xl" aria-hidden="true">🌸</span>
+              <span className="text-title-2" aria-hidden="true">🌸</span>
             </div>
-            <p className="text-sm font-bold text-[var(--neutral-700)] mb-1">
+            <p className="text-caption font-bold text-[var(--neutral-700)] mb-1">
               أهلاً بيك! 👋
             </p>
-            <p className="text-xs text-[var(--neutral-400)] leading-relaxed max-w-[240px]">
+            <p className="text-caption text-[var(--neutral-400)] max-w-[240px]">
               أنا مساعد العطور الافتراضي. قولي إيه اللي بتدور عليه وهأرشحلك أحلى عطر يناسبك!
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-1.5">
@@ -118,7 +118,7 @@ export function ChatWindow({
                   onClick={() => onSendMessage(suggestion)}
                   className={cn(
                     "rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
-                    "px-3 py-1.5 text-[11px] font-medium text-[var(--neutral-600)]",
+                    "px-3 py-1.5 text-caption font-medium text-[var(--neutral-600)]",
                     "hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]",
                     "transition-colors",
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
@@ -147,7 +147,7 @@ export function ChatWindow({
                   : "bg-[var(--bg-secondary)] text-[var(--neutral-700)] rounded-bl-md border border-[var(--neutral-100)]",
               )}
             >
-              <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
+              <p className="text-caption whitespace-pre-wrap">
                 {msg.content}
               </p>
 
@@ -180,7 +180,7 @@ export function ChatWindow({
 
       {/* ─── Error ─── */}
       {error && (
-        <div className="mx-3 mb-2 rounded-lg bg-red-50 px-3 py-2 text-[11px] text-red-600" role="alert">
+        <div className="mx-3 mb-2 rounded-lg bg-red-50 px-3 py-2 text-caption text-red-600" role="alert">
           {error}
         </div>
       )}
@@ -201,7 +201,7 @@ export function ChatWindow({
             aria-label="رسالتك"
             className={cn(
               "flex-1 rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
-              "px-4 py-2 text-[13px] text-[var(--neutral-700)]",
+              "px-4 py-2 text-caption text-[var(--neutral-700)]",
               "placeholder:text-[var(--neutral-400)]",
               "focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/30",
               "disabled:opacity-50",

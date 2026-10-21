@@ -290,7 +290,7 @@ export const ProductCard = memo(function ProductCard({
           <div className="absolute top-3 end-3 z-10">
             <span
               className={cn(
-                "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none tracking-wide",
+                "inline-flex items-center rounded-full px-2.5 py-1 text-caption font-bold",
                 badgeLabel === "الأكثر مبيعاً"
                   ? "bg-[var(--color-secondary)] text-white"
                   : badgeLabel === "نيش"
@@ -321,7 +321,7 @@ export const ProductCard = memo(function ProductCard({
         {product.house && (
           <div>
             <span className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold",
+              "inline-flex items-center rounded-full px-2.5 py-0.5 text-caption font-bold",
               product.featured
                 ? "bg-[var(--color-gold)]/15 text-[#b8960c]"
                 : "bg-[var(--color-gold)]/10 text-[var(--color-gold)]",
@@ -336,9 +336,9 @@ export const ProductCard = memo(function ProductCard({
           <Link
             href={detailHref}
             className={cn(
-              "text-lg leading-snug line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded",
+              "text-headline line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded",
               product.featured
-                ? "font-extrabold tracking-wide text-[var(--neutral-900)]"
+                ? "font-bold text-[var(--neutral-900)]"
                 : "font-bold text-[var(--neutral-800)]",
             )}
           >
@@ -346,9 +346,9 @@ export const ProductCard = memo(function ProductCard({
           </Link>
         ) : (
           <h3 className={cn(
-            "text-lg leading-snug line-clamp-1",
+            "text-headline line-clamp-1",
             product.featured
-              ? "font-extrabold tracking-wide text-[var(--neutral-900)]"
+              ? "font-bold text-[var(--neutral-900)]"
               : "font-bold text-[var(--neutral-800)]",
           )}>
             {product.name}
@@ -358,10 +358,10 @@ export const ProductCard = memo(function ProductCard({
         {/* Short Description */}
         {shortDescription && (
           <div>
-            <span className="mb-1 block text-[10px] font-medium uppercase tracking-widest text-[var(--neutral-300)]">
+            <span className="mb-1 block text-caption font-medium text-[var(--neutral-300)]">
               وصف المنتج
             </span>
-            <p className="text-[13px] leading-relaxed text-[var(--neutral-400)] line-clamp-2">
+            <p className="text-caption text-[var(--neutral-400)] line-clamp-2">
               {shortDescription}
             </p>
           </div>
@@ -370,7 +370,7 @@ export const ProductCard = memo(function ProductCard({
         {/* Size Selector — rounded pills, single row */}
         {product.sizes.length > 0 && (
           <div>
-            <span className="mb-2 block text-[10px] font-medium uppercase tracking-widest text-[var(--neutral-300)]">
+            <span className="mb-2 block text-caption font-medium text-[var(--neutral-300)]">
               {selectSizeLabel}
             </span>
             <div className="flex gap-1.5">
@@ -386,7 +386,7 @@ export const ProductCard = memo(function ProductCard({
                     aria-label={`${size.label} — ${formatPrice(size.price)}`}
                     aria-pressed={isSelected}
                     className={cn(
-                      "flex-1 rounded-full py-2 px-1 text-[12px] font-medium whitespace-nowrap",
+                      "flex-1 rounded-full py-2 px-1 text-caption font-medium whitespace-nowrap",
                       "transition-all duration-300 ease-out",
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
                       isSelected
@@ -413,12 +413,12 @@ export const ProductCard = memo(function ProductCard({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="inline-block text-2xl font-bold tracking-tight text-[var(--color-accent)] leading-none"
+                className="inline-block text-title-3 font-bold text-[var(--color-accent)]"
               >
                 {formatPrice(selectedSize.price)}
               </motion.span>
             </AnimatePresence>
-            <p className="mt-0.5 text-[10px] text-[var(--neutral-400)]">
+            <p className="mt-0.5 text-caption text-[var(--neutral-400)]">
               {taxIncludedLabel}
             </p>
           </div>
@@ -428,7 +428,7 @@ export const ProductCard = memo(function ProductCard({
         {shippingFee !== undefined && (
           <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-secondary)]/10 px-2.5 py-1">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-secondary)]" />
-            <span className="text-[11px] font-medium text-[var(--color-secondary)]">
+            <span className="text-caption font-medium text-[var(--color-secondary)]">
               مصاريف الشحن {formatPrice(shippingFee)} فقط
             </span>
           </div>
@@ -449,7 +449,7 @@ export const ProductCard = memo(function ProductCard({
               disabled={buttonState !== "idle"}
               variant="secondary"
               className={cn(
-                "rounded-full text-sm font-semibold",
+                "rounded-full text-caption font-bold",
                 "bg-[var(--color-gold)] text-[var(--neutral-900)]",
                 "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
                 "transition-all duration-300",
@@ -468,7 +468,7 @@ export const ProductCard = memo(function ProductCard({
             disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
             variant="default"
             className={cn(
-              "h-10 w-full rounded-full text-[13px] font-semibold",
+              "h-10 w-full rounded-full text-caption font-bold",
               "bg-[var(--color-secondary)] text-white",
               "hover:bg-[var(--color-accent)] hover:text-white",
               "transition-all duration-300",

@@ -23,14 +23,14 @@ export default function Error({
       <div className="max-w-md">
         {/* Error illustration */}
         <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-neutral-100 flex items-center justify-center" aria-hidden="true">
-          <span className="text-4xl">⚠️</span>
+          <span className="text-title-1">⚠️</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-neutral-800 mb-3">
+        <h1 className="text-title-3 font-bold text-neutral-800 mb-3">
           عذراً، حدث خطأ في تحميل البيانات
         </h1>
 
-        <p className="text-neutral-500 mb-6 leading-relaxed">
+        <p className="text-neutral-500 mb-6">
           يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، تواصل معنا عبر واتساب.
         </p>
 

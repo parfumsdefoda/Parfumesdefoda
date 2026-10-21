@@ -170,6 +170,44 @@
     0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
 }
 
+/* ── Type scale ────────────────────────────────────────────────
+   Seven sizes, three weights (400/500/700), no letter-spacing.
+   14px is the floor: anything smaller is no longer allowed. */
+@utility text-display {
+  font-size: clamp(40px, 5.2vw, 64px);
+  line-height: 1.15;
+}
+
+@utility text-title-1 {
+  font-size: clamp(32px, 3.6vw, 48px);
+  line-height: 1.25;
+}
+
+@utility text-title-2 {
+  font-size: clamp(26px, 2.6vw, 32px);
+  line-height: 1.25;
+}
+
+@utility text-title-3 {
+  font-size: clamp(20px, 2vw, 24px);
+  line-height: 1.25;
+}
+
+@utility text-headline {
+  font-size: clamp(18px, 1.5vw, 20px);
+  line-height: 1.4;
+}
+
+@utility text-body {
+  font-size: clamp(16px, 1.15vw, 17px);
+  line-height: 1.7;
+}
+
+@utility text-caption {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 /* ──────────────────────────────────────────
    Base Styles
    ────────────────────────────────────────── */

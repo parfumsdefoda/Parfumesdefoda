@@ -64,7 +64,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               {toast.type === "success" && (
                 <CheckCircle className="h-4 w-4 text-[var(--color-success)] shrink-0" />
               )}
-              <span className="text-sm font-medium text-[var(--neutral-700)]">
+              <span className="text-caption font-medium text-[var(--neutral-700)]">
                 {toast.message}
               </span>
               <button
