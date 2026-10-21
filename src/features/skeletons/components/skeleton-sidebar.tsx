@@ -21,11 +21,11 @@ export function SkeletonSidebar({
     >
       {Array.from({ length: groups }).map((_, gi) => (
         <div key={gi} className="space-y-3">
-          <Skeleton className="h-5 w-20 rounded" />
+          <Skeleton className="h-5 w-20 rounded-control" />
           {Array.from({ length: itemsPerGroup }).map((_, ii) => (
             <div key={ii} className="flex items-center gap-3">
-              <Skeleton className="h-4 w-4 rounded-[4px]" />
-              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-4 w-4 rounded-pill" />
+              <Skeleton className="h-4 w-16 rounded-control" />
             </div>
           ))}
         </div>

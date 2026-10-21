@@ -25,11 +25,11 @@ export default function Loading() {
         {/* Sidebar skeleton */}
         <div className="hidden lg:block w-64 shrink-0">
           <div className="space-y-4">
-            <div className="h-6 w-24 skeleton-pulse rounded bg-neutral-200" />
+            <div className="h-6 w-24 skeleton-pulse rounded-control bg-neutral-200" />
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="h-5 w-5 skeleton-pulse rounded bg-neutral-200" />
-                <div className="h-4 w-20 skeleton-pulse rounded bg-neutral-200" />
+                <div className="h-5 w-5 skeleton-pulse rounded-control bg-neutral-200" />
+                <div className="h-4 w-20 skeleton-pulse rounded-control bg-neutral-200" />
               </div>
             ))}
           </div>
@@ -47,15 +47,15 @@ export default function Loading() {
                 <div className="aspect-square skeleton-pulse bg-neutral-200" />
                 {/* Content */}
                 <div className="p-4 space-y-3">
-                  <div className="h-4 w-3/4 skeleton-pulse rounded bg-neutral-200" />
-                  <div className="h-3 w-1/2 skeleton-pulse rounded bg-neutral-200" />
-                  <div className="h-3 w-1/4 skeleton-pulse rounded bg-neutral-200" />
+                  <div className="h-4 w-3/4 skeleton-pulse rounded-control bg-neutral-200" />
+                  <div className="h-3 w-1/2 skeleton-pulse rounded-control bg-neutral-200" />
+                  <div className="h-3 w-1/4 skeleton-pulse rounded-control bg-neutral-200" />
                   <div className="flex gap-2">
                     <div className="h-8 w-16 skeleton-pulse rounded-full bg-neutral-200" />
                     <div className="h-8 w-16 skeleton-pulse rounded-full bg-neutral-200" />
                     <div className="h-8 w-16 skeleton-pulse rounded-full bg-neutral-200" />
                   </div>
-                  <div className="h-5 w-20 skeleton-pulse rounded bg-neutral-200" />
+                  <div className="h-5 w-20 skeleton-pulse rounded-control bg-neutral-200" />
                   <div className="h-10 w-full skeleton-pulse rounded-lg bg-neutral-200" />
                 </div>
               </div>

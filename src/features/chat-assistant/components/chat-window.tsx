@@ -69,7 +69,7 @@ export function ChatWindow({
       {/* ─── Header ─── */}
       <div className="flex items-center justify-between border-b border-[var(--neutral-100)] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-accent)] shadow-[0_2px_8px_rgba(99,41,137,0.3)]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-accent)] shadow-soft">
             <span className="text-body text-white" aria-hidden="true">✨</span>
           </div>
           <div>
@@ -101,7 +101,7 @@ export function ChatWindow({
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)]/10 shadow-[0_0_20px_rgba(99,41,137,0.1)]">
+            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)]/10 shadow-soft">
               <span className="text-title-2" aria-hidden="true">🌸</span>
             </div>
             <p className="text-caption font-bold text-[var(--neutral-700)] mb-1">
@@ -215,8 +215,8 @@ export function ChatWindow({
             className={cn(
               "h-9 w-9 rounded-full shrink-0",
               "bg-[var(--color-accent)] text-white",
-              "hover:bg-[var(--color-secondary)]",
-              "hover:shadow-[0_2px_12px_rgba(156,214,118,0.4)]",
+              "hover:bg-[var(--purple-700)]",
+              "hover:shadow-soft",
               "disabled:opacity-40",
               "transition-all duration-200",
             )}

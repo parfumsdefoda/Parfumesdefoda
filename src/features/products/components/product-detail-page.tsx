@@ -128,7 +128,7 @@ export function ProductDetailPageClient({
             <li>
               <Link
                 href="/"
-                className="hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+                className="hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control"
               >
                 الرئيسية
               </Link>
@@ -485,7 +485,7 @@ export function ProductDetailPageClient({
             {/* Continue shopping link */}
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center justify-center gap-2 text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control"
             >
               <ChevronRight className="h-4 w-4" />
               متابعة التصفح

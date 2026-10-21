@@ -30,9 +30,9 @@ export function SkeletonCard({
 
       {/* Content */}
       <div className="p-4 space-y-3">
-        <Skeleton className="h-4 w-3/4 rounded" />
-        <Skeleton className="h-3 w-1/2 rounded" />
-        {showRating && <Skeleton className="h-3 w-20 rounded" />}
+        <Skeleton className="h-4 w-3/4 rounded-control" />
+        <Skeleton className="h-3 w-1/2 rounded-control" />
+        {showRating && <Skeleton className="h-3 w-20 rounded-control" />}
 
         {/* Size pills */}
         <div className="flex gap-2">
@@ -41,7 +41,7 @@ export function SkeletonCard({
           ))}
         </div>
 
-        <Skeleton className="h-5 w-24 rounded" />
+        <Skeleton className="h-5 w-24 rounded-control" />
         <Skeleton className="h-10 w-full rounded-lg" />
       </div>
     </div>

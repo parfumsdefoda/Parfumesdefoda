@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "validate-json": "tsx scripts/validate-json.js",
+    "check:tokens": "node scripts/check-tokens.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -13,12 +13,12 @@ export function SkeletonCartItem({ className }: SkeletonCartItemProps) {
     >
       <Skeleton className="h-20 w-20 shrink-0 rounded-lg" />
       <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-3/4 rounded" />
-        <Skeleton className="h-3 w-1/3 rounded" />
+        <Skeleton className="h-4 w-3/4 rounded-control" />
+        <Skeleton className="h-3 w-1/3 rounded-control" />
         <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-6 rounded" />
-          <Skeleton className="h-4 w-8 rounded" />
-          <Skeleton className="h-6 w-6 rounded" />
+          <Skeleton className="h-6 w-6 rounded-control" />
+          <Skeleton className="h-4 w-8 rounded-control" />
+          <Skeleton className="h-6 w-6 rounded-control" />
         </div>
       </div>
     </div>

@@ -64,7 +64,7 @@ export function ChatTriggerCard({
           className={cn(
             "flex h-12 w-12 items-center justify-center rounded-full",
             "bg-[var(--neutral-600)] text-white",
-            "shadow-[0_4px_16px_rgba(0,0,0,0.25)]",
+            "shadow-lifted",
             "transition-all duration-300 ease-out",
             "hover:bg-[var(--neutral-700)] hover:scale-105",
             "active:scale-95",
@@ -103,8 +103,8 @@ export function ChatTriggerCard({
           <span
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute -inset-[2px] rounded-[24px]",
-              "bg-[linear-gradient(120deg,#b8960c,#d4af37,#f5d060,#d4af37,#b8960c)]",
+              "pointer-events-none absolute -inset-[2px] rounded-card",
+              "[background-image:var(--gradient-gold)]",
               "bg-[length:200%_200%] animate-[premium-shimmer_4s_linear_infinite]",
               "opacity-80 transition-opacity duration-300 group-hover:opacity-100",
             )}
@@ -114,7 +114,7 @@ export function ChatTriggerCard({
           <span
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute -inset-1 rounded-[28px]",
+              "pointer-events-none absolute -inset-1 rounded-card",
               "animate-[chat-glow_3s_ease-in-out_infinite]",
             )}
           />
@@ -123,8 +123,8 @@ export function ChatTriggerCard({
           <span
             className={cn(
               "relative flex items-center gap-3 rounded-3xl px-4 py-3 text-start",
-              "bg-[linear-gradient(135deg,#7b3ba8_0%,#632989_55%,#4a1f6b_100%)]",
-              "text-white shadow-[0_10px_32px_rgba(99,41,137,0.45)]",
+              "[background-image:linear-gradient(135deg,var(--purple-400)_0%,var(--purple-600)_55%,var(--purple-950)_100%)]",
+              "text-white shadow-lifted",
             )}
           >
             {/* Gold icon medallion */}
@@ -132,11 +132,11 @@ export function ChatTriggerCard({
               aria-hidden="true"
               className={cn(
                 "flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-                "bg-[linear-gradient(135deg,#f5d060,#d4af37)]",
-                "shadow-[0_0_18px_rgba(212,175,55,0.55)]",
+                "[background-image:linear-gradient(135deg,var(--gold-300),var(--brand-gold))]",
+                "shadow-soft",
               )}
             >
-              <MessageCircle className="h-5 w-5 text-[#4a1f6b]" />
+              <MessageCircle className="h-5 w-5 text-[var(--purple-950)]" />
             </span>
 
             {/* Copy */}

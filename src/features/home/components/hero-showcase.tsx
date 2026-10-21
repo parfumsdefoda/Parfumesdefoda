@@ -73,8 +73,8 @@ export function HeroShowcase({
           <span
             className={cn(
               "absolute end-1.5 top-1.5 rounded-full px-2 py-0.5 text-caption font-bold text-white",
-              "bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]",
-              "shadow-[0_1px_4px_rgba(212,175,55,0.4)]",
+              "[background-image:var(--gradient-gold)]",
+              "shadow-soft",
             )}
           >
             ★ فاخر
@@ -95,11 +95,11 @@ export function HeroShowcase({
           tabIndex={decorative ? -1 : undefined}
           className={cn(
             "group relative mx-2 block h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",
-            "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
-            "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.14)]",
+            "bg-[var(--bg-primary)] shadow-soft",
+            "transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lifted",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2",
             item.featured
-              ? "border-2 border-[var(--color-gold)]/70 shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
+              ? "border-2 border-[var(--color-gold)]/70 shadow-soft"
               : "border border-[var(--neutral-100)]",
           )}
         >
@@ -114,9 +114,9 @@ export function HeroShowcase({
         title={item.name}
         className={cn(
           "relative mx-2 h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",
-          "bg-[var(--bg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.08)]",
+          "bg-[var(--bg-primary)] shadow-soft",
           item.featured
-            ? "border-2 border-[var(--color-gold)]/70 shadow-[0_4px_20px_rgba(212,175,55,0.25)]"
+            ? "border-2 border-[var(--color-gold)]/70 shadow-soft"
             : "border border-[var(--neutral-100)]",
         )}
       >
@@ -139,7 +139,7 @@ export function HeroShowcase({
           </h1>
           <div
             aria-hidden="true"
-            className="mx-auto mt-2 h-1 w-16 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060]"
+            className="mx-auto mt-2 h-1 w-16 rounded-full [background-image:var(--gradient-gold)]"
           />
         </div>
       )}

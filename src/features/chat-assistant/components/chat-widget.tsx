@@ -140,7 +140,7 @@ export function ChatWidget() {
               "max-h-[calc(100dvh-8rem)]",
               "overflow-hidden rounded-2xl",
               "border border-[var(--neutral-100)]",
-              "shadow-[0_20px_60px_rgba(0,0,0,0.18)]",
+              "shadow-lifted",
               "flex flex-col",
               "bg-[var(--bg-primary)]",
             )}

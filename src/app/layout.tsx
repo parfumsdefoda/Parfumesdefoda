@@ -20,7 +20,8 @@ import "./globals.css";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#FFFFFF",
+  // themeColor is emitted from data/theme.json in <head> below, so no brand
+  // colour is ever hardcoded here.
 };
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://parfumsdefoda.com";
@@ -158,15 +159,28 @@ export default async function RootLayout({
 }>) {
   const theme = await loadTheme();
 
+  /* Brand inputs from data/theme.json, applied on the server render so the
+     derived token scales are correct before the first paint (no flash). */
+  const brandStyle = {
+    ...(theme.colors.accent ? { "--brand-purple": theme.colors.accent } : {}),
+    ...(theme.colors.gold ? { "--brand-gold": theme.colors.gold } : {}),
+    ...(theme.colors.secondary ? { "--brand-green": theme.colors.secondary } : {}),
+    ...(theme.colors.primary ? { "--brand-white": theme.colors.primary } : {}),
+  } as React.CSSProperties;
+
   return (
     <html
       lang="ar"
       dir="rtl"
       className={`${cairo.variable} h-full`}
+      style={brandStyle}
       suppressHydrationWarning
     >
       <head>
         <JsonLd />
+        {theme.colors.primary && (
+          <meta name="theme-color" content={theme.colors.primary} />
+        )}
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
         {/* Skip to content link for keyboard users */}

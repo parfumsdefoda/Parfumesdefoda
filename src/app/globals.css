@@ -168,6 +168,16 @@
     0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px -14px rgb(58 26 79 / 0.14);
   --shadow-lifted:
     0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
+
+  /* The stock shadow scale is remapped onto those two, so shadow-sm and
+     shadow-xl can never introduce a fifth elevation. */
+  --shadow-2xs: var(--shadow-soft);
+  --shadow-xs: var(--shadow-soft);
+  --shadow-sm: var(--shadow-soft);
+  --shadow-md: var(--shadow-soft);
+  --shadow-lg: var(--shadow-lifted);
+  --shadow-xl: var(--shadow-lifted);
+  --shadow-2xl: var(--shadow-lifted);
 }
 
 /* ── Type scale ────────────────────────────────────────────────

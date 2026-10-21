@@ -23,7 +23,7 @@ export function FeaturedBadge({ size = "sm", className }: FeaturedBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-[#b8960c] via-[#d4af37] to-[#f5d060] font-bold text-white ring-1 ring-[#f5d060]/30 shadow-[0_2px_8px_rgba(212,175,55,0.4)]",
+        "inline-flex items-center gap-1 rounded-full [background-image:var(--gradient-gold)] font-bold text-white ring-1 ring-[var(--gold-300)]/30 shadow-soft",
         size === "sm" ? "px-3 py-1 text-caption" : "px-3.5 py-1.5 text-caption",
         className,
       )}

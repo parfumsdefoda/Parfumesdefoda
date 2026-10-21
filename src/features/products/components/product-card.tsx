@@ -219,8 +219,8 @@ export const ProductCard = memo(function ProductCard({
         "bg-[var(--bg-primary)]",
         "border",
         product.featured
-          ? "border-transparent shadow-[0_2px_24px_rgba(212,175,55,0.12)] hover:shadow-[0_16px_48px_rgba(212,175,55,0.3)]"
-          : "border-[var(--neutral-100)] shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)]",
+          ? "border-transparent shadow-soft hover:shadow-lifted"
+          : "border-[var(--neutral-100)] shadow-soft hover:shadow-lifted",
         product.featured
           ? "hover:-translate-y-1.5 hover:scale-[1.01]"
           : "hover:-translate-y-1",
@@ -234,7 +234,7 @@ export const ProductCard = memo(function ProductCard({
         ...(product.featured
           ? {
               backgroundImage:
-                "linear-gradient(var(--bg-primary), var(--bg-primary)), linear-gradient(135deg, #b8960c, #d4af37, #f5d060, #d4af37, #b8960c)",
+                "linear-gradient(var(--bg-primary), var(--bg-primary)), var(--gradient-gold)",
               backgroundOrigin: "border-box",
               backgroundClip: "padding-box, border-box",
             }
@@ -245,7 +245,7 @@ export const ProductCard = memo(function ProductCard({
       <div className={cn(
         "relative overflow-hidden",
         product.featured
-          ? "bg-gradient-to-b from-[#fdf8e8] to-[var(--bg-primary)]"
+          ? "bg-gradient-to-b from-[var(--gold-50)] to-[var(--bg-primary)]"
           : "bg-[var(--bg-primary)]",
       )}>
         {detailHref ? (
@@ -310,7 +310,7 @@ export const ProductCard = memo(function ProductCard({
               <FeaturedBadge size="sm" />
             </div>
             {/* Gold shimmer overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#f5d060]/8 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-[5]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--gold-300)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-[5]" />
           </>
         )}
       </div>
@@ -323,8 +323,8 @@ export const ProductCard = memo(function ProductCard({
             <span className={cn(
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-caption font-bold",
               product.featured
-                ? "bg-[var(--color-gold)]/15 text-[#b8960c]"
-                : "bg-[var(--color-gold)]/10 text-[var(--color-gold)]",
+                ? "bg-[var(--gold-50)] text-[var(--color-gold-text)]"
+                : "bg-[var(--gold-50)] text-[var(--color-gold-text)]",
             )}>
               {product.house}
             </span>
@@ -336,7 +336,7 @@ export const ProductCard = memo(function ProductCard({
           <Link
             href={detailHref}
             className={cn(
-              "text-headline line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded",
+              "text-headline line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control",
               product.featured
                 ? "font-bold text-[var(--neutral-900)]"
                 : "font-bold text-[var(--neutral-800)]",

@@ -27,20 +27,20 @@ export default function ProductLoading() {
           {/* Badge */}
           <div className="h-6 w-20 skeleton-pulse rounded-full bg-neutral-200" />
           {/* Name */}
-          <div className="h-8 w-3/4 skeleton-pulse rounded bg-neutral-200" />
+          <div className="h-8 w-3/4 skeleton-pulse rounded-control bg-neutral-200" />
           {/* Brand */}
-          <div className="h-5 w-1/2 skeleton-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-1/2 skeleton-pulse rounded-control bg-neutral-200" />
           {/* Description */}
           <div className="space-y-2">
-            <div className="h-4 w-full skeleton-pulse rounded bg-neutral-200" />
-            <div className="h-4 w-5/6 skeleton-pulse rounded bg-neutral-200" />
-            <div className="h-4 w-2/3 skeleton-pulse rounded bg-neutral-200" />
+            <div className="h-4 w-full skeleton-pulse rounded-control bg-neutral-200" />
+            <div className="h-4 w-5/6 skeleton-pulse rounded-control bg-neutral-200" />
+            <div className="h-4 w-2/3 skeleton-pulse rounded-control bg-neutral-200" />
           </div>
           {/* Separator */}
           <div className="h-px w-full bg-neutral-200" />
           {/* Size options */}
           <div className="space-y-2">
-            <div className="h-5 w-24 skeleton-pulse rounded bg-neutral-200" />
+            <div className="h-5 w-24 skeleton-pulse rounded-control bg-neutral-200" />
             <div className="flex gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
@@ -51,7 +51,7 @@ export default function ProductLoading() {
             </div>
           </div>
           {/* Price */}
-          <div className="h-10 w-32 skeleton-pulse rounded bg-neutral-200" />
+          <div className="h-10 w-32 skeleton-pulse rounded-control bg-neutral-200" />
           {/* Button */}
           <div className="h-12 w-full skeleton-pulse rounded-full bg-neutral-200" />
         </div>

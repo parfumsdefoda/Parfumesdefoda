@@ -13,13 +13,13 @@ export function SkeletonHeader({ className }: SkeletonHeaderProps) {
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Skeleton className="h-8 w-32 rounded" />
+        <Skeleton className="h-8 w-32 rounded-control" />
 
         {/* Nav — hidden on mobile */}
         <nav className="hidden md:flex items-center gap-6">
-          <Skeleton className="h-4 w-12 rounded" />
-          <Skeleton className="h-4 w-12 rounded" />
-          <Skeleton className="h-4 w-12 rounded" />
+          <Skeleton className="h-4 w-12 rounded-control" />
+          <Skeleton className="h-4 w-12 rounded-control" />
+          <Skeleton className="h-4 w-12 rounded-control" />
         </nav>
 
         {/* Actions */}

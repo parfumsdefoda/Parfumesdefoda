@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import type { Theme } from "@/types/services";
 
 interface ThemeContextValue {
@@ -24,22 +24,15 @@ interface ThemeProviderProps {
 }
 
 /**
- * ThemeProvider injects design tokens as CSS custom properties on :root.
+ * ThemeProvider — exposes the theme (data/theme.json) to client components.
  *
- * Theme data is loaded server-side by layout.tsx and passed as a prop.
- * This component only handles DOM injection (which requires client access).
+ * The colour tokens themselves are injected by `layout.tsx` as an inline
+ * style on <html> during the server render, so the derived scales
+ * (purple/gold/green/neutral) are already correct at first paint. This
+ * provider no longer touches the DOM: a client-side `useEffect` injection
+ * would repaint after hydration and flash the default palette first.
  */
 export function ThemeProvider({ children, initialTheme = null }: ThemeProviderProps) {
-  useEffect(() => {
-    // Inject theme colors as CSS custom properties
-    if (initialTheme?.colors) {
-      const root = document.documentElement;
-      for (const [key, value] of Object.entries(initialTheme.colors)) {
-        root.style.setProperty(`--color-${key}`, value);
-      }
-    }
-  }, [initialTheme]);
-
   return (
     <ThemeContext.Provider value={{ theme: initialTheme, isLoading: false }}>
       {children}
