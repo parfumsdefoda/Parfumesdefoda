@@ -68,7 +68,7 @@ export function ChatTriggerCard({
             "transition-all duration-300 ease-out",
             "hover:bg-[var(--neutral-700)] hover:scale-105",
             "active:scale-95",
-            "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-gold)]",
+            "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-focus)]",
           )}
         >
           <X className="h-5 w-5" aria-hidden="true" />
@@ -96,7 +96,7 @@ export function ChatTriggerCard({
             isHovered ? "scale-[1.03]" : "scale-100",
             attract && "animate-[chat-attract_2.6s_ease-in-out_2]",
             "active:scale-[0.98]",
-            "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-gold)]",
+            "focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-focus)]",
           )}
         >
           {/* Animated gold gradient border (same premium-shimmer as فاخر cards) */}

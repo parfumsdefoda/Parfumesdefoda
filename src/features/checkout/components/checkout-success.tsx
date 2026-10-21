@@ -128,7 +128,8 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
                   />
                 }
                 nativeButton={false}
-                className="h-11 rounded-full bg-[var(--color-secondary)] text-white hover:bg-[var(--color-accent)]"
+                variant="secondary"
+                className="w-full"
               >
                 <MessageCircle className="h-4 w-4 ms-1.5" />
                 تواصل معنا على واتساب

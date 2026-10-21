@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { FeaturedBadge } from "./featured-badge";
@@ -288,18 +289,9 @@ export const ProductCard = memo(function ProductCard({
         {/* Badge — top corner */}
         {badgeLabel && (
           <div className="absolute top-3 end-3 z-10">
-            <span
-              className={cn(
-                "inline-flex items-center rounded-full px-2.5 py-1 text-caption font-bold",
-                badgeLabel === "الأكثر مبيعاً"
-                  ? "bg-[var(--color-secondary)] text-white"
-                  : badgeLabel === "نيش"
-                    ? "border border-[var(--color-accent)]/30 bg-[var(--bg-primary)]/90 text-[var(--color-accent)]"
-                    : "bg-[var(--color-gold)] text-white",
-              )}
-            >
+            <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
               {badgeLabel}
-            </span>
+            </Badge>
           </div>
         )}
 
@@ -320,14 +312,7 @@ export const ProductCard = memo(function ProductCard({
         {/* House Badge (الدار) */}
         {product.house && (
           <div>
-            <span className={cn(
-              "inline-flex items-center rounded-full px-2.5 py-0.5 text-caption font-bold",
-              product.featured
-                ? "bg-[var(--gold-50)] text-[var(--color-gold-text)]"
-                : "bg-[var(--gold-50)] text-[var(--color-gold-text)]",
-            )}>
-              {product.house}
-            </span>
+            <Badge variant="neutral">{product.house}</Badge>
           </div>
         )}
 
@@ -358,7 +343,7 @@ export const ProductCard = memo(function ProductCard({
         {/* Short Description */}
         {shortDescription && (
           <div>
-            <span className="mb-1 block text-caption font-medium text-[var(--neutral-300)]">
+            <span className="mb-1 block text-caption font-medium text-[var(--ui-text-muted)]">
               وصف المنتج
             </span>
             <p className="text-caption text-[var(--neutral-400)] line-clamp-2">
@@ -370,7 +355,7 @@ export const ProductCard = memo(function ProductCard({
         {/* Size Selector — rounded pills, single row */}
         {product.sizes.length > 0 && (
           <div>
-            <span className="mb-2 block text-caption font-medium text-[var(--neutral-300)]">
+            <span className="mb-2 block text-caption font-medium text-[var(--ui-text-muted)]">
               {selectSizeLabel}
             </span>
             <div className="flex gap-1.5">
@@ -391,7 +376,7 @@ export const ProductCard = memo(function ProductCard({
                       "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
                       isSelected
                         ? "bg-[var(--color-accent)] text-white shadow-sm"
-                        : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-gold)] hover:text-[var(--neutral-800)]",
+                        : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-brand)]/40 hover:text-[var(--neutral-800)]",
                       sizeOutOfStock && "opacity-35 cursor-not-allowed",
                     )}
                   >
@@ -426,9 +411,9 @@ export const ProductCard = memo(function ProductCard({
 
         {/* Shipping Fee Badge */}
         {shippingFee !== undefined && (
-          <div className="flex items-center gap-1.5 rounded-full bg-[var(--color-secondary)]/10 px-2.5 py-1">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-secondary)]" />
-            <span className="text-caption font-medium text-[var(--color-secondary)]">
+          <div className="flex items-center gap-1.5 rounded-pill bg-[var(--ui-surface-muted)] px-2.5 py-1">
+            <span className="inline-block h-1.5 w-1.5 rounded-pill bg-[var(--neutral-400)]" />
+            <span className="text-caption font-medium text-[var(--ui-text-muted)]">
               مصاريف الشحن {formatPrice(shippingFee)} فقط
             </span>
           </div>
@@ -447,14 +432,11 @@ export const ProductCard = memo(function ProductCard({
                 onBuyNow?.();
               }}
               disabled={buttonState !== "idle"}
-              variant="secondary"
+              variant="primary"
               className={cn(
-                "rounded-full text-caption font-bold",
-                "bg-[var(--color-gold)] text-[var(--neutral-900)]",
-                "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
-                "transition-all duration-300",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
-                buttonState === "success" && "!bg-[var(--color-success)] !text-white",
+                "w-full font-bold",
+                buttonState === "success" &&
+                  "!bg-[var(--color-success)] !text-white",
               )}
               aria-label={buyNowLabel}
             >
@@ -466,13 +448,9 @@ export const ProductCard = memo(function ProductCard({
           <Button
             onClick={handleAddToCart}
             disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
-            variant="default"
+            variant="secondary"
             className={cn(
-              "h-10 w-full rounded-full text-caption font-bold",
-              "bg-[var(--color-secondary)] text-white",
-              "hover:bg-[var(--color-accent)] hover:text-white",
-              "transition-all duration-300",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
+              "w-full font-bold",
               buttonState === "success" &&
                 "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]",
             )}

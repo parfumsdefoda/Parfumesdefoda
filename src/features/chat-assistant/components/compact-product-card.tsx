@@ -89,10 +89,10 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
 
           <span
             className={cn(
-              "inline-flex h-6 items-center gap-1 rounded-full px-2 text-caption font-bold",
-              "bg-[var(--color-secondary)] text-white",
-              "transition-all duration-200",
-              "group-hover:bg-[var(--color-accent)]",
+              "inline-flex items-center gap-1 rounded-pill px-2 py-1 text-caption font-medium",
+              "bg-[var(--color-brand)] text-white",
+              "transition-colors duration-200",
+              "group-hover:bg-[var(--purple-700)]",
             )}
           >
             <ArrowUpLeft className="h-3 w-3" aria-hidden="true" />

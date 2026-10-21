@@ -67,6 +67,9 @@
   --ui-text-muted: var(--neutral-500);
   --ui-brand: var(--purple-600);
   --ui-brand-soft: var(--purple-50);
+  /* Public aliases used by components (resolved, not raw). */
+  --color-brand: var(--purple-600);
+  --color-brand-soft: var(--purple-50);
   --ui-positive: var(--green-700);
   --ui-positive-soft: var(--green-50);
   --ui-gold-text: var(--gold-700);

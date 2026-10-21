@@ -8,11 +8,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Loader2, Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { FeaturedBadge } from "./featured-badge";
 import { PageLayout } from "@/features/layout";
 import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/features/toast";
 import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
@@ -178,9 +178,9 @@ export function ProductDetailPageClient({
               {/* Product badge — never a disguised "out of stock" notice */}
               {product.badge && !isUnavailableBadge(product.badge) && (
                 <div className="absolute top-4 end-4 z-10">
-                  <span className="inline-flex items-center rounded-full bg-[var(--color-gold)] px-3 py-1.5 text-caption font-bold text-white">
+                  <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
                     {product.badge}
-                  </span>
+                  </Badge>
                 </div>
               )}
             </div>
@@ -219,9 +219,7 @@ export function ProductDetailPageClient({
             {/* House badge */}
             {product.house && (
               <div>
-                <span className="inline-flex items-center rounded-full bg-[var(--color-gold)]/10 px-3 py-1 text-caption font-bold text-[var(--color-gold)]">
-                  {product.house}
-                </span>
+                <Badge variant="neutral">{product.house}</Badge>
               </div>
             )}
 
@@ -362,7 +360,7 @@ export function ProductDetailPageClient({
                           ? "bg-[var(--color-accent)] text-white shadow-md"
                           : sizeOutOfStock
                             ? "bg-[var(--bg-secondary)] text-[var(--neutral-300)] cursor-not-allowed line-through"
-                            : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-gold)] hover:text-[var(--neutral-800)]"
+                            : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-brand)]/40 hover:text-[var(--neutral-800)]"
                       }`}
                     >
                       {size.label}
@@ -429,14 +427,8 @@ export function ProductDetailPageClient({
                       // Navigate straight to checkout with whatever is now in the cart
                       router.push("/checkout");
                     }}
-                    variant="secondary"
-                    className={cn(
-                      "rounded-full text-caption font-bold",
-                      "bg-[var(--color-gold)] text-[var(--neutral-900)]",
-                      "hover:bg-[var(--color-gold)]/90 hover:text-[var(--neutral-800)]",
-                      "transition-all duration-300",
-                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
-                    )}
+                    variant="primary"
+                    className="w-full font-bold"
                     aria-label="اشتر الآن"
                   >
                     اشتر الآن
@@ -447,8 +439,9 @@ export function ProductDetailPageClient({
               <Button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || isProductOutOfStock || buttonState !== "idle"}
-                variant="default"
-                className={`h-12 w-full rounded-full text-caption font-bold ${
+                variant="secondary"
+                size="lg"
+                className={`w-full font-bold ${
                   buttonState === "success"
                     ? "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]"
                     : ""

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -15,23 +16,19 @@ export interface FeaturedBadgeProps {
  *
  * Both the product grid card and the product detail page render this component
  * whenever `product.featured === true`, so the label text and gold styling can
- * never drift out of sync again. Change the label or style here, once.
+ * never drift out of sync again. It is the shared Badge `gold` variant:
+ * gold-50 tint with gold-700 text (5.1:1), never white-on-gold.
  *
  * Purely presentational — safe in both server and client component trees.
  */
 export function FeaturedBadge({ size = "sm", className }: FeaturedBadgeProps) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full [background-image:var(--gradient-gold)] font-bold text-white ring-1 ring-[var(--gold-300)]/30 shadow-soft",
-        size === "sm" ? "px-3 py-1 text-caption" : "px-3.5 py-1.5 text-caption",
-        className,
-      )}
+    <Badge
+      variant="gold"
+      className={cn(size === "md" ? "px-3 py-1.5" : "px-2.5 py-1", className)}
     >
-      <span aria-hidden="true" className={size === "sm" ? "text-caption" : "text-caption"}>
-        ★
-      </span>
+      <span aria-hidden="true">★</span>
       فاخر
-    </span>
+    </Badge>
   );
 }
