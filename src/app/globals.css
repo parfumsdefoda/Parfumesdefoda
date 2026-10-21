@@ -1,90 +1,173 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* ──────────────────────────────────────────
-   Design Tokens — Injected from data/theme.json at build time
-   These defaults match the brand palette and are overridden
-   by the ThemeProvider which reads theme.json.
-   ────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — the single source of truth for the visual language.
+
+   The four brand inputs are injected server-side from data/theme.json
+   as an inline style on <html> (see src/app/layout.tsx), so editing
+   the JSON re-themes every derived token with no flash on hydration.
+
+   Roles (one job per hue):
+     purple → brand & action (buttons, prices, selected, links, focus)
+     gold   → signature detail (hairlines, ornaments); gold TEXT only
+              through --ui-gold-text, never --brand-gold on white
+     green  → status & freshness (in-stock dot, success tint)
+   ══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Brand Colors */
-  --color-primary: #ffffff;
-  --color-secondary: #9cd676;
-  --color-accent: #632989;
-  --color-gold: #d4af37;
+  /* ── Brand inputs (overridden by theme.json) ───────────────── */
+  --brand-purple: #632989;
+  --brand-gold: #d4af37;
+  --brand-green: #9cd676;
+  --brand-white: #ffffff;
 
-  /* Neutral Palette */
-  --neutral-50: #fafafa;
-  --neutral-100: #f5f5f5;
-  --neutral-200: #e5e7eb;
-  --neutral-300: #d1d5db;
-  --neutral-400: #9ca3af;
-  --neutral-500: #6b7280;
-  --neutral-600: #4b5563;
-  --neutral-700: #374151;
-  --neutral-800: #1f2937;
-  --neutral-900: #111827;
+  /* ── Purple scale — brand & action ─────────────────────────── */
+  --purple-50: color-mix(in srgb, var(--brand-purple) 6%, var(--brand-white));
+  --purple-100: color-mix(in srgb, var(--brand-purple) 12%, var(--brand-white));
+  --purple-200: color-mix(in srgb, var(--brand-purple) 24%, var(--brand-white));
+  --purple-400: color-mix(in srgb, var(--brand-purple) 70%, var(--brand-white));
+  --purple-600: var(--brand-purple);
+  --purple-700: color-mix(in srgb, var(--brand-purple) 84%, #000000);
+  --purple-950: color-mix(in srgb, var(--brand-purple) 46%, #0c0510);
 
-  /* Semantic Colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  /* ── Gold scale — signature detail only ────────────────────── */
+  --gold-50: color-mix(in srgb, var(--brand-gold) 9%, var(--brand-white));
+  --gold-100: color-mix(in srgb, var(--brand-gold) 18%, var(--brand-white));
+  --gold-300: color-mix(in srgb, var(--brand-gold) 60%, var(--brand-white));
+  --gold-500: var(--brand-gold);
+  /* 5.1:1 on white — the only gold allowed as text */
+  --gold-700: color-mix(in srgb, var(--brand-gold) 62%, #000000);
 
-  /* Background Variations */
-  --bg-primary: #ffffff;
-  --bg-secondary: #fafafa;
-  --bg-tertiary: #f5f5f5;
-  --bg-elevated: #ffffff;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
+  /* ── Green scale — status & freshness only ─────────────────── */
+  --green-50: color-mix(in srgb, var(--brand-green) 14%, var(--brand-white));
+  --green-100: color-mix(in srgb, var(--brand-green) 26%, var(--brand-white));
+  /* 5.4:1 on white — the only green allowed as text */
+  --green-700: color-mix(in srgb, var(--brand-green) 40%, #12340a);
 
-  /* Border Colors */
-  --border-default: #e5e7eb;
-  --border-light: #f3f4f6;
-  --border-focus: #632989;
-  --border-error: #ef4444;
-  --border-gold: #d4af37;
+  /* ── Warm, purple-tinted neutrals ──────────────────────────── */
+  --neutral-50: #fbfaf9;
+  --neutral-100: #f5f3f7;
+  --neutral-200: #e7e3ec;
+  --neutral-300: #c9c1d4; /* hairlines only, never text */
+  --neutral-400: #6e6779; /* lightest neutral used as text (5.4:1) */
+  --neutral-500: #5b5b66;
+  --neutral-600: #4a4a55;
+  --neutral-700: #36363f;
+  --neutral-800: #1d1d1f;
+  --neutral-900: #111113;
 
-  /* Spacing */
-  --spacing-section: 5rem;
-  --spacing-card-gap: 1.5rem;
-  --spacing-container-padding: 1.5rem;
+  /* ── Semantic tokens (never referenced by Tailwind's names) ── */
+  --ui-bg: var(--neutral-50);
+  --ui-surface: var(--brand-white);
+  --ui-surface-muted: var(--neutral-100);
+  --ui-border: var(--neutral-200);
+  --ui-border-strong: #8c8499; /* 3.7:1 on white — form controls */
+  --ui-text: var(--neutral-800);
+  --ui-text-muted: var(--neutral-500);
+  --ui-brand: var(--purple-600);
+  --ui-brand-soft: var(--purple-50);
+  --ui-positive: var(--green-700);
+  --ui-positive-soft: var(--green-50);
+  --ui-gold-text: var(--gold-700);
+  --ui-gold-soft: var(--gold-50);
+  --ui-danger: #b3261e;
+  --ui-focus: var(--purple-600);
 
-  /* Border Radius */
-  --radius-card: 0.75rem;
-  --radius-button: 0.5rem;
-  --radius-full: 9999px;
+  /* ── Legacy names kept because existing components read them ─ */
+  --color-primary: var(--brand-white);
+  --color-secondary: var(--brand-green);
+  --color-accent: var(--purple-600);
+  --color-gold: var(--brand-gold);
+  --color-success: var(--green-700);
+  --color-error: var(--ui-danger);
+  --bg-primary: var(--ui-surface);
+  --bg-secondary: var(--ui-bg);
+  --border-default: var(--ui-border);
+  --border-light: var(--neutral-100);
 
-  /* Shadows */
-  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
-  --shadow-drawer: -4px 0 24px rgba(0, 0, 0, 0.1);
+  /* ── Spacing — 4/8 scale ───────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-section: clamp(64px, 8vw, 112px);
+  --spacing-section: var(--space-section); /* legacy alias */
 
-  /* Animations */
-  --animation-default: 0.3s ease;
-  --animation-slow: 0.5s ease;
-  --animation-fast: 0.15s ease;
+  /* ── Gradients ─────────────────────────────────────────────── */
+  --gradient-gold: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-gold) 82%, #5c4708) 0%,
+    var(--brand-gold) 35%,
+    color-mix(in srgb, var(--brand-gold) 62%, var(--brand-white)) 55%,
+    var(--brand-gold) 75%,
+    color-mix(in srgb, var(--brand-gold) 82%, #5c4708) 100%
+  );
+  --gradient-hero-mesh: linear-gradient(
+    120deg,
+    var(--gold-50) 0%,
+    color-mix(in srgb, var(--brand-gold) 6%, var(--brand-white)) 30%,
+    var(--purple-50) 60%,
+    var(--gold-50) 100%
+  );
+
+  /* ── Motion ────────────────────────────────────────────────── */
+  --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --animation-fast: var(--duration-fast) var(--ease-apple);
+  --animation-default: var(--duration-base) var(--ease-apple);
+  --animation-slow: var(--duration-slow) var(--ease-apple);
 }
 
+/* ── Tailwind theme bridge ─────────────────────────────────────
+   Utilities (bg-background, text-muted-foreground, border-border…)
+   and the three radii / two shadows live here. */
 @theme inline {
-  --color-background: var(--bg-primary);
-  --color-foreground: var(--neutral-900);
-  --color-primary: var(--color-primary);
-  --color-primary-foreground: var(--neutral-900);
-  --color-secondary: var(--color-secondary);
-  --color-secondary-foreground: #ffffff;
-  --color-accent: var(--color-accent);
-  --color-accent-foreground: #ffffff;
-  --color-gold: var(--color-gold);
-  --color-gold-foreground: #ffffff;
-  --color-muted: var(--neutral-100);
-  --color-muted-foreground: var(--neutral-500);
-  --color-destructive: var(--color-error);
-  --color-destructive-foreground: #ffffff;
-  --color-border: var(--border-default);
-  --color-input: var(--border-default);
-  --color-ring: var(--color-accent);
+  --color-background: var(--ui-bg);
+  --color-foreground: var(--ui-text);
+  --color-card: var(--ui-surface);
+  --color-card-foreground: var(--ui-text);
+  --color-popover: var(--ui-surface);
+  --color-popover-foreground: var(--ui-text);
+  --color-primary: var(--ui-brand);
+  --color-primary-foreground: var(--brand-white);
+  --color-muted: var(--ui-surface-muted);
+  --color-muted-foreground: var(--ui-text-muted);
+  --color-accent: var(--ui-brand);
+  --color-accent-foreground: var(--brand-white);
+  --color-destructive: var(--ui-danger);
+  --color-destructive-foreground: var(--brand-white);
+  --color-border: var(--ui-border);
+  --color-input: var(--ui-border-strong);
+  --color-ring: var(--ui-focus);
+}
+
+@theme {
+  /* Exactly three radii. The stock Tailwind scale is remapped onto
+     them so no component can introduce a fourth value. */
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-pill: 9999px;
+  --radius-xs: 12px;
+  --radius-sm: 12px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-2xl: 20px;
+  --radius-3xl: 20px;
+  --radius-4xl: 9999px;
+
+  /* Exactly two shadows. */
+  --shadow-soft:
+    0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px -14px rgb(58 26 79 / 0.14);
+  --shadow-lifted:
+    0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
 }
 
 /* ──────────────────────────────────────────
@@ -96,11 +179,17 @@ html {
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--neutral-800);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   font-family: var(--font-cairo), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Text selection uses the brand tint */
+::selection {
+  background: var(--purple-200);
+  color: var(--ui-text);
 }
 
 /* RTL-specific overrides for Shadcn/UI components */
@@ -111,7 +200,8 @@ body {
 
 /* Skeleton animation */
 @keyframes skeleton-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -139,19 +229,23 @@ body {
 
 /* Chat widget — gold glow pulse animation */
 @keyframes chat-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4),
-                0 4px 16px rgba(99, 41, 137, 0.3);
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--brand-gold) 40%, transparent),
+      0 4px 16px color-mix(in srgb, var(--brand-purple) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(212, 175, 55, 0),
-                0 4px 24px rgba(99, 41, 137, 0.5);
+    box-shadow:
+      0 0 0 8px color-mix(in srgb, var(--brand-gold) 0%, transparent),
+      0 4px 24px color-mix(in srgb, var(--brand-purple) 50%, transparent);
   }
 }
 
 /* Chat widget — first-visit attention pulse (card scale heartbeat) */
 @keyframes chat-attract {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   10% {
@@ -173,7 +267,8 @@ body {
   0% {
     transform: translateX(-150%) rotate(12deg);
   }
-  55%, 100% {
+  55%,
+  100% {
     transform: translateX(350%) rotate(12deg);
   }
 }
@@ -200,7 +295,8 @@ body {
 
 /* Hero showcase — slow-moving warm gradient mesh behind the band */
 @keyframes hero-mesh {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -209,25 +305,29 @@ body {
 }
 
 .hero-mesh {
-  background: linear-gradient(
-    120deg,
-    #fdf8e8 0%,
-    #faf3e0 30%,
-    #f6ecfa 60%,
-    #fdf8e8 100%
-  );
+  background: var(--gradient-hero-mesh);
   background-size: 200% 200%;
   animation: hero-mesh 14s ease-in-out infinite;
 }
 
-/* Respect reduced-motion: disable marquee, mesh, shimmer sweeps */
+/* Global reduced-motion contract: no decorative motion, ever. */
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
+  html {
+    scroll-behavior: auto;
   }
-  .hero-mesh {
-    animation: none;
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .marquee-track,
+  .hero-mesh,
+  .skeleton-pulse {
+    animation: none !important;
   }
 }
-
-
