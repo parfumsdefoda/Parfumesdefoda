@@ -4,9 +4,9 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 ## First Reads
 
-1. `data/settings.json` — store config (currency, grid: 3/2/1, shipping: 60 EGP, free above 500)
-2. `data/theme.json` — design tokens (colors, spacing, shadows)
-3. `data/products.json` — product catalog (array of 47 products, sizes: 50/30/2.5 مللى)
+1. `data/settings.json` — store config (currency, grid: 3/2/1, flat shipping: 100 EGP, no free-shipping threshold)
+2. `data/theme.json` — brand colours, injected server-side (see `docs/Design-System.md`)
+3. `data/products.json` — product catalog (array of 40 products, sizes: `10 مل`, `30 مل`, `50 مل`, `100 مل`)
 4. `locales/ar.json` — all user-facing Arabic text (with fallback defaults in components)
 5. `data/contact.json` — WhatsApp number + email for orders
 6. `content/faq.json`, `content/policies.json` — page content
@@ -18,11 +18,12 @@ npm run validate-json   # validates all 18 JSON files (scripts/validate-json.js 
 npm run validate-products  # Zod schema check on data/products.json (src/schemas/product-schema.ts)
 npm run typecheck       # tsc --noEmit (strict)
 npm run lint            # ESLint (scripts/ is ignored — uses require())
-npm run test            # vitest run (58 tests across src/lib/*.test.ts + src/services/products.test.ts)
+npm run test            # vitest run (200 tests across src/lib/*.test.ts + services + API routes)
+npm run check:tokens    # design-token guard: raw hex, arbitrary shadows, sub-14px text, undeclared var(--token)
 npm run build           # production build (Turbopack)
 ```
 
-**Verification order:** `validate-json -> typecheck -> lint -> test -> build`
+**Verification order:** `validate-json -> check:tokens -> typecheck -> lint -> test -> build`
 
 ## Architecture
 
@@ -32,7 +33,7 @@ npm run build           # production build (Turbopack)
 - **Feature-based** (`src/features/{name}/components/`, `hooks/`, `types/`, `utils/`). Each feature has a barrel `index.ts` export.
 - **No accounts, no payment.** Guest checkout only. Orders go via WhatsApp + Email.
 - **4 clicks max** from landing to order submission (browse → add to cart → cart drawer → checkout → submit).
-- **Static output.** All routes pre-rendered at build time except `/api/orders`.
+- **Rendering.** Product pages (`/product/[slug]`, 40 of them), `/checkout`, `/checkout/success`, `/robots.txt` and `/sitemap.xml` are pre-rendered. `/` is server-rendered per request (it fetches live sales counts with `no-store`), and every route handler (`/api/orders`, `/api/chat`) is dynamic by definition.
 
 ## Data Loading (Critical — read before touching any service)
 
@@ -61,11 +62,11 @@ Client components must **never import types from service files** (e.g., `@/servi
 - **All user-facing text** in `locales/ar.json`. Component props have Arabic defaults (matching locale keys), but `page.tsx` resolves text via `t()` at runtime.
 - **All store data** in `data/` (products, settings, theme, contact, etc.) and `content/`. Never hardcode prices, colors, contact info.
 - **Owner edits JSON files** to manage the site. Never require editing TypeScript for common tasks.
-- **Product sizes** — Only three allowed: `50 مللى`, `30 مللى`, `2.5 مللى`. No other sizes.
+- **Product sizes** — Only the four labels used by the catalogue: `10 مل`, `30 مل`, `50 مل`, `100 مل`. Never add another label; prices and stock live per size in `products.json`.
 - **`products.json` format:** Always an array `[{...}, {...}]`.
 - **`products.json` changes must pass `npm run validate-json`** (which now runs Zod schema validation via `src/schemas/product-schema.ts`). **Do not edit product fields without checking `src/schemas/product-schema.ts` first** — it is the single source of truth for the `Product` type. Never add/remove/rename a product field in the JSON without updating the schema in the same change (and vice versa).
 - **Product schema** — `src/schemas/product-schema.ts` derives `Product`, `ProductNotes`, `ProductSize` via `z.infer`. `src/types/product.ts` only re-exports from it. Client components may import the schema file (`import type` only) — it is zod-pure with no `node:fs` dependency.
-- **`FullSettings` type** includes `shipping: { cost: number; freeAbove?: number }` — always load from settings, never hardcode shipping.
+- **`FullSettings` type** includes `shipping: { cost: number }` (flat fee, no free-shipping threshold) — always read it through `getShippingFee(settings)`, never hardcode shipping.
 - **Default values** in `src/services/settings.ts` and `src/hooks/use-settings.ts` must match `data/settings.json`.
 
 ## Key Constraints
@@ -86,25 +87,31 @@ Client components must **never import types from service files** (e.g., `@/servi
 ThemeProvider → CartProvider → ToastProvider → children
 ```
 
-- `ThemeProvider` receives `initialTheme` prop (pre-loaded by `layout.tsx`), injects CSS variables on `:root` via `useEffect`.
+- `ThemeProvider` receives `initialTheme` prop (pre-loaded by `layout.tsx`) and exposes it to client components. It does **not** touch the DOM: the brand colours are written as an inline style on `<html>` during the server render (no flash).
 - `CartProvider` initializes with `[]` (matching server render) and hydrates from localStorage in `useEffect` — prevents hydration mismatch.
 - `ToastProvider` manages toast notifications (`useToast()` hook — `showToast(message, type?)`).
 
 ## Key Technical Details
 
 - **Shadcn base-nova style** — components use `@base-ui/react` (not Radix). Button supports `render` prop for composition: `<Button render={<Link href="/" />}>`. Use this instead of wrapping buttons in links.
-- **Button default variant** — green (`--color-secondary`) with purple hover (`--color-accent`). Not white.
+- **Button default variant** — purple `primary` (`--color-brand`, white text, pill). `secondary` is a purple outline; `tertiary` is text-only. Sizes are 40/44/52px with a 2px purple focus ring. See `docs/Design-System.md`.
 - **`formatPrice()`** (`src/lib/currency.ts`) — uses `toLocaleString("ar-EG")`, produces Arabic-Indic numerals (١٬٢٠٠ ج.م).
-- **Order numbers** — format `PDF-YYYYMMDD-NNNNN` (e.g. `PDF-20260716-00125`), generated client-side by `src/lib/order-number.ts` using localStorage daily counter.
+- **Order numbers** — format `PDF-YYYYMMDD-NNNNN` (e.g. `PDF-20260716-00125`), generated on the **server** by `/api/orders` and returned in the response.
 - **Checkout form** — Only 3 fields: name, phone, address. Schema in `src/schemas/checkout.ts`.
 - **JSON-LD** structured data (Organization, WebSite, Store schemas) injected in `layout.tsx` `<head>`.
 - **Security headers** applied via `next.config.ts` — X-Content-Type-Options, X-Frame-Options, HSTS, etc.
 - **Caching** — `/logos/` immutable. No more `/data/` or `/content/` HTTP caching headers (data is loaded from filesystem, not HTTP).
 - **`error.tsx` and `not-found.tsx`** render outside Provider tree — cannot use hooks. Hardcoded Arabic is intentional there.
-- **`robots.txt` and `sitemap.xml`** in `public/` (not generated by Next.js).
+- **`robots.txt` and `sitemap.xml`** are generated by `src/app/robots.ts` and `src/app/sitemap.ts` (the sitemap lists the homepage plus every product).
 - **`json-loader.ts`** uses `/* turbopackIgnore: true */` on `process.cwd()` to suppress NFT trace warnings. Do not remove this comment.
-- **Product type** — `Product.notes` is `ProductNotes { top?: string[], middle?: string[], base?: string[] }` (not a flat string array). `Product.type` is `"normal" | "niche" | "gold"`.
-- **Product card** — Shows category badge, name, "وصف المنتج" title, short description (2 lines), size selector (single row), price, add-to-cart button.
+- **Product type** — `Product.notes` is `ProductNotes { top: string[]; middle: string[]; base: string[] }` (all three required, not a flat string array). `Product.type` is `"شرقي" | "غربي"`; the brand tier is `Product.house`: `"ديزاينر" | "نيش" | "دووب"`.
+- **Product card** — Shows a neutral badge, name, "وصف المنتج" title, short description (2 lines), size selector (single row), price, and a purple `primary` "اشتري الآن" plus an outline `secondary` "أضف إلى السلة" button. Featured products get the gold `فاخر` badge.
+
+## Design System
+
+- Tokens live in `src/app/globals.css`; nothing else may declare a colour, radius or shadow. `npm run check:tokens` enforces it.
+- `/dev/design-system` renders the whole system (404 in production).
+- Full reference: `docs/Design-System.md`.
 
 ## Shadcn Components Installed
 
