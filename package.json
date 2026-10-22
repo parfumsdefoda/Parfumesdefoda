@@ -11,7 +11,9 @@
     "validate-json": "tsx scripts/validate-json.js",
     "check:tokens": "node scripts/check-tokens.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:images": "node scripts/audit-images.mjs",
+    "build:images": "node scripts/build-images.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
