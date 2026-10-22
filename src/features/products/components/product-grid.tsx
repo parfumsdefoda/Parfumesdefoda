@@ -52,10 +52,11 @@ export function ProductGrid({
             product={product}
             columns={desktopCols}
             {...cardProps}
-            // Above-the-fold images: the first card is the LCP candidate and
-            // is preloaded; the next three load eagerly. Everything after
+            // Above-the-fold images: the first four cards are the ones a
+            // 1440px viewport can show without scrolling, so they ship with
+            // the derived assets and high fetch priority. Everything after
             // stays lazy so a 40-product grid does not fetch 40 images.
-            priority={index === 0}
+            priority={index < 4}
             loading={index < 4 ? "eager" : "lazy"}
           />
         ))}

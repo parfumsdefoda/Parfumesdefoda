@@ -35,7 +35,7 @@ interface HeroShowcaseProps {
  *   - Every frame is clickable and navigates to the product's page
  *   - فاخر (featured) products get a soft gold outline + glow
  *   - Pauses on hover, disabled under prefers-reduced-motion
- *   - next/image with priority for the first frames, lazy for the rest
+ *   - ProductImage with priority for the first frames, lazy for the rest
  *   - The track is dir="ltr" so the animation is direction-agnostic
  *
  * The selection is randomized server-side per page load (page.tsx) and
@@ -65,7 +65,7 @@ export function HeroShowcase({
           tier="card"
           frame="thumb"
           sizes="(max-width: 640px) 160px, 224px"
-          priority={index < 2}
+          priority={index < 2 && !decorative}
           decorative
           className="p-3 transition-transform duration-300 ease-out group-hover:scale-105"
         />

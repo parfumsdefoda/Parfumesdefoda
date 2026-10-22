@@ -106,7 +106,7 @@ export function ProductImage({
             width={sources.width}
             height={sources.height}
             loading={priority ? "eager" : loading}
-            decoding={priority ? "sync" : "async"}
+            decoding="async"
             fetchPriority={priority ? "high" : "auto"}
             className={imgClassName}
             style={
