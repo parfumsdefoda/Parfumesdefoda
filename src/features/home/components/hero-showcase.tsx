@@ -91,7 +91,7 @@ export function HeroShowcase({
           key={`${item.id}-${index}`}
           href={`/product/${item.slug}`}
           title={item.name}
-          aria-label={item.name}
+          aria-label={item.featured ? `${item.name} — فاخر` : item.name}
           tabIndex={decorative ? -1 : undefined}
           className={cn(
             "group relative mx-2 block h-40 w-40 shrink-0 overflow-hidden rounded-2xl sm:h-56 sm:w-56",

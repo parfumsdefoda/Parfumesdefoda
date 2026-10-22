@@ -64,9 +64,9 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
       <div className="flex flex-1 flex-col gap-1.5 p-2.5 min-w-0">
         {/* Name & Brand */}
         <div className="min-w-0">
-          <h4 className="text-caption font-bold text-[var(--neutral-800)] line-clamp-1">
+          <p className="text-caption font-bold text-[var(--neutral-800)] line-clamp-1">
             {product.name}
-          </h4>
+          </p>
           <p className="text-caption text-[var(--neutral-400)] truncate">
             {product.brand} · {product.house}
           </p>

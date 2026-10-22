@@ -56,9 +56,9 @@ export function Footer({
             <div className="grid grid-cols-2 gap-6">
               {columns.map((col) => (
                 <div key={col.title}>
-                  <h4 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
+                  <h3 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
                     {col.title}
-                  </h4>
+                  </h3>
                   <ul className="space-y-2">
                     {col.links.map((link) => (
                       <li key={link.label}>

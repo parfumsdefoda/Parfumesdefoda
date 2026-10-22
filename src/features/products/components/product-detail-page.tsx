@@ -353,7 +353,11 @@ export function ProductDetailPageClient({
                       type="button"
                       disabled={sizeOutOfStock}
                       onClick={() => setSelectedSizeIndex(index)}
-                      aria-label={`${size.label} — ${formatPrice(size.price)}${sizeOutOfStock ? " — غير متوفر" : ""}`}
+                      aria-label={
+                        sizeOutOfStock
+                          ? `${size.label} — غير متوفر`
+                          : `${size.label} ${formatPrice(size.price)}`
+                      }
                       aria-pressed={isSelected}
                       className={`rounded-full px-5 py-2.5 text-caption font-medium transition-all duration-200 ${
                         isSelected
@@ -363,9 +367,9 @@ export function ProductDetailPageClient({
                             : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-brand)]/40 hover:text-[var(--neutral-800)]"
                       }`}
                     >
-                      {size.label}
+                      {size.label}{" "}
                       {!sizeOutOfStock && (
-                        <span className="ms-2 text-caption opacity-75">
+                        <span className="ms-2 text-caption">
                           {formatPrice(size.price)}
                         </span>
                       )}

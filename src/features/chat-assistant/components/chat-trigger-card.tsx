@@ -88,7 +88,7 @@ export function ChatTriggerCard({
           onMouseLeave={() => onHoverChange(false)}
           onFocus={() => onHoverChange(true)}
           onBlur={() => onHoverChange(false)}
-          aria-label={`فتح مساعد العطور — ${HEADLINE}`}
+          aria-label={`فتح مساعد العطور — ${HEADLINE} ${SUBLINE}`}
           aria-expanded={false}
           className={cn(
             "group relative max-w-[calc(100vw-2rem)] rounded-3xl",
