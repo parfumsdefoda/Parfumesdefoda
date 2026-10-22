@@ -61,7 +61,10 @@ export function ProductDetailPageClient({
   const selectedSize = product.sizes[selectedSizeIndex];
   const isOutOfStock = selectedSize ? !selectedSize.inStock : true;
   const isProductOutOfStock = !product.inStock;
-  const gallery = product.gallery?.length > 0 ? product.gallery : [product.image];
+  const gallery =
+    product.gallery && product.gallery.length > 0
+      ? product.gallery
+      : [product.image];
   const currentImage = gallery[selectedImageIndex] ?? product.image;
   // Derived assets exist for the cover image only — an extra gallery view
   // renders its original file rather than someone else's derivative.
