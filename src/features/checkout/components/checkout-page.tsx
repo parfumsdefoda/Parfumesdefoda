@@ -174,7 +174,14 @@ export function CheckoutPageClient({
               cityLabel="المدينة"
               addressDetailsLabel="العنوان بالتفصيل — أقرب معلم"
               addressDetailsPlaceholder="الشارع، رقم المبنى، العلامة القريبة"
-              submitLabel={`تأكيد الطلب — ${formatPrice(total)}`}
+              submitLabel={
+                <>
+                  تأكيد الطلب —{" "}
+                  <span className="whitespace-nowrap tabular-nums">
+                    {formatPrice(total)}
+                  </span>
+                </>
+              }
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
             />
@@ -217,8 +224,8 @@ export function CheckoutPageClient({
                       <p className="text-caption text-[var(--neutral-500)]">
                         {item.sizeLabel}
                       </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-1.5">
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-y-1">
+                        <div className="flex shrink-0 items-center gap-1.5">
                           <Button
                             variant="outline"
                             size="icon-xs"
@@ -251,7 +258,7 @@ export function CheckoutPageClient({
                             <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                        <span className="text-caption font-bold text-[var(--neutral-800)]">
+                        <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold text-[var(--neutral-800)] tabular-nums">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
@@ -275,13 +282,15 @@ export function CheckoutPageClient({
 
               {/* Totals */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-caption">
+                <div className="flex items-center justify-between gap-2 text-caption">
                   <span className="text-[var(--neutral-500)]">المجموع الفرعي</span>
-                  <span className="text-[var(--neutral-700)]">{formatPrice(subtotal)}</span>
+                  <span className="whitespace-nowrap text-[var(--neutral-700)] tabular-nums">
+                    {formatPrice(subtotal)}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-caption">
+                <div className="flex items-center justify-between gap-2 text-caption">
                   <span className="text-[var(--neutral-500)]">مصاريف الشحن</span>
-                  <span className="text-[var(--neutral-700)]">
+                  <span className="whitespace-nowrap text-[var(--neutral-700)] tabular-nums">
                     {formatPrice(shippingCost)}
                   </span>
                 </div>
@@ -292,9 +301,9 @@ export function CheckoutPageClient({
                   </span>
                 </div>
                 <Separator className="my-2" />
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-body font-bold text-[var(--neutral-800)]">الإجمالي</span>
-                  <span className="text-title-3 font-bold text-[var(--color-accent)]">
+                  <span className="whitespace-nowrap text-title-3 font-bold text-[var(--color-accent)] tabular-nums">
                     {formatPrice(total)}
                   </span>
                 </div>

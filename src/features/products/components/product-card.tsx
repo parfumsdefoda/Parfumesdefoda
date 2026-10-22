@@ -397,7 +397,7 @@ export const ProductCard = memo(function ProductCard({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="inline-block text-title-3 font-bold text-[var(--color-accent)]"
+                className="inline-block whitespace-nowrap text-title-3 font-bold text-[var(--color-accent)] tabular-nums"
               >
                 {formatPrice(selectedSize.price)}
               </motion.span>
@@ -413,7 +413,7 @@ export const ProductCard = memo(function ProductCard({
           <div className="flex items-center gap-1.5 rounded-pill bg-[var(--ui-surface-muted)] px-2.5 py-1">
             <span className="inline-block h-1.5 w-1.5 rounded-pill bg-[var(--neutral-400)]" />
             <span className="text-caption font-medium text-[var(--ui-text-muted)]">
-              مصاريف الشحن {formatPrice(shippingFee)} فقط
+              مصاريف الشحن <span className="whitespace-nowrap tabular-nums">{formatPrice(shippingFee)}</span> فقط
             </span>
           </div>
         )}

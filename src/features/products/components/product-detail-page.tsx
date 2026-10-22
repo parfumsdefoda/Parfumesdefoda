@@ -370,7 +370,7 @@ export function ProductDetailPageClient({
                           : `${size.label} ${formatPrice(size.price)}`
                       }
                       aria-pressed={isSelected}
-                      className={`rounded-full px-5 py-2.5 text-caption font-medium transition-all duration-200 ${
+                      className={`whitespace-nowrap rounded-full px-5 py-2.5 text-caption font-medium transition-all duration-200 ${
                         isSelected
                           ? "bg-[var(--color-accent)] text-white shadow-md"
                           : sizeOutOfStock
@@ -400,7 +400,7 @@ export function ProductDetailPageClient({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="text-title-2 font-bold text-[var(--color-accent)]"
+                    className="whitespace-nowrap text-title-2 font-bold text-[var(--color-accent)] tabular-nums"
                   >
                     {formatPrice(selectedSize.price)}
                   </motion.span>

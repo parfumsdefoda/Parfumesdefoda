@@ -84,7 +84,7 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
         {/* Price + View link row */}
         <div className="mt-auto flex items-center justify-between gap-2">
           {minPrice !== undefined && (
-            <span className="text-caption font-bold text-[var(--color-accent)]">
+            <span className="whitespace-nowrap text-caption font-bold text-[var(--color-accent)] tabular-nums">
               {formatPrice(minPrice)}
             </span>
           )}

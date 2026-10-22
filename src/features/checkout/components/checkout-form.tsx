@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -53,8 +53,8 @@ export interface CheckoutFormProps {
   addressDetailsLabel?: string;
   /** Address details placeholder */
   addressDetailsPlaceholder?: string;
-  /** Submit button label */
-  submitLabel?: string;
+  /** Submit button label — accepts a node so a price can stay unbreakable */
+  submitLabel?: ReactNode;
   /** Whether checkout is disabled */
   disabled?: boolean;
   /** Called on valid submit */
