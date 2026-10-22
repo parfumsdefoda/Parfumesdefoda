@@ -159,11 +159,15 @@ export function CartDrawer({
                         {item.sizeLabel}
                       </p>
 
-                      <div className="flex items-center justify-between mt-2">
+                      {/* The stepper and the price share a narrow column. When
+                          they no longer fit side by side the price drops to its
+                          own line (end-aligned) instead of overflowing under
+                          the stepper — Arabic-Indic prices are wide. */}
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                         {/* Quantity controls — 24px visuals, ~44px hit areas
                             (::after), spaced so the extended areas never
                             overlap each other. */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex shrink-0 items-center gap-4">
                           <Button
                             variant="outline"
                             size="icon-xs"
@@ -199,8 +203,10 @@ export function CartDrawer({
                           </Button>
                         </div>
 
-                        {/* Price */}
-                        <span className="text-caption font-bold text-[var(--neutral-800)]">
+                        {/* Price — never breaks between the digits and the
+                            currency, and stays aligned to the row end when it
+                            wraps onto its own line. */}
+                        <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold tabular-nums text-[var(--neutral-800)]">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
