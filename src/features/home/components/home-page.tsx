@@ -143,6 +143,7 @@ export function HomePageClient({
     () =>
       cart.items.map((item) => ({
         productId: item.productId,
+        slug: item.slug,
         sizeLabel: item.sizeLabel,
         price: item.price,
         quantity: item.quantity,
@@ -159,6 +160,7 @@ export function HomePageClient({
   ) => {
     cart.addItem({
       productId: product.id,
+      slug: product.slug,
       sizeLabel: size.label,
       price: size.price,
       name: product.name,

@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpLeft } from "lucide-react";
+import { ProductImage } from "@/components/product-image";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import type { ChatProduct } from "../types";
@@ -49,14 +49,16 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
       aria-label={`${product.name} — ${minPrice !== undefined ? formatPrice(minPrice) : ""} — عرض المنتج`}
     >
       {/* Product Image */}
-      <div className="relative h-24 w-24 shrink-0 bg-[var(--bg-secondary)]">
-        <Image
+      <div className="relative h-24 w-24 shrink-0">
+        <ProductImage
+          slug={product.slug}
           src={product.image}
-          alt={product.name}
-          fill
+          name={product.name}
+          tier="card"
+          frame="thumb"
           sizes="96px"
-          className="object-contain p-2 transition-transform duration-200 group-hover:scale-105"
-          quality={75}
+          decorative
+          className="p-1 transition-transform duration-200 group-hover:scale-105"
         />
       </div>
 

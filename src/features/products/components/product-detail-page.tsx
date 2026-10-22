@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronRight, Loader2, Star, ShoppingCart } from "lucide-react";
@@ -63,6 +63,9 @@ export function ProductDetailPageClient({
   const isProductOutOfStock = !product.inStock;
   const gallery = product.gallery?.length > 0 ? product.gallery : [product.image];
   const currentImage = gallery[selectedImageIndex] ?? product.image;
+  // Derived assets exist for the cover image only — an extra gallery view
+  // renders its original file rather than someone else's derivative.
+  const derivedSlug = (img: string) => (img === product.image ? product.slug : undefined);
 
   // ─── Handlers ───
   const handleAddToCart = useCallback(() => {
@@ -71,6 +74,7 @@ export function ProductDetailPageClient({
     setButtonState("loading");
     cart.addItem({
       productId: product.id,
+      slug: product.slug,
       sizeLabel: selectedSize.label,
       price: selectedSize.price,
       name: product.name,
@@ -95,6 +99,7 @@ export function ProductDetailPageClient({
   // ─── Cart items mapped to CartDrawer format ───
   const cartDrawerItems = cart.items.map((item) => ({
     productId: item.productId,
+    slug: item.slug,
     sizeLabel: item.sizeLabel,
     price: item.price,
     quantity: item.quantity,
@@ -146,7 +151,7 @@ export function ProductDetailPageClient({
           {/* ─── Image Gallery ─── */}
           <div className="space-y-4">
             {/* Main image */}
-            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-default)]">
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedImageIndex}
@@ -154,15 +159,15 @@ export function ProductDetailPageClient({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="relative h-full w-full"
+                  className="relative"
                 >
-                  <Image
+                  <ProductImage
+                    slug={derivedSlug(currentImage)}
                     src={currentImage}
-                    alt={`${product.name} — صورة ${selectedImageIndex + 1}`}
-                    fill
+                    name={product.name}
+                    tier="pdp"
+                    frame="stage"
                     sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-contain p-6"
-                    quality={85}
                     priority
                   />
                 </motion.div>
@@ -201,12 +206,15 @@ export function ProductDetailPageClient({
                         : "border-[var(--border-default)] hover:border-[var(--neutral-300)]"
                     }`}
                   >
-                    <Image
+                    <ProductImage
+                      slug={derivedSlug(img)}
                       src={img}
-                      alt={`${product.name} — صورة مصغرة ${index + 1}`}
-                      fill
+                      name={product.name}
+                      tier="card"
+                      frame="thumb"
                       sizes="80px"
-                      className="object-contain p-1"
+                      className="p-1"
+                      decorative
                     />
                   </button>
                 ))}

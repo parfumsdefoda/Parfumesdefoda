@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
@@ -199,13 +199,15 @@ export function CheckoutPageClient({
                     key={`${item.productId}-${item.sizeLabel}`}
                     className="flex gap-3"
                   >
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--bg-primary)]">
-                      <Image
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                      <ProductImage
+                        slug={item.slug}
                         src={item.image}
-                        alt={item.name}
-                        fill
+                        name={item.name}
+                        tier="card"
+                        frame="thumb"
                         sizes="64px"
-                        className="object-cover"
+                        className="p-1"
                       />
                     </div>
                     <div className="flex-1 min-w-0">

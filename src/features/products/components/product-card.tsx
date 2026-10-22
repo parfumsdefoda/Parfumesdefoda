@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef, memo, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -256,34 +256,33 @@ export const ProductCard = memo(function ProductCard({
             aria-label={product.name}
             tabIndex={-1}
           >
-            {/* `relative` is required: next/image with `fill` needs a
-                positioned parent, otherwise every card logs a warning. */}
-            <div className="relative aspect-square w-full">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                sizes={getImageSizes(columns)}
-                className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-                quality={85}
-                loading={loading}
-                priority={priority}
-              />
-            </div>
+            <ProductImage
+              slug={product.slug}
+              src={product.image}
+              name={product.name}
+              tier="card"
+              frame="stage"
+              sizes={getImageSizes(columns)}
+              priority={priority}
+              loading={loading}
+              /* Featured cards keep their gold wash behind the bottle. */
+              frameClassName={product.featured ? "bg-transparent" : undefined}
+              className="transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            />
           </Link>
         ) : (
-          <div className="relative aspect-square w-full">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes={getImageSizes(columns)}
-              className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-              quality={85}
-              loading={loading}
-              priority={priority}
-            />
-          </div>
+          <ProductImage
+            slug={product.slug}
+            src={product.image}
+            name={product.name}
+            tier="card"
+            frame="stage"
+            sizes={getImageSizes(columns)}
+            priority={priority}
+            loading={loading}
+            frameClassName={product.featured ? "bg-transparent" : undefined}
+            className="transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+          />
         )}
 
         {/* Badge — top corner */}

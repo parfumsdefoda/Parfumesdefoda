@@ -43,7 +43,8 @@
     "niche": "نيش",
     "bestSeller": "Best Seller",
     "new": "جديد",
-    "limited": "إصدار محدود"
+    "limited": "إصدار محدود",
+    "imageAltPrefix": "زجاجة"
   },
   "cart": {
     "title": "سلة التسوق",

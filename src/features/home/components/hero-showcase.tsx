@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
 import { cn } from "@/lib/utils";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -58,15 +58,16 @@ export function HeroShowcase({
   ) => {
     const frame = (
       <>
-        <Image
+        <ProductImage
+          slug={item.slug}
           src={item.image}
-          alt={item.name}
-          fill
+          name={item.name}
+          tier="card"
+          frame="thumb"
           sizes="(max-width: 640px) 160px, 224px"
-          className="object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
-          quality={75}
           priority={index < 2}
-          loading={index < 2 ? undefined : "lazy"}
+          decorative
+          className="p-3 transition-transform duration-300 ease-out group-hover:scale-105"
         />
         {/* فاخر mini-badge on featured frames */}
         {item.featured && (

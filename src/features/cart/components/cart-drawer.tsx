@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Minus, Plus, Trash2, Truck } from "lucide-react";
 import {
@@ -14,9 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/currency";
+import { ProductImage } from "@/components/product-image";
 
 export interface CartItemData {
   productId: string;
+  /** Product slug — resolves the derived image; absent on older carts. */
+  slug?: string;
   sizeLabel: string;
   price: number;
   quantity: number;
@@ -136,13 +138,15 @@ export function CartDrawer({
                 >
                   <div className="flex gap-3 py-4">
                     {/* Image */}
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--bg-secondary)]">
-                      <Image
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                      <ProductImage
+                        slug={item.slug}
                         src={item.image}
-                        alt={item.name}
-                        fill
+                        name={item.name}
+                        tier="card"
+                        frame="thumb"
                         sizes="64px"
-                        className="object-cover"
+                        className="p-1"
                       />
                     </div>
 

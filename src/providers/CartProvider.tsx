@@ -12,6 +12,8 @@ import {
 
 export interface CartItem {
   productId: string;
+  /** Product slug — resolves the derived image; absent on pre-existing carts. */
+  slug?: string;
   sizeLabel: string;
   price: number;
   quantity: number;
