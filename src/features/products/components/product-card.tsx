@@ -436,7 +436,7 @@ export const ProductCard = memo(function ProductCard({
               className={cn(
                 "w-full font-bold",
                 buttonState === "success" &&
-                  "!bg-[var(--color-success)] !text-white",
+                  "!bg-[var(--green-50)] !text-[var(--color-positive)]",
               )}
               aria-label={buyNowLabel}
             >
@@ -444,7 +444,7 @@ export const ProductCard = memo(function ProductCard({
             </Button>
           )}
 
-          {/* Add to Cart — standard green button */}
+          {/* Add to Cart — secondary action; turns to a green tint on success */}
           <Button
             onClick={handleAddToCart}
             disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
@@ -452,7 +452,7 @@ export const ProductCard = memo(function ProductCard({
             className={cn(
               "w-full font-bold",
               buttonState === "success" &&
-                "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]",
+                "!bg-[var(--green-50)] !text-[var(--color-positive)] hover:!bg-[var(--green-50)]",
             )}
             aria-label={
               isOutOfStock

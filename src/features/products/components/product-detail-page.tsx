@@ -447,7 +447,7 @@ export function ProductDetailPageClient({
                 size="lg"
                 className={`w-full font-bold ${
                   buttonState === "success"
-                    ? "!bg-[var(--color-success)] !text-white hover:!bg-[var(--color-success)]"
+                    ? "!bg-[var(--green-50)] !text-[var(--color-positive)] hover:!bg-[var(--green-50)]"
                     : ""
                 }`}
                 aria-label={
