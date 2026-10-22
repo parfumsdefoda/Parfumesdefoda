@@ -1,0 +1,955 @@
+{
+  "version": 1,
+  "generatedAt": "2026-10-22T16:32:25.761Z",
+  "normalisation": {
+    "subjectShare": 0.72,
+    "opticalShift": 0.02
+  },
+  "products": {
+    "pf020": {
+      "source": "/products/PF020.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": null,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf020/card-400.avif",
+          "webp": "/products/derived/pf020/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf020/card-800.avif",
+          "webp": "/products/derived/pf020/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf020/pdp-1200.avif",
+          "webp": "/products/derived/pf020/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf020/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf040": {
+      "source": "/products/PF040.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2317,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf040/card-400.avif",
+          "webp": "/products/derived/pf040/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf040/card-800.avif",
+          "webp": "/products/derived/pf040/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf040/pdp-1200.avif",
+          "webp": "/products/derived/pf040/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf040/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf070": {
+      "source": "/products/PF070.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2578,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf070/card-400.avif",
+          "webp": "/products/derived/pf070/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf070/card-800.avif",
+          "webp": "/products/derived/pf070/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf070/pdp-1200.avif",
+          "webp": "/products/derived/pf070/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf070/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf080": {
+      "source": "/products/PF080.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2665,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf080/card-400.avif",
+          "webp": "/products/derived/pf080/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf080/card-800.avif",
+          "webp": "/products/derived/pf080/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf080/pdp-1200.avif",
+          "webp": "/products/derived/pf080/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf080/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf090": {
+      "source": "/products/PF090.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2343,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf090/card-400.avif",
+          "webp": "/products/derived/pf090/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf090/card-800.avif",
+          "webp": "/products/derived/pf090/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf090/pdp-1200.avif",
+          "webp": "/products/derived/pf090/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf090/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf100": {
+      "source": "/products/PF100.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2375,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf100/card-400.avif",
+          "webp": "/products/derived/pf100/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf100/card-800.avif",
+          "webp": "/products/derived/pf100/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf100/pdp-1200.avif",
+          "webp": "/products/derived/pf100/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf100/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf110": {
+      "source": "/products/PF110.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2644,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf110/card-400.avif",
+          "webp": "/products/derived/pf110/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf110/card-800.avif",
+          "webp": "/products/derived/pf110/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf110/pdp-1200.avif",
+          "webp": "/products/derived/pf110/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf110/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf130": {
+      "source": "/products/PF130.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2600,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf130/card-400.avif",
+          "webp": "/products/derived/pf130/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf130/card-800.avif",
+          "webp": "/products/derived/pf130/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf130/pdp-1200.avif",
+          "webp": "/products/derived/pf130/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf130/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf140": {
+      "source": "/products/PF140.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2611,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf140/card-400.avif",
+          "webp": "/products/derived/pf140/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf140/card-800.avif",
+          "webp": "/products/derived/pf140/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf140/pdp-1200.avif",
+          "webp": "/products/derived/pf140/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf140/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf150": {
+      "source": "/products/PF150.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2349,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf150/card-400.avif",
+          "webp": "/products/derived/pf150/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf150/card-800.avif",
+          "webp": "/products/derived/pf150/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf150/pdp-1200.avif",
+          "webp": "/products/derived/pf150/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf150/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf170": {
+      "source": "/products/PF170.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2603,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf170/card-400.avif",
+          "webp": "/products/derived/pf170/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf170/card-800.avif",
+          "webp": "/products/derived/pf170/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf170/pdp-1200.avif",
+          "webp": "/products/derived/pf170/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf170/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf180": {
+      "source": "/products/PF180.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2610,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf180/card-400.avif",
+          "webp": "/products/derived/pf180/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf180/card-800.avif",
+          "webp": "/products/derived/pf180/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf180/pdp-1200.avif",
+          "webp": "/products/derived/pf180/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf180/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf230": {
+      "source": "/products/PF230.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2613,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf230/card-400.avif",
+          "webp": "/products/derived/pf230/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf230/card-800.avif",
+          "webp": "/products/derived/pf230/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf230/pdp-1200.avif",
+          "webp": "/products/derived/pf230/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf230/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf240": {
+      "source": "/products/PF240.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2369,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf240/card-400.avif",
+          "webp": "/products/derived/pf240/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf240/card-800.avif",
+          "webp": "/products/derived/pf240/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf240/pdp-1200.avif",
+          "webp": "/products/derived/pf240/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf240/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf260": {
+      "source": "/products/PF260.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2622,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf260/card-400.avif",
+          "webp": "/products/derived/pf260/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf260/card-800.avif",
+          "webp": "/products/derived/pf260/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf260/pdp-1200.avif",
+          "webp": "/products/derived/pf260/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf260/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf280": {
+      "source": "/products/PF280.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2606,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf280/card-400.avif",
+          "webp": "/products/derived/pf280/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf280/card-800.avif",
+          "webp": "/products/derived/pf280/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf280/pdp-1200.avif",
+          "webp": "/products/derived/pf280/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf280/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf290": {
+      "source": "/products/PF290.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2344,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf290/card-400.avif",
+          "webp": "/products/derived/pf290/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf290/card-800.avif",
+          "webp": "/products/derived/pf290/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf290/pdp-1200.avif",
+          "webp": "/products/derived/pf290/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf290/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf310": {
+      "source": "/products/PF310.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2628,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf310/card-400.avif",
+          "webp": "/products/derived/pf310/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf310/card-800.avif",
+          "webp": "/products/derived/pf310/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf310/pdp-1200.avif",
+          "webp": "/products/derived/pf310/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf310/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf320": {
+      "source": "/products/PF320.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2626,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf320/card-400.avif",
+          "webp": "/products/derived/pf320/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf320/card-800.avif",
+          "webp": "/products/derived/pf320/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf320/pdp-1200.avif",
+          "webp": "/products/derived/pf320/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf320/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf330": {
+      "source": "/products/PF330.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2613,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf330/card-400.avif",
+          "webp": "/products/derived/pf330/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf330/card-800.avif",
+          "webp": "/products/derived/pf330/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf330/pdp-1200.avif",
+          "webp": "/products/derived/pf330/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf330/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf350": {
+      "source": "/products/PF350.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2613,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf350/card-400.avif",
+          "webp": "/products/derived/pf350/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf350/card-800.avif",
+          "webp": "/products/derived/pf350/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf350/pdp-1200.avif",
+          "webp": "/products/derived/pf350/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf350/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf370": {
+      "source": "/products/PF370.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2607,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf370/card-400.avif",
+          "webp": "/products/derived/pf370/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf370/card-800.avif",
+          "webp": "/products/derived/pf370/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf370/pdp-1200.avif",
+          "webp": "/products/derived/pf370/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf370/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf380": {
+      "source": "/products/PF380.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2611,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf380/card-400.avif",
+          "webp": "/products/derived/pf380/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf380/card-800.avif",
+          "webp": "/products/derived/pf380/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf380/pdp-1200.avif",
+          "webp": "/products/derived/pf380/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf380/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf390": {
+      "source": "/products/PF390.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2656,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf390/card-400.avif",
+          "webp": "/products/derived/pf390/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf390/card-800.avif",
+          "webp": "/products/derived/pf390/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf390/pdp-1200.avif",
+          "webp": "/products/derived/pf390/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf390/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf410": {
+      "source": "/products/PF410.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2358,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf410/card-400.avif",
+          "webp": "/products/derived/pf410/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf410/card-800.avif",
+          "webp": "/products/derived/pf410/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf410/pdp-1200.avif",
+          "webp": "/products/derived/pf410/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf410/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf430": {
+      "source": "/products/PF430.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2628,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf430/card-400.avif",
+          "webp": "/products/derived/pf430/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf430/card-800.avif",
+          "webp": "/products/derived/pf430/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf430/pdp-1200.avif",
+          "webp": "/products/derived/pf430/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf430/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf450": {
+      "source": "/products/PF450.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2344,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf450/card-400.avif",
+          "webp": "/products/derived/pf450/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf450/card-800.avif",
+          "webp": "/products/derived/pf450/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf450/pdp-1200.avif",
+          "webp": "/products/derived/pf450/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf450/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf480": {
+      "source": "/products/PF480.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2467,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf480/card-400.avif",
+          "webp": "/products/derived/pf480/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf480/card-800.avif",
+          "webp": "/products/derived/pf480/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf480/pdp-1200.avif",
+          "webp": "/products/derived/pf480/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf480/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf490": {
+      "source": "/products/PF490.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2560,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf490/card-400.avif",
+          "webp": "/products/derived/pf490/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf490/card-800.avif",
+          "webp": "/products/derived/pf490/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf490/pdp-1200.avif",
+          "webp": "/products/derived/pf490/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf490/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf500": {
+      "source": "/products/PF500.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2356,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf500/card-400.avif",
+          "webp": "/products/derived/pf500/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf500/card-800.avif",
+          "webp": "/products/derived/pf500/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf500/pdp-1200.avif",
+          "webp": "/products/derived/pf500/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf500/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf510": {
+      "source": "/products/PF510.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2535,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf510/card-400.avif",
+          "webp": "/products/derived/pf510/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf510/card-800.avif",
+          "webp": "/products/derived/pf510/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf510/pdp-1200.avif",
+          "webp": "/products/derived/pf510/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf510/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf520": {
+      "source": "/products/PF520.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2447,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf520/card-400.avif",
+          "webp": "/products/derived/pf520/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf520/card-800.avif",
+          "webp": "/products/derived/pf520/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf520/pdp-1200.avif",
+          "webp": "/products/derived/pf520/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf520/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf530": {
+      "source": "/products/PF530.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2547,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf530/card-400.avif",
+          "webp": "/products/derived/pf530/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf530/card-800.avif",
+          "webp": "/products/derived/pf530/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf530/pdp-1200.avif",
+          "webp": "/products/derived/pf530/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf530/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf550": {
+      "source": "/products/PF550.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2551,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf550/card-400.avif",
+          "webp": "/products/derived/pf550/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf550/card-800.avif",
+          "webp": "/products/derived/pf550/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf550/pdp-1200.avif",
+          "webp": "/products/derived/pf550/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf550/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf630": {
+      "source": "/products/PF630.png",
+      "background": "transparent",
+      "blend": "normal",
+      "canvas": 2332,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf630/card-400.avif",
+          "webp": "/products/derived/pf630/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf630/card-800.avif",
+          "webp": "/products/derived/pf630/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf630/pdp-1200.avif",
+          "webp": "/products/derived/pf630/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf630/pdp-2000.webp"
+        }
+      ]
+    }
+  }
+}
