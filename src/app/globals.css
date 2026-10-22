@@ -65,6 +65,15 @@
   --ui-border-strong: #8c8499; /* 3.7:1 on white — form controls */
   --ui-text: var(--neutral-800);
   --ui-text-muted: var(--neutral-500);
+
+  /* Published semantic names (documented in docs/Design-System.md).
+     They alias the --ui-* layer so a component can say what it means. */
+  --color-bg: var(--ui-bg);
+  --color-surface: var(--ui-surface);
+  --color-surface-muted: var(--ui-surface-muted);
+  --color-text: var(--ui-text);
+  --color-text-muted: var(--ui-text-muted);
+  --color-border-strong: var(--ui-border-strong);
   --ui-brand: var(--purple-600);
   --ui-brand-soft: var(--purple-50);
   /* Public aliases used by components (resolved, not raw).
@@ -237,8 +246,8 @@ html {
 }
 
 body {
-  background: var(--ui-bg);
-  color: var(--ui-text);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-cairo), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
