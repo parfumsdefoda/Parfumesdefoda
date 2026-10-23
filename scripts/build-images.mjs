@@ -134,7 +134,12 @@ async function buildProduct(product, { force }) {
       dir: relDir,
       background: info.background,
       files,
-      canvas: null,
+      // Same values a fresh build would produce, so a cached run rewrites the
+      // manifest with identical content instead of nulling the canvas out.
+      canvas: info.box
+        ? Math.round(Math.max(info.box.width, info.box.height) / SUBJECT_SHARE)
+        : null,
+      sourceBytes: (await fs.stat(absSrc)).size,
     };
   }
 

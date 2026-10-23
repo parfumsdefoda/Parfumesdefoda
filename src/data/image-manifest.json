@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-22T16:32:25.761Z",
+  "generatedAt": "2026-10-23T13:49:10.861Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -10,7 +10,7 @@
       "source": "/products/PF020.png",
       "background": "transparent",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 2636,
       "files": [
         {
           "w": 400,
