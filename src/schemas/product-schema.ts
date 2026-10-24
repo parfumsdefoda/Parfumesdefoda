@@ -41,6 +41,23 @@ export const productNotesSchema = z.object({
  */
 export const CONCENTRATIONS = ["parfum", "edp", "edt", "edc", "oil"] as const;
 
+/**
+ * The catalogue's shop-facing vocabularies.
+ *
+ * Exported so the filter/URL layer validates a query parameter against the
+ * same lists the data is validated against — one source, no drift.
+ */
+export const GENDERS = ["رجالي", "نسائي", "للجنسين"] as const;
+export const PRODUCT_TYPES = ["شرقي", "غربي"] as const;
+export const HOUSES = ["ديزاينر", "نيش", "دووب"] as const;
+export const SEASONS = ["صيفي", "شتوي", "خريفي", "ربيعي"] as const;
+export const PERFORMANCES = [
+  "أداء ضعيف",
+  "أداء متوسط",
+  "أداء قوي",
+  "أداء صاروخي",
+] as const;
+
 /** Scent families — a fixed set, never free text. */
 export const SCENT_FAMILIES = [
   "aromatic",
@@ -69,13 +86,13 @@ export const productSchema = z.object({
   image: z.string(),
   /** Extra views. `image` stays the contract — this is optional enrichment. */
   gallery: z.array(z.string()).optional(),
-  gender: z.enum(["رجالي", "نسائي", "للجنسين"]),
-  type: z.enum(["شرقي", "غربي"]),
-  house: z.enum(["ديزاينر", "نيش", "دووب"]),
+  gender: z.enum(GENDERS),
+  type: z.enum(PRODUCT_TYPES),
+  house: z.enum(HOUSES),
   oily: z.boolean(),
   fodaOriginal: z.boolean(),
-  season: z.enum(["صيفي", "شتوي", "خريفي", "ربيعي"]),
-  performance: z.enum(["أداء ضعيف", "أداء متوسط", "أداء قوي", "أداء صاروخي"]),
+  season: z.enum(SEASONS),
+  performance: z.enum(PERFORMANCES),
   featured: z.boolean(),
   badge: z.string(),
   rating: z.number(),

@@ -1,137 +1,63 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, MessageCircle } from "lucide-react";
 import { PageLayout } from "@/features/layout";
-import { SearchBar } from "@/features/search";
-import { FilterSidebar } from "@/features/filters";
-import { ProductGrid, type GridColumns } from "@/features/products";
-import { HeroShowcase, type HeroShowcaseItem } from "./hero-showcase";
 import { CartDrawer } from "@/features/cart";
 import { FaqAccordion } from "@/features/faq";
 import { PoliciesAccordion } from "@/features/policies";
-import { NoResults } from "@/features/empty-states";
+import { HeroShowcase, type HeroShowcaseItem } from "./hero-showcase";
 
-import { useProducts } from "@/hooks/use-products";
-import { useFilters } from "@/hooks/use-filters";
 import { useSettings } from "@/hooks/use-settings";
 import { useLocalization } from "@/hooks/use-localization";
 import { useContent } from "@/hooks/use-content";
 import { useCart } from "@/providers/CartProvider";
 
-import type { Product } from "@/types";
-import type { FullSettings, FilterData, SiteContent, LocaleMessages } from "@/types/services";
-import type { SortOption } from "@/lib/sort-helpers";
+import type { FullSettings, SiteContent, LocaleMessages } from "@/types/services";
 import { getShippingFee } from "@/lib/shipping";
 
-/** Clamp the owner's grid numbers onto the three shapes the grid supports. */
-function toGridColumns(grid: {
-  desktop: number;
-  tablet: number;
-  mobile: number;
-}): GridColumns {
-  return {
-    mobile: grid.mobile === 1 ? 1 : 2,
-    tablet: grid.tablet === 1 ? 1 : grid.tablet === 2 ? 2 : 3,
-    desktop:
-      grid.desktop === 1
-        ? 1
-        : grid.desktop === 2
-          ? 2
-          : grid.desktop === 3
-            ? 3
-            : 4,
-  };
-}
-
 /**
- * Props for the client-side HomePage component.
+ * Props for the client-side HomePage chrome.
  * All data is pre-loaded by the Server Component (page.tsx).
  */
 export interface HomePageClientProps {
-  products: Product[];
   settings: FullSettings;
-  filterData: FilterData;
   content: SiteContent;
   localeMessages: LocaleMessages;
-  /** Product sales counts (productId -> total quantity sold), loaded server-side from Redis. */
-  salesCounts?: Record<string, number>;
   /** Randomized product set for the animated hero marquee (computed server-side). */
   heroProducts?: HeroShowcaseItem[];
+  /**
+   * The catalogue, rendered on the server (filters live in the URL, so the grid
+   * never has to be hydrated). Passed as a child so it stays a Server Component
+   * across the client boundary.
+   */
+  children: ReactNode;
 }
 
 /**
- * Client-side homepage component.
+ * Client-side homepage chrome.
  *
- * Receives pre-loaded data from the Server Component and manages
- * all interactive state: filtering, searching, sorting, cart.
- * Checkout is handled via /checkout route.
- *
- * No client-side data fetching — all file I/O happens server-side.
+ * Owns what genuinely needs the browser — the marquee, the cart drawer, the
+ * FAQ accordions — and nothing else. The catalogue arrives as server-rendered
+ * children, which is what keeps 40 cards out of the hydration budget.
  */
 export function HomePageClient({
-  products: initialProducts,
   settings: initialSettings,
-  filterData: initialFilterData,
   content: initialContent,
   localeMessages: initialMessages,
-  salesCounts = {},
   heroProducts = [],
+  children,
 }: HomePageClientProps) {
   const router = useRouter();
 
-  // ─── Hooks (receive pre-loaded data) ───
-  const products = useProducts(initialProducts, salesCounts);
-  const filters = useFilters(initialFilterData);
   const settings = useSettings(initialSettings);
   const locale = useLocalization(initialMessages);
   const content = useContent(initialContent);
   const cart = useCart();
 
-  // ─── UI State ───
-  // Drawer open/close lives in CartProvider (shared with the chat widget so it
-  // can unmount while the drawer is open) — no local state here.
-  const [filterOpen, setFilterOpen] = useState(false);
-
-  // ─── Derived ───
   const t = locale.t;
-
-  // Flat shipping fee from data/settings.json — single source of truth.
   const shippingFee = getShippingFee(settings);
-
-  // Destructure frequently used values to avoid useMemo dependency issues
-  const { activeFilters, toggleFilter, sortBy, setSortBy, clearFilters } = products;
-
-  // Map filter groups to sidebar format.
-  // The "الترتيب" (sort) group is treated specially: instead of toggling
-  // filter checkboxes, it calls products.setSortBy() to reorder the list.
-  const isSortGroup = (group: { name: string }) => group.name === "الترتيب";
-
-  const filterSidebarGroups = useMemo(
-    () =>
-      filters.filterGroups.map((group) => {
-        const sortGroup = isSortGroup(group);
-        return {
-          name: group.name,
-          options: group.options.map((opt) => ({
-            slug: opt.slug,
-            label: opt.label,
-          })),
-          activeSlugs: sortGroup
-            ? [sortBy]
-            : (activeFilters[group.name] ?? []),
-          onToggle: (slug: string) => {
-            if (sortGroup) {
-              setSortBy(slug as SortOption);
-            } else {
-              toggleFilter(group.name, slug);
-            }
-          },
-        };
-      }),
-    [filters.filterGroups, activeFilters, toggleFilter, sortBy, setSortBy],
-  );
 
   // Cart items mapped to CartDrawer format
   const cartDrawerItems = useMemo(
@@ -148,16 +74,9 @@ export function HomePageClient({
     [cart.items],
   );
 
-  // ─── Handlers ───
   const handleCartCheckout = () => {
     cart.closeDrawer();
     router.push("/checkout");
-  };
-
-  // Clear all filters AND reset sort to default
-  const handleClearAll = () => {
-    clearFilters();
-    setSortBy("best-selling");
   };
 
   return (
@@ -166,9 +85,6 @@ export function HomePageClient({
         navItems: settings.navigation,
         cartCount: cart.totalItems,
         onCartClick: () => cart.openDrawer(),
-        menuLabel: t("home.filters", "تصفية"),
-        filterOpen,
-        onFilterClick: () => setFilterOpen(true),
       }}
       footerProps={{
         description: settings.footerDescription,
@@ -184,85 +100,7 @@ export function HomePageClient({
         />
       )}
 
-      {/* ─── Main Content ─── */}
-      <section id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
-        {/* Section heading for the product catalogue: visually hidden, but it
-            keeps the outline sane (h1 hero -> h2 catalogue -> h3 filter
-            groups -> h2 FAQ/policies/contact). */}
-        <h2 className="sr-only">{t("nav.products", "منتجاتنا")}</h2>
-
-        {/* Search */}
-        <div className="mb-8">
-          <SearchBar
-            value={products.searchQuery}
-            onChange={products.setSearchQuery}
-            placeholder={t("home.searchPlaceholder", "ابحث عن عطرك...")}
-            className="w-full max-w-md"
-          />
-        </div>
-
-        {/* Active filters bar */}
-        {products.hasActiveFilters && (
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-caption text-[var(--neutral-500)]">
-              {t("home.filters", "تصفية")} ({products.activeFilterCount})
-            </span>
-            <button
-              onClick={products.clearFilters}
-              className="text-caption text-[var(--color-accent)] hover:underline"
-            >
-              {t("home.clearFilters", "إزالة التصفية")}
-            </button>
-          </div>
-        )}
-
-        {/* Sidebar + Grid */}
-        <div className="flex gap-8">
-          <FilterSidebar
-            groups={filterSidebarGroups}
-            heading={t("home.filters", "تصفية")}
-            clearLabel={t("home.clearFilters", "إزالة التصفية")}
-            activeCount={products.activeFilterCount}
-            onClearAll={handleClearAll}
-            open={filterOpen}
-            onClose={() => setFilterOpen(false)}
-          />
-
-          <div className="flex-1">
-            {products.products.length === 0 ? (
-              <NoResults
-                title={t("home.noProducts", "لا توجد منتجات تطابق اختيارك")}
-                description={t("home.noProductsHint", "جرب تغيير معايير البحث أو التصفية")}
-                actionLabel={
-                  products.hasActiveFilters
-                    ? t("home.clearFilters", "إزالة التصفية")
-                    : undefined
-                }
-                onAction={
-                  products.hasActiveFilters ? products.clearFilters : undefined
-                }
-              />
-            ) : (
-              <ProductGrid
-                products={products.products}
-                columns={toGridColumns(settings.grid)}
-                labels={{
-                  comingSoon: t("product.comingSoon", "قريبًا"),
-                  outOfStock: t("home.outOfStock", "غير متوفر"),
-                  from: t("catalog.from", "من"),
-                  add: t("home.addToCart", "أضف إلى السلة"),
-                  addToCart: t("home.addToCart", "أضف إلى السلة"),
-                  chooseSize: t("product.selectSize", "اختر الحجم"),
-                  addedToast: t(
-                    "home.addedToast",
-                    "تمت إضافة {name} إلى السلة",
-                  ),
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </section>
+      {children}
 
       {/* ─── FAQ ─── */}
       {content.faq.length > 0 && (
@@ -285,7 +123,10 @@ export function HomePageClient({
       )}
 
       {/* ─── Contact ─── */}
-      <section id="contact" className="container mx-auto px-4 py-[var(--space-section)] border-t border-[var(--border-default)]">
+      <section
+        id="contact"
+        className="container mx-auto px-4 py-[var(--space-section)] border-t border-[var(--border-default)]"
+      >
         <h2 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2 text-center">
           {t("contact.title", "اتصل بنا")}
         </h2>

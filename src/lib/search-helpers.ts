@@ -38,6 +38,19 @@ function searchableText(product: Product): string[] {
 }
 
 /**
+ * True when one product matches a query.
+ *
+ * The catalogue's Arabic labels are part of the searchable text, so typing
+ * "نيش" finds every niche product without a separate index.
+ */
+export function productMatchesQuery(product: Product, query: string): boolean {
+  const trimmed = query.trim();
+  if (!trimmed) return true;
+  const q = normalizeArabic(trimmed);
+  return searchableText(product).some((value) => normalizeArabic(value).includes(q));
+}
+
+/**
  * Search products by query string.
  * Matches against name, brand, description, gender, type, house,
  * season, performance, and notes. Supports both Arabic and English text,
@@ -47,14 +60,6 @@ export function searchProducts(
   products: Product[],
   query: string,
 ): Product[] {
-  const trimmed = query.trim();
-  if (!trimmed) return products;
-
-  const q = normalizeArabic(trimmed);
-
-  return products.filter((product) =>
-    searchableText(product).some((value) =>
-      normalizeArabic(value).includes(q),
-    ),
-  );
+  if (!query.trim()) return products;
+  return products.filter((product) => productMatchesQuery(product, query));
 }

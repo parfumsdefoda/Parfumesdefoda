@@ -1,54 +1,49 @@
-import { Suspense } from "react";
 import { loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
-import { loadFilterData } from "@/services/filters";
 import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
-import { getProductSalesCounts } from "@/services/sales";
 import { selectHeroShowcase } from "@/lib/hero-selection";
 import { t } from "@/lib/locale";
-import { HomePageClient, type HomePageClientProps } from "@/features/home";
-import { StorefrontSkeleton } from "@/features/home/components/storefront-skeleton";
+import { parseCatalogState } from "@/lib/catalog-filters";
+import { buildCatalogView } from "@/lib/catalog-query";
+import { toGridColumns } from "@/lib/grid-columns";
+import { HomePageClient } from "@/features/home";
+import { CatalogSection } from "@/features/catalog";
 
 /**
  * The storefront renders per request: the hero marquee is re-randomised on
- * every visit and the catalogue is read fresh. The expensive part (Redis) is
- * cached separately in src/services/sales.ts, so "dynamic" no longer means
- * "slow".
+ * every visit and the catalogue is filtered from the query string.
  */
 export const dynamic = "force-dynamic";
+
+interface HomePageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
 /**
  * Homepage — Parfums De Foda.
  *
  * Server Component that loads ALL data from JSON files using node:fs/promises.
- * Data is passed as props to the client-side HomePageClient component,
- * which handles interactivity (filters, search, sorting, cart, checkout).
  *
- * Two awaits, two priorities:
+ * The catalogue is filtered, sorted and counted HERE, from the URL, and handed
+ * to `CatalogSection` as server-rendered children of the client chrome. That
+ * is what lets the product cards stay Server Components while the filter bar
+ * still feels instant: a filter change is a navigation, not a re-render of the
+ * whole grid in the browser.
  *
- * 1. The catalogue itself (products, settings, filters, content, locale) is
- *    required before anything can render.
- * 2. Product sales counts come from Redis and only influence the best-selling
- *    order and badges. They are fetched inside a Suspense boundary, so the
- *    shell streams immediately and a slow Redis cannot hold the page hostage.
- *    `getProductSalesCounts()` is cached for 5 minutes and the read itself is
- *    skipped when unconfigured and capped by a 300 ms timeout.
- *
- * No client-side data fetching. No fetch() calls for local files. All file I/O
- * and Redis access is server-side.
- * Data flow: JSON files → Services → Server Component → Client Component → Hooks → UI
+ * No client-side data fetching. No fetch() calls for local files.
+ * Data flow: JSON files → Services → Server Component → Client chrome → HTML
  */
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+
   // ─── Load all data server-side ───
-  const [products, settings, filterData, content, localeMessages] =
-    await Promise.all([
-      loadVisibleProducts(),
-      loadFullSettings(),
-      loadFilterData(),
-      loadContent(),
-      loadLocale(),
-    ]);
+  const [products, settings, content, localeMessages] = await Promise.all([
+    loadVisibleProducts(),
+    loadFullSettings(),
+    loadContent(),
+    loadLocale(),
+  ]);
 
   // ─── Server-side error handling ───
   if (products.length === 0) {
@@ -69,31 +64,84 @@ export default async function HomePage() {
   // Randomize the hero marquee set per page load (featured first, then random)
   const heroProducts = selectHeroShowcase(products);
 
-  return (
-    <Suspense
-      fallback={
-        <StorefrontSkeleton label={t(localeMessages, "home.loading", "جاري التحميل...")} />
-      }
-    >
-      <Storefront
-        products={products}
-        settings={settings}
-        filterData={filterData}
-        content={content}
-        localeMessages={localeMessages}
-        heroProducts={heroProducts}
-      />
-    </Suspense>
-  );
-}
+  // ─── Catalogue view from the URL ───
+  const state = parseCatalogState(params);
+  const view = buildCatalogView(products, state);
 
-/**
- * The part that waits for Redis. Kept as its own Server Component so the
- * Suspense boundary above has an async child to stream.
- */
-async function Storefront(
-  props: Omit<HomePageClientProps, "salesCounts">,
-) {
-  const salesCounts = await getProductSalesCounts();
-  return <HomePageClient {...props} salesCounts={salesCounts} />;
+  const cardLabels = {
+    comingSoon: t(localeMessages, "product.comingSoon", "قريبًا"),
+    outOfStock: t(localeMessages, "home.outOfStock", "غير متوفر"),
+    from: t(localeMessages, "home.from", "من"),
+    add: t(localeMessages, "home.addToCart", "أضف إلى السلة"),
+    addToCart: t(localeMessages, "home.addToCart", "أضف إلى السلة"),
+    chooseSize: t(localeMessages, "product.selectSize", "اختر الحجم"),
+    addedToast: t(
+      localeMessages,
+      "home.addedToast",
+      "تمت إضافة {name} إلى السلة",
+    ),
+  };
+
+  const controlsLabels = {
+    searchPlaceholder: t(
+      localeMessages,
+      "home.searchPlaceholder",
+      "ابحث عن عطرك...",
+    ),
+    search: t(localeMessages, "catalog.search", "بحث"),
+    clearSearch: t(localeMessages, "catalog.clearSearch", "مسح البحث"),
+    filters: t(localeMessages, "catalog.filters", "الفلاتر"),
+    clearAll: t(localeMessages, "catalog.clearAll", "مسح الكل"),
+    availableOnly: t(localeMessages, "catalog.availableOnly", "المتوفر فقط"),
+    resultUnit: t(localeMessages, "catalog.resultUnit", "منتج"),
+    sort: t(localeMessages, "catalog.sort", "الترتيب"),
+    sortFeatured: t(localeMessages, "catalog.sortFeatured", "الافتراضي"),
+    sortPriceAsc: t(localeMessages, "catalog.sortPriceAsc", "الأقل سعرًا"),
+    sortPriceDesc: t(localeMessages, "catalog.sortPriceDesc", "الأعلى سعرًا"),
+    sortName: t(localeMessages, "catalog.sortName", "الاسم (أ-ي)"),
+    showResults: t(localeMessages, "catalog.showResults", "عرض {count} منتج"),
+    remove: t(localeMessages, "catalog.remove", "إزالة"),
+    groups: {
+      gender: t(localeMessages, "catalog.groupGender", "الجنس"),
+      style: t(localeMessages, "catalog.groupStyle", "النوع"),
+      tier: t(localeMessages, "catalog.groupTier", "الدار"),
+      season: t(localeMessages, "catalog.groupSeason", "الفصل"),
+      performance: t(
+        localeMessages,
+        "catalog.groupPerformance",
+        "الأداء",
+      ),
+      price: t(localeMessages, "catalog.groupPrice", "السعر"),
+    },
+  };
+
+  return (
+    <HomePageClient
+      settings={settings}
+      content={content}
+      localeMessages={localeMessages}
+      heroProducts={heroProducts}
+    >
+      <CatalogSection
+        view={view}
+        columns={toGridColumns(settings.grid)}
+        cardLabels={cardLabels}
+        controlsLabels={controlsLabels}
+        labels={{
+          title: t(localeMessages, "nav.products", "منتجاتنا"),
+          emptyTitle: t(
+            localeMessages,
+            "catalog.emptyTitle",
+            "لا توجد منتجات مطابقة",
+          ),
+          emptyHint: t(
+            localeMessages,
+            "catalog.emptyHint",
+            "جرّب إزالة بعض الفلاتر أو البحث باسم آخر",
+          ),
+          clearFilters: t(localeMessages, "catalog.clearFilters", "مسح الفلاتر"),
+        }}
+      />
+    </HomePageClient>
+  );
 }

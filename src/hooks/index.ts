@@ -1,9 +1,3 @@
-export { useProducts } from "./use-products";
-export type { UseProductsReturn } from "./use-products";
-
-export { useFilters } from "./use-filters";
-export type { UseFiltersReturn } from "./use-filters";
-
 export { useSettings } from "./use-settings";
 export type { UseSettingsReturn } from "./use-settings";
 

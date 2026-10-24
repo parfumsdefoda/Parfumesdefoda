@@ -41,15 +41,27 @@ export function cardBadge(
 /**
  * Lowest price among the sizes a shopper can actually buy.
  *
- * Returns null when the product has no sizes at all. Never invents a price:
- * when nothing is in stock it falls back to the cheapest listed size so the
- * card can still state a price instead of going blank.
+ * Null when nothing is on sale. This is the number price filters and sorts
+ * use: a sold-out product has no "starting price" to rank by.
+ */
+export function lowestBuyablePrice(
+  product: Pick<Product, "sizes">,
+): number | null {
+  const inStock = product.sizes.filter((size) => size.inStock);
+  if (inStock.length === 0) return null;
+  return Math.min(...inStock.map((size) => size.price));
+}
+
+/**
+ * The price the card prints: the cheapest buyable size, or — when the product
+ * is sold out — the cheapest listed one, so the card states a price instead of
+ * going blank.
  */
 export function lowestInStockPrice(product: Pick<Product, "sizes">): number | null {
   if (product.sizes.length === 0) return null;
-  const inStock = product.sizes.filter((size) => size.inStock);
-  const pool = inStock.length > 0 ? inStock : product.sizes;
-  return Math.min(...pool.map((size) => size.price));
+  const buyable = lowestBuyablePrice(product);
+  if (buyable !== null) return buyable;
+  return Math.min(...product.sizes.map((size) => size.price));
 }
 
 export interface CardPrice {

@@ -112,5 +112,29 @@
     "seoFailed": "فشل تحميل إعدادات SEO",
     "localeFailed": "فشل تحميل النصوص",
     "orderSubmitFailed": "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب."
+  },
+  "catalog": {
+    "search": "بحث",
+    "clearSearch": "مسح البحث",
+    "filters": "الفلاتر",
+    "clearAll": "مسح الكل",
+    "clearFilters": "مسح الفلاتر",
+    "availableOnly": "المتوفر فقط",
+    "resultUnit": "منتج",
+    "sort": "الترتيب",
+    "sortFeatured": "الافتراضي",
+    "sortPriceAsc": "الأقل سعرًا",
+    "sortPriceDesc": "الأعلى سعرًا",
+    "sortName": "الاسم (أ-ي)",
+    "showResults": "عرض {count} منتج",
+    "remove": "إزالة",
+    "groupGender": "الجنس",
+    "groupStyle": "النوع",
+    "groupTier": "الدار",
+    "groupSeason": "الفصل",
+    "groupPerformance": "الأداء",
+    "groupPrice": "السعر",
+    "emptyTitle": "لا توجد منتجات مطابقة",
+    "emptyHint": "جرّب إزالة بعض الفلاتر أو البحث باسم آخر"
   }
 }

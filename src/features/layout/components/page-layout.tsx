@@ -26,7 +26,7 @@ export function PageLayout({
       <Header {...headerProps} />
       {/* Spacer for fixed header (h-24 = 96px) */}
       <div className="h-24 shrink-0" aria-hidden="true" />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
       <Footer {...footerProps} />
     </div>
   );

@@ -4,4 +4,5 @@ export { QuickAdd } from "./components/quick-add";
 export { FeaturedBadge } from "./components/featured-badge";
 export type { FeaturedBadgeProps } from "./components/featured-badge";
 export { ProductGrid } from "./components/product-grid";
-export type { GridColumns, ProductGridProps } from "./components/product-grid";
+export type { ProductGridProps } from "./components/product-grid";
+export type { GridColumns } from "@/lib/grid-columns";

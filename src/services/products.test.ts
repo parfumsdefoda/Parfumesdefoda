@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadProducts } from "./products";
-import { filterProducts } from "@/lib/filter-helpers";
+import { filterCatalog } from "@/lib/catalog-query";
+import { EMPTY_CATALOG_STATE } from "@/lib/catalog-filters";
 import { sortProducts } from "@/lib/sort-helpers";
 import type { Product } from "@/types";
 
@@ -37,10 +38,10 @@ describe("products data integrity", () => {
     expect(products.length).toBe(expectedProductCount());
   });
 
-  it("returns the full list with no filters and default (best-selling) sort", () => {
-    const filtered = filterProducts(products, {});
-    const sorted = sortProducts(filtered, "best-selling");
-    // filterProducts({}) and sortProducts with no salesCounts must be no-ops.
+  it("returns the full list with no filters and the default (featured) sort", () => {
+    const filtered = filterCatalog(products, EMPTY_CATALOG_STATE);
+    const sorted = sortProducts(filtered, "featured");
+    // An empty state and the featured sort must keep every product.
     expect(filtered).toHaveLength(products.length);
     expect(sorted).toHaveLength(products.length);
     // The default sort must not reorder to zero, and must include every id.
@@ -55,7 +56,7 @@ describe("products data integrity", () => {
       p.id === target.id ? { ...p, inStock: false } : p,
     );
 
-    const filtered = filterProducts(modified, {});
+    const filtered = filterCatalog(modified, EMPTY_CATALOG_STATE);
     // A product-level inStock=false must NOT remove the product from the
     // full list — it only affects its own availability display.
     expect(filtered).toHaveLength(products.length);
@@ -74,7 +75,7 @@ describe("products data integrity", () => {
         : p,
     );
 
-    const filtered = filterProducts(modified, {});
+    const filtered = filterCatalog(modified, EMPTY_CATALOG_STATE);
     expect(filtered).toHaveLength(products.length);
     expect(filtered.some((p) => p.id === target.id)).toBe(true);
   });

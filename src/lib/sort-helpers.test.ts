@@ -2,45 +2,20 @@ import { describe, it, expect } from "vitest";
 import { sortProducts } from "./sort-helpers";
 import type { Product } from "@/types";
 
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    sku: "1",
-    slug: "a",
-    name: "ب",
-    brand: "B",
+function product(
+  id: string,
+  overrides: Partial<Product> = {},
+): Product {
+  return {
+    id,
+    sku: id,
+    slug: id.toLowerCase(),
+    name: id,
+    brand: "Parfums De Foda",
     description: "",
-    image: "",
-    gallery: [],
-    gender: "رجالي",
+    image: `/products/${id}.png`,
+    gender: "للجنسين",
     type: "شرقي",
-    house: "ديزاينر",
-    oily: false,
-    fodaOriginal: false,
-    season: "صيفي",
-    performance: "أداء قوي",
-    featured: true,
-    badge: "",
-    rating: 3,
-    reviews: 0,
-    status: "active",
-    sortOrder: 1,
-    sizes: [{ label: "50ml", price: 200, inStock: true }],
-    inStock: true,
-    notes: { top: [], middle: [], base: [] },
-    seo: { title: "", description: "" },
-  },
-  {
-    id: "2",
-    sku: "2",
-    slug: "b",
-    name: "أ",
-    brand: "A",
-    description: "",
-    image: "",
-    gallery: [],
-    gender: "رجالي",
-    type: "غربي",
     house: "نيش",
     oily: false,
     fodaOriginal: false,
@@ -48,60 +23,121 @@ const mockProducts: Product[] = [
     performance: "أداء قوي",
     featured: false,
     badge: "",
-    rating: 5,
+    rating: 0,
     reviews: 0,
     status: "active",
-    sortOrder: 2,
-    sizes: [{ label: "50ml", price: 100, inStock: true }],
+    sortOrder: 0,
+    sizes: [{ label: "50 مل", price: 500, inStock: true }],
     inStock: true,
     notes: { top: [], middle: [], base: [] },
     seo: { title: "", description: "" },
-  },
-];
+    ...overrides,
+  } as Product;
+}
 
 describe("sortProducts", () => {
-  it("sorts by price ascending", () => {
-    const result = sortProducts(mockProducts, "price-asc");
-    expect(result[0].id).toBe("2");
+  it("puts featured products first and keeps the rest in catalogue order", () => {
+    const list = [
+      product("a"),
+      product("b", { featured: true }),
+      product("c"),
+      product("d", { featured: true }),
+    ];
+
+    expect(sortProducts(list, "featured").map((p) => p.id)).toEqual([
+      "b",
+      "d",
+      "a",
+      "c",
+    ]);
   });
 
-  it("sorts by price descending", () => {
-    const result = sortProducts(mockProducts, "price-desc");
-    expect(result[0].id).toBe("1");
+  it("sorts price ascending by the cheapest buyable size", () => {
+    const list = [
+      // The first size is expensive; the 10ml one is what the card shows.
+      product("expensive", {
+        sizes: [
+          { label: "100 مل", price: 900, inStock: true },
+          { label: "10 مل", price: 220, inStock: true },
+        ],
+      }),
+      product("cheap", {
+        sizes: [{ label: "10 مل", price: 120, inStock: true }],
+      }),
+    ];
+
+    expect(sortProducts(list, "price-asc").map((p) => p.id)).toEqual([
+      "cheap",
+      "expensive",
+    ]);
   });
 
-  it("sorts by best-selling using sales counts (descending)", () => {
-    const salesCounts = { "1": 5, "2": 10 };
-    const result = sortProducts(mockProducts, "best-selling", salesCounts);
-    expect(result.map((p) => p.id)).toEqual(["2", "1"]);
+  it("ignores sold-out sizes when comparing prices", () => {
+    const list = [
+      product("low-but-sold-out", {
+        sizes: [
+          { label: "10 مل", price: 50, inStock: false },
+          { label: "50 مل", price: 600, inStock: true },
+        ],
+      }),
+      product("mid", {
+        sizes: [{ label: "50 مل", price: 500, inStock: true }],
+      }),
+    ];
+
+    expect(sortProducts(list, "price-asc").map((p) => p.id)).toEqual([
+      "mid",
+      "low-but-sold-out",
+    ]);
   });
 
-  it("keeps original order for best-selling when sales counts are missing", () => {
-    const result = sortProducts(mockProducts, "best-selling");
-    expect(result.map((p) => p.id)).toEqual(["1", "2"]);
+  it("sorts price descending", () => {
+    const list = [
+      product("cheap", { sizes: [{ label: "10 مل", price: 120, inStock: true }] }),
+      product("dear", { sizes: [{ label: "100 مل", price: 900, inStock: true }] }),
+    ];
+
+    expect(sortProducts(list, "price-desc").map((p) => p.id)).toEqual([
+      "dear",
+      "cheap",
+    ]);
   });
 
-  it("sorts products with missing/zero sales counts last, ties stay stable", () => {
-    const salesCounts = { "2": 3 };
-    const result = sortProducts(mockProducts, "best-selling", salesCounts);
-    expect(result.map((p) => p.id)).toEqual(["2", "1"]);
+  it("keeps a size-less product at the end in both directions", () => {
+    const missing = product("missing", { sizes: [] });
+    const cheap = product("cheap");
+    const dear = product("dear", {
+      sizes: [{ label: "100 مل", price: 900, inStock: true }],
+    });
 
-    const tieResult = sortProducts(
-      mockProducts,
-      "best-selling",
-      { "1": 3, "2": 3 },
-    );
-    expect(tieResult.map((p) => p.id)).toEqual(["1", "2"]);
+    expect(
+      sortProducts([missing, dear, cheap], "price-asc").map((p) => p.id),
+    ).toEqual(["cheap", "dear", "missing"]);
+
+    expect(
+      sortProducts([missing, cheap, dear], "price-desc").map((p) => p.id),
+    ).toEqual(["dear", "cheap", "missing"]);
   });
 
-  it("sorts alphabetically", () => {
-    const result = sortProducts(mockProducts, "alphabetical");
-    expect(result[0].id).toBe("2");
+  it("sorts Arabic names alphabetically", () => {
+    const list = [product("ب"), product("أ")];
+    expect(sortProducts(list, "alphabetical").map((p) => p.id)).toEqual([
+      "أ",
+      "ب",
+    ]);
   });
 
-  it("does not mutate original array", () => {
-    const original = [...mockProducts];
-    sortProducts(mockProducts, "price-asc");
-    expect(mockProducts).toEqual(original);
+  it("does not mutate the input array", () => {
+    const list = [product("b"), product("a")];
+    const copy = [...list];
+    sortProducts(list, "alphabetical");
+    expect(list).toEqual(copy);
+  });
+
+  it("returns a new array for the default sort", () => {
+    const list = [product("a")];
+    const sorted = sortProducts(list, "featured");
+    expect(sorted).not.toBe(list);
+    expect(sorted).toHaveLength(1);
   });
 });

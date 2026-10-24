@@ -1,12 +1,7 @@
 import { ProductCard, type ProductCardLabels } from "./product-card";
 import { orderForCatalog } from "@/lib/catalog-order";
+import type { GridColumns } from "@/lib/grid-columns";
 import type { Product } from "@/types";
-
-export interface GridColumns {
-  mobile: 1 | 2;
-  tablet: 1 | 2 | 3;
-  desktop: 1 | 2 | 3 | 4;
-}
 
 export interface ProductGridProps {
   /** Products to display, already filtered and sorted. */
