@@ -1,4 +1,13 @@
 import { z } from "zod";
+import {
+  CONCENTRATIONS,
+  GENDERS,
+  HOUSES,
+  PERFORMANCES,
+  PRODUCT_TYPES,
+  SCENT_FAMILIES,
+  SEASONS,
+} from "@/lib/product-vocabulary";
 
 /**
  * Product schema — the single source of truth for the product catalog.
@@ -36,44 +45,29 @@ export const productNotesSchema = z.object({
 });
 
 /**
- * Concentration codes — a fixed set, never free text.
- * Arabic display labels live in src/lib/product-labels.ts.
+ * The vocabulary lives in src/lib/product-vocabulary.ts so the filter bar can
+ * import five string arrays without pulling zod into the browser bundle. These
+ * re-exports keep the schema the single import site for everything else.
  */
-export const CONCENTRATIONS = ["parfum", "edp", "edt", "edc", "oil"] as const;
+export {
+  CONCENTRATIONS,
+  GENDERS,
+  HOUSES,
+  PERFORMANCES,
+  PRODUCT_TYPES,
+  SCENT_FAMILIES,
+  SEASONS,
+};
 
-/**
- * The catalogue's shop-facing vocabularies.
- *
- * Exported so the filter/URL layer validates a query parameter against the
- * same lists the data is validated against — one source, no drift.
- */
-export const GENDERS = ["رجالي", "نسائي", "للجنسين"] as const;
-export const PRODUCT_TYPES = ["شرقي", "غربي"] as const;
-export const HOUSES = ["ديزاينر", "نيش", "دووب"] as const;
-export const SEASONS = ["صيفي", "شتوي", "خريفي", "ربيعي"] as const;
-export const PERFORMANCES = [
-  "أداء ضعيف",
-  "أداء متوسط",
-  "أداء قوي",
-  "أداء صاروخي",
-] as const;
-
-/** Scent families — a fixed set, never free text. */
-export const SCENT_FAMILIES = [
-  "aromatic",
-  "citrus",
-  "floral",
-  "fougere",
-  "fresh",
-  "gourmand",
-  "leather",
-  "musk",
-  "oriental",
-  "woody",
-] as const;
-
-export type Concentration = (typeof CONCENTRATIONS)[number];
-export type ScentFamily = (typeof SCENT_FAMILIES)[number];
+export type {
+  Concentration,
+  Gender,
+  House,
+  Performance,
+  ProductType,
+  ScentFamily,
+  Season,
+} from "@/lib/product-vocabulary";
 
 /** A single product in the catalog. */
 export const productSchema = z.object({

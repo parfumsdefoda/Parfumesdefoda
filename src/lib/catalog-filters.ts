@@ -16,13 +16,13 @@
  * Pure and client-safe.
  */
 
+import type { Product } from "@/types";
 import {
   GENDERS,
   PERFORMANCES,
   PRODUCT_TYPES,
   SEASONS,
-  type Product,
-} from "../schemas/product-schema";
+} from "./product-vocabulary";
 import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
 import type { SortOption } from "./sort-helpers";
 

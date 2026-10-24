@@ -14,7 +14,7 @@ import {
   PERFORMANCES,
   PRODUCT_TYPES,
   SEASONS,
-} from "@/schemas/product-schema";
+} from "./product-vocabulary";
 import {
   FILTER_KEYS,
   FILTERABLE_TIERS,

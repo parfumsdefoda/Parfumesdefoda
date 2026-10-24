@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Popover } from "@base-ui/react/popover";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { SearchBar } from "@/features/search";
 import { Button } from "@/components/ui/button";
@@ -92,6 +98,9 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   },
 };
 
+/** The desktop checkbox panel is fetched on the first pill click. */
+const FilterPopover = lazy(() => import("./filter-popover"));
+
 const SEARCH_DEBOUNCE_MS = 250;
 
 // ─── Props ──────────────────────────────────────────────────────────────────
@@ -125,6 +134,10 @@ export function CatalogControls({
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const sheetTriggerRef = useRef<HTMLButtonElement>(null);
+  const [openGroup, setOpenGroup] = useState<{
+    key: FilterKey;
+    anchor: HTMLButtonElement;
+  } | null>(null);
 
   // Search is the one field that needs a local value while typing. The URL
   // stays authoritative: when the query string changes underneath (back,
@@ -162,6 +175,9 @@ export function CatalogControls({
   }, [query, state.q, commit]);
 
   const activeCount = countActiveFilters(state);
+  const openFacet = openGroup
+    ? facets.find((group) => group.key === openGroup.key)
+    : undefined;
   const activeValues = FILTER_KEYS.flatMap((key) =>
     state[key].map((value) => ({ key, value })),
   );
@@ -287,46 +303,55 @@ export function CatalogControls({
       <div className="hidden flex-wrap items-center gap-2 lg:flex">
         {facets.map((group) => {
           const active = state[group.key].length;
+          const expanded = openGroup?.key === group.key;
           return (
-            <Popover.Root key={group.key}>
-              <Popover.Trigger
-                render={
-                  <button
-                    type="button"
-                    className={cn(
-                      "inline-flex h-10 items-center gap-2 rounded-pill border px-4 text-caption font-medium",
-                      "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                      active > 0
-                        ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-brand)]"
-                        : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
-                    )}
-                  />
-                }
-              >
-                <span>{labels.groups[group.key]}</span>
-                {active > 0 && (
-                  <span className="text-caption font-bold tabular-nums">
-                    {formatNumber(active)}
-                  </span>
-                )}
-                <ChevronDown aria-hidden="true" className="h-4 w-4" />
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner
-                  side="bottom"
-                  align="start"
-                  sideOffset={6}
-                  className="z-50"
-                >
-                  <Popover.Popup className="w-64 rounded-card border border-[var(--color-border)] bg-[var(--bg-primary)] p-2 text-caption shadow-lifted">
-                    {optionsFor(group, "popover")}
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
+            <button
+              key={group.key}
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={expanded}
+              onClick={(event) => {
+                const anchor = event.currentTarget;
+                setOpenGroup((current) =>
+                  current?.key === group.key
+                    ? null
+                    : { key: group.key, anchor },
+                );
+              }}
+              className={cn(
+                "inline-flex h-10 items-center gap-2 rounded-pill border px-4 text-caption font-medium",
+                "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+                active > 0
+                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-brand)]"
+                  : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
+              )}
+            >
+              <span>{labels.groups[group.key]}</span>
+              {active > 0 && (
+                <span className="text-caption font-bold tabular-nums">
+                  {formatNumber(active)}
+                </span>
+              )}
+              <ChevronDown aria-hidden="true" className="h-4 w-4" />
+            </button>
           );
         })}
+
+        {openGroup && openFacet && (
+          <Suspense fallback={null}>
+            <FilterPopover
+              anchor={openGroup.anchor}
+              group={openFacet}
+              title={labels.groups[openFacet.key]}
+              active={state[openFacet.key]}
+              onToggle={(value) =>
+                commit(toggleFacetValue(state, openFacet.key, value))
+              }
+              onClose={() => setOpenGroup(null)}
+            />
+          </Suspense>
+        )}
 
         <div className="inline-flex h-10 items-center rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-4">
           {availableToggle}
