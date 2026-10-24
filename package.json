@@ -14,8 +14,8 @@
     "test:watch": "vitest",
     "audit:images": "node scripts/audit-images.mjs",
     "build:images": "node scripts/build-images.mjs",
-    "enrich:export": "tsx scripts/export-enrichment.mjs",
-    "enrich:import": "tsx scripts/import-enrichment.mjs"
+    "master:export": "tsx scripts/export-product-master.mjs",
+    "master:import": "tsx scripts/import-product-master.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

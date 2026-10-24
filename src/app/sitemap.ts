@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { loadProducts } from "@/services/products";
+import { loadVisibleProducts } from "@/services/products";
 
 /**
  * /sitemap.xml — generated from data/products.json.
@@ -14,7 +14,8 @@ const siteUrl = (
 ).replace(/\/$/, "");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const products = await loadProducts();
+  // Hidden products (on_site=لا) answer 404, so they must not be advertised here.
+  const products = await loadVisibleProducts();
   const lastModified = new Date();
 
   return [

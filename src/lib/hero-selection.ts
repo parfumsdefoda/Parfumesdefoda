@@ -37,7 +37,7 @@ export function selectHeroShowcase(
   products: Product[],
   total = 12,
 ): HeroShowcaseItem[] {
-  const active = products.filter((p) => p.status === "active");
+  const active = products.filter((p) => p.status === "active" && p.hidden !== true);
   const featured = shuffle(active.filter((p) => p.featured));
   const regular = shuffle(active.filter((p) => !p.featured));
 

@@ -1,105 +1,140 @@
-# بيانات المنتجات — الحقول الاختيارية / Product data — optional facts
+# بيانات المنتجات — الملف الرئيسي / Product data — the master file
 
-`data/products.json` هو مصدر البيانات الوحيد للمنتجات. هذا الدليل يشرح كيف تضيف
-حقائق العطر الاختيارية (التركيز، العائلة العطرية، الهرم العطري، حجم كل عبوة،
-صور إضافية) عن طريق ملف CSV — بدون لمس أي كود.
+الملف الذي تعدّله هو **ملف واحد**: `data/product-master.csv`.
+كل قرار تجاري أو وصفي للمنتج يبدأ من هنا. `data/products.json` هو ما يقرأه الموقع،
+ولا يُحرَّر يدوياً بعد اليوم.
 
-`data/products.json` is the single source of truth. This guide covers the
-optional fragrance facts, filled through a CSV so no TypeScript is ever edited.
+**The file you edit is `data/product-master.csv`.** It is the only spreadsheet
+the shop needs. `data/products.json` is what the site reads; you should not have
+to touch it by hand again.
 
-> **لا يتم اختراع أي معلومة.** الخلية الفارغة تبقى غير موجودة في `products.json`.
-> الخلية غير الصالحة تُرفض وتُطبع بسببها، ولا تُخمَّن ولا تُصحَّح تلقائياً.
+> **لا يتم اختراع أي معلومة.** الخلية الفارغة معناها «غير معروف» ولا تمسح قيمة
+> موجودة. الخلية غير الصالحة تُرفض ويُطبع رقم سطرها وسببها.
 >
-> **Nothing is invented.** An empty cell stays absent. An invalid cell is
-> rejected with a reason — never guessed at or silently corrected.
+> **Nothing is invented.** An empty cell means "unknown" and never clears a
+> value. An invalid cell is rejected with its line number and the reason.
 
 ---
 
-## 1. الدورة / The round trip
+## 1. الدورة الكاملة / The round trip
 
 ```bash
-npm run enrich:export                  # ينشئ data/product-enrichment.csv + ملف الحالة
-# افتح الملف في Excel / Numbers / Google Sheets واملأ الخلايا الفارغة
-npm run enrich:import -- --dry-run     # معاينة: يعرض التغييرات والخلايا المرفوضة
-npm run enrich:import                  # يطبّق التغييرات على data/products.json
+npm run master:export                            # ينشئ/يحدّث ملف CSV من الكتالوج
+# افتح data/product-master.csv في Excel / Numbers / Google Sheets واملأ الخلايا
+
+npm run master:import                            # معاينة (dry run) — لا يكتب شيئاً
+npm run master:import -- --apply                 # التصنيف + الإثراء فقط
+npm run master:import -- --apply --sync-commerce # + الأسعار والمخزون والأسماء
 ```
 
-- `npm run enrich:export` يكتب الملف بترميز UTF-8 مع BOM حتى تظهر العربية صحيحة
-  في Excel، ويكتب أيضاً `data/product-enrichment-status.md`.
-- `npm run enrich:import --dry-run` لا يكتب أي ملف. راجعه دائماً قبل التطبيق.
-- `npm run enrich:import` يتحقق من الكتالوج بالكامل بعد الدمج، ولا يكتب شيئاً إن
-  فشل التحقق.
+- الملف مكتوب بترميز **UTF-8 مع BOM** حتى تظهر العربية صحيحة في Excel.
+- `master:export` لا يستبدل ملفاً فيه خلايا لم تُستورد بعد؛ سيرفض ويخبرك. استخدم
+  `-- --force` فقط بعد أن تستورد ما في الملف (أو بعد نسخه احتياطياً).
+- `master:import` بلا أي flag هو **معاينة**: يطبع كل تغيير مجمّعاً حسب الحقل
+  (تصنيف / إثراء / أسعار) ولا يكتب أي ملف.
+- أي استيراد يعيد التحقق من الكتالوج بالكامل بمخطط Zod قبل الكتابة. لو فشل
+  التحقق لا يُكتب شيء.
 
-بعد الاستيراد شغّل:
+`master:export` refuses to overwrite a CSV holding cells that were never
+imported — use `--force` only after importing (or after backing the file up).
+A bare `master:import` is a dry run and writes nothing.
+
+بعد كل استيراد:
 
 ```bash
-npm run validate-json && npm run typecheck && npm run test
+npm run validate-json && npm run typecheck && npm run lint && npm run test
 ```
-
-- `data/product-enrichment.csv` — UTF-8 with BOM so Excel shows Arabic correctly.
-- `--dry-run` writes nothing; always preview first.
-- The merged catalogue is re-validated against the schema before anything is written.
 
 ---
 
-## 2. الأعمدة / Columns
+## 2. الأوضاع / Modes
+
+| الوضع / mode | يكتب / writes | لا يكتب / never writes |
+| --- | --- | --- |
+| (بلا flags) معاينة / dry run | لا شيء | كل شيء |
+| `--apply` | التصنيف + الإثراء | الأسعار، المخزون، الأسماء، الأوصاف |
+| `--apply --sync-commerce` | كل شيء | — |
+| `--create-missing` | (يسمح بإنشاء منتجات جديدة، راجع §5) | — |
+| `--file=<path>` | يقرأ ملفاً آخر غير `data/product-master.csv` | — |
+
+**لماذا الفصل؟** غلطة إملائية في خانة السعر لا يجب أن تغيّر أسعار المتجر أثناء
+تعبئة الملاحظات العطرية. الأسعار والمخزون والأسماء والأوصاف لا تتحرك إلا عندما
+تطلب ذلك صراحةً.
+
+A typo must not reprice the shop. Prices, availability, names and descriptions
+move only with `--sync-commerce`.
+
+---
+
+## 3. الأعمدة / Columns
 
 | العمود / column | المعنى / meaning | الفارغ / empty means |
 | --- | --- | --- |
-| `slug` | معرّف المنتج (`pf020`) — **لا تغيّره** | الصف يُرفض |
-| `name` | اسم المنتج — **للقراءة فقط**، يُتجاهل عند الاستيراد | — |
-| `concentration` | تركيز العطر (قيمة من الجدول أدناه) | غير معروف |
-| `family` | العائلة العطرية (قيمة من الجدول أدناه) | غير معروفة |
-| `top_notes` | المقدمة / top notes | غير معروفة |
-| `heart_notes` | القلب / heart notes | غير معروفة |
-| `base_notes` | القاعدة / base notes | غير معروفة |
-| `size_ml_per_size` | حجم كل عبوة بالمليلتر | غير معروف |
-| `gallery_extra` | صور إضافية بجانب الصورة الأساسية | لا توجد صور إضافية |
+| `slug` | معرّف المنتج (`pf020`) — **لا تغيّره** | الصف يُتخطّى |
+| `sku` | كود المنتج (`PF020`) — يُستخدم لمسار الصورة. **للقراءة فقط** للمنتجات الموجودة | — |
+| `name_ar` | اسم المنتج كما يظهر للعميل | لا تغيير |
+| `on_site` | `نعم` = ظاهر، `لا` = مخفي (راجع §6) | لا تغيير |
+| `gender` | الجنس | لا تغيير |
+| `scent_style` | شرقي / غربي (يُخزَّن في `type`) | لا تغيير |
+| `tier` | الدار: ديزاينر / نيش / دووب (تُخزَّن في `house`) | لا تغيير |
+| `season` | الفصل | لا تغيير |
+| `performance` | الأداء | لا تغيير |
+| `is_fouda_original` | من إنتاج فودا نفسه | لا تغيير |
+| `is_oil` | زيت عطري (بدون كحول) | لا تغيير |
+| `is_featured` | فاخر (البطاقة الذهبية + الترتيب في الهيرو) | لا تغيير |
+| `concentration` | التركيز | غير معروف |
+| `family` | العائلة العطرية | غير معروفة |
+| `top_notes` | المقدمة | غير معروفة |
+| `heart_notes` | القلب (يُخزَّن في `notes.middle`) | غير معروفة |
+| `base_notes` | القاعدة | غير معروفة |
+| `price_100` … `price_10` | سعر عبوة ١٠٠ / ٥٠ / ٣٠ / ١٠ مل | لا تغيير |
+| `avail_100` … `avail_10` | توفر نفس العبوة: `نعم` / `لا` | لا تغيير |
+| `description_ar` | وصف المنتج | لا تغيير |
+| `gallery_extra` | صور إضافية بجانب الصورة الأساسية | لا توجد |
+| `internal_note` | ملاحظة داخلية لك (لا تُعرض للعميل أبداً) | لا يوجد |
+
+ملاحظات:
 
 - `heart_notes` is the middle of the pyramid; the catalogue stores it as
   `notes.middle` (the field name predates this workflow and is unchanged).
-- `name` is there so you can see which row is which. Editing it changes nothing.
+- `sku` is the product id. Changing it would break the photo path and the
+  product identity, so a different value is rejected, not applied.
+- حجم العبوة (ml) يُقرأ من تسمية الحجم نفسها (`100 مل` = 100) ولا يُخترع.
 
 ### القيم المتعددة / Multiple values
 
-استخدم الشرطة العمودية `|` بين القيم:
+استخدم الشرطة العمودية `|`:
 
 ```
-هيل|فلفل وردي|برغموت
+برغموت|هيل|فلفل وردي
 ```
 
-لا تستخدم الفاصلة `,` ولا الفاصلة العربية `،` — الخلية تُرفض مع سبب واضح.
+لا تستخدم الفاصلة `,` ولا `،` — الخلية تُرفض مع سبب واضح.
 
-Use `|` between values. Commas are rejected with an explicit reason.
+### الأسعار والمخزون / Prices and availability
 
-### حجم العبوة / Per-size volume
+- كل سعر مربوط بحجم موجود بالفعل. سعر لحجم لا يملكه المنتج **يُرفض** ولا ينشئ حجماً
+  جديداً.
+- `avail_*=لا` يجعل ذلك الحجم غير قابل للشراء. الخلية الفارغة تُبقي الحالة كما هي.
+- توفّر المنتج ككل يُحسب تلقائياً: متوفر إذا كان فيه حجم واحد متوفر على الأقل.
 
-اكتب `التسمية=الرقم`، والتفاصيل مفصولة بـ `|`:
-
-```
-10 مل=10|30 مل=30|50 مل=50|100 مل=100
-```
-
-- التسمية يجب أن تكون واحدة من تسميات ذلك المنتج بالضبط
-  (`10 مل`, `30 مل`, `50 مل`, `100 مل`).
-- الرقم يجب أن يكون موجباً.
-- التسمية الخاطئة تُرفض: `unknown size "250 مل" — this product has: 10 مل, 30 مل, …`
-
-The label must match one of that product's size labels exactly, and the volume
-must be a positive number.
-
-### الصور الإضافية / Extra gallery views
-
-- مسار واحد أو أكثر يفصله `|`، وكل مسار يبدأ بـ `/`، مثال:
-  `/products/PF020-2.png|/products/PF020-3.png`
-- الصورة الأساسية (`image`) تبقى الأولى في المعرض ولا تُحذف أبداً.
-- الصور تُضاف فقط — لا يحذف الاستيراد صورة موجودة.
-
-Paths must start with `/`. Views are only ever appended; the cover stays first.
+A price for a size the product does not have is rejected — a size is never
+created from a price. Blank `avail_*` keeps the current state.
 
 ---
 
-## 3. القيم المسموحة / Allowed enum values
+## 4. القيم المسموحة / Allowed values
+
+كل خانة تقبل **الاسم العربي أو الإنجليزي**؛ المخزَّن دائماً هو القيمة القياسية.
+
+| العمود / column | القيم / values |
+| --- | --- |
+| `gender` | رجالي · نسائي (أو حريمي) · للجنسين — men · women · unisex |
+| `scent_style` | شرقي · غربي — oriental · western |
+| `tier` | ديزاينر · نيش · دووب — designer · niche · dupe |
+| `season` | صيفي · شتوي · خريفي · ربيعي — summer · winter · autumn · spring |
+| `performance` | أداء ضعيف · أداء متوسط · أداء قوي · أداء صاروخي — weak · moderate · strong · rocket |
+| `is_*` / `avail_*` / `on_site` | نعم · لا — yes · no · true · false · 1 · 0 |
 
 ### `concentration` — التركيز
 
@@ -126,43 +161,66 @@ Paths must start with `/`. Views are only ever appended; the cover stays first.
 | `oriental` | شرقي | Oriental / Amber |
 | `woody` | خشبي | Woody |
 
-الكود أو الاسم العربي مقبولان في الخلية؛ المخزَّن دائماً هو الكود.
-Both the code and the Arabic name are accepted; the code is what gets stored.
+أي قيمة خارج هذه الجداول تُرفض ويُطبع السطر والسبب. Arabic labels live in one
+place in code (`src/lib/product-labels.ts`), never in a component.
 
 ---
 
-## 4. الكتابة فوق قيمة موجودة / Overwriting an existing value
+## 5. إنشاء منتج جديد / Adding a new product
 
-أي قيمة موجودة مسبقاً لا تُستبدل، وتُرفض الخلية مع سبب `already set — use --force`.
-للاستبدال المتعمّد:
+بدون `--create-missing` لا يُنشأ أي منتج؛ الصف يُطبع كـ «غير موجود في الكتالوج».
 
-```bash
-npm run enrich:import -- --force --dry-run   # معاينة
-npm run enrich:import -- --force
-```
+`--create-missing` يسمح بالإنشاء فقط عندما:
 
-A filled value is never replaced without `--force`.
+1. `slug` غير موجود في الكتالوج.
+2. الصورة `/products/{sku}.png` **موجودة فعلاً** على القرص.
+3. كل الحقول المطلوبة موجودة وصحيحة: `name_ar`, `sku`, `gender`, `scent_style`,
+   `tier`, `season`, `performance`، وسعر واحد على الأقل.
 
----
+أي سبب آخر يُطبع كـ `cannot create: …` ولا يُنشأ شيء. لا تُخترع صورة ولا سعر ولا
+تصنيف لإكمال منتج ناقص.
 
-## 5. التقارير / Reports
+Create only when the slug is absent, the photo exists and every required field
+is valid. Every failure is reported with its reason; nothing is defaulted.
 
-`data/product-enrichment-status.md` يُعاد توليده مع كل تصدير أو استيراد، ويعرض
-لكل حقل كم منتجاً اكتمل فيه — أي الفجوة المتبقية.
-
-`data/product-enrichment-status.md` is regenerated on every export/import and
-shows, per field, how many products are filled in.
+المنتج الجديد يبدأ بحالة مخزون `لا` لأي حجم لم تكتب له `avail_*`، لأن «غير معروف»
+لا تعني «متوفر».
 
 ---
 
-## 6. أين تظهر هذه البيانات؟ / Where these fields appear
+## 6. إخفاء منتج / Hiding a product (`on_site=لا`)
 
-في هذه المرحلة **لا تُعرض** هذه الحقول في الواجهة. النموذج جاهز فقط، والمراحل
-القادمة (البطاقات وصفحة المنتج) هي التي ستستخدمها.
+- المنتج يبقى في `data/products.json` بكل بياناته وصوره.
+- يختفي من: قائمة المنتجات، البحث، التصفية، الهيرو، خريطة الموقع (sitemap)،
+  واقتراحات المساعد الذكي.
+- رابطه المباشر `/product/{slug}` يرجع **404**.
+- `on_site=نعم` يعيده كما كان.
 
-Nothing renders these fields yet. The model is ready; later phases consume it.
+`on_site=لا` sets `hidden: true`. The product keeps its data and photos but is
+excluded from every list, search, the sitemap and the AI suggestions, and its
+own URL returns 404.
 
-- `concentration` / `family` — Arabic labels come from one lookup module
-  (`src/lib/product-labels.ts`), never from a component.
-- `formatConcentrationSize("edp", 50)` → `EDP · 50 مل`، ويُرجع `null` إذا كان
-  أحد الطرفين غير معروف — نصف معلومة لا تُعرض كنصف بطاقة.
+> ملاحظة: المنتجات الخمسة التي لا تملك صورة حقيقية (pf590, pf600, pf610, pf620,
+> pf640) تظهر بحالة «قريبًا» ولا يمكن شراؤها. لتخفيها تماماً اكتب `on_site=لا`.
+
+---
+
+## 7. التقارير / Reports
+
+`data/product-master-status.md` يُعاد توليده مع كل استيراد أو تصدير، ويعرض لكل
+حقل كم منتجاً اكتمل فيه — أي الفجوة المتبقية.
+
+`data/product-master-status.md` is regenerated on every import/export and shows,
+per field, how many products are filled in.
+
+---
+
+## 8. أين تظهر هذه البيانات؟ / Where these fields appear
+
+- التصنيف والأسعار والأسماء والأوصاف والمخزون: البطاقات وصفحة المنتج والسلة
+  وإتمام الطلب (كما هي اليوم).
+- `on_site`: يتحكم في الظهور كما في §6.
+- `concentration` / `family` / `notes`: مخزَّنة وجاهزة، لكن **لا تُعرض بعد**.
+  المراحل القادمة هي التي ستستخدمها، والتسميات العربية تأتي من
+  `src/lib/product-labels.ts` فقط (`formatConcentrationSize("edp", 50)` →
+  `EDP · 50 مل`، ويرجع `null` لو كان أحد الطرفين غير معروف).

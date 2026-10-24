@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { loadProducts } from "@/services/products";
+import { loadProducts, loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
 import { buildProductTitle, productPath } from "@/lib/seo";
 import { ProductDetailPageClient } from "@/features/products/components/product-detail-page";
@@ -16,7 +16,8 @@ interface ProductPageProps {
 }
 
 export async function generateStaticParams() {
-  const products = await loadProducts();
+  // Hidden products are not pre-rendered: their URL returns 404.
+  const products = await loadVisibleProducts();
   return products.map((product) => ({
     slug: product.slug,
   }));
@@ -26,7 +27,7 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const products = await loadProducts();
+  const products = await loadVisibleProducts();
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
@@ -84,7 +85,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const product = products.find((p) => p.slug === slug);
 
-  if (!product) {
+  // Hidden products are indistinguishable from missing ones to a shopper.
+  if (!product || product.hidden === true) {
     notFound();
   }
 

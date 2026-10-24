@@ -94,6 +94,17 @@ export const productSchema = z.object({
    */
   concentration: z.enum(CONCENTRATIONS).optional(),
   family: z.enum(SCENT_FAMILIES).optional(),
+  /**
+   * `on_site=لا` in the product master. The product stays in the catalogue but
+   * every list, search, sitemap and chat recommendation skips it, and its own
+   * URL returns 404. Absent means visible.
+   */
+  hidden: z.boolean().optional(),
+  /**
+   * The owner's private note (product master `internal_note`). Never rendered;
+   * stored only so a CSV round-trip cannot silently drop it.
+   */
+  internalNote: z.string().optional(),
   seo: z.object({
     title: z.string(),
     description: z.string(),

@@ -2,6 +2,7 @@ import type { Product } from "@/types";
 import { productArraySchema } from "@/schemas/product-schema";
 import { validateProducts } from "@/lib/product-helpers";
 import { readJsonFile } from "@/lib/json-loader";
+import { visibleProducts } from "@/lib/product-visibility";
 
 /**
  * Load all products from data/products.json using server-side file reading.
@@ -74,4 +75,15 @@ export async function loadProductsWithState(): Promise<{
   } catch {
     return { products: [], error: "عذراً، حدث خطأ في تحميل البيانات" };
   }
+}
+
+/**
+ * Load the catalogue as shoppers see it.
+ *
+ * `on_site=لا` in data/product-master.csv sets `hidden: true`; the product keeps
+ * its data and photos but disappears from every list, the sitemap and the AI
+ * suggestions, and its own URL 404s. Use this in anything shopper-facing.
+ */
+export async function loadVisibleProducts(): Promise<Product[]> {
+  return visibleProducts(await loadProducts());
 }

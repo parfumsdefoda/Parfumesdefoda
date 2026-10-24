@@ -16,7 +16,7 @@ import { productArraySchema, type Product } from "@/schemas/product-schema";
  */
 export function buildProductContext(products: Product[]): string {
   return products
-    .filter((p) => p.status === "active")
+    .filter((p) => p.status === "active" && p.hidden !== true)
     .map((p) => {
       const priceRange =
         p.sizes.length > 0
@@ -102,7 +102,8 @@ export async function loadCatalog(): Promise<{
     return { products: [], validIds: new Set() };
   }
 
-  const products = result.data;
+  // Hidden products (on_site=لا) must never be recommended by the assistant.
+  const products = result.data.filter((product) => product.hidden !== true);
   const validIds = new Set(products.map((p) => p.id));
 
   return { products, validIds };

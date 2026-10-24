@@ -1,4 +1,4 @@
-import { loadProducts } from "@/services/products";
+import { loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
 import { loadFilterData } from "@/services/filters";
 import { loadContent } from "@/services/content";
@@ -26,7 +26,7 @@ export default async function HomePage() {
   // ─── Load all data server-side ───
   const [products, settings, filterData, content, localeMessages, salesCounts] =
     await Promise.all([
-      loadProducts(),
+      loadVisibleProducts(),
       loadFullSettings(),
       loadFilterData(),
       loadContent(),
