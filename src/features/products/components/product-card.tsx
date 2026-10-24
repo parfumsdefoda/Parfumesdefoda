@@ -1,518 +1,224 @@
-"use client";
-
-import { useState, useCallback, useRef, memo, useEffect } from "react";
 import Link from "next/link";
 import { ProductImage } from "@/components/product-image";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { FeaturedBadge } from "./featured-badge";
+import { QuickAdd } from "./quick-add";
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import {
-  isComingSoon,
-  isUnavailableBadge,
-  isUnavailableProduct,
-} from "@/lib/product-availability";
+  cardBadge,
+  cardMetaLine,
+  cardPrice,
+  hasAnyStock,
+} from "@/lib/card-presentation";
+import type { Product } from "@/types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export interface ProductSize {
-  label: string;
-  price: number;
-  inStock: boolean;
+export interface ProductCardLabels {
+  /** Ink for a product still waiting for its photo. */
+  comingSoon: string;
+  /** Ink for a sold-out product. */
+  outOfStock: string;
+  /** Prefix for a multi-size price ("من ١٢٠ ج.م"). */
+  from: string;
+  /** Accessible name of the round quick-add control. */
+  add: string;
+  /** Toast text after a successful add. `{name}` is replaced. */
+  addedToast: string;
+  /** Label of the confirm button inside the size chooser. */
+  addToCart: string;
+  /** Heading of the size chooser. */
+  chooseSize: string;
 }
 
-export interface ProductCardProduct {
-  id: string;
-  slug?: string;
-  name: string;
-  brand: string;
-  image: string;
-  type: "شرقي" | "غربي";
-  /** Optional short description — shown below product name */
-  description?: string;
-  badge?: string;
-  rating?: number;
-  sizes: ProductSize[];
-  /** Fragrance notes pyramid */
-  notes?: { top?: string[]; middle?: string[]; base?: string[] };
-  /** Gender classification */
-  gender?: "رجالي" | "نسائي" | "للجنسين";
-  /** House (الدار): ديزاينر / نيش / دووب */
-  house?: string;
-  /** Featured product flag — triggers gold premium card style */
-  featured?: boolean;
-  /** Whole-product availability (per-size availability lives on `sizes`) */
-  inStock?: boolean;
-  /** Catalogue status — anything other than "active" means unavailable */
-  status?: string;
-}
+export const DEFAULT_CARD_LABELS: ProductCardLabels = {
+  comingSoon: "قريبًا",
+  outOfStock: "غير متوفر",
+  from: "من",
+  add: "أضف إلى السلة",
+  addedToast: "تمت إضافة {name} إلى السلة",
+  addToCart: "أضف إلى السلة",
+  chooseSize: "اختر الحجم",
+};
 
 export interface ProductCardProps {
-  product: ProductCardProduct;
-  /** Grid column count — drives image responsive sizes */
-  columns?: 1 | 2 | 3 | 4;
-  /** Label for "add to cart" button */
-  addToCartLabel?: string;
-  /** Label shown briefly after adding */
-  addedLabel?: string;
-  /** Label for out-of-stock state */
-  outOfStockLabel?: string;
-  /** Label for a product whose real photo is still pending */
-  comingSoonLabel?: string;
-  /** One line explaining the coming-soon state */
-  comingSoonHint?: string;
-  /** Label prefix for size selector */
-  selectSizeLabel?: string;
-  /** Label shown below price */
-  taxIncludedLabel?: string;
-  /**
-   * Flat shipping fee from settings (see getShippingFee()).
-   * Omit to hide the shipping note.
-   */
-  shippingFee?: number;
-  /** Label for the "Buy Now" shortcut button */
-  buyNowLabel?: string;
-  /** Called when user clicks "add to cart" */
-  onAddToCart?: (product: ProductCardProduct, size: ProductSize) => void;
-  /** Called when user clicks "Buy Now" — navigate straight to checkout */
-  onBuyNow?: () => void;
-  /**
-   * Preload the product image (use for the very first card in the grid).
-   * Sets fetchpriority=high and eager loading.
-   */
+  product: Product;
+  /** Above-the-fold card: eager image with high fetch priority. */
   priority?: boolean;
-  /**
-   * Image loading strategy. The first few cards should be "eager" so the LCP
-   * image is not waiting on an IntersectionObserver-driven lazy fetch.
-   */
   loading?: "eager" | "lazy";
+  /** Below-the-fold cards skip off-screen layout/paint work. */
+  deferred?: boolean;
+  labels?: Partial<ProductCardLabels>;
   className?: string;
 }
 
-// ─── Badge helpers ──────────────────────────────────────────────────────────
+// ─── Image sizes ────────────────────────────────────────────────────────────
 
-/** Maps raw badge strings to Arabic display labels */
-function resolveBadgeLabel(badge: string): string {
-  const lower = badge.toLowerCase();
-  if (lower === "new" || lower === "جديد") return "جديد";
-  if (lower === "bestseller" || lower === "best seller" || lower === "الأكثر مبيعاً")
-    return "الأكثر مبيعاً";
-  if (lower === "niche" || lower === "نيش") return "نيش";
-  if (lower === "limited" || lower === "إصدار محدود") return "إصدار محدود";
-  return badge;
-}
-
-// ─── Image sizes by column count ────────────────────────────────────────────
-
-function getImageSizes(columns: number): string {
-  switch (columns) {
-    case 1:
-      return "(max-width: 640px) 100vw";
-    case 2:
-      return "(max-width: 640px) 100vw, 50vw";
-    case 3:
-      return "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
-    default:
-      return "(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw";
-  }
-}
-
-// ─── Button state type ──────────────────────────────────────────────────────
-
-type ButtonState = "idle" | "loading" | "success";
+/**
+ * The grid is fixed at 2 / 3 / 4 columns, so one `sizes` string describes every
+ * card on the page: half the viewport on phones, a third on tablets, a quarter
+ * on wide screens.
+ */
+const CARD_IMAGE_SIZES =
+  "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * ProductCard — premium luxury perfume product display.
+ * ProductCard — the catalogue's only product unit.
  *
- * Landscape layout with image on right, content on left (RTL).
- * Features: category badge, product name, short description,
- * size selector pills, price, and add-to-cart button.
+ * Deliberately a Server Component: it renders to HTML with no JavaScript of
+ * its own. The one interactive part (quick add) is a small client island, so a
+ * grid of 40 products no longer hydrates 40 stateful cards.
  *
- * Pure presentational — all data and callbacks via props.
- * Memoized to prevent unnecessary re-renders in grid.
+ * Anatomy (RTL):
+ *   image stage (4:5, muted surface, one optional badge)
+ *   meta line  → tier · style · concentration
+ *   name       → the card's real link
+ *   price      → brand purple, "من" when several sizes exist
+ *
+ * The image itself is covered by an absolutely positioned link so the whole
+ * stage is clickable; quick add is a *sibling* of that link, never nested in it.
  */
-export const ProductCard = memo(function ProductCard({
+export function ProductCard({
   product,
-  columns = 3,
-  addToCartLabel = "أضف إلى السلة",
-  addedLabel = "✓ تمت الإضافة",
-  outOfStockLabel = "غير متوفر",
-  comingSoonLabel = "قريبًا",
-  comingSoonHint = "سيتوفر هذا المنتج قريباً",
-  selectSizeLabel = "اختر الحجم",
-  taxIncludedLabel = "شامل الضريبة",
-  shippingFee,
-  buyNowLabel = "اشتر الآن",
-  onAddToCart,
-  onBuyNow,
   priority = false,
   loading = "lazy",
+  deferred = false,
+  labels,
   className,
 }: ProductCardProps) {
-  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(
-    product.sizes[0] ?? null,
-  );
-  const [buttonState, setButtonState] = useState<ButtonState>("idle");
-  const timersRef = useRef<{ loading?: ReturnType<typeof setTimeout>; success?: ReturnType<typeof setTimeout> }>({});
-  const cardRef = useRef<HTMLElement>(null);
-  // Priority cards are the above-the-fold ones: starting them at opacity 0 hides
-  // the largest image on the page until hydration runs the observer, which is
-  // what kept LCP pinned at ~4.3 s even after the HTML arrived in 35 ms.
-  const [isVisible, setIsVisible] = useState(priority);
-
-  // A product still waiting for its photo is not for sale yet — a price and an
-  // add-to-cart button would be a promise the catalogue cannot keep.
-  const comingSoon = isComingSoon(product);
-
-  // Availability is state, never a badge string.
-  const isOutOfStock =
-    isUnavailableProduct(product) ||
-    (selectedSize !== null && !selectedSize.inStock);
-
-  // Intersection Observer for fade-in animation (above-the-fold cards skip it)
-  useEffect(() => {
-    if (priority) return;
-    const el = cardRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.1, rootMargin: "50px" },
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [priority]);
-
-  const handleAddToCart = useCallback(() => {
-    if (comingSoon || !selectedSize || isOutOfStock || buttonState !== "idle") return;
-
-    setButtonState("loading");
-    onAddToCart?.(product, selectedSize);
-
-    // Brief loading pulse then success
-    timersRef.current.loading = setTimeout(() => {
-      setButtonState("success");
-      timersRef.current.success = setTimeout(() => {
-        setButtonState("idle");
-      }, 1500);
-    }, 350);
-  }, [comingSoon, selectedSize, isOutOfStock, buttonState, onAddToCart, product]);
-
-  // A badge that says "غير متوفر حالياً" is an availability notice, not a
-  // marketing claim — showing it as a gold badge contradicts the sold-out
-  // button right below it.
-  const badgeLabel =
-    product.badge && !isUnavailableBadge(product.badge)
-      ? resolveBadgeLabel(product.badge)
-      : null;
-
-  // Truncate description to 2 lines
-  const shortDescription = product.description
-    ? product.description.length > 120
-      ? product.description.slice(0, 120).trim() + "..."
-      : product.description
-    : null;
-
-  const detailHref = product.slug ? `/product/${product.slug}` : null;
+  const copy = { ...DEFAULT_CARD_LABELS, ...labels };
+  const badge = cardBadge(product);
+  const comingSoon = badge === "coming-soon";
+  const outOfStock = badge === "out-of-stock";
+  const price = comingSoon ? null : cardPrice(product, copy.from);
+  const meta = cardMetaLine(product);
+  const href = product.slug ? `/product/${product.slug}` : null;
 
   return (
     <article
-      ref={cardRef}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl",
-        "transition-all duration-500 ease-out",
-        "bg-[var(--bg-primary)]",
-        "border",
-        product.featured
-          ? "border-transparent shadow-soft hover:shadow-lifted"
-          : "border-[var(--neutral-100)] shadow-soft hover:shadow-lifted",
-        product.featured
-          ? "hover:-translate-y-1.5 hover:scale-[1.01]"
-          : "hover:-translate-y-1",
-        // Fade-in animation
-        "transition-opacity transition-transform",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5",
+        "group relative flex flex-col",
+        deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_32rem]",
         className,
       )}
-      style={{
-        transitionDuration: "500ms",
-        ...(product.featured
-          ? {
-              backgroundImage:
-                "linear-gradient(var(--bg-primary), var(--bg-primary)), var(--gradient-gold)",
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-            }
-          : undefined),
-      }}
     >
-      {/* ─── Image ─── */}
-      <div className={cn(
-        "relative overflow-hidden",
-        product.featured
-          ? "bg-gradient-to-b from-[var(--gold-50)] to-[var(--bg-primary)]"
-          : "bg-[var(--bg-primary)]",
-      )}>
-        {comingSoon ? (
-          // No real photo yet: a deliberate empty stage beats the shared
-          // "Currently Unavailable" placeholder screaming in English.
-          <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--ui-surface-muted)]">
-            <span className="rounded-pill border border-[var(--border-default)] px-4 py-1.5 text-caption font-bold text-[var(--neutral-500)]">
-              {comingSoonLabel}
-            </span>
-          </div>
-        ) : detailHref ? (
-          <Link
-            href={detailHref}
-            className="block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
-            aria-label={product.name}
-            tabIndex={-1}
-          >
+      {/* ─── Stage ─── */}
+      <div className="relative">
+        <div className="relative overflow-hidden rounded-card">
+          {comingSoon ? (
+            <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--color-surface-muted)]">
+              <span className="rounded-pill border border-dashed border-[var(--color-border)] px-4 py-1.5 text-caption font-medium text-[var(--color-text-muted)]">
+                {copy.comingSoon}
+              </span>
+            </div>
+          ) : (
             <ProductImage
               slug={product.slug}
               src={product.image}
               name={product.name}
               tier="card"
               frame="stage"
-              sizes={getImageSizes(columns)}
+              sizes={CARD_IMAGE_SIZES}
               priority={priority}
               loading={loading}
-              /* Featured cards keep their gold wash behind the bottle. */
-              frameClassName={product.featured ? "bg-transparent" : undefined}
-              className="transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+              frameClassName={cn(
+                "transition-opacity duration-[var(--duration-base)]",
+                outOfStock && "opacity-60",
+              )}
+              className={cn(
+                "transition-transform duration-[var(--duration-slow)] ease-[var(--ease-apple)]",
+                "group-hover:scale-[1.03] motion-reduce:transform-none",
+              )}
             />
-          </Link>
-        ) : (
-          <ProductImage
-            slug={product.slug}
-            src={product.image}
-            name={product.name}
-            tier="card"
-            frame="stage"
-            sizes={getImageSizes(columns)}
-            priority={priority}
-            loading={loading}
-            frameClassName={product.featured ? "bg-transparent" : undefined}
-            className="transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-          />
-        )}
+          )}
 
-        {/* Badge — top corner */}
-        {badgeLabel && (
-          <div className="absolute top-3 end-3 z-10">
-            <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
-              {badgeLabel}
-            </Badge>
-          </div>
-        )}
+          {href && !comingSoon && (
+            <Link
+              href={href}
+              tabIndex={-1}
+              aria-hidden="true"
+              className="absolute inset-0 z-10 rounded-card focus-visible:outline-none"
+            />
+          )}
 
-        {/* Featured ribbon — top left */}
-        {product.featured && (
-          <>
-            <div className="absolute top-3 start-3 z-10">
-              <FeaturedBadge size="sm" />
+          {badge === "featured" && (
+            <div className="absolute top-3 end-3 z-10">
+              <FeaturedBadge />
             </div>
-            {/* Gold shimmer overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--gold-300)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-[5]" />
-          </>
+          )}
+
+          {/* Coming soon speaks once, from the stage itself. */}
+          {badge === "out-of-stock" && (
+            <div className="absolute top-3 end-3 z-10">
+              <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
+                {copy.outOfStock}
+              </Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Quick add — sibling of the overlay link, never inside it. */}
+        {!comingSoon && hasAnyStock(product) && (
+          <QuickAdd
+            product={{
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              image: product.image,
+            }}
+            sizes={product.sizes}
+            labels={{
+              add: copy.add,
+              addedToast: copy.addedToast,
+              addToCart: copy.addToCart,
+              chooseSize: copy.chooseSize,
+            }}
+          />
         )}
       </div>
 
-      {/* ─── Content ─── */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        {/* House Badge (الدار) */}
-        {product.house && (
-          <div>
-            <Badge variant="neutral">{product.house}</Badge>
-          </div>
+      {/* ─── Text ─── */}
+      <div className="flex flex-1 flex-col gap-1 pt-3">
+        {meta && (
+          <p className="text-caption text-[var(--color-text-muted)]">{meta}</p>
         )}
 
-        {/* Product Name */}
-        {detailHref ? (
-          <Link
-            href={detailHref}
-            className={cn(
-              "text-headline line-clamp-1 hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control",
-              product.featured
-                ? "font-bold text-[var(--neutral-900)]"
-                : "font-bold text-[var(--neutral-800)]",
-            )}
-          >
-            {product.name}
-          </Link>
-        ) : (
-          <h3 className={cn(
-            "text-headline line-clamp-1",
-            product.featured
-              ? "font-bold text-[var(--neutral-900)]"
-              : "font-bold text-[var(--neutral-800)]",
-          )}>
-            {product.name}
-          </h3>
-        )}
-
-        {/* Short Description */}
-        {shortDescription && (
-          <div>
-            <span className="mb-1 block text-caption font-medium text-[var(--ui-text-muted)]">
-              وصف المنتج
-            </span>
-            <p className="text-caption text-[var(--neutral-400)] line-clamp-2">
-              {shortDescription}
-            </p>
-          </div>
-        )}
-
-        {/* Size Selector — rounded pills, single row */}
-        {!comingSoon && product.sizes.length > 0 && (
-          <div>
-            <span className="mb-2 block text-caption font-medium text-[var(--ui-text-muted)]">
-              {selectSizeLabel}
-            </span>
-            <div className="flex gap-1.5">
-              {product.sizes.map((size) => {
-                const isSelected = selectedSize?.label === size.label;
-                const sizeOutOfStock = !size.inStock;
-                return (
-                  <button
-                    key={size.label}
-                    type="button"
-                    disabled={sizeOutOfStock}
-                    onClick={() => setSelectedSize(size)}
-                    aria-label={`${size.label} — ${formatPrice(size.price)}`}
-                    aria-pressed={isSelected}
-                    className={cn(
-                      "flex-1 rounded-full py-2 px-1 text-caption font-medium whitespace-nowrap",
-                      "transition-all duration-300 ease-out",
-                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
-                      isSelected
-                        ? "bg-[var(--color-accent)] text-white shadow-sm"
-                        : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-brand)]/40 hover:text-[var(--neutral-800)]",
-                      sizeOutOfStock && "opacity-35 cursor-not-allowed",
-                    )}
-                  >
-                    {size.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Price */}
-        {!comingSoon && selectedSize && (
-          <div className="mt-auto pt-1">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={selectedSize.label}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="inline-block whitespace-nowrap text-title-3 font-bold text-[var(--color-accent)] tabular-nums"
-              >
-                {formatPrice(selectedSize.price)}
-              </motion.span>
-            </AnimatePresence>
-            <p className="mt-0.5 text-caption text-[var(--neutral-400)]">
-              {taxIncludedLabel}
-            </p>
-          </div>
-        )}
-
-        {/* Shipping Fee Badge */}
-        {!comingSoon && shippingFee !== undefined && (
-          <div className="flex items-center gap-1.5 rounded-pill bg-[var(--ui-surface-muted)] px-2.5 py-1">
-            <span className="inline-block h-1.5 w-1.5 rounded-pill bg-[var(--neutral-400)]" />
-            <span className="text-caption font-medium text-[var(--ui-text-muted)]">
-              مصاريف الشحن <span className="whitespace-nowrap tabular-nums">{formatPrice(shippingFee)}</span> فقط
-            </span>
-          </div>
-        )}
-
-        {/* Coming soon — no price pressure, nothing to add to the cart */}
-        {comingSoon && (
-          <div className="mt-auto rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--ui-surface-muted)] px-3 py-3 text-center">
-            <span className="block text-caption text-[var(--neutral-500)]">
-              {comingSoonHint}
-            </span>
-          </div>
-        )}
-
-        {/* Buy Now + Add to Cart buttons */}
-        {!comingSoon && (
-        <div className="flex flex-col gap-2">
-          {/* Buy Now — navigate straight to checkout after adding */}
-          {!isOutOfStock && selectedSize && (
-            <Button
-              type="button"
-              onClick={() => {
-                // 1. Add the selected variant to cart (merge, don't replace)
-                onAddToCart?.(product, selectedSize);
-                // 2. Immediately navigate to checkout (full cart, including other items)
-                onBuyNow?.();
-              }}
-              disabled={buttonState !== "idle"}
-              variant="primary"
-              className={cn(
-                "w-full font-bold",
-                buttonState === "success" &&
-                  "!bg-[var(--green-50)] !text-[var(--color-positive)]",
-              )}
-              aria-label={buyNowLabel}
-            >
-              {buyNowLabel}
-            </Button>
+        <h3
+          className={cn(
+            "text-headline font-bold",
+            outOfStock || comingSoon
+              ? "text-[var(--color-text-muted)]"
+              : "text-[var(--color-text)]",
           )}
+        >
+          {href ? (
+            <Link
+              href={href}
+              className="line-clamp-2 rounded-control transition-colors duration-[var(--duration-fast)] hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            >
+              {product.name}
+            </Link>
+          ) : (
+            <span className="line-clamp-2">{product.name}</span>
+          )}
+        </h3>
 
-          {/* Add to Cart — secondary action; turns to a green tint on success */}
-          <Button
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || !selectedSize || buttonState !== "idle"}
-            variant="secondary"
-            className={cn(
-              "w-full font-bold",
-              buttonState === "success" &&
-                "!bg-[var(--green-50)] !text-[var(--color-positive)] hover:!bg-[var(--green-50)]",
-            )}
-            aria-label={
-              isOutOfStock
-                ? outOfStockLabel
-                : buttonState === "success"
-                  ? addedLabel
-                  : addToCartLabel
-            }
-          >
-            {isOutOfStock ? (
-              outOfStockLabel
-            ) : buttonState === "loading" ? (
-              <span className="inline-flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                <span>{addToCartLabel}</span>
+        {price && (
+          <p className="mt-auto text-body font-bold text-[var(--color-brand)]">
+            {price.prefix && (
+              <span className="me-1 font-medium text-[var(--color-text-muted)]">
+                {price.prefix}
               </span>
-            ) : buttonState === "success" ? (
-              <span className="inline-flex items-center gap-2">
-                <Check className="h-4 w-4" aria-hidden="true" />
-                <span>{addedLabel}</span>
-              </span>
-            ) : (
-              addToCartLabel
             )}
-          </Button>
-        </div>
+            <span className="whitespace-nowrap tabular-nums">
+              {formatPrice(price.amount)}
+            </span>
+          </p>
         )}
       </div>
     </article>
   );
-});
+}

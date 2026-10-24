@@ -6,13 +6,12 @@ import { Mail, MessageCircle } from "lucide-react";
 import { PageLayout } from "@/features/layout";
 import { SearchBar } from "@/features/search";
 import { FilterSidebar } from "@/features/filters";
-import { ProductGrid, type ProductCardProduct } from "@/features/products";
+import { ProductGrid } from "@/features/products";
 import { HeroShowcase, type HeroShowcaseItem } from "./hero-showcase";
 import { CartDrawer } from "@/features/cart";
 import { FaqAccordion } from "@/features/faq";
 import { PoliciesAccordion } from "@/features/policies";
 import { NoResults } from "@/features/empty-states";
-import { useToast } from "@/features/toast";
 
 import { useProducts } from "@/hooks/use-products";
 import { useFilters } from "@/hooks/use-filters";
@@ -69,7 +68,6 @@ export function HomePageClient({
   const locale = useLocalization(initialMessages);
   const content = useContent(initialContent);
   const cart = useCart();
-  const { showToast } = useToast();
 
   // ─── UI State ───
   // Drawer open/close lives in CartProvider (shared with the chat widget so it
@@ -84,29 +82,6 @@ export function HomePageClient({
 
   // Destructure frequently used values to avoid useMemo dependency issues
   const { activeFilters, toggleFilter, sortBy, setSortBy, clearFilters } = products;
-
-  // Map products to ProductCard format
-  const cardProducts: ProductCardProduct[] = useMemo(
-    () =>
-      products.products.map((p) => ({
-        id: p.id,
-        slug: p.slug,
-        name: p.name,
-        brand: p.brand,
-        image: p.image,
-        type: p.type,
-        badge: p.badge,
-        rating: p.rating,
-        sizes: p.sizes,
-        notes: p.notes,
-        gender: p.gender,
-        house: p.house,
-        featured: p.featured,
-        inStock: p.inStock,
-        status: p.status,
-      })),
-    [products.products],
-  );
 
   // Map filter groups to sidebar format.
   // The "الترتيب" (sort) group is treated specially: instead of toggling
@@ -154,21 +129,6 @@ export function HomePageClient({
   );
 
   // ─── Handlers ───
-  const handleAddToCart = (
-    product: ProductCardProduct,
-    size: { label: string; price: number },
-  ) => {
-    cart.addItem({
-      productId: product.id,
-      slug: product.slug,
-      sizeLabel: size.label,
-      price: size.price,
-      name: product.name,
-      image: product.image,
-    });
-    showToast(`تمت إضافة ${product.name} إلى السلة`, "success");
-  };
-
   const handleCartCheckout = () => {
     cart.closeDrawer();
     router.push("/checkout");
@@ -249,7 +209,7 @@ export function HomePageClient({
           />
 
           <div className="flex-1">
-            {cardProducts.length === 0 ? (
+            {products.products.length === 0 ? (
               <NoResults
                 title={t("home.noProducts", "لا توجد منتجات تطابق اختيارك")}
                 description={t("home.noProductsHint", "جرب تغيير معايير البحث أو التصفية")}
@@ -264,24 +224,18 @@ export function HomePageClient({
               />
             ) : (
               <ProductGrid
-                products={cardProducts}
-                desktopCols={settings.grid.desktop as 1 | 2 | 3 | 4}
-                tabletCols={settings.grid.tablet as 1 | 2}
-                mobileCols={settings.grid.mobile as 1}
-                cardProps={{
-                  addToCartLabel: t("home.addToCart", "أضف إلى السلة"),
-                  addedLabel: t("home.addedToCart", "✓ تمت الإضافة"),
-                  outOfStockLabel: t("home.outOfStock", "غير متوفر"),
-                  comingSoonLabel: t("product.comingSoon", "قريبًا"),
-                  comingSoonHint: t(
-                    "product.comingSoonHint",
-                    "سيتوفر هذا المنتج قريباً",
+                products={products.products}
+                labels={{
+                  comingSoon: t("product.comingSoon", "قريبًا"),
+                  outOfStock: t("home.outOfStock", "غير متوفر"),
+                  from: t("catalog.from", "من"),
+                  add: t("home.addToCart", "أضف إلى السلة"),
+                  addToCart: t("home.addToCart", "أضف إلى السلة"),
+                  chooseSize: t("product.selectSize", "اختر الحجم"),
+                  addedToast: t(
+                    "home.addedToast",
+                    "تمت إضافة {name} إلى السلة",
                   ),
-                  selectSizeLabel: t("product.selectSize", "اختر الحجم"),
-                  shippingFee,
-                  buyNowLabel: t("home.buyNow", "اشتر الآن"),
-                  onAddToCart: handleAddToCart,
-                  onBuyNow: () => router.push("/checkout"),
                 }}
               />
             )}

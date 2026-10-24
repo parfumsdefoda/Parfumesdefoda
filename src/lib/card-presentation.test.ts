@@ -1,0 +1,206 @@
+import { describe, it, expect } from "vitest";
+import {
+  cardBadge,
+  cardMetaLine,
+  cardMetaParts,
+  cardPrice,
+  lowestInStockPrice,
+  quickAddMode,
+  sizeMlFromLabel,
+} from "./card-presentation";
+import { publicTierLabel, PUBLIC_TIER_LABELS } from "./product-labels";
+import type { Product } from "@/types";
+
+// ─── Fixtures ───────────────────────────────────────────────────────────────
+
+type CardProduct = Pick<
+  Product,
+  "image" | "inStock" | "status" | "featured" | "sizes" | "house" | "type"
+> &
+  Partial<Pick<Product, "concentration">>;
+
+const PHOTO = "/products/PF020.png";
+const PLACEHOLDER = "/products/placeholder-unavailable.webp";
+
+function product(overrides: Partial<CardProduct> = {}): CardProduct {
+  return {
+    image: PHOTO,
+    inStock: true,
+    status: "active",
+    featured: false,
+    house: "نيش",
+    type: "شرقي",
+    sizes: [
+      { label: "50 مل", price: 500, inStock: true },
+      { label: "100 مل", price: 700, inStock: true },
+    ],
+    ...overrides,
+  };
+}
+
+// ─── Badge priority ─────────────────────────────────────────────────────────
+
+describe("cardBadge", () => {
+  it("shows nothing on a normal in-stock product", () => {
+    expect(cardBadge(product())).toBeNull();
+  });
+
+  it("shows the featured badge on an in-stock featured product", () => {
+    expect(cardBadge(product({ featured: true }))).toBe("featured");
+  });
+
+  it("shows out-of-stock ahead of featured", () => {
+    expect(cardBadge(product({ featured: true, inStock: false }))).toBe(
+      "out-of-stock",
+    );
+  });
+
+  it("treats a product with no purchasable size as out of stock", () => {
+    expect(
+      cardBadge(
+        product({
+          sizes: [
+            { label: "50 مل", price: 500, inStock: false },
+            { label: "100 مل", price: 700, inStock: false },
+          ],
+        }),
+      ),
+    ).toBe("out-of-stock");
+  });
+
+  it("treats a non-active status as out of stock", () => {
+    expect(cardBadge(product({ status: "archived" }))).toBe("out-of-stock");
+  });
+
+  it("puts the coming-soon placeholder above everything else", () => {
+    expect(
+      cardBadge(product({ image: PLACEHOLDER, featured: true, inStock: false })),
+    ).toBe("coming-soon");
+  });
+});
+
+// ─── Price ──────────────────────────────────────────────────────────────────
+
+describe("lowestInStockPrice", () => {
+  it("returns the cheapest purchasable size, not the first one", () => {
+    expect(
+      lowestInStockPrice(
+        product({
+          sizes: [
+            { label: "100 مل", price: 700, inStock: true },
+            { label: "10 مل", price: 120, inStock: true },
+            { label: "30 مل", price: 90, inStock: false },
+          ],
+        }),
+      ),
+    ).toBe(120);
+  });
+
+  it("falls back to the listed prices when nothing is in stock", () => {
+    expect(
+      lowestInStockPrice(
+        product({ sizes: [{ label: "50 مل", price: 480, inStock: false }] }),
+      ),
+    ).toBe(480);
+  });
+
+  it("returns null when the product has no sizes", () => {
+    expect(lowestInStockPrice(product({ sizes: [] }))).toBeNull();
+  });
+});
+
+describe("cardPrice", () => {
+  it("prefixes «من» when more than one size exists", () => {
+    expect(cardPrice(product())).toEqual({ prefix: "من", amount: 500 });
+  });
+
+  it("drops the prefix for a single-size product", () => {
+    expect(
+      cardPrice(
+        product({ sizes: [{ label: "50 مل", price: 500, inStock: true }] }),
+      ),
+    ).toEqual({ prefix: null, amount: 500 });
+  });
+
+  it("returns null when there is no price to show", () => {
+    expect(cardPrice(product({ sizes: [] }))).toBeNull();
+  });
+
+  it("uses the caller's Arabic prefix", () => {
+    expect(cardPrice(product(), "يبدأ من")?.prefix).toBe("يبدأ من");
+  });
+});
+
+// ─── Meta line ──────────────────────────────────────────────────────────────
+
+describe("cardMetaParts", () => {
+  it("renders tier and scent style", () => {
+    expect(cardMetaParts(product())).toEqual(["نيش", "شرقي"]);
+  });
+
+  it("adds the concentration only when the catalogue has one", () => {
+    expect(cardMetaParts(product({ concentration: "edp" }))).toEqual([
+      "نيش",
+      "شرقي",
+      "أو دو بارفوم",
+    ]);
+  });
+
+  it("never renders the دووب tier", () => {
+    expect(cardMetaParts(product({ house: "دووب" }))).toEqual(["شرقي"]);
+    expect(publicTierLabel("دووب")).toBeNull();
+  });
+
+  it("keeps the lineup at three parts", () => {
+    expect(cardMetaParts(product({ concentration: "oil" })).length).toBe(3);
+  });
+
+  it("joins with a middle dot", () => {
+    expect(cardMetaLine(product())).toBe("نيش · شرقي");
+  });
+
+  it("returns null when there is nothing to say", () => {
+    expect(
+      cardMetaLine({
+        house: "دووب",
+        type: "" as Product["type"],
+        concentration: undefined,
+      }),
+    ).toBeNull();
+  });
+
+  it("exposes a public label for every tier except دووب", () => {
+    expect(Object.keys(PUBLIC_TIER_LABELS)).toEqual(["ديزاينر", "نيش", "دووب"]);
+    expect(publicTierLabel("ديزاينر")).toBe("ديزاينر");
+    expect(publicTierLabel(undefined)).toBeNull();
+  });
+});
+
+// ─── Quick add ──────────────────────────────────────────────────────────────
+
+describe("quickAddMode", () => {
+  it("hides the control when nothing is in stock", () => {
+    expect(quickAddMode([{ inStock: false }])).toBe("hidden");
+  });
+
+  it("adds directly when exactly one size is available", () => {
+    expect(quickAddMode([{ inStock: true }, { inStock: false }])).toBe("direct");
+  });
+
+  it("opens the chooser when several sizes are available", () => {
+    expect(quickAddMode([{ inStock: true }, { inStock: true }])).toBe("chooser");
+  });
+});
+
+describe("sizeMlFromLabel", () => {
+  it("reads the volume from the existing label", () => {
+    expect(sizeMlFromLabel("50 مل")).toBe(50);
+    expect(sizeMlFromLabel("10 مل")).toBe(10);
+    expect(sizeMlFromLabel("100 مل")).toBe(100);
+    expect(sizeMlFromLabel("50ml")).toBe(50);
+  });
+
+  it("returns null when the label carries no volume", () => {
+    expect(sizeMlFromLabel("عينة")).toBeNull();
+  });
+});

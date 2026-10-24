@@ -8,7 +8,10 @@
  * Nothing is inferred: a label is only produced for a value that exists.
  */
 
-import type { Concentration, ScentFamily } from "@/schemas/product-schema";
+import type { Concentration, Product, ScentFamily } from "@/schemas/product-schema";
+
+/** Brand tier as the catalogue stores it (الدار). */
+export type House = Product["house"];
 
 /** Latin abbreviations used on perfume listings, Arabic market included. */
 export const CONCENTRATION_CODES: Record<Concentration, string> = {
@@ -40,6 +43,27 @@ export const FAMILY_LABELS: Record<ScentFamily, string> = {
   oriental: "شرقي",
   woody: "خشبي",
 };
+
+/**
+ * Public tier labels — the ONE lookup for الدار on shop surfaces.
+ *
+ * `دووب` maps to `null` on purpose: a clone is never labelled as one on a card
+ * or in a filter, because the label sells against the product. The data keeps
+ * the value (search, chat and the owner's CSV still see it), the shopper does
+ * not. Filters build their options from this map, so a null value simply never
+ * appears as an option.
+ */
+export const PUBLIC_TIER_LABELS: Record<House, string | null> = {
+  "ديزاينر": "ديزاينر",
+  "نيش": "نيش",
+  "دووب": null,
+};
+
+/** Display label for a tier, or null when the tier must not be shown. */
+export function publicTierLabel(house?: House | null): string | null {
+  if (!house) return null;
+  return PUBLIC_TIER_LABELS[house] ?? null;
+}
 
 export function concentrationLabel(
   concentration?: Concentration | null,
