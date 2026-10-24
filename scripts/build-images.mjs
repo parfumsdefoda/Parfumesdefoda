@@ -1,10 +1,12 @@
 /**
  * Derived image pipeline — Parfums De Foda
  *
- * Originals in public/products/ are NEVER modified. For every product image
- * this writes a normalised family of derivatives into
- * public/products/derived/{slug}/ and records what exists in
- * src/data/image-manifest.json.
+ * Originals in public/products/ are NEVER modified. For every product image —
+ * the cover and each extra gallery view — this writes a normalised family of
+ * derivatives into public/products/derived/{slug}/ and records what exists in
+ * src/data/image-manifest.json. The key is the file name
+ * (`/products/PF091.png` → `pf091`), so a gallery view resolves the same way
+ * as a cover.
  *
  * Normalisation makes the catalogue look like one shoot:
  *   1. trim the empty border (transparent or white) with a tolerance
@@ -55,6 +57,11 @@ async function exists(p) {
   }
 }
 
+/** Manifest key for an image path: `/products/PF091.png` → `pf091`. */
+function imageSlug(src) {
+  return path.basename(src, path.extname(src)).toLowerCase();
+}
+
 async function isUpToDate(src, dir) {
   const srcStat = await fs.stat(src);
   for (const out of OUTPUTS) {
@@ -97,15 +104,13 @@ async function normalise(absSrc) {
   return { buffer, canvas, background: info.background, box };
 }
 
-async function buildProduct(product, { force }) {
-  const src = product.image;
+async function buildImage(slug, src, { force }) {
   const absSrc = path.join(ROOT, "public", src.replace(/^\//, ""));
 
   if (!(await exists(absSrc))) {
-    return { slug: product.slug, status: "missing-source", src };
+    return { slug, status: "missing-source", src };
   }
 
-  const slug = product.slug;
   const dir = path.join(DERIVED_ROOT, slug);
   const relDir = `/products/derived/${slug}`;
 
@@ -195,9 +200,30 @@ async function main() {
   const onlySlug = slugArg ? slugArg.split("=")[1] : null;
 
   const products = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf8"));
-  const queue = onlySlug ? products.filter((p) => p.slug === onlySlug) : products;
-  if (queue.length === 0) {
-    console.error(`No product matches ${onlySlug}`);
+
+  // Every referenced image: the cover first, then each extra gallery view.
+  // One file may be referenced twice — derive it once.
+  const queue = [];
+  const seenImages = new Set();
+  for (const product of products) {
+    const images = [product.image, ...(product.gallery ?? [])].filter(
+      (src) => typeof src === "string" && src.startsWith("/"),
+    );
+    for (const src of images) {
+      const slug = imageSlug(src);
+      // The shared placeholder is referenced by several products: derive once.
+      if (seenImages.has(slug)) continue;
+      seenImages.add(slug);
+      queue.push({ slug, src, product: product.slug });
+    }
+  }
+
+  const filtered = onlySlug
+    ? queue.filter((entry) => entry.slug === onlySlug || entry.product === onlySlug)
+    : queue;
+
+  if (filtered.length === 0) {
+    console.error(`No product or image matches ${onlySlug}`);
     process.exit(1);
   }
 
@@ -212,10 +238,10 @@ async function main() {
   }
 
   const results = [];
-  for (const product of queue) {
-    const result = await buildProduct(product, { force });
+  for (const entry of filtered) {
+    const result = await buildImage(entry.slug, entry.src, { force });
     results.push(result);
-    const label = String(product.slug).padEnd(8);
+    const label = String(entry.slug).padEnd(8);
     if (result.status === "needs-retouch") {
       console.log(`  ⚠ ${label} needs a manual retouch (${result.background} background) — original kept`);
     } else if (result.status === "missing-source") {

@@ -43,6 +43,22 @@ const TIER_MAX_WIDTH: Record<ImageTier, number> = {
   pdp: 2000,
 };
 
+/**
+ * Manifest key for any product image path.
+ *
+ * `/products/PF020.png` → `pf020`, `/products/PF091.png` → `pf091`. Gallery
+ * views are derived under their own key, so a PDP thumbnail resolves exactly
+ * like a cover image — no component has to guess.
+ */
+export function imageSlug(src?: string | null): string | null {
+  if (!src) return null;
+  const file = src.split("?")[0].split("/").pop();
+  if (!file) return null;
+  const dot = file.lastIndexOf(".");
+  const base = dot === -1 ? file : file.slice(0, dot);
+  return base.toLowerCase() || null;
+}
+
 export function getProductImageEntry(slug?: string | null): ManifestEntry | null {
   if (!slug) return null;
   return MANIFEST.products[slug] ?? null;

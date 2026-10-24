@@ -18,6 +18,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import { isUnavailableBadge } from "@/lib/product-availability";
+import { imageSlug } from "@/lib/product-image";
 import type { Product } from "@/types";
 import type { FullSettings } from "@/types/services";
 
@@ -66,9 +67,6 @@ export function ProductDetailPageClient({
       ? product.gallery
       : [product.image];
   const currentImage = gallery[selectedImageIndex] ?? product.image;
-  // Derived assets exist for the cover image only — an extra gallery view
-  // renders its original file rather than someone else's derivative.
-  const derivedSlug = (img: string) => (img === product.image ? product.slug : undefined);
 
   // ─── Handlers ───
   const handleAddToCart = useCallback(() => {
@@ -165,7 +163,7 @@ export function ProductDetailPageClient({
                   className="relative"
                 >
                   <ProductImage
-                    slug={derivedSlug(currentImage)}
+                    slug={imageSlug(currentImage)}
                     src={currentImage}
                     name={product.name}
                     tier="pdp"
@@ -210,7 +208,7 @@ export function ProductDetailPageClient({
                     }`}
                   >
                     <ProductImage
-                      slug={derivedSlug(img)}
+                      slug={imageSlug(img)}
                       src={img}
                       name={product.name}
                       tier="card"
