@@ -1,4 +1,4 @@
-import { redis } from "./redis";
+import { isRedisConfigured, redis } from "./redis";
 
 /**
  * Product-sales tracking on Upstash Redis.
@@ -10,16 +10,63 @@ import { redis } from "./redis";
  *   field:  productId (e.g. "PF010")
  *   value:  total quantity sold (incremented atomically via HINCRBY)
  *
- * Both helpers are deliberately failure-tolerant: they log errors and never
- * throw, so a Redis outage can never block order completion or page rendering.
+ * Reads happen during the homepage render, so they are treated as best-effort
+ * decoration: they are skipped entirely when Redis is not configured, capped by
+ * a short timeout when it is, and never throw. A sales count can cost a few
+ * milliseconds — it must never cost the page.
  */
 
 /** Key of the Redis hash that stores aggregate sales per product. */
 const PRODUCT_SALES_KEY = "product-sales";
 
+/**
+ * Upper bound for a render-time read. The homepage orders by best-seller, which
+ * is a nicety: after this long the page renders with the default order instead.
+ */
+export const SALES_READ_TIMEOUT_MS = 300;
+
 export interface ProductSalesItem {
   productId: string;
   quantity: number;
+}
+
+/** The one Redis command this module needs, so tests can pass a fake. */
+export interface SalesReader {
+  hgetall(key: string): Promise<unknown>;
+}
+
+export interface ReadSalesOptions {
+  /** Override the shared client (tests). */
+  reader?: SalesReader;
+  /** Override the env check (tests). */
+  configured?: boolean;
+  /** Override the timeout (tests). */
+  timeoutMs?: number;
+}
+
+/**
+ * Resolve with the promise's value, or with `fallback` after `ms` — whichever
+ * comes first. A rejection also resolves with the fallback: callers never see
+ * a hung or failed read.
+ */
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  fallback: T,
+): Promise<T> {
+  return new Promise<T>((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(fallback);
+      },
+    );
+  });
 }
 
 /**
@@ -47,17 +94,29 @@ export async function incrementProductSales(
 }
 
 /**
- * Fetch the full product-sales hash as a plain object.
+ * Read the product-sales hash as a plain object.
  *
- * Returns `{ [productId]: quantitySold }`. On any failure (or when the hash
- * is empty) returns an empty object — callers fall back to default ordering.
+ * - No Upstash credentials → returns `{}` without touching the network.
+ * - Redis throws → `{}`, logged once by the caller's own error text.
+ * - Redis hangs → `{}` after {@link SALES_READ_TIMEOUT_MS}.
  */
-export async function getProductSalesCounts(): Promise<
-  Record<string, number>
-> {
+export async function readProductSalesCounts(
+  options: ReadSalesOptions = {},
+): Promise<Record<string, number>> {
+  const configured = options.configured ?? isRedisConfigured();
+  if (!configured) return {};
+
+  const reader: SalesReader = options.reader ?? redis;
+
   try {
-    const raw = await redis.hgetall(PRODUCT_SALES_KEY);
-    if (!raw) return {};
+    const raw = await withTimeout(
+      // `hgetall` can throw synchronously (bad URL) — normalise it to a rejection
+      // so the timeout path handles both.
+      Promise.resolve().then(() => reader.hgetall(PRODUCT_SALES_KEY)),
+      options.timeoutMs ?? SALES_READ_TIMEOUT_MS,
+      null,
+    );
+    if (!raw || typeof raw !== "object") return {};
 
     const counts: Record<string, number> = {};
     for (const [productId, value] of Object.entries(raw)) {

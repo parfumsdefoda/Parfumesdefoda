@@ -153,15 +153,19 @@ export const ProductCard = memo(function ProductCard({
   const [buttonState, setButtonState] = useState<ButtonState>("idle");
   const timersRef = useRef<{ loading?: ReturnType<typeof setTimeout>; success?: ReturnType<typeof setTimeout> }>({});
   const cardRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // Priority cards are the above-the-fold ones: starting them at opacity 0 hides
+  // the largest image on the page until hydration runs the observer, which is
+  // what kept LCP pinned at ~4.3 s even after the HTML arrived in 35 ms.
+  const [isVisible, setIsVisible] = useState(priority);
 
   // Availability is state, never a badge string.
   const isOutOfStock =
     isUnavailableProduct(product) ||
     (selectedSize !== null && !selectedSize.inStock);
 
-  // Intersection Observer for fade-in animation
+  // Intersection Observer for fade-in animation (above-the-fold cards skip it)
   useEffect(() => {
+    if (priority) return;
     const el = cardRef.current;
     if (!el) return;
 
@@ -177,7 +181,7 @@ export const ProductCard = memo(function ProductCard({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [priority]);
 
   const handleAddToCart = useCallback(() => {
     if (!selectedSize || isOutOfStock || buttonState !== "idle") return;
