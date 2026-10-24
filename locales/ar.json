@@ -45,7 +45,9 @@
     "bestSeller": "Best Seller",
     "new": "جديد",
     "limited": "إصدار محدود",
-    "imageAltPrefix": "زجاجة"
+    "imageAltPrefix": "زجاجة",
+    "comingSoon": "قريبًا",
+    "comingSoonHint": "سيتوفر هذا المنتج قريباً"
   },
   "cart": {
     "title": "سلة التسوق",

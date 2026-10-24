@@ -17,7 +17,7 @@ import { useToast } from "@/features/toast";
 import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
-import { isUnavailableBadge } from "@/lib/product-availability";
+import { isComingSoon, isUnavailableBadge } from "@/lib/product-availability";
 import { imageSlug } from "@/lib/product-image";
 import type { Product } from "@/types";
 import type { FullSettings } from "@/types/services";
@@ -60,6 +60,8 @@ export function ProductDetailPageClient({
 
   // ─── Derived ───
   const selectedSize = product.sizes[selectedSizeIndex];
+  // Waiting for its real photo: the page exists, the sale does not.
+  const comingSoon = isComingSoon(product);
   const isOutOfStock = selectedSize ? !selectedSize.inStock : true;
   const isProductOutOfStock = !product.inStock;
   const gallery =
@@ -162,15 +164,23 @@ export function ProductDetailPageClient({
                   transition={{ duration: 0.2 }}
                   className="relative"
                 >
-                  <ProductImage
-                    slug={imageSlug(currentImage)}
-                    src={currentImage}
-                    name={product.name}
-                    tier="pdp"
-                    frame="stage"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
+                  {comingSoon ? (
+                    <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--ui-surface-muted)]">
+                      <span className="rounded-pill border border-[var(--border-default)] px-5 py-2 text-headline font-bold text-[var(--neutral-500)]">
+                        قريبًا
+                      </span>
+                    </div>
+                  ) : (
+                    <ProductImage
+                      slug={imageSlug(currentImage)}
+                      src={currentImage}
+                      name={product.name}
+                      tier="pdp"
+                      frame="stage"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      priority
+                    />
+                  )}
                 </motion.div>
               </AnimatePresence>
 
@@ -192,7 +202,7 @@ export function ProductDetailPageClient({
             </div>
 
             {/* Thumbnails */}
-            {gallery.length > 1 && (
+            {!comingSoon && gallery.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {gallery.map((img, index) => (
                   <button
@@ -347,7 +357,20 @@ export function ProductDetailPageClient({
 
             <Separator />
 
+            {/* Coming soon — no price, no size, no purchase */}
+            {comingSoon && (
+              <div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--ui-surface-muted)] px-4 py-3">
+                <span className="block text-caption font-bold text-[var(--neutral-700)]">
+                  قريبًا
+                </span>
+                <p className="mt-1 text-caption text-[var(--neutral-500)]">
+                  سيتوفر هذا المنتج قريباً
+                </p>
+              </div>
+            )}
+
             {/* Size selector */}
+            {!comingSoon && (
             <div>
               <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
                 اختر الحجم
@@ -387,9 +410,10 @@ export function ProductDetailPageClient({
                 })}
               </div>
             </div>
+            )}
 
             {/* Price */}
-            {selectedSize && (
+            {!comingSoon && selectedSize && (
               <div className="flex items-baseline gap-3">
                 <AnimatePresence mode="wait">
                   <motion.span
@@ -410,7 +434,7 @@ export function ProductDetailPageClient({
             )}
 
             {/* Stock status */}
-            {(isOutOfStock || isProductOutOfStock) && (
+            {!comingSoon && (isOutOfStock || isProductOutOfStock) && (
               <div className="flex items-center gap-2 rounded-lg bg-[var(--color-error)]/10 px-4 py-2.5 text-caption text-[var(--color-error)]">
                 <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-error)]" />
                 غير متوفر حالياً
@@ -418,6 +442,7 @@ export function ProductDetailPageClient({
             )}
 
             {/* Buy Now shortcut + Add to Cart */}
+            {!comingSoon && (
             <div className="flex flex-col gap-2.5">
               {/* Buy Now — add to cart then immediately go to checkout */}
               {!isOutOfStock &&
@@ -487,6 +512,7 @@ export function ProductDetailPageClient({
                 )}
               </Button>
             </div>
+            )}
 
             {/* Continue shopping link */}
             <Link

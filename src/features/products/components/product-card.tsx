@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { FeaturedBadge } from "./featured-badge";
 import { formatPrice } from "@/lib/currency";
 import {
+  isComingSoon,
   isUnavailableBadge,
   isUnavailableProduct,
 } from "@/lib/product-availability";
@@ -59,6 +60,10 @@ export interface ProductCardProps {
   addedLabel?: string;
   /** Label for out-of-stock state */
   outOfStockLabel?: string;
+  /** Label for a product whose real photo is still pending */
+  comingSoonLabel?: string;
+  /** One line explaining the coming-soon state */
+  comingSoonHint?: string;
   /** Label prefix for size selector */
   selectSizeLabel?: string;
   /** Label shown below price */
@@ -137,6 +142,8 @@ export const ProductCard = memo(function ProductCard({
   addToCartLabel = "أضف إلى السلة",
   addedLabel = "✓ تمت الإضافة",
   outOfStockLabel = "غير متوفر",
+  comingSoonLabel = "قريبًا",
+  comingSoonHint = "سيتوفر هذا المنتج قريباً",
   selectSizeLabel = "اختر الحجم",
   taxIncludedLabel = "شامل الضريبة",
   shippingFee,
@@ -157,6 +164,10 @@ export const ProductCard = memo(function ProductCard({
   // the largest image on the page until hydration runs the observer, which is
   // what kept LCP pinned at ~4.3 s even after the HTML arrived in 35 ms.
   const [isVisible, setIsVisible] = useState(priority);
+
+  // A product still waiting for its photo is not for sale yet — a price and an
+  // add-to-cart button would be a promise the catalogue cannot keep.
+  const comingSoon = isComingSoon(product);
 
   // Availability is state, never a badge string.
   const isOutOfStock =
@@ -184,7 +195,7 @@ export const ProductCard = memo(function ProductCard({
   }, [priority]);
 
   const handleAddToCart = useCallback(() => {
-    if (!selectedSize || isOutOfStock || buttonState !== "idle") return;
+    if (comingSoon || !selectedSize || isOutOfStock || buttonState !== "idle") return;
 
     setButtonState("loading");
     onAddToCart?.(product, selectedSize);
@@ -196,7 +207,7 @@ export const ProductCard = memo(function ProductCard({
         setButtonState("idle");
       }, 1500);
     }, 350);
-  }, [selectedSize, isOutOfStock, buttonState, onAddToCart, product]);
+  }, [comingSoon, selectedSize, isOutOfStock, buttonState, onAddToCart, product]);
 
   // A badge that says "غير متوفر حالياً" is an availability notice, not a
   // marketing claim — showing it as a gold badge contradicts the sold-out
@@ -253,7 +264,15 @@ export const ProductCard = memo(function ProductCard({
           ? "bg-gradient-to-b from-[var(--gold-50)] to-[var(--bg-primary)]"
           : "bg-[var(--bg-primary)]",
       )}>
-        {detailHref ? (
+        {comingSoon ? (
+          // No real photo yet: a deliberate empty stage beats the shared
+          // "Currently Unavailable" placeholder screaming in English.
+          <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--ui-surface-muted)]">
+            <span className="rounded-pill border border-[var(--border-default)] px-4 py-1.5 text-caption font-bold text-[var(--neutral-500)]">
+              {comingSoonLabel}
+            </span>
+          </div>
+        ) : detailHref ? (
           <Link
             href={detailHref}
             className="block cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2"
@@ -356,7 +375,7 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Size Selector — rounded pills, single row */}
-        {product.sizes.length > 0 && (
+        {!comingSoon && product.sizes.length > 0 && (
           <div>
             <span className="mb-2 block text-caption font-medium text-[var(--ui-text-muted)]">
               {selectSizeLabel}
@@ -392,7 +411,7 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Price */}
-        {selectedSize && (
+        {!comingSoon && selectedSize && (
           <div className="mt-auto pt-1">
             <AnimatePresence mode="wait">
               <motion.span
@@ -413,7 +432,7 @@ export const ProductCard = memo(function ProductCard({
         )}
 
         {/* Shipping Fee Badge */}
-        {shippingFee !== undefined && (
+        {!comingSoon && shippingFee !== undefined && (
           <div className="flex items-center gap-1.5 rounded-pill bg-[var(--ui-surface-muted)] px-2.5 py-1">
             <span className="inline-block h-1.5 w-1.5 rounded-pill bg-[var(--neutral-400)]" />
             <span className="text-caption font-medium text-[var(--ui-text-muted)]">
@@ -422,7 +441,17 @@ export const ProductCard = memo(function ProductCard({
           </div>
         )}
 
+        {/* Coming soon — no price pressure, nothing to add to the cart */}
+        {comingSoon && (
+          <div className="mt-auto rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--ui-surface-muted)] px-3 py-3 text-center">
+            <span className="block text-caption text-[var(--neutral-500)]">
+              {comingSoonHint}
+            </span>
+          </div>
+        )}
+
         {/* Buy Now + Add to Cart buttons */}
+        {!comingSoon && (
         <div className="flex flex-col gap-2">
           {/* Buy Now — navigate straight to checkout after adding */}
           {!isOutOfStock && selectedSize && (
@@ -482,6 +511,7 @@ export const ProductCard = memo(function ProductCard({
             )}
           </Button>
         </div>
+        )}
       </div>
     </article>
   );

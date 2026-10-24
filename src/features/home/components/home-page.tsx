@@ -272,6 +272,11 @@ export function HomePageClient({
                   addToCartLabel: t("home.addToCart", "أضف إلى السلة"),
                   addedLabel: t("home.addedToCart", "✓ تمت الإضافة"),
                   outOfStockLabel: t("home.outOfStock", "غير متوفر"),
+                  comingSoonLabel: t("product.comingSoon", "قريبًا"),
+                  comingSoonHint: t(
+                    "product.comingSoonHint",
+                    "سيتوفر هذا المنتج قريباً",
+                  ),
                   selectSizeLabel: t("product.selectSize", "اختر الحجم"),
                   shippingFee,
                   buyNowLabel: t("home.buyNow", "اشتر الآن"),

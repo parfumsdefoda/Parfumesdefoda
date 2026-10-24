@@ -1,39 +1,35 @@
-import { describe, expect, it } from "vitest";
-import { isUnavailableBadge, isUnavailableProduct } from "./product-availability";
+import { describe, it, expect } from "vitest";
+import {
+  PLACEHOLDER_IMAGE,
+  isComingSoon,
+  isPlaceholderImage,
+  isUnavailableBadge,
+  isUnavailableProduct,
+} from "./product-availability";
 
-describe("isUnavailableBadge", () => {
-  it("recognises the catalogue's out-of-stock badge", () => {
-    expect(isUnavailableBadge("غير متوفر حالياً")).toBe(true);
+describe("coming soon", () => {
+  it("recognises the shared placeholder photo", () => {
+    expect(isPlaceholderImage(PLACEHOLDER_IMAGE)).toBe(true);
+    expect(isPlaceholderImage("/products/PF020.png")).toBe(false);
+    expect(isPlaceholderImage(null)).toBe(false);
   });
 
-  it("recognises common variants", () => {
-    expect(isUnavailableBadge("غير متاح")).toBe(true);
-    expect(isUnavailableBadge("نفد المخزون")).toBe(true);
-    expect(isUnavailableBadge("Out of stock")).toBe(true);
-  });
-
-  it("does not treat marketing badges as availability", () => {
-    expect(isUnavailableBadge("جديد")).toBe(false);
-    expect(isUnavailableBadge("الأكثر مبيعاً")).toBe(false);
-    expect(isUnavailableBadge("إصدار محدود")).toBe(false);
-    expect(isUnavailableBadge("")).toBe(false);
-    expect(isUnavailableBadge(null)).toBe(false);
-    expect(isUnavailableBadge(undefined)).toBe(false);
+  it("marks only placeholder products as coming soon", () => {
+    expect(isComingSoon({ image: PLACEHOLDER_IMAGE })).toBe(true);
+    expect(isComingSoon({ image: "/products/PF020.png" })).toBe(false);
+    expect(isComingSoon({})).toBe(false);
   });
 });
 
-describe("isUnavailableProduct", () => {
-  it("is driven by inStock", () => {
-    expect(isUnavailableProduct({ inStock: false, status: "active" })).toBe(true);
+describe("availability", () => {
+  it("treats an availability sentence as a bad marketing badge", () => {
+    expect(isUnavailableBadge("غير متوفر حالياً")).toBe(true);
+    expect(isUnavailableBadge("جديد")).toBe(false);
+  });
+
+  it("reads the state, not the badge", () => {
+    expect(isUnavailableProduct({ inStock: false })).toBe(true);
     expect(isUnavailableProduct({ inStock: true, status: "active" })).toBe(false);
-  });
-
-  it("is driven by a non-active status", () => {
-    expect(isUnavailableProduct({ inStock: true, status: "inactive" })).toBe(true);
-    expect(isUnavailableProduct({ inStock: true, status: "archived" })).toBe(true);
-  });
-
-  it("treats a missing inStock as available", () => {
-    expect(isUnavailableProduct({})).toBe(false);
+    expect(isUnavailableProduct({ inStock: true, status: "draft" })).toBe(true);
   });
 });
