@@ -6,7 +6,7 @@ import { Mail, MessageCircle } from "lucide-react";
 import { PageLayout } from "@/features/layout";
 import { SearchBar } from "@/features/search";
 import { FilterSidebar } from "@/features/filters";
-import { ProductGrid } from "@/features/products";
+import { ProductGrid, type GridColumns } from "@/features/products";
 import { HeroShowcase, type HeroShowcaseItem } from "./hero-showcase";
 import { CartDrawer } from "@/features/cart";
 import { FaqAccordion } from "@/features/faq";
@@ -24,6 +24,26 @@ import type { Product } from "@/types";
 import type { FullSettings, FilterData, SiteContent, LocaleMessages } from "@/types/services";
 import type { SortOption } from "@/lib/sort-helpers";
 import { getShippingFee } from "@/lib/shipping";
+
+/** Clamp the owner's grid numbers onto the three shapes the grid supports. */
+function toGridColumns(grid: {
+  desktop: number;
+  tablet: number;
+  mobile: number;
+}): GridColumns {
+  return {
+    mobile: grid.mobile === 1 ? 1 : 2,
+    tablet: grid.tablet === 1 ? 1 : grid.tablet === 2 ? 2 : 3,
+    desktop:
+      grid.desktop === 1
+        ? 1
+        : grid.desktop === 2
+          ? 2
+          : grid.desktop === 3
+            ? 3
+            : 4,
+  };
+}
 
 /**
  * Props for the client-side HomePage component.
@@ -225,6 +245,7 @@ export function HomePageClient({
             ) : (
               <ProductGrid
                 products={products.products}
+                columns={toGridColumns(settings.grid)}
                 labels={{
                   comingSoon: t("product.comingSoon", "قريبًا"),
                   outOfStock: t("home.outOfStock", "غير متوفر"),

@@ -19,7 +19,7 @@ export async function loadFullSettings(): Promise<FullSettings> {
       language: "ar",
       direction: "rtl",
     },
-    grid: { desktop: 3, tablet: 2, mobile: 1 },
+    grid: { desktop: 4, tablet: 3, mobile: 2 },
     shipping: { cost: 100 },
     contact: { whatsapp: "", email: "", phone: "" },
     social: {},
