@@ -134,6 +134,90 @@ Focus ring: 2px purple with a 2px offset on every variant.
 (availability), `primary` (purple fill), `destructive`. Badges use
 `text-caption` and a pill radius; `gold`/`positive` never use white text.
 
+## Catalogue
+
+### Product card (`src/features/products/components/product-card.tsx`)
+
+A Server Component: it ships HTML with no JavaScript of its own. The only
+client code is the quick-add island, and the size chooser is a separate chunk
+loaded the first time a shopper opens it.
+
+```
+┌───────────────────────────────────┐
+│                         [badge]   │   stage: 4:5, --color-surface-muted,
+│            image                  │   soft ground shadow, radius-card
+│                                   │
+│  (+)                              │   quick add: 44px, brand purple,
+└───────────────────────────────────┘   inline-start, bottom
+  نيش · شرقي                            meta: caption, muted, max 3 parts
+  أفريكان ليذر                          name: headline, 700, 2 lines max
+  من ١٢٠ ج.م                            price: body, 700, brand purple
+```
+
+Rules:
+
+- **One badge, by priority:** coming soon > out of stock > فاخر (gold) > none.
+  A normal, in-stock product carries no badge at all.
+- **Price** is the cheapest buyable size, prefixed with «من» only when the
+  product has more than one size. A sold-out product still states its cheapest
+  listed price (no pressure, nothing to add).
+- **Meta** is the public tier label, the scent style, then the concentration —
+  each only when the catalogue has it. `دووب` has no public label: see
+  `PUBLIC_TIER_LABELS` in `src/lib/product-labels.ts`, the one lookup that
+  decides whether a tier may be shown. Filters build their options from the
+  same map, so a dupe is never labelled as one anywhere a shopper looks.
+- **Quick add** adds straight away when exactly one size is buyable, opens a
+  chooser (popover on desktop, bottom sheet on mobile) when several are, and
+  does not exist when none are. It is always visible on touch and revealed on
+  hover/focus on pointer devices.
+- **States** come from data, never from a badge string: photo pending (shared
+  placeholder → a quiet «قريبًا» stage, no price, no controls), sold out
+  (image at 60%, muted name, no quick add), missing image (the stage stays, the
+  broken icon goes), long names (2-line clamp).
+- **Motion** is transform-only: a 1.03 image scale over 500ms `--ease-apple`.
+  The global `prefers-reduced-motion` rule disables it.
+- Cards after the first row carry `content-visibility: auto` with
+  `contain-intrinsic-size`, so off-screen cards cost no layout work.
+
+### Filters, sort and search (`src/features/catalog`, `src/lib/catalog-*.ts`)
+
+The query string is the single source of truth. The server reads it, filters
+and counts the catalogue, and renders the grid; the controls only rewrite it
+with `router.replace(..., { scroll: false })`.
+
+| Param | Values |
+| --- | --- |
+| `gender` | `رجالي`, `نسائي`, `للجنسين` (comma-separated) |
+| `style` | `شرقي`, `غربي` |
+| `tier` | `ديزاينر`, `نيش` — never `دووب` |
+| `season` | `صيفي`, `شتوي`, `خريفي`, `ربيعي` |
+| `performance` | `أداء ضعيف`, `أداء متوسط`, `أداء قوي`, `أداء صاروخي` |
+| `price` | `up-to-120`, `121-to-150`, `over-150` |
+| `available` | `1` |
+| `sort` | `featured` (default), `price-asc`, `price-desc`, `alphabetical` |
+| `q` | the search query, trimmed to 80 characters |
+
+An unknown value is ignored, so a hand-edited URL cannot produce a broken
+view. Defaults are omitted from the URL, and the key order is fixed.
+
+- **Facet counts** are computed against the *other* active filters (never the
+group's own), so a count answers "what would adding this show?". Options that
+exist in the catalogue stay visible with a zero count and are disabled; an
+option no product uses is not offered at all.
+- **Price bands** describe the cheapest buyable size. Their boundaries come
+from the data, not from round numbers: the catalogue's entry prices are 120,
+150, 180 and 220 EGP, so 120 and 150 are the only cuts that separate real
+groups. The catalogue currently clusters at 120 (26 products), which the facet
+counts show honestly.
+- **Ordering** is availability first: buyable, then sold out, then coming soon,
+stable inside each group. The chosen sort decides everything else.
+- **Layout**: 2 columns below 640px (12px gap), 3 columns to 1279px, 4 columns
+from 1280px (24px gap). Laptop gets a bar of pill triggers with popovers; below
+1024px a single "الفلاتر" button opens a full-height bottom sheet with the same
+groups and a live "عرض N منتج". Closing the sheet returns focus to its trigger.
+- The result count is an `aria-live="polite"` region; every checkbox, chip and
+toggle has an Arabic accessible name.
+
 ## Reference page
 
 `/dev/design-system` renders every token, the contrast table, the type scale,

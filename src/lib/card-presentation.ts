@@ -23,6 +23,16 @@ export function hasAnyStock(product: Pick<Product, "sizes">): boolean {
 }
 
 /**
+ * True when the product actually points at a file.
+ *
+ * A missing path renders the muted stage with no image at all — better than a
+ * broken-image icon, and it keeps the card's geometry identical.
+ */
+export function hasProductImage(product: Pick<Product, "image">): boolean {
+  return Boolean(product.image && product.image.trim() !== "");
+}
+
+/**
  * The one badge a card shows, or null.
  *
  * Normal in-stock products carry no badge at all — the restraint is the point.

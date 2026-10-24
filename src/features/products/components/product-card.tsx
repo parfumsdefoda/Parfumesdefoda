@@ -10,6 +10,7 @@ import {
   cardMetaLine,
   cardPrice,
   hasAnyStock,
+  hasProductImage,
 } from "@/lib/card-presentation";
 import type { Product } from "@/types";
 
@@ -93,6 +94,7 @@ export function ProductCard({
   const badge = cardBadge(product);
   const comingSoon = badge === "coming-soon";
   const outOfStock = badge === "out-of-stock";
+  const hasImage = hasProductImage(product);
   const price = comingSoon ? null : cardPrice(product, copy.from);
   const meta = cardMetaLine(product);
   const href = product.slug ? `/product/${product.slug}` : null;
@@ -114,6 +116,12 @@ export function ProductCard({
                 {copy.comingSoon}
               </span>
             </div>
+          ) : !hasImage ? (
+            // No file to point at: keep the geometry, drop the broken icon.
+            <div
+              aria-hidden="true"
+              className="aspect-[4/5] w-full bg-[var(--color-surface-muted)]"
+            />
           ) : (
             <ProductImage
               slug={product.slug}

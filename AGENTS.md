@@ -4,7 +4,7 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 ## First Reads
 
-1. `data/settings.json` — store config (currency, grid: 3/2/1, flat shipping: 100 EGP, no free-shipping threshold)
+1. `data/settings.json` — store config (currency, grid: 4/3/2, flat shipping: 100 EGP, no free-shipping threshold)
 2. `data/theme.json` — brand colours, injected server-side (see `docs/Design-System.md`)
 3. `data/products.json` — product catalog (array of 40 products, sizes: `10 مل`, `30 مل`, `50 مل`, `100 مل`)
 4. `locales/ar.json` — all user-facing Arabic text (with fallback defaults in components)
@@ -28,6 +28,7 @@ npm run build           # production build (Turbopack)
 ## Architecture
 
 - **Homepage** (`/`) is the main storefront: search, filters, product grid, FAQ, policies, contact, cart drawer. Cart is a Shadcn Sheet drawer (right side).
+- **Catalogue state lives in the URL** (`?gender=…&price=…&sort=…&q=…`). `src/app/page.tsx` parses it, `src/lib/catalog-query.ts` filters and counts on the server, and `src/features/catalog` is the only client island. Cards are Server Components; the quick-add island is the only client code in a card.
 - **Checkout** is a separate route: `/checkout` (two-column: form + order summary) → `/checkout/success` (order confirmation).
 - **API Route** `/api/orders` — receives order objects (in-memory storage, prepare for future DB).
 - **Feature-based** (`src/features/{name}/components/`, `hooks/`, `types/`, `utils/`). Each feature has a barrel `index.ts` export.

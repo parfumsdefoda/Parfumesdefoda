@@ -4,6 +4,7 @@ import {
   cardMetaLine,
   cardMetaParts,
   cardPrice,
+  hasProductImage,
   lowestInStockPrice,
   quickAddMode,
   sizeMlFromLabel,
@@ -189,6 +190,17 @@ describe("quickAddMode", () => {
 
   it("opens the chooser when several sizes are available", () => {
     expect(quickAddMode([{ inStock: true }, { inStock: true }])).toBe("chooser");
+  });
+});
+
+describe("hasProductImage", () => {
+  it("is true when the product points at a file", () => {
+    expect(hasProductImage({ image: "/products/PF020.png" })).toBe(true);
+  });
+
+  it("is false when there is nothing to show", () => {
+    expect(hasProductImage({ image: "" })).toBe(false);
+    expect(hasProductImage({ image: "   " })).toBe(false);
   });
 });
 
