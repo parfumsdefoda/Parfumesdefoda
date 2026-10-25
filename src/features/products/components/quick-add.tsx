@@ -76,7 +76,8 @@ export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
       showToast(labels.addedToast.replace("{name}", product.name), "success");
       announceAdded();
       setChooserOpen(false);
-      buttonRef.current?.focus();
+      // Show the shopper what just happened: the same drawer the header opens.
+      cart.openDrawer();
     },
     [announceAdded, cart, labels.addedToast, product, showToast],
   );
