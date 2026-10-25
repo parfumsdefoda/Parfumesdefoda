@@ -92,6 +92,19 @@
   --ui-gold-soft: var(--gold-50);
   --ui-danger: #b3261e;
   --ui-focus: var(--purple-600);
+  /* On the dark surfaces (footer, hero): white text and hairlines that read
+     against --purple-950 without inventing a second palette. */
+  --color-on-dark: var(--brand-white);
+  --color-on-dark-muted: color-mix(
+    in srgb,
+    var(--brand-white) 76%,
+    var(--purple-950)
+  );
+  --color-on-dark-border: color-mix(
+    in srgb,
+    var(--brand-white) 18%,
+    var(--purple-950)
+  );
 
   /* ── Legacy names kept because existing components read them ─ */
   --color-primary: var(--brand-white);

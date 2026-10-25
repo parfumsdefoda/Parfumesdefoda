@@ -6,6 +6,8 @@ import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { loadVisibleProducts } from "@/services/products";
 import { t } from "@/lib/locale";
+import { formatPrice } from "@/lib/currency";
+import { getShippingFee } from "@/lib/shipping";
 import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, type PrimaryNavLabels } from "@/lib/site-nav";
 import { SiteShell } from "@/features/layout";
@@ -194,6 +196,40 @@ export default async function RootLayout({
       href: `/shop?tier=${encodeURIComponent(house)}`,
     }));
 
+  /* Footer columns: the shop routes, the three help routes, and contact — the
+     contact column itself is rendered from data/contact.json by the footer. */
+  const footerColumns = [
+    {
+      title: t(localeMessages, "footer.shopTitle", "المتجر"),
+      links: headerNav.map((link) => ({ label: link.label, href: link.href })),
+    },
+    {
+      title: t(localeMessages, "footer.helpTitle", "المساعدة"),
+      links: [
+        {
+          label: t(localeMessages, "footer.faq", "الأسئلة الشائعة"),
+          href: "/faq",
+        },
+        {
+          label: t(localeMessages, "footer.shippingReturns", "الشحن والإرجاع"),
+          href: "/shipping-returns",
+        },
+        {
+          label: t(localeMessages, "footer.contact", "اتصل بنا"),
+          href: "/contact",
+        },
+      ],
+    },
+  ];
+
+  /* Cash on delivery is the store's only payment method (content/faq.json) and
+     shipping is the flat fee from data/settings.json — no number is typed here. */
+  const footerNote = t(
+    localeMessages,
+    "footer.note",
+    "الدفع عند الاستلام · شحن ثابت {fee} لكل الطلبات",
+  ).replace("{fee}", formatPrice(getShippingFee(settings)));
+
   const headerLabels = {
     nav: t(localeMessages, "header.nav", "القائمة الرئيسية"),
     houses: t(localeMessages, "nav.houses", "الدور"),
@@ -257,8 +293,17 @@ export default async function RootLayout({
                 : undefined,
             }}
             footer={{
+              storeName: settings.store.name,
               description: settings.footer.description,
-              columns: settings.footer.columns,
+              columns: footerColumns,
+              contact: settings.contact,
+              note: footerNote,
+              contactTitle: t(
+                localeMessages,
+                "footer.contactTitle",
+                "تواصل معنا",
+              ),
+              rights: t(localeMessages, "footer.rights", "جميع الحقوق محفوظة"),
             }}
           >
             {children}
