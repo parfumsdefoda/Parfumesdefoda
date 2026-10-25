@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PageLayout } from "@/features/layout";
 import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/currency";
@@ -114,8 +113,7 @@ export function CheckoutPageClient({
 
   if (cart.items.length === 0) {
     return (
-      <PageLayout>
-        <div id="main-content" className="container mx-auto px-4 py-[var(--space-section)] text-center">
+      <div className="container mx-auto px-4 py-[var(--space-section)] text-center">
           <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
             <ShoppingBag className="h-10 w-10 text-[var(--neutral-300)]" />
           </div>
@@ -130,13 +128,11 @@ export function CheckoutPageClient({
             العودة للمتجر
           </Button>
         </div>
-      </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
-      <section id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
+      <section className="container mx-auto px-4 py-[var(--space-section)]">
         {/* Back link */}
         <Link
           href="/"
@@ -313,6 +309,5 @@ export function CheckoutPageClient({
           </div>
         </div>
       </section>
-    </PageLayout>
   );
 }

@@ -3,7 +3,6 @@
 import { useMemo, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, MessageCircle } from "lucide-react";
-import { PageLayout } from "@/features/layout";
 import { CartDrawer } from "@/features/cart";
 import { FaqAccordion } from "@/features/faq";
 import { PoliciesAccordion } from "@/features/policies";
@@ -80,17 +79,7 @@ export function HomePageClient({
   };
 
   return (
-    <PageLayout
-      headerProps={{
-        navItems: settings.navigation,
-        cartCount: cart.totalItems,
-        onCartClick: () => cart.openDrawer(),
-      }}
-      footerProps={{
-        description: settings.footerDescription,
-        columns: settings.footerColumns,
-      }}
-    >
+    <>
       {/* ─── Animated Hero Showcase (living catalog marquee) ─── */}
       {heroProducts.length > 0 && (
         <HeroShowcase
@@ -179,6 +168,6 @@ export function HomePageClient({
         onRemoveItem={cart.removeItem}
         onCheckout={handleCartCheckout}
       />
-    </PageLayout>
+    </>
   );
 }

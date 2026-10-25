@@ -2,6 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { cairo } from "./fonts";
 import { Providers } from "./providers";
 import { loadTheme } from "@/services/theme";
+import { loadFullSettings } from "@/services/settings";
+import { loadLocale } from "@/services/localization";
+import { loadVisibleProducts } from "@/services/products";
+import { t } from "@/lib/locale";
+import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
+import { buildPrimaryNav, genderCounts, type PrimaryNavLabels } from "@/lib/site-nav";
+import { SiteShell } from "@/features/layout";
 import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
 import "./globals.css";
 
@@ -111,7 +118,10 @@ function JsonLd() {
     inLanguage: "ar",
     potentialAction: {
       "@type": "SearchAction",
-      target: `${siteUrl}/?search={search_term_string}`,
+      // The catalogue moved to /shop; the old `/?search=` target now redirects,
+      // which search engines penalise, so the sitelinks box points at the real
+      // search route.
+      target: `${siteUrl}/shop?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -157,7 +167,50 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const theme = await loadTheme();
+  const [theme, settings, localeMessages, products] = await Promise.all([
+    loadTheme(),
+    loadFullSettings(),
+    loadLocale(),
+    loadVisibleProducts(),
+  ]);
+
+  /* ─── Shell data ───
+     The header and footer live here now, so the links they show are resolved
+     once per request rather than by each page. A category with no visible
+     products is not rendered as a dead link. */
+  const navLabels: PrimaryNavLabels = {
+    shop: t(localeMessages, "nav.shop", "المتجر"),
+    men: t(localeMessages, "nav.men", "رجالي"),
+    women: t(localeMessages, "nav.women", "حريمي"),
+    unisex: t(localeMessages, "nav.unisex", "للجنسين"),
+  };
+
+  const headerNav = buildPrimaryNav(genderCounts(products), navLabels);
+
+  const houseLinks = Object.entries(PUBLIC_TIER_LABELS)
+    .filter(([, label]) => label !== null)
+    .map(([house, label]) => ({
+      label: label as string,
+      href: `/shop?tier=${encodeURIComponent(house)}`,
+    }));
+
+  const headerLabels = {
+    nav: t(localeMessages, "header.nav", "القائمة الرئيسية"),
+    houses: t(localeMessages, "nav.houses", "الدور"),
+    search: t(localeMessages, "header.search", "بحث"),
+    searchPlaceholder: t(
+      localeMessages,
+      "home.searchPlaceholder",
+      "ابحث عن عطرك...",
+    ),
+    searchSubmit: t(localeMessages, "header.searchSubmit", "ابحث"),
+    advisor: t(localeMessages, "home.advisorCta", "اختر عطرك"),
+    cart: t(localeMessages, "cart.title", "سلة التسوق"),
+    menu: t(localeMessages, "header.menu", "القائمة"),
+    closeMenu: t(localeMessages, "header.close", "إغلاق"),
+    whatsapp: t(localeMessages, "contact.whatsapp", "راسلنا عبر واتساب"),
+    backToCart: t(localeMessages, "header.backToCart", "العودة للسلة"),
+  };
 
   /* Brand inputs from data/theme.json, applied on the server render so the
      derived token scales are correct before the first paint (no flash). */
@@ -191,12 +244,28 @@ export default async function RootLayout({
           انتقل إلى المحتوى الرئيسي
         </a>
         <Providers theme={theme}>
-          {children}
-          {/* AI chat assistant — INSIDE Providers so it can read cart/drawer
-              state (useCart) and unmount itself while the cart drawer or the
-              checkout page is open (prevents overlap with the checkout
-              button). Still wrapped in its own error boundary so a failure
-              here never takes down the rest of the site. */}
+          {/* Header + footer live here, so every route — catalogue, category,
+              product, FAQ, contact and checkout — wears the same shell. */}
+          <SiteShell
+            header={{
+              storeName: settings.store.name,
+              nav: headerNav,
+              houses: houseLinks,
+              labels: headerLabels,
+              whatsappHref: settings.contact.whatsapp
+                ? `https://wa.me/${settings.contact.whatsapp}`
+                : undefined,
+            }}
+            footer={{
+              description: settings.footer.description,
+              columns: settings.footer.columns,
+            }}
+          >
+            {children}
+          </SiteShell>
+          {/* AI chat assistant — INSIDE Providers so it can read cart state.
+              Wrapped in its own error boundary so a failure here never takes
+              down the rest of the site. */}
           <ChatAssistant />
         </Providers>
       </body>

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, ArrowRight, Copy, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageLayout } from "@/features/layout";
 
 function getOrderNumber(): string | null {
   try {
@@ -57,8 +56,7 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
       : null;
 
   return (
-    <PageLayout>
-      <section id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
+      <section className="container mx-auto px-4 py-[var(--space-section)]">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -142,6 +140,5 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
           </div>
         </motion.div>
       </section>
-    </PageLayout>
   );
 }

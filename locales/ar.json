@@ -4,7 +4,20 @@
     "products": "منتجاتنا",
     "faq": "الأسئلة الشائعة",
     "policies": "السياسات",
-    "contact": "اتصل بنا"
+    "contact": "اتصل بنا",
+    "shop": "المتجر",
+    "men": "رجالي",
+    "women": "حريمي",
+    "unisex": "للجنسين",
+    "houses": "الدور"
+  },
+  "header": {
+    "nav": "القائمة الرئيسية",
+    "search": "بحث",
+    "searchSubmit": "ابحث",
+    "menu": "القائمة",
+    "close": "إغلاق",
+    "backToCart": "العودة للسلة"
   },
   "home": {
     "pageTitle": "Parfums De Foda — عطور فاخرة",
@@ -23,7 +36,10 @@
     "heroAria": "تشكيلة العطور الفاخرة",
     "loading": "جاري التحميل...",
     "addedToast": "تمت إضافة {name} إلى السلة",
-    "from": "من"
+    "from": "من",
+    "advisorCta": "اختر عطرك",
+    "shopNow": "تسوّق الآن",
+    "chooseWithAdvisor": "اختر عطرك بالمساعد"
   },
   "sort": {
     "label": "ترتيب المنتجات",

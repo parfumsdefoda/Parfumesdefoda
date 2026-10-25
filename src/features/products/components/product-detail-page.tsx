@@ -10,11 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { FeaturedBadge } from "./featured-badge";
-import { PageLayout } from "@/features/layout";
 import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/features/toast";
-import { useSettings } from "@/hooks/use-settings";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import { isComingSoon, isUnavailableBadge } from "@/lib/product-availability";
@@ -46,7 +44,6 @@ export function ProductDetailPageClient({
   const cart = useCart();
   const router = useRouter();
   const { showToast } = useToast();
-  const settingsData = useSettings(settings);
   const shippingFee = getShippingFee(settings);
 
   // ─── State ───
@@ -118,18 +115,8 @@ export function ProductDetailPageClient({
       (product.notes.base?.length ?? 0) > 0);
 
   return (
-    <PageLayout
-      headerProps={{
-        navItems: settingsData.navigation,
-        cartCount: cart.totalItems,
-        onCartClick: () => cart.openDrawer(),
-      }}
-      footerProps={{
-        description: settingsData.footerDescription,
-        columns: settingsData.footerColumns,
-      }}
-    >
-      <div id="main-content" className="container mx-auto px-4 py-[var(--space-section)]">
+    <>
+      <div className="container mx-auto px-4 py-[var(--space-section)]">
         {/* Breadcrumb */}
         <nav aria-label="التنقل" className="mb-6">
           <ol className="flex items-center gap-2 text-caption text-[var(--neutral-500)]">
@@ -542,6 +529,6 @@ export function ProductDetailPageClient({
         onRemoveItem={cart.removeItem}
         onCheckout={handleCartCheckout}
       />
-    </PageLayout>
+    </>
   );
 }

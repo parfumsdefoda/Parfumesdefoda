@@ -1,6 +1,6 @@
-export { Header } from "./components/header";
+export { HeaderBar } from "./components/header-bar";
 export { Footer } from "./components/footer";
-export { PageLayout } from "./components/page-layout";
-export type { HeaderProps, HeaderNavItem } from "./components/header";
+export { SiteShell } from "./components/site-shell";
+export type { HeaderBarProps, HeaderLabels, HouseLink } from "./components/header-bar";
 export type { FooterProps, FooterColumn, FooterLink } from "./components/footer";
-export type { PageLayoutProps } from "./components/page-layout";
+export type { SiteShellProps } from "./components/site-shell";

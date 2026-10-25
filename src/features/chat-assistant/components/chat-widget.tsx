@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/providers/CartProvider";
 import { useChat } from "../hooks/use-chat";
+import { subscribeAdvisor } from "../advisor-bus";
 import { ChatWindow } from "./chat-window";
 import { ChatTriggerCard } from "./chat-trigger-card";
 
@@ -100,6 +101,10 @@ export function ChatWidget() {
       if (attractEndRef.current) clearTimeout(attractEndRef.current);
     };
   }, []);
+
+  // Entry points outside this component (the header button, the hero link)
+  // ask for the advisor through the bus; the panel owns its own visibility.
+  useEffect(() => subscribeAdvisor(() => setIsOpen(true)), []);
 
   const toggleChat = useCallback(() => {
     setIsOpen((prev) => !prev);
