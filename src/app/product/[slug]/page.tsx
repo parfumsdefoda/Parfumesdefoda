@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { loadProducts, loadVisibleProducts } from "@/services/products";
-import { loadFullSettings } from "@/services/settings";
 import { buildProductTitle, productPath } from "@/lib/seo";
 import { ProductDetailPageClient } from "@/features/products/components/product-detail-page";
 
@@ -78,10 +77,7 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const [products, settings] = await Promise.all([
-    loadProducts(),
-    loadFullSettings(),
-  ]);
+  const products = await loadProducts();
 
   const product = products.find((p) => p.slug === slug);
 
@@ -91,9 +87,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <ProductDetailPageClient
-      product={product}
-      settings={settings}
-    />
+    <ProductDetailPageClient product={product} />
   );
 }

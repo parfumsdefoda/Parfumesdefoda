@@ -10,17 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { FeaturedBadge } from "./featured-badge";
-import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/features/toast";
 import { formatPrice } from "@/lib/currency";
 import { getSiteUrl } from "@/lib/seo";
 import { Breadcrumbs } from "@/features/layout";
-import { getShippingFee } from "@/lib/shipping";
 import { isComingSoon, isUnavailableBadge } from "@/lib/product-availability";
 import { imageSlug } from "@/lib/product-image";
 import type { Product } from "@/types";
-import type { FullSettings } from "@/types/services";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -28,7 +25,6 @@ type ButtonState = "idle" | "loading" | "success";
 
 export interface ProductDetailPageClientProps {
   product: Product;
-  settings: FullSettings;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -41,12 +37,10 @@ export interface ProductDetailPageClientProps {
  */
 export function ProductDetailPageClient({
   product,
-  settings,
 }: ProductDetailPageClientProps) {
   const cart = useCart();
   const router = useRouter();
   const { showToast } = useToast();
-  const shippingFee = getShippingFee(settings);
 
   // ─── State ───
   const [selectedSizeIndex, setSelectedSizeIndex] = useState<number>(() => {
@@ -92,22 +86,6 @@ export function ProductDetailPageClient({
       }, 1500);
     }, 350);
   }, [selectedSize, isOutOfStock, buttonState, cart, product, showToast]);
-
-  const handleCartCheckout = useCallback(() => {
-    cart.closeDrawer();
-    router.push("/checkout");
-  }, [cart, router]);
-
-  // ─── Cart items mapped to CartDrawer format ───
-  const cartDrawerItems = cart.items.map((item) => ({
-    productId: item.productId,
-    slug: item.slug,
-    sizeLabel: item.sizeLabel,
-    price: item.price,
-    quantity: item.quantity,
-    name: item.name,
-    image: item.image,
-  }));
 
   // ─── Notes ───
   const hasNotes =
@@ -506,22 +484,6 @@ export function ProductDetailPageClient({
         </div>
       </div>
 
-      {/* Cart Drawer */}
-      <CartDrawer open={cart.isDrawerOpen}
-        onOpenChange={(open) => (open ? cart.openDrawer() : cart.closeDrawer())}
-        items={cartDrawerItems}
-        title="سلة التسوق"
-        emptyTitle="سلة التسوق فارغة"
-        emptyDescription="أضف منتجات إلى السلة للمتابعة"
-        totalLabel="المجموع"
-        checkoutLabel="إتمام الطلب"
-        removeLabel="إزالة"
-        quantityLabel="الكمية"
-        shippingFee={shippingFee}
-        onUpdateQuantity={cart.updateQuantity}
-        onRemoveItem={cart.removeItem}
-        onCheckout={handleCartCheckout}
-      />
     </>
   );
 }

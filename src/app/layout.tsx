@@ -230,6 +230,24 @@ export default async function RootLayout({
     "الدفع عند الاستلام · شحن ثابت {fee} لكل الطلبات",
   ).replace("{fee}", formatPrice(getShippingFee(settings)));
 
+  /* Cart chrome text, resolved once here so the drawer mounted by the shell
+     never has to guess a label or a shipping fee. */
+  const cartLabels = {
+    title: t(localeMessages, "cart.title", "سلة التسوق"),
+    empty: t(localeMessages, "cart.empty", "سلة التسوق فارغة"),
+    emptyDescription: t(
+      localeMessages,
+      "cart.emptyDescription",
+      "أضف منتجات إلى السلة للمتابعة",
+    ),
+    total: t(localeMessages, "cart.total", "المجموع"),
+    checkout: t(localeMessages, "cart.checkout", "إتمام الطلب"),
+    remove: t(localeMessages, "cart.remove", "إزالة"),
+    quantity: t(localeMessages, "cart.quantity", "الكمية"),
+    itemsCount: t(localeMessages, "cart.itemsCount", "عدد القطع"),
+    continueShopping: t(localeMessages, "cart.continueShopping", "متابعة التسوق"),
+  };
+
   const headerLabels = {
     nav: t(localeMessages, "header.nav", "القائمة الرئيسية"),
     houses: t(localeMessages, "nav.houses", "الدور"),
@@ -304,6 +322,10 @@ export default async function RootLayout({
                 "تواصل معنا",
               ),
               rights: t(localeMessages, "footer.rights", "جميع الحقوق محفوظة"),
+            }}
+            cart={{
+              labels: cartLabels,
+              shippingFee: getShippingFee(settings),
             }}
           >
             {children}

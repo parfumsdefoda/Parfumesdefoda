@@ -1,147 +1,159 @@
+import type { Metadata } from "next";
 import { loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
 import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
-import { selectHeroShowcase } from "@/lib/hero-selection";
+import { readProductSalesCounts } from "@/lib/sales-tracking";
+import { selectBestSellers } from "@/lib/best-sellers";
+import { genderCounts, CATEGORY_ROUTES, categoryHref } from "@/lib/site-nav";
+import { getShippingFee } from "@/lib/shipping";
+import { formatPrice } from "@/lib/currency";
 import { t } from "@/lib/locale";
-import { parseCatalogState } from "@/lib/catalog-filters";
-import { buildCatalogView } from "@/lib/catalog-query";
-import { toGridColumns } from "@/lib/grid-columns";
-import { HomePageClient } from "@/features/home";
-import { CatalogSection } from "@/features/catalog";
+import { buildCardLabels } from "@/features/catalog/catalog-props";
+import {
+  AdvisorBand,
+  BestSellersSection,
+  CategoryTiles,
+  HeroSection,
+  HomeFaq,
+  TrustBand,
+} from "@/features/home";
 
 /**
- * The storefront renders per request: the hero marquee is re-randomised on
- * every visit and the catalogue is filtered from the query string.
+ * The homepage is a marketing page, regenerated every five minutes.
+ *
+ * It is deliberately static-ish: no search params, no per-request catalogue.
+ * Filtering, sorting and search moved to `/shop`, so this route can be cached
+ * and served from the CDN, which is where the mobile LCP win comes from.
+ * Best-seller ordering reads the Redis sales counts behind a short timeout, so
+ * a slow or unconfigured Redis only changes the order — never the response.
  */
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
-interface HomePageProps {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await loadLocale();
+  const title = t(locale, "home.pageTitle", "Parfums De Foda — عطور فاخرة");
+  const description = t(
+    locale,
+    "home.pageDescription",
+    "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة",
+  );
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: { title, description, url: "/" },
+  };
 }
 
 /**
- * Homepage — Parfums De Foda.
+ * Homepage — hero, best sellers, categories, the advisor invitation, the three
+ * facts the store can stand behind, and five questions.
  *
- * Server Component that loads ALL data from JSON files using node:fs/promises.
- *
- * The catalogue is filtered, sorted and counted HERE, from the URL, and handed
- * to `CatalogSection` as server-rendered children of the client chrome. That
- * is what lets the product cards stay Server Components while the filter bar
- * still feels instant: a filter change is a navigation, not a re-render of the
- * whole grid in the browser.
- *
- * No client-side data fetching. No fetch() calls for local files.
- * Data flow: JSON files → Services → Server Component → Client chrome → HTML
+ * Every section is a Server Component. The only client code on the page is the
+ * advisor links, the FAQ accordion and the quick-add islands on the eight
+ * cards — no marquee, no framer-motion, no grid of forty hydrated cards.
  */
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = await searchParams;
-
-  // ─── Load all data server-side ───
-  const [products, settings, content, localeMessages] = await Promise.all([
+export default async function HomePage() {
+  const [products, settings, content, locale, salesCounts] = await Promise.all([
     loadVisibleProducts(),
     loadFullSettings(),
     loadContent(),
     loadLocale(),
+    readProductSalesCounts(),
   ]);
 
-  // ─── Server-side error handling ───
-  if (products.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-16">
-          <h2 className="text-title-3 font-bold text-[var(--neutral-700)] mb-2">
-            عذراً، لا توجد منتجات حالياً
-          </h2>
-          <p className="text-[var(--neutral-500)]">
-            يرجى المحاولة مرة أخرى لاحقاً
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const bestSellers = selectBestSellers(products, salesCounts);
+  const counts = genderCounts(products);
+  const shippingFee = formatPrice(getShippingFee(settings));
 
-  // Randomize the hero marquee set per page load (featured first, then random)
-  const heroProducts = selectHeroShowcase(products);
-
-  // ─── Catalogue view from the URL ───
-  const state = parseCatalogState(params);
-  const view = buildCatalogView(products, state);
-
-  const cardLabels = {
-    comingSoon: t(localeMessages, "product.comingSoon", "قريبًا"),
-    outOfStock: t(localeMessages, "home.outOfStock", "غير متوفر"),
-    from: t(localeMessages, "home.from", "من"),
-    add: t(localeMessages, "home.addToCart", "أضف إلى السلة"),
-    addToCart: t(localeMessages, "home.addToCart", "أضف إلى السلة"),
-    chooseSize: t(localeMessages, "product.selectSize", "اختر الحجم"),
-    addedToast: t(
-      localeMessages,
-      "home.addedToast",
-      "تمت إضافة {name} إلى السلة",
-    ),
-  };
-
-  const controlsLabels = {
-    searchPlaceholder: t(
-      localeMessages,
-      "home.searchPlaceholder",
-      "ابحث عن عطرك...",
-    ),
-    search: t(localeMessages, "catalog.search", "بحث"),
-    clearSearch: t(localeMessages, "catalog.clearSearch", "مسح البحث"),
-    filters: t(localeMessages, "catalog.filters", "الفلاتر"),
-    clearAll: t(localeMessages, "catalog.clearAll", "مسح الكل"),
-    availableOnly: t(localeMessages, "catalog.availableOnly", "المتوفر فقط"),
-    resultUnit: t(localeMessages, "catalog.resultUnit", "منتج"),
-    sort: t(localeMessages, "catalog.sort", "الترتيب"),
-    sortFeatured: t(localeMessages, "catalog.sortFeatured", "الافتراضي"),
-    sortPriceAsc: t(localeMessages, "catalog.sortPriceAsc", "الأقل سعرًا"),
-    sortPriceDesc: t(localeMessages, "catalog.sortPriceDesc", "الأعلى سعرًا"),
-    sortName: t(localeMessages, "catalog.sortName", "الاسم (أ-ي)"),
-    showResults: t(localeMessages, "catalog.showResults", "عرض {count} منتج"),
-    remove: t(localeMessages, "catalog.remove", "إزالة"),
-    groups: {
-      gender: t(localeMessages, "catalog.groupGender", "الجنس"),
-      style: t(localeMessages, "catalog.groupStyle", "النوع"),
-      tier: t(localeMessages, "catalog.groupTier", "الدار"),
-      season: t(localeMessages, "catalog.groupSeason", "الفصل"),
-      performance: t(
-        localeMessages,
-        "catalog.groupPerformance",
-        "الأداء",
-      ),
-      price: t(localeMessages, "catalog.groupPrice", "السعر"),
-    },
+  const categoryLabels: Record<(typeof CATEGORY_ROUTES)[number]["slug"], string> = {
+    men: t(locale, "nav.men", "رجالي"),
+    women: t(locale, "nav.women", "حريمي"),
+    unisex: t(locale, "nav.unisex", "للجنسين"),
   };
 
   return (
-    <HomePageClient
-      settings={settings}
-      content={content}
-      localeMessages={localeMessages}
-      heroProducts={heroProducts}
-    >
-      <CatalogSection
-        view={view}
-        columns={toGridColumns(settings.grid)}
-        cardLabels={cardLabels}
-        controlsLabels={controlsLabels}
+    <>
+      <HeroSection
+        heading={t(locale, "home.heroHeading", "عطر يترك أثرًا قبل أن تتكلم")}
+        lead={t(
+          locale,
+          "home.heroLead",
+          "تشكيلة مختارة من العطور الشرقية والنيش، تُطلب في دقيقة واحدة والدفع عند الاستلام.",
+        )}
+        shopCta={t(locale, "home.shopNow", "تسوّق الآن")}
+        advisorCta={t(locale, "home.chooseWithAdvisor", "اختر عطرك بالمساعد")}
+        imageAlt={t(locale, "home.heroImageAlt", "زجاجة عطر من تشكيلة المتجر")}
+      />
+
+      <BestSellersSection
+        products={bestSellers}
         labels={{
-          title: t(localeMessages, "nav.products", "منتجاتنا"),
-          emptyTitle: t(
-            localeMessages,
-            "catalog.emptyTitle",
-            "لا توجد منتجات مطابقة",
-          ),
-          emptyHint: t(
-            localeMessages,
-            "catalog.emptyHint",
-            "جرّب إزالة بعض الفلاتر أو البحث باسم آخر",
-          ),
-          clearFilters: t(localeMessages, "catalog.clearFilters", "مسح الفلاتر"),
+          title: t(locale, "home.bestSellers", "الأكثر مبيعًا"),
+          viewAll: t(locale, "home.viewAll", "عرض الكل"),
+          card: buildCardLabels(locale),
         }}
       />
-    </HomePageClient>
+
+      <CategoryTiles
+        title={t(locale, "home.shopByCategory", "تسوّق حسب القسم")}
+        countLabel={t(locale, "shop.categoryCount", "{count} عطر")}
+        tiles={CATEGORY_ROUTES.map((route) => ({
+          label: categoryLabels[route.slug],
+          href: categoryHref(route.slug),
+          count: counts[route.gender] ?? 0,
+        }))}
+      />
+
+      <AdvisorBand
+        title={t(locale, "home.advisorTitle", "محتار في الاختيار؟")}
+        body={t(
+          locale,
+          "home.advisorBody",
+          "جاوب على سؤالين والمساعد يرشّح لك عطورًا من التشكيلة نفسها.",
+        )}
+        cta={t(locale, "home.advisorCta", "اختر عطرك")}
+      />
+
+      <TrustBand
+        title={t(locale, "home.trustTitle", "كيف يصل طلبك")}
+        items={[
+          {
+            icon: "payment",
+            title: t(locale, "home.trustCod", "الدفع عند الاستلام"),
+            detail: t(
+              locale,
+              "home.trustCodDetail",
+              "تدفع لشركة الشحن عند وصول الطلب.",
+            ),
+          },
+          {
+            icon: "shipping",
+            title: t(locale, "home.trustShipping", "شحن ثابت"),
+            detail: t(
+              locale,
+              "home.trustShippingDetail",
+              "{fee} لكل الطلبات.",
+            ).replace("{fee}", shippingFee),
+          },
+          {
+            icon: "confirmation",
+            title: t(locale, "home.trustConfirm", "تأكيد عبر واتساب"),
+            detail: t(
+              locale,
+              "home.trustConfirmDetail",
+              "نتواصل معك على واتساب لتأكيد الطلب.",
+            ),
+          },
+        ]}
+      />
+
+      <HomeFaq
+        title={t(locale, "faq.title", "الأسئلة الشائعة")}
+        items={content.faq}
+        allLabel={t(locale, "home.faqAll", "كل الأسئلة")}
+      />
+    </>
   );
 }

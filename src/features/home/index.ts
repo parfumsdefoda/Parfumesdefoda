@@ -1,4 +1,14 @@
-export { HomePageClient } from "./components/home-page";
-export type { HomePageClientProps } from "./components/home-page";
-export { HeroShowcase } from "./components/hero-showcase";
-export type { HeroShowcaseItem } from "./components/hero-showcase";
+export { HeroSection } from "./components/hero-section";
+export type { HeroSectionProps } from "./components/hero-section";
+export { BestSellersSection } from "./components/best-sellers-section";
+export type { BestSellersSectionProps } from "./components/best-sellers-section";
+export { CategoryTiles } from "./components/category-tiles";
+export type { CategoryTile, CategoryTilesProps } from "./components/category-tiles";
+export { AdvisorBand } from "./components/advisor-band";
+export type { AdvisorBandProps } from "./components/advisor-band";
+export { AdvisorLink } from "./components/advisor-link";
+export type { AdvisorLinkProps } from "./components/advisor-link";
+export { TrustBand } from "./components/trust-band";
+export type { TrustBandProps, TrustItem } from "./components/trust-band";
+export { HomeFaq } from "./components/home-faq";
+export type { HomeFaqProps } from "./components/home-faq";
