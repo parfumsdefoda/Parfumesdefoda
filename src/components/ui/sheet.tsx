@@ -69,7 +69,7 @@ function SheetContent({
               <Button
                 variant="ghost"
                 // ~44x44px hit area without enlarging the 28px visual.
-                className="absolute top-3 end-3 relative after:absolute after:-inset-2 after:content-['']"
+                className="absolute top-3 end-3 z-10 after:absolute after:-inset-2 after:content-['']"
                 size="icon-sm"
               />
             }

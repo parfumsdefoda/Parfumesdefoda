@@ -286,52 +286,6 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
-/* Chat widget — gold glow pulse animation */
-@keyframes chat-glow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 0 color-mix(in srgb, var(--brand-gold) 40%, transparent),
-      0 4px 16px color-mix(in srgb, var(--brand-purple) 30%, transparent);
-  }
-  50% {
-    box-shadow:
-      0 0 0 8px color-mix(in srgb, var(--brand-gold) 0%, transparent),
-      0 4px 24px color-mix(in srgb, var(--brand-purple) 50%, transparent);
-  }
-}
-
-/* Chat widget — first-visit attention pulse (card scale heartbeat) */
-@keyframes chat-attract {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  10% {
-    transform: scale(1.06);
-  }
-  20% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.05);
-  }
-  45% {
-    transform: scale(1);
-  }
-}
-
-/* Chat widget — shimmer sweep across the trigger card */
-@keyframes chat-sweep {
-  0% {
-    transform: translateX(-150%) rotate(12deg);
-  }
-  55%,
-  100% {
-    transform: translateX(350%) rotate(12deg);
-  }
-}
-
 /* Global reduced-motion contract: no decorative motion, ever. */
 @media (prefers-reduced-motion: reduce) {
   html {

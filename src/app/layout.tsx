@@ -330,10 +330,16 @@ export default async function RootLayout({
           >
             {children}
           </SiteShell>
-          {/* AI chat assistant — INSIDE Providers so it can read cart state.
-              Wrapped in its own error boundary so a failure here never takes
-              down the rest of the site. */}
-          <ChatAssistant />
+          {/* AI advisor panel — INSIDE Providers so it can read cart state.
+              Nothing floats on the page: the header, the hero and the homepage
+              band open it through the advisor bus. Wrapped in its own error
+              boundary so a failure here never takes down the rest of the site. */}
+          <ChatAssistant
+            labels={{
+              title: t(localeMessages, "advisor.title", "مساعد العطور"),
+              close: t(localeMessages, "advisor.close", "إغلاق"),
+            }}
+          />
         </Providers>
       </body>
     </html>

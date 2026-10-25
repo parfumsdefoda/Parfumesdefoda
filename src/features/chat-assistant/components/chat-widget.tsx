@@ -1,196 +1,172 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/providers/CartProvider";
 import { useChat } from "../hooks/use-chat";
 import { subscribeAdvisor } from "../advisor-bus";
 import { ChatWindow } from "./chat-window";
-import { ChatTriggerCard } from "./chat-trigger-card";
 
-// ─── Config ─────────────────────────────────────────────────────────────────
+export interface AdvisorLabels {
+  title: string;
+  close: string;
+}
 
-/** Delay before the first-visit attention pulse (ms) */
-const ATTRACT_DELAY_MS = 3500;
+export interface ChatWidgetProps {
+  labels: AdvisorLabels;
+}
 
-/** How long the first-visit attention pulse runs (ms) */
-const ATTRACT_DURATION_MS = 5200;
+/** Desktop side panel from this breakpoint up; a bottom sheet below it. */
+const DESKTOP_QUERY = "(min-width: 1024px)";
 
-/** Session storage key to track if the attention pulse was already shown */
-const ATTRACT_SHOWN_KEY = "parfumsdefoda-chat-attract-seen";
+function subscribeDesktop(callback: () => void): () => void {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
 
-// ─── Component ──────────────────────────────────────────────────────────────
+function desktopSnapshot(): boolean {
+  return window.matchMedia(DESKTOP_QUERY).matches;
+}
+
+/** The server render and the first client render agree on the sheet. */
+function serverSnapshot(): boolean {
+  return false;
+}
 
 /**
- * ChatWidget — floating chat entry point and expandable chat window.
+ * ChatWidget — the perfume advisor panel.
  *
- * Design (brand-consistent):
- *   - Premium card-style trigger (gold gradient border over brand purple,
- *     gold icon medallion, shimmer sweep) — see ChatTriggerCard
- *   - First-visit attention pulse (sessionStorage-gated, inside useEffect)
- *   - Hover/tap scale feedback
- *   - Positioned bottom-start (bottom-right in RTL) — free corner,
- *     no other fixed element occupies it (header: top, toasts: bottom-center)
- *   - z-[60] keeps the trigger above toasts (z-50) so it stays tappable
- *   - Clicking a recommended product inside the chat minimizes the window
- *     (conversation state is preserved in useChat — reopening restores it)
- *   - FULLY UNMOUNTS (returns null) while the cart drawer is open or on the
- *     /checkout routes — the floating card overlaps the drawer's checkout
- *     button on mobile. Unmount (not CSS hiding) guarantees zero tap targets.
+ * Replaces the floating pulsing card. There is no permanent trigger on the
+ * page: the header's "اختر عطرك", the hero's tertiary link and the homepage's
+ * advisor band all ask for the panel through the advisor bus, so nothing
+ * overlaps a CTA on a phone.
  *
- * Client component with one provider dependency (CartProvider, for drawer
- * state) — which is why it is mounted INSIDE <Providers> in layout.tsx.
- * Wrapped in ChatErrorBoundary at the mount point so a failure here never
- * takes down the rest of the site.
+ * A side panel from 1024px up, a bottom sheet below it. The conversation, the
+ * /api/chat contract and the recommendation cards are unchanged; only the
+ * doorway is. Focus goes to the input when it opens and back to whatever
+ * opened it when it closes, and Tab stays inside the panel.
  */
-export function ChatWidget() {
+export function ChatWidget({ labels }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [attract, setAttract] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const attractTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const attractEndRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
   const { isDrawerOpen } = useCart();
   const pathname = usePathname();
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktop,
+    desktopSnapshot,
+    serverSnapshot,
+  );
 
-  /** True on the checkout flow, where no floating UI may overlap the form */
-  const isCheckoutRoute = pathname?.startsWith("/checkout") ?? false;
+  /** The control that opened the panel, so focus can go back to it. */
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
-  // Collapse the chat window when the drawer opens — render-time state
-  // adjustment (the documented pattern for reacting to prop/context changes;
-  // setState-in-effect is disallowed by lint). Without this, a chat window
-  // that was open when the drawer opened would pop back open the moment the
-  // drawer closes. Must run BEFORE the unmount return below.
+  // Collapse the panel when the cart drawer opens — render-time state
+  // adjustment, the documented pattern for reacting to context changes.
   const [prevDrawerOpen, setPrevDrawerOpen] = useState(isDrawerOpen);
   if (prevDrawerOpen !== isDrawerOpen) {
     setPrevDrawerOpen(isDrawerOpen);
     if (isDrawerOpen) setIsOpen(false);
   }
 
-  // First-visit attention pulse — sessionStorage access inside useEffect only
+  // Entry points outside this component ask for the panel through the bus.
+  useEffect(
+    () =>
+      subscribeAdvisor(() => {
+        const active = document.activeElement;
+        returnFocusRef.current =
+          active instanceof HTMLElement ? active : null;
+        setIsOpen(true);
+      }),
+    [],
+  );
+
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+  }, []);
+
+  // Focus contract: Tab stays inside the panel, and closing hands focus back to
+  // the control the shopper used. Base UI's dialog parts do not move focus in
+  // this build, so the small amount a keyboard user needs lives here.
   useEffect(() => {
-    try {
-      const alreadySeen = sessionStorage.getItem(ATTRACT_SHOWN_KEY);
-      if (alreadySeen) return;
-    } catch {
-      // sessionStorage unavailable (private browsing edge case) — skip
-      return;
-    }
+    if (!isOpen) return;
 
-    attractTimerRef.current = setTimeout(() => {
-      setAttract(true);
+    const getPanel = () =>
+      document.querySelector<HTMLElement>("[data-advisor-panel]");
 
-      try {
-        sessionStorage.setItem(ATTRACT_SHOWN_KEY, "true");
-      } catch {
-        // Ignore — worst case, the pulse shows again next time
-      }
-
-      // Stop the attention pulse after the duration
-      attractEndRef.current = setTimeout(() => {
-        setAttract(false);
-      }, ATTRACT_DURATION_MS);
-    }, ATTRACT_DELAY_MS);
-
-    return () => {
-      if (attractTimerRef.current) clearTimeout(attractTimerRef.current);
-      if (attractEndRef.current) clearTimeout(attractEndRef.current);
+    const focusable = () => {
+      const panel = getPanel();
+      if (!panel) return [];
+      return Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.offsetParent !== null);
     };
-  }, []);
 
-  // Entry points outside this component (the header button, the hero link)
-  // ask for the advisor through the bus; the panel owns its own visibility.
-  useEffect(() => subscribeAdvisor(() => setIsOpen(true)), []);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
 
-  const toggleChat = useCallback(() => {
-    setIsOpen((prev) => !prev);
-    setAttract(false);
-    // Cancel pending attract timers if the user interacts before they fire
-    if (attractTimerRef.current) clearTimeout(attractTimerRef.current);
-    if (attractEndRef.current) clearTimeout(attractEndRef.current);
-  }, []);
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
 
-  const handleClose = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      returnFocusRef.current?.focus();
+    };
+  }, [isOpen]);
 
-  /** Recommended product clicked inside chat → minimize, keep conversation */
-  const handleNavigateToProduct = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+  // The checkout flow keeps its own reduced shell and must not open a panel
+  // over the form.
+  const isCheckoutRoute = pathname?.startsWith("/checkout") ?? false;
+  if (isCheckoutRoute) return null;
 
-  // While the cart drawer is open or on the checkout flow, unmount EVERYTHING
-  // (trigger + window). A real conditional return — not CSS hiding — so there
-  // is zero chance of an invisible-but-tappable element overlapping the
-  // drawer's checkout button.
-  if (isDrawerOpen || isCheckoutRoute) return null;
+  /* A side panel from the desktop breakpoint up, a bottom sheet below it. */
+  const panelClass = isDesktop
+    ? "w-[420px] max-w-[92vw] p-0"
+    : "min-h-[78dvh] rounded-t-card border-t border-[var(--color-border)] p-0";
 
   return (
-    <>
-      {/* ─── Chat Window (expanded) ─── */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 16 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={cn(
-              "fixed bottom-24 start-4 z-50",
-              "h-[520px] w-[370px] max-w-[calc(100vw-2rem)]",
-              "max-h-[calc(100dvh-8rem)]",
-              "overflow-hidden rounded-2xl",
-              "border border-[var(--neutral-100)]",
-              "shadow-lifted",
-              "flex flex-col",
-              "bg-[var(--bg-primary)]",
-            )}
-            role="dialog"
-            aria-label="مساعد العطور"
-          >
-            {/* Close button — floating above the window */}
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={handleClose}
-              aria-label="إغلاق المحادثة"
-              className={cn(
-                "absolute top-2 left-2 z-10",
-                "h-7 w-7 rounded-full",
-                "bg-[var(--bg-secondary)] text-[var(--neutral-500)]",
-                "hover:bg-[var(--neutral-100)] hover:text-[var(--neutral-700)]",
-                "shadow-sm",
-              )}
-            >
-              <X className="h-3.5 w-3.5" />
-            </Button>
-
-            <ChatWindow
-              messages={messages}
-              isLoading={isLoading}
-              error={error}
-              onSendMessage={sendMessage}
-              onClearMessages={clearMessages}
-              onNavigateToProduct={handleNavigateToProduct}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ─── Floating Trigger (card when closed, round close when open) ─── */}
-      <div className="fixed bottom-5 start-4 z-[60]">
-        <ChatTriggerCard
-          isOpen={isOpen}
-          isHovered={isHovered}
-          attract={attract}
-          onToggle={toggleChat}
-          onHoverChange={setIsHovered}
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+      <SheetContent
+        side={isDesktop ? "left" : "bottom"}
+        data-advisor-panel=""
+        closeLabel={labels.close}
+        className={`flex flex-col gap-0 ${panelClass}`}
+      >
+        {/* The chat window already shows the advisor's name; this title exists
+            for the dialog's accessible name, not for the eye. */}
+        <SheetHeader className="sr-only">
+          <SheetTitle>{labels.title}</SheetTitle>
+        </SheetHeader>
+        <ChatWindow
+          messages={messages}
+          isLoading={isLoading}
+          error={error}
+          onSendMessage={sendMessage}
+          onClearMessages={clearMessages}
+          onNavigateToProduct={() => setIsOpen(false)}
         />
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }

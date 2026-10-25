@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { ChatErrorBoundary } from "./chat-error-boundary";
-import { ChatWidget } from "./chat-widget";
+import { ChatWidget, type ChatWidgetProps } from "./chat-widget";
 
 /**
  * ChatAssistant — the single mount point for the chat feature.
@@ -17,14 +17,14 @@ import { ChatWidget } from "./chat-widget";
  * Logs a mount marker on the client so production debugging can confirm
  * whether the widget tree is even attempting to render.
  */
-export function ChatAssistant() {
+export function ChatAssistant({ labels }: ChatWidgetProps) {
   useEffect(() => {
     console.info("[ChatAssistant] mounted");
   }, []);
 
   return (
     <ChatErrorBoundary>
-      <ChatWidget />
+      <ChatWidget labels={labels} />
     </ChatErrorBoundary>
   );
 }
