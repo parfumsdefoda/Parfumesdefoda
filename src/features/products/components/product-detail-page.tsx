@@ -14,6 +14,8 @@ import { CartDrawer } from "@/features/cart";
 import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/features/toast";
 import { formatPrice } from "@/lib/currency";
+import { getSiteUrl } from "@/lib/seo";
+import { Breadcrumbs } from "@/features/layout";
 import { getShippingFee } from "@/lib/shipping";
 import { isComingSoon, isUnavailableBadge } from "@/lib/product-availability";
 import { imageSlug } from "@/lib/product-image";
@@ -117,25 +119,16 @@ export function ProductDetailPageClient({
   return (
     <>
       <div className="container mx-auto px-4 py-[var(--space-section)]">
-        {/* Breadcrumb */}
-        <nav aria-label="التنقل" className="mb-6">
-          <ol className="flex items-center gap-2 text-caption text-[var(--neutral-500)]">
-            <li>
-              <Link
-                href="/"
-                className="hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control"
-              >
-                الرئيسية
-              </Link>
-            </li>
-            <li aria-hidden="true">
-              <ChevronRight className="h-4 w-4" />
-            </li>
-            <li className="text-[var(--neutral-800)] font-medium" aria-current="page">
-              {product.name}
-            </li>
-          </ol>
-        </nav>
+        {/* Breadcrumb — same component the category pages use, with its JSON-LD */}
+        <Breadcrumbs
+          className="mb-6"
+          siteUrl={getSiteUrl()}
+          items={[
+            { label: "الرئيسية", href: "/" },
+            { label: "المتجر", href: "/shop" },
+            { label: product.name },
+          ]}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* ─── Image Gallery ─── */}

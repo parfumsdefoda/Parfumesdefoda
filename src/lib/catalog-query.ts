@@ -153,8 +153,10 @@ function presentOptions(products: Product[], key: FilterKey): string[] {
 export function buildFacets(
   products: Product[],
   state: CatalogState,
+  /** Groups the page has locked, e.g. gender on `/shop/men`. */
+  hidden: readonly FilterKey[] = [],
 ): FacetGroup[] {
-  return FILTER_KEYS.map((key) => {
+  return FILTER_KEYS.filter((key) => !hidden.includes(key)).map((key) => {
     const pool = products.filter((product) =>
       productMatchesState(product, state, key),
     );
@@ -182,6 +184,8 @@ export function buildFacets(
 export function buildCatalogView(
   products: Product[],
   state: CatalogState,
+  /** Facet groups the page does not offer (a category locks its gender). */
+  hiddenFacets: readonly FilterKey[] = [],
 ): CatalogView {
   const filtered = filterCatalog(products, state);
   const sorted = orderForCatalog(sortProducts(filtered, state.sort));
@@ -189,7 +193,7 @@ export function buildCatalogView(
   return {
     state,
     products: sorted,
-    facets: buildFacets(products, state),
+    facets: buildFacets(products, state, hiddenFacets),
     total: sorted.length,
     catalogueSize: products.length,
   };

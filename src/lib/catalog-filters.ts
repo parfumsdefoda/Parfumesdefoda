@@ -179,12 +179,20 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
 
 /**
  * Write a state back as a query string, in a fixed order.
+ *
  * Defaults are omitted, so a clean catalogue has an empty query string.
+ *
+ * `omit` drops groups that the page has locked (a category page pins gender),
+ * so the URL of `/shop/men` never repeats what the route already says.
  */
-export function serializeCatalogState(state: CatalogState): string {
+export function serializeCatalogState(
+  state: CatalogState,
+  omit: readonly FilterKey[] = [],
+): string {
   const params = new URLSearchParams();
 
   for (const key of FILTER_KEYS) {
+    if (omit.includes(key)) continue;
     const values = state[key].filter((value) => value !== "");
     if (values.length > 0) params.set(key, values.join(","));
   }
@@ -243,9 +251,12 @@ export function clearCatalogFilters(state: CatalogState): CatalogState {
 }
 
 /** How many filter values (plus the availability toggle) are active. */
-export function countActiveFilters(state: CatalogState): number {
+export function countActiveFilters(
+  state: CatalogState,
+  omit: readonly FilterKey[] = [],
+): number {
   const values = FILTER_KEYS.reduce(
-    (sum, key) => sum + state[key].length,
+    (sum, key) => (omit.includes(key) ? sum : sum + state[key].length),
     0,
   );
   return values + (state.available ? 1 : 0);

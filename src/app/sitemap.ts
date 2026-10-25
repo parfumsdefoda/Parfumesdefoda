@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { loadVisibleProducts } from "@/services/products";
+import { CATEGORY_ROUTES, categoryHref } from "@/lib/site-nav";
 
 /**
- * /sitemap.xml — generated from data/products.json.
+ * /sitemap.xml — every public route, generated from the same data the pages use.
  *
- * Adding a product to the catalog is enough for it to appear here; the old
- * hand-written public/sitemap.xml only ever listed the homepage.
+ * The catalogue, the three category routes, the help pages and the 40 product
+ * pages. Hidden products (on_site=لا) answer 404, so they are not listed.
  */
 export const dynamic = "force-static";
 
@@ -14,22 +15,35 @@ const siteUrl = (
 ).replace(/\/$/, "");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Hidden products (on_site=لا) answer 404, so they must not be advertised here.
   const products = await loadVisibleProducts();
   const lastModified = new Date();
 
-  return [
-    {
-      url: `${siteUrl}/`,
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: `${siteUrl}/`, lastModified, changeFrequency: "weekly", priority: 1 },
+    { url: `${siteUrl}/shop`, lastModified, changeFrequency: "weekly", priority: 0.9 },
+    ...CATEGORY_ROUTES.map((route) => ({
+      url: `${siteUrl}${categoryHref(route.slug)}`,
       lastModified,
-      changeFrequency: "weekly",
-      priority: 1,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    { url: `${siteUrl}/faq`, lastModified, changeFrequency: "monthly", priority: 0.5 },
+    {
+      url: `${siteUrl}/shipping-returns`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.5,
     },
+    { url: `${siteUrl}/contact`, lastModified, changeFrequency: "monthly", priority: 0.5 },
+  ];
+
+  return [
+    ...staticRoutes,
     ...products.map((product) => ({
       url: `${siteUrl}/product/${product.slug}`,
       lastModified,
       changeFrequency: "weekly" as const,
-      priority: 0.8,
+      priority: 0.7,
     })),
   ];
 }

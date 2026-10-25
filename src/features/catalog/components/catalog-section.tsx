@@ -9,6 +9,7 @@ import {
   CatalogControls,
   type CatalogControlsLabels,
 } from "./catalog-controls";
+import type { FilterKey } from "@/lib/catalog-filters";
 
 export interface CatalogSectionLabels {
   /** Visually hidden heading for the catalogue section. */
@@ -24,6 +25,8 @@ export interface CatalogSectionProps {
   cardLabels?: Partial<ProductCardLabels>;
   controlsLabels?: Partial<CatalogControlsLabels>;
   labels: CatalogSectionLabels;
+  /** Filter groups the route owns (a category page pins gender). */
+  lockedKeys?: readonly FilterKey[];
 }
 
 /**
@@ -39,6 +42,7 @@ export function CatalogSection({
   cardLabels,
   controlsLabels,
   labels,
+  lockedKeys,
 }: CatalogSectionProps) {
   return (
     <section className="container mx-auto px-4 py-[var(--space-section)]">
@@ -49,6 +53,7 @@ export function CatalogSection({
         facets={view.facets}
         total={view.total}
         labels={controlsLabels}
+        lockedKeys={lockedKeys}
       />
 
       {view.total === 0 ? (
@@ -60,7 +65,7 @@ export function CatalogSection({
             {labels.emptyHint}
           </p>
           <Link
-            href="/"
+            href="/shop"
             className="mt-2 inline-flex h-11 items-center rounded-pill border border-[var(--color-brand)] px-5 text-caption font-bold text-[var(--color-brand)] transition-colors hover:bg-[var(--purple-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
           >
             {labels.clearFilters}

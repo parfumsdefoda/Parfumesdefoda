@@ -15,7 +15,37 @@ const securityHeaders = [
   },
 ];
 
+/**
+ * Query keys that belong to the catalogue.
+ *
+ * The catalogue used to live at `/`, so shared and indexed links look like
+ * `/?gender=رجالي`. They are 308-redirected to `/shop` with the query intact.
+ * This lives in the config (not in page.tsx) because the root layout starts
+ * streaming before the page body runs, and a redirect thrown at that point is
+ * emitted inside the stream instead of as a real 308.
+ */
+const CATALOG_QUERY_KEYS = [
+  "gender",
+  "style",
+  "tier",
+  "season",
+  "performance",
+  "price",
+  "available",
+  "sort",
+  "q",
+];
+
 const nextConfig: NextConfig = {
+  async redirects() {
+    return CATALOG_QUERY_KEYS.map((key) => ({
+      source: "/",
+      has: [{ type: "query" as const, key }],
+      destination: "/shop",
+      permanent: true,
+    }));
+  },
+
   // Image optimization
   images: {
     formats: ["image/avif", "image/webp"],

@@ -48,3 +48,16 @@ export function buildProductTitle(product: {
 export function productPath(slug: string): string {
   return `/product/${slug}`;
 }
+
+/**
+ * The site origin used in canonical URLs and JSON-LD.
+ *
+ * Same environment variable the metadata base reads, with the production
+ * domain as the fallback, so structured data never contains a localhost URL.
+ */
+export function getSiteUrl(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://parfumsdefoda.com").replace(
+    /\/$/,
+    "",
+  );
+}

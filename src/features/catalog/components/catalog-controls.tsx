@@ -110,6 +110,12 @@ export interface CatalogControlsProps {
   facets: FacetGroup[];
   total: number;
   labels?: Partial<CatalogControlsLabels>;
+  /**
+   * Groups the route has locked (a category page pins gender). They are not
+   * offered as chips and never written back into the URL, because the route
+   * already says it.
+   */
+  lockedKeys?: readonly FilterKey[];
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -127,6 +133,7 @@ export function CatalogControls({
   facets,
   total,
   labels: labelOverrides,
+  lockedKeys = [],
 }: CatalogControlsProps) {
   const labels = { ...DEFAULT_CONTROLS_LABELS, ...labelOverrides };
   const router = useRouter();
@@ -151,12 +158,12 @@ export function CatalogControls({
 
   const commit = useCallback(
     (next: CatalogState) => {
-      const search = serializeCatalogState(next);
+      const search = serializeCatalogState(next, lockedKeys);
       router.replace(search ? `${pathname}?${search}` : pathname, {
         scroll: false,
       });
     },
-    [pathname, router],
+    [lockedKeys, pathname, router],
   );
 
   // Debounce the search into the URL. The timer reads the *live* query string
@@ -174,13 +181,13 @@ export function CatalogControls({
     return () => clearTimeout(timer);
   }, [query, state.q, commit]);
 
-  const activeCount = countActiveFilters(state);
+  const activeCount = countActiveFilters(state, lockedKeys);
   const openFacet = openGroup
     ? facets.find((group) => group.key === openGroup.key)
     : undefined;
-  const activeValues = FILTER_KEYS.flatMap((key) =>
-    state[key].map((value) => ({ key, value })),
-  );
+  const activeValues = FILTER_KEYS.filter(
+    (key) => !lockedKeys.includes(key),
+  ).flatMap((key) => state[key].map((value) => ({ key, value })));
   const showResults = labels.showResults.replace(
     "{count}",
     formatNumber(total),
