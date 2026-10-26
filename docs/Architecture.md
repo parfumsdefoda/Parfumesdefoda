@@ -6,7 +6,7 @@
 - **Language:** TypeScript (strict)
 - **Styling:** Tailwind CSS v4
 - **UI:** Shadcn/UI (base-nova style)
-- **Animation:** Framer Motion
+- **Animation:** CSS only — keyframes and transitions driven by the motion tokens in `src/app/globals.css` (no animation library).
 - **Forms:** React Hook Form + Zod
 - **Icons:** Lucide React
 

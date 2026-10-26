@@ -1,6 +1,6 @@
 # AGENTS.md — Parfums De Foda
 
-Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, Shadcn/UI (base-nova style), Framer Motion, React Hook Form + Zod v4, Lucide React.
+Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, Shadcn/UI (base-nova style), React Hook Form + Zod v4, Lucide React. No animation library: motion is CSS keyframes and transitions on the design tokens.
 
 ## First Reads
 

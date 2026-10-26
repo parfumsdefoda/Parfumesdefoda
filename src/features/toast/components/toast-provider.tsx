@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
 
 interface Toast {
@@ -51,33 +50,27 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         aria-atomic="true"
       >
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="pointer-events-auto flex items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-3 shadow-lg"
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className="toast-in pointer-events-auto flex items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-primary)] px-4 py-3 shadow-lg"
+          >
+            {toast.type === "success" && (
+              <CheckCircle className="h-4 w-4 text-[var(--color-success)] shrink-0" />
+            )}
+            <span className="text-caption font-medium text-[var(--neutral-700)]">
+              {toast.message}
+            </span>
+            <button
+              type="button"
+              onClick={() => removeToast(toast.id)}
+              className="ms-2 text-[var(--neutral-400)] hover:text-[var(--neutral-600)] shrink-0"
+              aria-label="إغلاق"
             >
-              {toast.type === "success" && (
-                <CheckCircle className="h-4 w-4 text-[var(--color-success)] shrink-0" />
-              )}
-              <span className="text-caption font-medium text-[var(--neutral-700)]">
-                {toast.message}
-              </span>
-              <button
-                type="button"
-                onClick={() => removeToast(toast.id)}
-                className="ms-2 text-[var(--neutral-400)] hover:text-[var(--neutral-600)] shrink-0"
-                aria-label="إغلاق"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
       </div>
     </ToastContext.Provider>
   );

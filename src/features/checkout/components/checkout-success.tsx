@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { CheckCircle, ArrowRight, Copy, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -57,21 +56,11 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
 
   return (
       <section className="container mx-auto px-4 py-[var(--space-section)]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mx-auto max-w-md text-center"
-        >
+        <div className="reveal mx-auto max-w-md text-center">
           {/* Success icon */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-success)]/10"
-          >
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-success)]/10">
             <CheckCircle className="h-10 w-10 text-[var(--color-success)]" />
-          </motion.div>
+          </div>
 
           {/* Title */}
           <h1 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2">
@@ -138,7 +127,7 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
               العودة للمتجر
             </Button>
           </div>
-        </motion.div>
+        </div>
       </section>
   );
 }

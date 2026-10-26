@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
@@ -26,11 +25,8 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className={`flex flex-col items-center justify-center py-16 px-4 text-center ${className ?? ""}`}
+    <div
+      className={`reveal flex flex-col items-center justify-center py-16 px-4 text-center ${className ?? ""}`}
     >
       <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)] text-[var(--neutral-400)]">
         {icon}
@@ -46,6 +42,6 @@ export function EmptyState({
           {actionLabel}
         </Button>
       )}
-    </motion.div>
+    </div>
   );
 }

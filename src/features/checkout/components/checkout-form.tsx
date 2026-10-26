@@ -3,7 +3,6 @@
 import { useState, useMemo, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
 import { User, Phone, MessageCircle, MapPin, Send, Building2, Map } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,12 +124,7 @@ export function CheckoutForm({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className={className ?? ""}
-    >
+    <div className={`reveal ${className ?? ""}`}>
       <h3 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
         {title}
       </h3>
@@ -314,6 +308,6 @@ export function CheckoutForm({
           </Button>
         </div>
       </form>
-    </motion.div>
+    </div>
   );
 }

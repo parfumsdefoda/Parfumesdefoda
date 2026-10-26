@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import { Minus, Plus, Trash2, Truck } from "lucide-react";
 import {
   Sheet,
@@ -71,8 +70,8 @@ export interface CartDrawerProps {
 
 /**
  * CartDrawer — slide-in Sheet with cart items, totals, and checkout.
- * Uses Shadcn Sheet (right side) + Framer Motion for item animations.
- * Pure presentational — all data and callbacks via props.
+ * Uses Shadcn Sheet (right side); the panel animation is CSS, owned by the
+ * Sheet primitive. Pure presentational — all data and callbacks via props.
  */
 export function CartDrawer({
   open,
@@ -126,109 +125,100 @@ export function CartDrawer({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-4">
-            <AnimatePresence initial={false}>
-              {items.map((item) => (
-                <motion.div
-                  key={`${item.productId}-${item.sizeLabel}`}
-                  layout
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <div className="flex gap-3 py-4">
-                    {/* Image */}
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-                      <ProductImage
-                        slug={item.slug}
-                        src={item.image}
-                        name={item.name}
-                        tier="card"
-                        frame="thumb"
-                        sizes="64px"
-                        className="p-1"
-                      />
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
-                        {item.name}
-                      </h4>
-                      <p className="text-caption text-[var(--neutral-500)]">
-                        {item.sizeLabel}
-                      </p>
-
-                      {/* The stepper and the price share a narrow column. When
-                          they no longer fit side by side the price drops to its
-                          own line (end-aligned) instead of overflowing under
-                          the stepper — Arabic-Indic prices are wide. */}
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                        {/* Quantity controls — 24px visuals, ~44px hit areas
-                            (::after), spaced so the extended areas never
-                            overlap each other. */}
-                        <div className="flex shrink-0 items-center gap-4">
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            className="relative after:absolute after:-inset-2.5 after:content-['']"
-                            onClick={() =>
-                              onUpdateQuantity?.(
-                                item.productId,
-                                item.sizeLabel,
-                                item.quantity - 1,
-                              )
-                            }
-                            aria-label={`- ${quantityLabel}`}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            className="relative after:absolute after:-inset-2.5 after:content-['']"
-                            onClick={() =>
-                              onUpdateQuantity?.(
-                                item.productId,
-                                item.sizeLabel,
-                                item.quantity + 1,
-                              )
-                            }
-                            aria-label={`+ ${quantityLabel}`}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-
-                        {/* Price — never breaks between the digits and the
-                            currency, and stays aligned to the row end when it
-                            wraps onto its own line. */}
-                        <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold tabular-nums text-[var(--neutral-800)]">
-                          {formatPrice(item.price * item.quantity)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Remove */}
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      onClick={() =>
-                        onRemoveItem?.(item.productId, item.sizeLabel)
-                      }
-                      className="relative self-start text-[var(--neutral-400)] hover:text-[var(--color-error)] after:absolute after:-inset-2.5 after:content-['']"
-                      aria-label={removeLabel}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+            {items.map((item) => (
+              <div key={`${item.productId}-${item.sizeLabel}`}>
+                <div className="flex gap-3 py-4">
+                  {/* Image */}
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                    <ProductImage
+                      slug={item.slug}
+                      src={item.image}
+                      name={item.name}
+                      tier="card"
+                      frame="thumb"
+                      sizes="64px"
+                      className="p-1"
+                    />
                   </div>
-                  <Separator />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
+                      {item.name}
+                    </h4>
+                    <p className="text-caption text-[var(--neutral-500)]">
+                      {item.sizeLabel}
+                    </p>
+
+                    {/* The stepper and the price share a narrow column. When
+                        they no longer fit side by side the price drops to its
+                        own line (end-aligned) instead of overflowing under
+                        the stepper — Arabic-Indic prices are wide. */}
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      {/* Quantity controls — 24px visuals, ~44px hit areas
+                          (::after), spaced so the extended areas never
+                          overlap each other. */}
+                      <div className="flex shrink-0 items-center gap-4">
+                        <Button
+                          variant="outline"
+                          size="icon-xs"
+                          className="relative after:absolute after:-inset-2.5 after:content-['']"
+                          onClick={() =>
+                            onUpdateQuantity?.(
+                              item.productId,
+                              item.sizeLabel,
+                              item.quantity - 1,
+                            )
+                          }
+                          aria-label={`- ${quantityLabel}`}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="icon-xs"
+                          className="relative after:absolute after:-inset-2.5 after:content-['']"
+                          onClick={() =>
+                            onUpdateQuantity?.(
+                              item.productId,
+                              item.sizeLabel,
+                              item.quantity + 1,
+                            )
+                          }
+                          aria-label={`+ ${quantityLabel}`}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+
+                      {/* Price — never breaks between the digits and the
+                          currency, and stays aligned to the row end when it
+                          wraps onto its own line. */}
+                      <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold tabular-nums text-[var(--neutral-800)]">
+                        {formatPrice(item.price * item.quantity)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Remove */}
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() =>
+                      onRemoveItem?.(item.productId, item.sizeLabel)
+                    }
+                    className="relative self-start text-[var(--neutral-400)] hover:text-[var(--color-error)] after:absolute after:-inset-2.5 after:content-['']"
+                    aria-label={removeLabel}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <Separator />
+              </div>
+            ))}
           </div>
         )}
 

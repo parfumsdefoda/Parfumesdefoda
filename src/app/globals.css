@@ -286,6 +286,38 @@ body {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
+/* The only two decorative entrances left in the app. Framer Motion is gone;
+   both are neutralised by the reduced-motion contract below. */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reveal {
+  animation: fade-rise var(--duration-base) var(--ease-apple) both;
+}
+
+.toast-in {
+  animation: toast-rise var(--duration-base) var(--ease-apple) both;
+}
+
 /* Global reduced-motion contract: no decorative motion, ever. */
 @media (prefers-reduced-motion: reduce) {
   html {

@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { ProductImage } from "@/components/product-image";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -185,12 +184,7 @@ export function CheckoutPageClient({
 
           {/* ─── Left Column: Order Summary ─── */}
           <div className="order-2 lg:order-2">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.1 }}
-              className="sticky top-24 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6"
-            >
+            <div className="reveal sticky top-24 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6">
               <h2 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
                 ملخص الطلب ({cart.totalItems} منتج)
               </h2>
@@ -305,7 +299,7 @@ export function CheckoutPageClient({
                 </div>
               </div>
 
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
