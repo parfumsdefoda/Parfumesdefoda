@@ -24,8 +24,8 @@ export const CONCENTRATION_CODES: Record<Concentration, string> = {
 
 /** Spelled-out Arabic names. */
 export const CONCENTRATION_LABELS: Record<Concentration, string> = {
-  parfum: "بارفوم",
-  edp: "أو دو بارفوم",
+  parfum: "بارفان",
+  edp: "أو دو بارفان",
   edt: "أو دو تواليت",
   edc: "أو دو كولونيا",
   oil: "زيت عطري",
@@ -33,7 +33,7 @@ export const CONCENTRATION_LABELS: Record<Concentration, string> = {
 
 export const FAMILY_LABELS: Record<ScentFamily, string> = {
   aromatic: "أروماتي",
-  citrus: "حمضي",
+  citrus: "حمضيات",
   floral: "زهري",
   fougere: "فوجير",
   fresh: "منعش",

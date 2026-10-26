@@ -140,8 +140,8 @@ created from a price. Blank `avail_*` keeps the current state.
 
 | الكود / code | العربية | English |
 | --- | --- | --- |
-| `parfum` | بارفوم | Parfum |
-| `edp` | أو دو بارفوم | Eau de Parfum |
+| `parfum` | بارفان | Parfum |
+| `edp` | أو دو بارفان | Eau de Parfum |
 | `edt` | أو دو تواليت | Eau de Toilette |
 | `edc` | أو دو كولونيا | Eau de Cologne |
 | `oil` | زيت عطري | Perfume oil |

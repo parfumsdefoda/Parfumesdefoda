@@ -351,7 +351,12 @@ for (const code of CONCENTRATIONS) {
 CONCENTRATION_ALIASES.set("eau de parfum", "edp");
 CONCENTRATION_ALIASES.set("eau de toilette", "edt");
 CONCENTRATION_ALIASES.set("eau de cologne", "edc");
+// Both spellings are in the wild: the owner's CSV used بارفوم, the store's
+// own copy and the Egyptian market use بارفان. Neither may break an import.
 CONCENTRATION_ALIASES.set("بارفوم", "parfum");
+CONCENTRATION_ALIASES.set("بارفان", "parfum");
+CONCENTRATION_ALIASES.set("أو دو بارفوم", "edp");
+CONCENTRATION_ALIASES.set("أو دو بارفان", "edp");
 
 const FAMILY_ALIASES = new Map<string, ScentFamily>(
   SCENT_FAMILIES.map((code) => [code, code] as const),

@@ -143,7 +143,7 @@ describe("cardMetaParts", () => {
     expect(cardMetaParts(product({ concentration: "edp" }))).toEqual([
       "نيش",
       "شرقي",
-      "أو دو بارفوم",
+      "أو دو بارفان",
     ]);
   });
 
