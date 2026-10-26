@@ -1,13 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   EMPTY_CATALOG_STATE,
-  PRICE_BUCKETS,
+  SIZE_FILTER_VALUES,
   clearCatalogFilters,
   countActiveFilters,
   facetValueLabel,
   isDefaultCatalogState,
   parseCatalogState,
-  priceInBucket,
   removeFacetValue,
   serializeCatalogState,
   setAvailable,
@@ -41,10 +40,17 @@ describe("parseCatalogState", () => {
     expect(parseCatalogState({ tier: "نيش,دووب" }).tier).toEqual(["نيش"]);
   });
 
-  it("ignores an unknown price band and sort", () => {
-    const state = parseCatalogState({ price: "bogus", sort: "cheapest" });
-    expect(state.price).toEqual([]);
+  it("ignores an unknown size and sort", () => {
+    const state = parseCatalogState({ size: "250 مل", sort: "cheapest" });
+    expect(state.size).toEqual([]);
     expect(state.sort).toBe("featured");
+  });
+
+  it("reads the four real bottle sizes", () => {
+    const value = SIZE_FILTER_VALUES.join(",");
+    expect(parseCatalogState({ size: value }).size).toEqual([
+      ...SIZE_FILTER_VALUES,
+    ]);
   });
 
   it("accepts a known sort", () => {
@@ -83,6 +89,10 @@ describe("serializeCatalogState", () => {
       season: ["شتوي"],
       gender: ["رجالي"],
     };
+    const withSize = new URLSearchParams(
+      serializeCatalogState({ ...state, size: ["30 مل"] }),
+    );
+    expect(withSize.get("size")).toBe("30 مل");
     expect(serializeCatalogState(state)).toBe(
       `gender=${encodeURIComponent("رجالي")}&season=${encodeURIComponent("شتوي")}&sort=price-desc&q=${encodeURIComponent("عود")}`,
     );
@@ -95,7 +105,7 @@ describe("serializeCatalogState", () => {
       tier: ["نيش"],
       season: ["صيفي"],
       performance: ["أداء قوي"],
-      price: ["up-to-120"],
+      size: ["100 مل"],
       available: true,
       sort: "alphabetical",
       q: "أفريكان",
@@ -153,31 +163,15 @@ describe("transitions", () => {
   });
 });
 
-describe("price bands", () => {
-  it("derives its boundaries from the catalogue's real entry prices", () => {
-    expect(PRICE_BUCKETS.map((bucket) => bucket.id)).toEqual([
-      "up-to-120",
-      "121-to-150",
-      "over-150",
-    ]);
-  });
-
-  it("includes the bounds", () => {
-    expect(priceInBucket(120, "up-to-120")).toBe(true);
-    expect(priceInBucket(121, "up-to-120")).toBe(false);
-    expect(priceInBucket(150, "121-to-150")).toBe(true);
-    expect(priceInBucket(151, "121-to-150")).toBe(false);
-    expect(priceInBucket(151, "over-150")).toBe(true);
-  });
-
-  it("never matches a product without a price", () => {
-    expect(priceInBucket(null, "over-150")).toBe(false);
+describe("size group", () => {
+  it("offers exactly the four catalogue sizes, in order", () => {
+    expect(SIZE_FILTER_VALUES).toEqual(["10 مل", "30 مل", "50 مل", "100 مل"]);
   });
 });
 
 describe("facetValueLabel", () => {
-  it("labels a price band", () => {
-    expect(facetValueLabel("price", "over-150")).toBe("أكثر من ١٥٠ ج.م");
+  it("shows a size under the same label the shopper reads on the card", () => {
+    expect(facetValueLabel("size", "50 مل")).toBe("50 مل");
   });
 
   it("labels a tier through the public lookup", () => {

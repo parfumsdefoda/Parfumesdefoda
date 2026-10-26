@@ -26,44 +26,26 @@ import {
 import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
 import type { SortOption } from "./sort-helpers";
 
-// ─── Price bands ────────────────────────────────────────────────────────────
-
-export interface PriceBucket {
-  id: string;
-  /** Lower bound, inclusive. Absent means "from 0". */
-  min?: number;
-  /** Upper bound, inclusive. Absent means "and above". */
-  max?: number;
-  /** Arabic default label; the page may pass a localised one. */
-  label: string;
-}
+// ─── Size group ─────────────────────────────────────────────────────────────
 
 /**
- * Bands over the LOWEST in-stock price — "how much does this product start at".
+ * The four bottle sizes every product is sold in — the catalogue's own labels,
+ * never a new one.
  *
- * The boundaries are the catalogue's own breakpoints, not invented round
- * numbers: data/products.json currently starts at 120, 150, 180 and 220 EGP,
- * so 120 and 150 are the only cuts that separate real groups of products. The
- * catalogue clusters hard at the entry size (26 products start at 120), which
- * the facet counts show honestly; see docs/Design-System.md.
+ * `data/products.json` carries exactly these four labels (40 products each), so
+ * this list is data, not a design choice. Matching is availability-based: a
+ * product matches "100 مل" only when that size is actually in stock, which is
+ * what a shopper means by the filter. The value and the label are the same
+ * string, so a size never needs a translation table.
  */
-export const PRICE_BUCKETS: PriceBucket[] = [
-  { id: "up-to-120", max: 120, label: "حتى ١٢٠ ج.م" },
-  { id: "121-to-150", min: 121, max: 150, label: "١٢١ – ١٥٠ ج.م" },
-  { id: "over-150", min: 151, label: "أكثر من ١٥٠ ج.م" },
-];
+export const SIZE_FILTER_VALUES = [
+  "10 مل",
+  "30 مل",
+  "50 مل",
+  "100 مل",
+] as const;
 
-export const PRICE_BUCKET_IDS = PRICE_BUCKETS.map((bucket) => bucket.id);
-
-/** True when a price falls inside the band. */
-export function priceInBucket(price: number | null, id: string): boolean {
-  if (price === null) return false;
-  const bucket = PRICE_BUCKETS.find((entry) => entry.id === id);
-  if (!bucket) return false;
-  if (bucket.min !== undefined && price < bucket.min) return false;
-  if (bucket.max !== undefined && price > bucket.max) return false;
-  return true;
-}
+export type SizeFilterValue = (typeof SIZE_FILTER_VALUES)[number];
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -74,7 +56,7 @@ export const FILTER_KEYS = [
   "tier",
   "season",
   "performance",
-  "price",
+  "size",
 ] as const;
 
 export type FilterKey = (typeof FILTER_KEYS)[number];
@@ -85,7 +67,8 @@ export interface CatalogState {
   tier: string[];
   season: string[];
   performance: string[];
-  price: string[];
+  /** Bottle sizes (see SIZE_FILTER_VALUES). */
+  size: string[];
   /** "المتوفر فقط" */
   available: boolean;
   sort: SortOption;
@@ -101,7 +84,7 @@ export const EMPTY_CATALOG_STATE: CatalogState = {
   tier: [],
   season: [],
   performance: [],
-  price: [],
+  size: [],
   available: false,
   sort: DEFAULT_SORT,
   q: "",
@@ -118,7 +101,7 @@ const ALLOWED: Record<FilterKey, readonly string[]> = {
   tier: FILTERABLE_TIERS,
   season: SEASONS,
   performance: PERFORMANCES,
-  price: PRICE_BUCKET_IDS,
+  size: SIZE_FILTER_VALUES,
 };
 
 const SORT_OPTIONS: readonly SortOption[] = [
@@ -170,7 +153,7 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
     tier: readList(params, "tier"),
     season: readList(params, "season"),
     performance: readList(params, "performance"),
-    price: readList(params, "price"),
+    size: readList(params, "size"),
     available: firstValue(params.available) === "1",
     sort,
     q: firstValue(params.q).trim().slice(0, MAX_QUERY_LENGTH),
@@ -204,9 +187,12 @@ export function serializeCatalogState(
 }
 
 /** A catalogue URL for a state. */
-export function catalogHref(state: CatalogState): string {
+export function catalogHref(
+  state: CatalogState,
+  basePath = "/shop",
+): string {
   const query = serializeCatalogState(state);
-  return query ? `/?${query}` : "/";
+  return query ? `${basePath}?${query}` : basePath;
 }
 
 // ─── Transitions ────────────────────────────────────────────────────────────
@@ -274,16 +260,14 @@ export function facetValueLabel(key: FilterKey, value: string): string {
   if (key === "tier") {
     return PUBLIC_TIER_LABELS[value as House] ?? value;
   }
-  if (key === "price") {
-    return PRICE_BUCKETS.find((bucket) => bucket.id === value)?.label ?? value;
-  }
+  // `size` values are already the labels the shopper sees.
   return value;
 }
 
-/** The product fields a facet compares against (price is computed). */
+/** The product fields a facet compares against (size is computed). */
 export function productFacetValue(
   product: Product,
-  key: Exclude<FilterKey, "price">,
+  key: Exclude<FilterKey, "size">,
 ): string | null {
   if (key === "gender") return product.gender;
   if (key === "style") return product.type;

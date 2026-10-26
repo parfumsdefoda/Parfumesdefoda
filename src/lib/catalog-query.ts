@@ -18,14 +18,13 @@ import {
 import {
   FILTER_KEYS,
   FILTERABLE_TIERS,
-  PRICE_BUCKETS,
+  SIZE_FILTER_VALUES,
   facetValueLabel,
-  priceInBucket,
   productFacetValue,
   type CatalogState,
   type FilterKey,
 } from "./catalog-filters";
-import { hasAnyStock, lowestBuyablePrice } from "./card-presentation";
+import { hasAnyStock } from "./card-presentation";
 import { orderForCatalog } from "./catalog-order";
 import { isUnavailableProduct } from "./product-availability";
 import { productMatchesQuery } from "./search-helpers";
@@ -71,8 +70,8 @@ function optionValues(key: FilterKey): string[] {
       return [...SEASONS];
     case "performance":
       return [...PERFORMANCES];
-    case "price":
-      return PRICE_BUCKETS.map((bucket) => bucket.id);
+    case "size":
+      return [...SIZE_FILTER_VALUES];
     default:
       return [];
   }
@@ -84,10 +83,12 @@ export function matchesFacetValue(
   key: FilterKey,
   value: string,
 ): boolean {
-  if (key === "price") {
-    // A band describes what a shopper can buy, so a sold-out product never
-    // matches one (it has no buyable size to price).
-    return priceInBucket(lowestBuyablePrice(product), value);
+  if (key === "size") {
+    // Availability-based: the size has to be one a shopper can actually buy
+    // today, so a sold-out size never matches its own filter.
+    return product.sizes.some(
+      (size) => size.label === value && size.inStock,
+    );
   }
   const field = productFacetValue(product, key);
   return field !== null && field === value;

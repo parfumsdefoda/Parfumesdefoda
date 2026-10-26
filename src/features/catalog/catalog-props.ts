@@ -52,7 +52,7 @@ export function buildControlsLabels(
       tier: t(locale, "catalog.groupTier", "الدار"),
       season: t(locale, "catalog.groupSeason", "الفصل"),
       performance: t(locale, "catalog.groupPerformance", "الأداء"),
-      price: t(locale, "catalog.groupPrice", "السعر"),
+      size: t(locale, "catalog.groupSize", "المقاس"),
     },
   };
 }

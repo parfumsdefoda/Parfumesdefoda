@@ -49,7 +49,7 @@ export interface CatalogGroupLabels {
   tier: string;
   season: string;
   performance: string;
-  price: string;
+  size: string;
 }
 
 export interface CatalogControlsLabels {
@@ -94,7 +94,7 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
     tier: "الدار",
     season: "الفصل",
     performance: "الأداء",
-    price: "السعر",
+    size: "المقاس",
   },
 };
 

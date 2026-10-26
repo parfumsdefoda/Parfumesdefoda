@@ -141,31 +141,32 @@ describe("filterCatalog", () => {
     ).toEqual(["coming", "cheap"]);
   });
 
-  it("filters by the price band of the cheapest buyable size", () => {
-    expect(ids(filterCatalog(CATALOGUE, state({ price: ["up-to-120"] })))).toEqual([
+  it("filters by a bottle size the shopper can actually buy", () => {
+    expect(ids(filterCatalog(CATALOGUE, state({ size: ["10 مل"] })))).toEqual([
       "african",
+      "amwag",
+      "wasm",
       "cheap",
     ]);
-    expect(
-      ids(filterCatalog(CATALOGUE, state({ price: ["121-to-150"] }))),
-    ).toEqual(["amwag"]);
-    // Sold-out products have no buyable price, so no band matches them.
-    expect(ids(filterCatalog(CATALOGUE, state({ price: ["over-150"] })))).toEqual([
-      "wasm",
+    expect(ids(filterCatalog(CATALOGUE, state({ size: ["50 مل"] })))).toEqual([
+      "amwag",
+    ]);
+    expect(ids(filterCatalog(CATALOGUE, state({ size: ["100 مل"] })))).toEqual([
+      "african",
     ]);
   });
 
-  it("ignores a cheap size that is out of stock", () => {
+  it("never matches a size that is out of stock", () => {
     const halfSoldOut = product({
       id: "half",
       sizes: [size("10 مل", 50, false), size("50 مل", 600)],
     });
-    expect(
-      filterCatalog([halfSoldOut], state({ price: ["up-to-120"] })),
-    ).toHaveLength(0);
-    expect(
-      filterCatalog([halfSoldOut], state({ price: ["over-150"] })),
-    ).toHaveLength(1);
+    expect(filterCatalog([halfSoldOut], state({ size: ["10 مل"] }))).toHaveLength(
+      0,
+    );
+    expect(filterCatalog([halfSoldOut], state({ size: ["50 مل"] }))).toHaveLength(
+      1,
+    );
   });
 
   it("excludes sold-out and photo-pending products with the availability toggle", () => {
@@ -256,13 +257,15 @@ describe("buildFacets", () => {
     ).toEqual({ شرقي: 3, غربي: 3 });
   });
 
-  it("counts price bands by the cheapest buyable size", () => {
-    const price = buildFacets(CATALOGUE, state()).find((g) => g.key === "price");
+  it("counts each size only where it is buyable", () => {
+    const size = buildFacets(CATALOGUE, state()).find((g) => g.key === "size");
     expect(
       Object.fromEntries(
-        price!.options.map((option) => [option.value, option.count]),
+        size!.options.map((option) => [option.value, option.count]),
       ),
-    ).toEqual({ "up-to-120": 2, "121-to-150": 1, "over-150": 1 });
+    ).toEqual({ "10 مل": 4, "50 مل": 1, "100 مل": 1 });
+    // 30 مل is not in this fixture, so the option is not offered at all.
+    expect(size!.options.map((option) => option.value)).not.toContain("30 مل");
   });
 
   it("returns groups in a stable order", () => {
@@ -272,7 +275,7 @@ describe("buildFacets", () => {
       "tier",
       "season",
       "performance",
-      "price",
+      "size",
     ]);
   });
 });
