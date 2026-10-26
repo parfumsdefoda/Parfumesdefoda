@@ -280,7 +280,6 @@ export function HeaderBar({
                 onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
                 aria-label={labels.search}
                 aria-expanded={searchOpen}
-                className="hidden md:inline-flex"
               >
                 <Search aria-hidden="true" />
               </Button>
@@ -290,7 +289,7 @@ export function HeaderBar({
                 size="icon"
                 onClick={openAdvisor}
                 aria-label={labels.advisor}
-                className="hidden md:inline-flex"
+                className="lg:w-auto lg:gap-2 lg:px-3"
               >
                 <Sparkles aria-hidden="true" />
                 <span className="hidden text-caption font-medium lg:inline">
