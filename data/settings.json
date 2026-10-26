@@ -13,5 +13,6 @@
   },
   "shipping": {
     "cost": 100
-  }
+  },
+  "heroProducts": []
 }

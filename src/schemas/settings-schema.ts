@@ -37,6 +37,11 @@ export const settingsSchema = z.object({
   store: storeConfigSchema,
   grid: gridConfigSchema,
   shipping: shippingConfigSchema,
+  /**
+   * Optional: product slugs for the homepage hero, in order. Omitted or empty
+   * means the hero picks its own three (see src/lib/hero-products.ts).
+   */
+  heroProducts: z.array(z.string().min(1)).optional(),
 });
 
 export type ShippingConfig = z.infer<typeof shippingConfigSchema>;
