@@ -1,489 +1,307 @@
-"use client";
-
-import { useState, useCallback } from "react";
 import Link from "next/link";
-import { ProductImage } from "@/components/product-image";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, Loader2, Star, ShoppingCart } from "lucide-react";
+import { Banknote, MessageCircle, Truck } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { FeaturedBadge } from "./featured-badge";
-import { useCart } from "@/providers/CartProvider";
-import { useToast } from "@/features/toast";
-import { formatPrice } from "@/lib/currency";
-import { getSiteUrl } from "@/lib/seo";
+import { ProductCard, type ProductCardLabels } from "./product-card";
+import { ProductGallery, type ProductGalleryLabels } from "./product-gallery";
+import {
+  ProductPurchase,
+  type ProductPurchaseLabels,
+} from "./product-purchase";
 import { Breadcrumbs } from "@/features/layout";
-import { isComingSoon, isUnavailableBadge } from "@/lib/product-availability";
+import { cardMetaParts } from "@/lib/card-presentation";
 import { imageSlug } from "@/lib/product-image";
+import { isComingSoon } from "@/lib/product-availability";
+import { categoryHref, CATEGORY_ROUTES } from "@/lib/site-nav";
 import type { Product } from "@/types";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-type ButtonState = "idle" | "loading" | "success";
-
-export interface ProductDetailPageClientProps {
-  product: Product;
+export interface ProductDetailLabels {
+  breadcrumbHome: string;
+  breadcrumbShop: string;
+  purchase: ProductPurchaseLabels;
+  gallery: ProductGalleryLabels;
+  description: string;
+  pyramid: string;
+  notesTop: string;
+  notesMiddle: string;
+  notesBase: string;
+  seasonPerformance: string;
+  shippingReturns: string;
+  shippingBody: string;
+  readPolicy: string;
+  trustCod: string;
+  trustShipping: string;
+  trustConfirm: string;
+  askAbout: string;
+  related: string;
+  comingSoonTitle: string;
+  comingSoonBody: string;
+  backToShop: string;
+  notifyMe: string;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+export interface ProductDetailPageProps {
+  product: Product;
+  related: Product[];
+  labels: ProductDetailLabels;
+  cardLabels: ProductCardLabels;
+  /** The category label, already resolved by the route's locale. */
+  categoryLabel?: string;
+  /** Facts the store can stand behind, resolved from settings. */
+  shippingFee: string;
+  whatsapp?: string;
+  siteUrl: string;
+}
 
 /**
- * ProductDetailPageClient — client-side product detail page.
+ * ProductDetailPage — the product, as a Server Component.
  *
- * Displays full product information: gallery, details, size selector,
- * and add-to-cart functionality. Integrates with the existing cart system.
+ * Only two islands run JavaScript: the gallery (photos, swipe, zoom) and the
+ * purchase block (size, price, add to cart, the phone bar). Everything a
+ * crawler or a shopper reads first — name, meta, description, notes, details,
+ * trust facts, related products — is HTML.
+ *
+ * The page never states a fact the catalogue does not contain: the pyramid is
+ * omitted when there are no notes, the price follows the selected size, and the
+ * trust list is cash on delivery, the flat shipping fee and a WhatsApp
+ * confirmation.
  */
-export function ProductDetailPageClient({
+export function ProductDetailPage({
   product,
-}: ProductDetailPageClientProps) {
-  const cart = useCart();
-  const router = useRouter();
-  const { showToast } = useToast();
-
-  // ─── State ───
-  const [selectedSizeIndex, setSelectedSizeIndex] = useState<number>(() => {
-    // Default to first available size
-    const availableIndex = product.sizes.findIndex((s) => s.inStock);
-    return availableIndex >= 0 ? availableIndex : 0;
-  });
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [buttonState, setButtonState] = useState<ButtonState>("idle");
-
-  // ─── Derived ───
-  const selectedSize = product.sizes[selectedSizeIndex];
-  // Waiting for its real photo: the page exists, the sale does not.
+  related,
+  labels,
+  cardLabels,
+  categoryLabel,
+  shippingFee,
+  whatsapp,
+  siteUrl,
+}: ProductDetailPageProps) {
   const comingSoon = isComingSoon(product);
-  const isOutOfStock = selectedSize ? !selectedSize.inStock : true;
-  const isProductOutOfStock = !product.inStock;
-  const gallery =
-    product.gallery && product.gallery.length > 0
-      ? product.gallery
-      : [product.image];
-  const currentImage = gallery[selectedImageIndex] ?? product.image;
-
-  // ─── Handlers ───
-  const handleAddToCart = useCallback(() => {
-    if (!selectedSize || isOutOfStock || buttonState !== "idle") return;
-
-    setButtonState("loading");
-    cart.addItem({
-      productId: product.id,
-      slug: product.slug,
-      sizeLabel: selectedSize.label,
-      price: selectedSize.price,
-      name: product.name,
-      image: product.image,
-    });
-    showToast(`تمت إضافة ${product.name} إلى السلة`, "success");
-
-    // Brief loading pulse then success
-    setTimeout(() => {
-      setButtonState("success");
-      setTimeout(() => {
-        setButtonState("idle");
-      }, 1500);
-    }, 350);
-  }, [selectedSize, isOutOfStock, buttonState, cart, product, showToast]);
-
-  // ─── Notes ───
+  const metaParts = cardMetaParts(product);
+  const notes = product.notes;
   const hasNotes =
-    product.notes &&
-    ((product.notes.top?.length ?? 0) > 0 ||
-      (product.notes.middle?.length ?? 0) > 0 ||
-      (product.notes.base?.length ?? 0) > 0);
+    notes.top.length > 0 || notes.middle.length > 0 || notes.base.length > 0;
+
+  const category = CATEGORY_ROUTES.find(
+    (route) => route.gender === product.gender,
+  );
+
+  const images = [
+    product.image,
+    ...(product.gallery ?? []).filter((src) => src !== product.image),
+  ].map((src) => ({ slug: imageSlug(src), src }));
+
+  const inquiry = whatsapp
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+        `${labels.askAbout}: ${product.name}`,
+      )}`
+    : null;
+  const notify = whatsapp
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+        `${labels.notifyMe}: ${product.name}`,
+      )}`
+    : null;
 
   return (
-    <>
-      <div className="container mx-auto px-4 py-[var(--space-section)]">
-        {/* Breadcrumb — same component the category pages use, with its JSON-LD */}
-        <Breadcrumbs
-          className="mb-6"
-          siteUrl={getSiteUrl()}
-          items={[
-            { label: "الرئيسية", href: "/" },
-            { label: "المتجر", href: "/shop" },
-            { label: product.name },
-          ]}
-        />
+    <article className="mx-auto w-full max-w-[1280px] px-4 py-[var(--space-8)]">
+      <Breadcrumbs
+        items={[
+          { label: labels.breadcrumbHome, href: "/" },
+          { label: labels.breadcrumbShop, href: "/shop" },
+          ...(category && categoryLabel
+            ? [
+                {
+                  label: categoryLabel,
+                  href: categoryHref(category.slug),
+                },
+              ]
+            : []),
+          { label: product.name },
+        ]}
+        siteUrl={siteUrl}
+        className="mb-6"
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* ─── Image Gallery ─── */}
-          <div className="space-y-4">
-            {/* Main image */}
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--border-default)]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedImageIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative"
-                >
-                  {comingSoon ? (
-                    <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--ui-surface-muted)]">
-                      <span className="rounded-pill border border-[var(--border-default)] px-5 py-2 text-headline font-bold text-[var(--neutral-500)]">
-                        قريبًا
-                      </span>
-                    </div>
-                  ) : (
-                    <ProductImage
-                      slug={imageSlug(currentImage)}
-                      src={currentImage}
-                      name={product.name}
-                      tier="pdp"
-                      frame="stage"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      priority
-                    />
-                  )}
-                </motion.div>
-              </AnimatePresence>
+      <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="md:sticky md:top-24 md:self-start">
+          <ProductGallery
+            images={images}
+            name={product.name}
+            labels={labels.gallery}
+            comingSoon={comingSoon}
+          />
+        </div>
 
-              {/* Featured badge — shared with the grid card so label + styling stay in sync */}
-              {product.featured && (
-                <div className="absolute top-4 start-4 z-10">
-                  <FeaturedBadge size="md" />
-                </div>
-              )}
-
-              {/* Product badge — never a disguised "out of stock" notice */}
-              {product.badge && !isUnavailableBadge(product.badge) && (
-                <div className="absolute top-4 end-4 z-10">
-                  <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
-                    {product.badge}
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {!comingSoon && gallery.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {gallery.map((img, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setSelectedImageIndex(index)}
-                    aria-label={`صورة ${index + 1}`}
-                    aria-pressed={selectedImageIndex === index}
-                    className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                      selectedImageIndex === index
-                        ? "border-[var(--color-accent)] shadow-md"
-                        : "border-[var(--border-default)] hover:border-[var(--neutral-300)]"
-                    }`}
-                  >
-                    <ProductImage
-                      slug={imageSlug(img)}
-                      src={img}
-                      name={product.name}
-                      tier="card"
-                      frame="thumb"
-                      sizes="80px"
-                      className="p-1"
-                      decorative
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ─── Product Info ─── */}
-          <div className="flex flex-col gap-5">
-            {/* House badge */}
-            {product.house && (
-              <div>
-                <Badge variant="neutral">{product.house}</Badge>
-              </div>
-            )}
-
-            {/* Product name */}
-            <h1 className="text-title-2 md:text-title-1 font-bold text-[var(--neutral-800)]">
-              {product.name}
-            </h1>
-
-            {/* Brand */}
-            <p className="text-headline text-[var(--neutral-500)]">
-              {product.brand}
+        <div className="flex flex-col gap-5">
+          {metaParts.length > 0 && (
+            <p className="text-caption text-[var(--color-text-muted)]">
+              {metaParts.join(" · ")}
             </p>
+          )}
 
-            {/* Rating */}
-            {product.rating > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${
-                        i < Math.round(product.rating)
-                          ? "fill-[var(--color-gold)] text-[var(--color-gold)]"
-                          : "fill-[var(--neutral-200)] text-[var(--neutral-200)]"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-caption text-[var(--neutral-500)]">
-                  ({product.reviews} تقييم)
-                </span>
-              </div>
-            )}
+          <h1 className="text-title-1 font-bold text-[var(--color-text)]">
+            {product.name}
+          </h1>
 
-            <Separator />
-
-            {/* Product details grid */}
-            <div className="grid grid-cols-2 gap-4 text-caption">
-              <div>
-                <span className="block text-[var(--neutral-400)] mb-1">الجنس</span>
-                <span className="font-medium text-[var(--neutral-700)]">{product.gender}</span>
-              </div>
-              <div>
-                <span className="block text-[var(--neutral-400)] mb-1">النوع</span>
-                <span className="font-medium text-[var(--neutral-700)]">{product.type}</span>
-              </div>
-              <div>
-                <span className="block text-[var(--neutral-400)] mb-1">الدار</span>
-                <span className="font-medium text-[var(--neutral-700)]">{product.house}</span>
-              </div>
-              <div>
-                <span className="block text-[var(--neutral-400)] mb-1">الفصل</span>
-                <span className="font-medium text-[var(--neutral-700)]">{product.season}</span>
-              </div>
-              <div className="col-span-2">
-                <span className="block text-[var(--neutral-400)] mb-1">الأداء</span>
-                <span className="font-medium text-[var(--neutral-700)]">{product.performance}</span>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Description */}
-            <div>
-              <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-2">
-                الوصف
-              </h2>
-              <p className="text-[var(--neutral-600)]">
-                {product.description || "الوصف غير متوفر حالياً"}
+          {comingSoon ? (
+            <div className="rounded-card border border-dashed border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+              <p className="text-body font-bold text-[var(--color-text)]">
+                {labels.comingSoonTitle}
               </p>
-            </div>
-
-            {/* Fragrance notes */}
-            {hasNotes && (
-              <>
-                <Separator />
-                <div>
-                  <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
-                    ملاحظات العطر
-                  </h2>
-                  <div className="space-y-3">
-                    {product.notes.top && product.notes.top.length > 0 && (
-                      <div>
-                        <span className="text-caption font-medium text-[var(--color-accent)]">
-                          المقدمة
-                        </span>
-                        <p className="text-caption text-[var(--neutral-600)]">
-                          {product.notes.top.join("، ")}
-                        </p>
-                      </div>
-                    )}
-                    {product.notes.middle && product.notes.middle.length > 0 && (
-                      <div>
-                        <span className="text-caption font-medium text-[var(--color-accent)]">
-                          القلب
-                        </span>
-                        <p className="text-caption text-[var(--neutral-600)]">
-                          {product.notes.middle.join("، ")}
-                        </p>
-                      </div>
-                    )}
-                    {product.notes.base && product.notes.base.length > 0 && (
-                      <div>
-                        <span className="text-caption font-medium text-[var(--color-accent)]">
-                          القاعدة
-                        </span>
-                        <p className="text-caption text-[var(--neutral-600)]">
-                          {product.notes.base.join("، ")}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-
-            <Separator />
-
-            {/* Coming soon — no price, no size, no purchase */}
-            {comingSoon && (
-              <div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--ui-surface-muted)] px-4 py-3">
-                <span className="block text-caption font-bold text-[var(--neutral-700)]">
-                  قريبًا
-                </span>
-                <p className="mt-1 text-caption text-[var(--neutral-500)]">
-                  سيتوفر هذا المنتج قريباً
-                </p>
-              </div>
-            )}
-
-            {/* Size selector */}
-            {!comingSoon && (
-            <div>
-              <h2 className="text-caption font-bold text-[var(--neutral-800)] mb-3">
-                اختر الحجم
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size, index) => {
-                  const isSelected = selectedSizeIndex === index;
-                  const sizeOutOfStock = !size.inStock;
-                  return (
-                    <button
-                      key={size.label}
-                      type="button"
-                      disabled={sizeOutOfStock}
-                      onClick={() => setSelectedSizeIndex(index)}
-                      aria-label={
-                        sizeOutOfStock
-                          ? `${size.label} — غير متوفر`
-                          : `${size.label} ${formatPrice(size.price)}`
-                      }
-                      aria-pressed={isSelected}
-                      className={`whitespace-nowrap rounded-full px-5 py-2.5 text-caption font-medium transition-all duration-200 ${
-                        isSelected
-                          ? "bg-[var(--color-accent)] text-white shadow-md"
-                          : sizeOutOfStock
-                            ? "bg-[var(--bg-secondary)] text-[var(--neutral-300)] cursor-not-allowed line-through"
-                            : "bg-[var(--bg-secondary)] text-[var(--neutral-600)] border border-transparent hover:border-[var(--color-brand)]/40 hover:text-[var(--neutral-800)]"
-                      }`}
-                    >
-                      {size.label}{" "}
-                      {!sizeOutOfStock && (
-                        <span className="ms-2 text-caption">
-                          {formatPrice(size.price)}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            )}
-
-            {/* Price */}
-            {!comingSoon && selectedSize && (
-              <div className="flex items-baseline gap-3">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={selectedSize.label}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="whitespace-nowrap text-title-2 font-bold text-[var(--color-accent)] tabular-nums"
-                  >
-                    {formatPrice(selectedSize.price)}
-                  </motion.span>
-                </AnimatePresence>
-                <span className="text-caption text-[var(--neutral-400)]">
-                  شامل الضريبة
-                </span>
-              </div>
-            )}
-
-            {/* Stock status */}
-            {!comingSoon && (isOutOfStock || isProductOutOfStock) && (
-              <div className="flex items-center gap-2 rounded-lg bg-[var(--color-error)]/10 px-4 py-2.5 text-caption text-[var(--color-error)]">
-                <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-error)]" />
-                غير متوفر حالياً
-              </div>
-            )}
-
-            {/* Buy Now shortcut + Add to Cart */}
-            {!comingSoon && (
-            <div className="flex flex-col gap-2.5">
-              {/* Buy Now — add to cart then immediately go to checkout */}
-              {!isOutOfStock &&
-                !isProductOutOfStock &&
-                buttonState === "idle" &&
-                selectedSize && (
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      // Add the selected variant to the cart (merge, don't replace other items)
-                      cart.addItem({
-                        productId: product.id,
-                        sizeLabel: selectedSize.label,
-                        price: selectedSize.price,
-                        name: product.name,
-                        image: product.image,
-                      });
-                      showToast(`تمت إضافة ${product.name} إلى السلة`, "success");
-                      setButtonState("loading");
-                      // Navigate straight to checkout with whatever is now in the cart
-                      router.push("/checkout");
-                    }}
-                    variant="primary"
-                    className="w-full font-bold"
-                    aria-label="اشتر الآن"
-                  >
-                    اشتر الآن
-                  </Button>
-                )}
-
-              {/* Add to Cart button */}
+              <p className="mt-1 text-caption text-[var(--color-text-muted)]">
+                {labels.comingSoonBody}
+              </p>
               <Button
-                onClick={handleAddToCart}
-                disabled={isOutOfStock || isProductOutOfStock || buttonState !== "idle"}
+                render={<Link href="/shop" />}
                 variant="secondary"
-                size="lg"
-                className={`w-full font-bold ${
-                  buttonState === "success"
-                    ? "!bg-[var(--green-50)] !text-[var(--color-positive)] hover:!bg-[var(--green-50)]"
-                    : ""
-                }`}
-                aria-label={
-                  isOutOfStock || isProductOutOfStock
-                    ? "غير متوفر"
-                    : buttonState === "success"
-                      ? "تمت الإضافة"
-                      : "أضف إلى السلة"
-                }
+                className="mt-4 font-bold"
               >
-                {isOutOfStock || isProductOutOfStock ? (
-                  "غير متوفر"
-                ) : buttonState === "loading" ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    <span>جاري الإضافة...</span>
-                  </span>
-                ) : buttonState === "success" ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Check className="h-4 w-4" aria-hidden="true" />
-                    <span>تمت الإضافة إلى السلة</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-                    <span>أضف إلى السلة</span>
-                  </span>
-                )}
+                {labels.backToShop}
               </Button>
             </div>
+          ) : (
+            <>
+              <ProductPurchase
+                product={product}
+                description={product.description}
+                labels={labels.purchase}
+              />
+
+              {product.sizes.every((size) => !size.inStock) && notify && (
+                <a
+                  href={notify}
+                  className="text-caption font-bold text-[var(--color-brand)] underline-offset-4 hover:underline"
+                >
+                  {labels.notifyMe}
+                </a>
+              )}
+
+              {inquiry && (
+                <a
+                  href={inquiry}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-caption text-[var(--color-text-muted)] underline-offset-4 hover:text-[var(--color-brand)] hover:underline"
+                >
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  {labels.askAbout}
+                </a>
+              )}
+
+              <ul className="flex flex-col gap-2 border-t border-[var(--color-border)] pt-4 text-caption text-[var(--color-text-muted)]">
+                <li className="flex items-center gap-2">
+                  <Banknote className="h-4 w-4" aria-hidden="true" />
+                  {labels.trustCod}
+                </li>
+                <li className="flex items-center gap-2">
+                  <Truck className="h-4 w-4" aria-hidden="true" />
+                  {labels.trustShipping.replace("{fee}", shippingFee)}
+                </li>
+                <li className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  {labels.trustConfirm}
+                </li>
+              </ul>
+            </>
+          )}
+
+          <Accordion className="border-t border-[var(--color-border)]">
+            {product.description && (
+              <AccordionItem value="description">
+                <AccordionTrigger className="py-3 text-body font-bold">
+                  {labels.description}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 text-caption text-[var(--color-text-muted)]">
+                  {product.description}
+                </AccordionContent>
+              </AccordionItem>
             )}
 
-            {/* Continue shopping link */}
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center gap-2 text-caption text-[var(--neutral-500)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-control"
-            >
-              <ChevronRight className="h-4 w-4" />
-              متابعة التصفح
-            </Link>
-          </div>
+            {hasNotes && (
+              <AccordionItem value="pyramid">
+                <AccordionTrigger className="py-3 text-body font-bold">
+                  {labels.pyramid}
+                </AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-2 pb-4 text-caption text-[var(--color-text-muted)]">
+                  {notes.top.length > 0 && (
+                    <p>
+                      <span className="font-bold text-[var(--color-text)]">
+                        {labels.notesTop}
+                      </span>{" "}
+                      {notes.top.join("، ")}
+                    </p>
+                  )}
+                  {notes.middle.length > 0 && (
+                    <p>
+                      <span className="font-bold text-[var(--color-text)]">
+                        {labels.notesMiddle}
+                      </span>{" "}
+                      {notes.middle.join("، ")}
+                    </p>
+                  )}
+                  {notes.base.length > 0 && (
+                    <p>
+                      <span className="font-bold text-[var(--color-text)]">
+                        {labels.notesBase}
+                      </span>{" "}
+                      {notes.base.join("، ")}
+                    </p>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            <AccordionItem value="facts">
+              <AccordionTrigger className="py-3 text-body font-bold">
+                {labels.seasonPerformance}
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 text-caption text-[var(--color-text-muted)]">
+                {product.season} · {product.performance}
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="shipping">
+              <AccordionTrigger className="py-3 text-body font-bold">
+                {labels.shippingReturns}
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col gap-2 pb-4 text-caption text-[var(--color-text-muted)]">
+                <p>{labels.shippingBody.replace("{fee}", shippingFee)}</p>
+                <Link
+                  href="/shipping-returns"
+                  className="self-start font-bold text-[var(--color-brand)] underline-offset-4 hover:underline"
+                >
+                  {labels.readPolicy}
+                </Link>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
 
-    </>
+      {related.length >= 2 && (
+        <section
+          aria-labelledby="related-heading"
+          className="mt-[var(--space-section)]"
+        >
+          <h2 id="related-heading" className="mb-6 text-title-2 font-bold">
+            {labels.related}
+          </h2>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} labels={cardLabels} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* The phone bar hides once this marker scrolls into view, so it never
+          sits on top of the footer. */}
+      <div data-page-end aria-hidden="true" className="h-px w-full" />
+    </article>
   );
 }
