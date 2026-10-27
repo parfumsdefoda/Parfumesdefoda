@@ -76,6 +76,9 @@ export function Footer({
 
   return (
     <footer
+      // The phone bar on a product page watches this marker and steps aside
+      // while the footer is on screen, so it never covers it.
+      data-page-end
       className={`border-t border-[var(--brand-gold)] bg-[var(--purple-950)] text-[var(--color-on-dark)] ${className ?? ""}`}
     >
       <div className="mx-auto w-full max-w-[1280px] px-4 py-12">

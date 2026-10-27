@@ -139,6 +139,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         labels={{
           breadcrumbHome: t(locale, "product.breadcrumbHome", "الرئيسية"),
           breadcrumbShop: t(locale, "product.breadcrumbShop", "المتجر"),
+          details: t(locale, "product.detailsTitle", "تفاصيل العطر"),
           description: t(locale, "product.descriptionTitle", "وصف العطر"),
           pyramid: t(locale, "product.pyramid", "هرم العطر"),
           notesTop: t(locale, "product.notesTop", "المقدمة"),

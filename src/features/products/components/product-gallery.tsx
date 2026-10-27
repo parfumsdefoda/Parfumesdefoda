@@ -145,14 +145,19 @@ export function ProductGallery({
                 onClick={() => goTo(index)}
                 aria-label={labels.thumbnail.replace("{n}", String(index + 1))}
                 aria-current={index === selected}
-                className={cn(
-                  "h-2.5 w-2.5 rounded-full transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                  index === selected
-                    ? "bg-[var(--color-brand)]"
-                    : "bg-[var(--color-border-strong)]",
-                )}
-              />
+                className="flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              >
+                {/* The dot stays small; the 24px box is the touch target. */}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "h-2.5 w-2.5 rounded-full transition-colors",
+                    index === selected
+                      ? "bg-[var(--color-brand)]"
+                      : "bg-[var(--color-border-strong)]",
+                  )}
+                />
+              </button>
             ))}
           </div>
         )}

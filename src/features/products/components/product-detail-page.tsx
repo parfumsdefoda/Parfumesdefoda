@@ -25,6 +25,8 @@ export interface ProductDetailLabels {
   breadcrumbShop: string;
   purchase: ProductPurchaseLabels;
   gallery: ProductGalleryLabels;
+  /** Heading for the details group, announced but not drawn. */
+  details: string;
   description: string;
   pyramid: string;
   notesTop: string;
@@ -210,6 +212,10 @@ export function ProductDetailPage({
             </>
           )}
 
+          {/* The accordion items are <h3>; this keeps the document heading
+              order h1 → h2 → h3 without adding a visible title. */}
+          <h2 className="sr-only">{labels.details}</h2>
+
           <Accordion className="border-t border-[var(--color-border)]">
             {product.description && (
               <AccordionItem value="description">
@@ -298,10 +304,6 @@ export function ProductDetailPage({
           </div>
         </section>
       )}
-
-      {/* The phone bar hides once this marker scrolls into view, so it never
-          sits on top of the footer. */}
-      <div data-page-end aria-hidden="true" className="h-px w-full" />
     </article>
   );
 }

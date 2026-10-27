@@ -62,27 +62,35 @@ export function ProductPurchase({
 
   // The bar is a convenience for the phone, not a second checkout: it appears
   // only once the real CTA has scrolled away, and never on a desktop layout.
+  //
+  // The position is read from geometry rather than latched from an
+  // IntersectionObserver crossing: the observer only reports the moment the
+  // CTA *leaves* the root (bottom ≈ +64 there, never < 0), so a latch is
+  // evaluated once and stays wrong. Reading the rect on each frame is exact at
+  // any scroll position, including a jump or a restored scroll.
   useEffect(() => {
     const node = ctaRef.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
+    if (!node || typeof window === "undefined") return;
 
-    const ctaObserver = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        // "Past" means scrolled *above* the viewport — not merely out of it.
-        // A CTA that is still below the fold must not raise the bar.
-        if (entry) {
-          setCtaPast(!entry.isIntersecting && entry.boundingClientRect.bottom < 0);
-        }
-      },
-      { rootMargin: "-64px 0px 0px 0px" },
-    );
-    ctaObserver.observe(node);
+    let frame = 0;
+    const evaluate = () => {
+      frame = 0;
+      // "Past" means scrolled *above* the viewport — not merely out of it.
+      // A CTA that is still below the fold must not raise the bar.
+      setCtaPast(node.getBoundingClientRect().bottom < 0);
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(evaluate);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
 
     // The bar is chrome, not a checkout: it steps aside for the footer.
     const pageEnd = document.querySelector("[data-page-end]");
     let endObserver: IntersectionObserver | undefined;
-    if (pageEnd) {
+    if (pageEnd && typeof IntersectionObserver !== "undefined") {
       endObserver = new IntersectionObserver((entries) => {
         const entry = entries[0];
         if (entry) setAtPageEnd(entry.isIntersecting);
@@ -91,7 +99,9 @@ export function ProductPurchase({
     }
 
     return () => {
-      ctaObserver.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
       endObserver?.disconnect();
     };
   }, []);
