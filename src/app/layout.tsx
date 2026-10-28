@@ -5,6 +5,7 @@ import { loadTheme } from "@/services/theme";
 import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { loadVisibleProducts } from "@/services/products";
+import type { CartCatalogProduct } from "@/lib/cart-utils";
 import { t } from "@/lib/locale";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
@@ -188,6 +189,16 @@ export default async function RootLayout({
   };
 
   const headerNav = buildPrimaryNav(genderCounts(products), navLabels);
+  const cartCatalogue: CartCatalogProduct[] = products.map((product) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    image: product.image,
+    status: product.status,
+    inStock: product.inStock,
+    hidden: product.hidden,
+    sizes: product.sizes.map(({ label, price, inStock }) => ({ label, price, inStock })),
+  }));
 
   const houseLinks = Object.entries(PUBLIC_TIER_LABELS)
     .filter(([, label]) => label !== null)
@@ -246,6 +257,17 @@ export default async function RootLayout({
     quantity: t(localeMessages, "cart.quantity", "الكمية"),
     itemsCount: t(localeMessages, "cart.itemsCount", "عدد القطع"),
     continueShopping: t(localeMessages, "cart.continueShopping", "متابعة التسوق"),
+    viewCart: t(localeMessages, "cart.viewCart", "عرض السلة"),
+    subtotal: t(localeMessages, "cart.subtotal", "المجموع الفرعي"),
+    shipping: t(localeMessages, "cart.shipping", "مصاريف الشحن"),
+    grandTotal: t(localeMessages, "cart.grandTotal", "الإجمالي"),
+    resolveIssues: t(localeMessages, "cart.resolveIssues", "احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب."),
+    issues: {
+      "product-unavailable": t(localeMessages, "cart.productUnavailable", "هذا المنتج لم يعد متاحًا. احذفه للمتابعة."),
+      "size-unavailable": t(localeMessages, "cart.sizeUnavailable", "هذا الحجم لم يعد متاحًا. احذفه أو ارجع للمنتج."),
+      "price-changed": t(localeMessages, "cart.priceChanged", "تغير السعر منذ إضافة المنتج. احذف السطر وأضفه بالسعر الحالي."),
+      "invalid-quantity": t(localeMessages, "cart.invalidQuantity", "الكمية غير صالحة. عدّلها لتكون من ١ إلى ٢٠."),
+    },
   };
 
   const headerLabels = {
@@ -326,6 +348,7 @@ export default async function RootLayout({
             cart={{
               labels: cartLabels,
               shippingFee: getShippingFee(settings),
+              catalogue: cartCatalogue,
             }}
           >
             {children}

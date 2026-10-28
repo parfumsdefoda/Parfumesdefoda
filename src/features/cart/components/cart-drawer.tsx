@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Trash2, Truck } from "lucide-react";
+import Link from "next/link";
 import {
   Sheet,
   SheetContent,
@@ -11,35 +11,28 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { formatNumber, formatPrice, formatSizeLabel } from "@/lib/currency";
-import { ProductImage } from "@/components/product-image";
-
-export interface CartItemData {
-  productId: string;
-  /** Product slug — resolves the derived image; absent on older carts. */
-  slug?: string;
-  sizeLabel: string;
-  price: number;
-  quantity: number;
-  name: string;
-  image: string;
-}
+import { formatNumber } from "@/lib/currency";
+import { CartLine, CartTotals, type CartLineLabels } from "./cart-line";
+import type { ResolvedCartLine } from "@/lib/cart-utils";
 
 export interface CartDrawerProps {
   /** Whether the drawer is open */
   open: boolean;
   /** Called to close the drawer */
   onOpenChange: (open: boolean) => void;
-  /** Cart items */
-  items: CartItemData[];
+  /** Cart items resolved against the current visible catalogue. */
+  items: ResolvedCartLine[];
+  lineLabels?: CartLineLabels;
+  viewCartLabel?: string;
+  emptyHref?: string;
+  resolveIssuesLabel?: string;
+  totalsLabels?: { subtotal: string; shipping: string; total: string };
   /** Label for the sheet title */
   title?: string;
   /** Label when cart is empty */
   emptyTitle?: string;
   /** Description when cart is empty */
   emptyDescription?: string;
-  /** Total label */
-  totalLabel?: string;
   /** Checkout button label */
   checkoutLabel?: string;
   /** Remove button label */
@@ -65,6 +58,7 @@ export interface CartDrawerProps {
   onRemoveItem?: (productId: string, sizeLabel: string) => void;
   /** Called when checkout is clicked */
   onCheckout?: () => void;
+  checkoutDisabled?: boolean;
   className?: string;
 }
 
@@ -77,10 +71,14 @@ export function CartDrawer({
   open,
   onOpenChange,
   items,
+  lineLabels,
+  viewCartLabel = "عرض السلة",
+  emptyHref = "/shop",
+  resolveIssuesLabel = "احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.",
+  totalsLabels = { subtotal: "المجموع الفرعي", shipping: "مصاريف الشحن", total: "الإجمالي" },
   title = "سلة التسوق",
   emptyTitle = "سلة التسوق فارغة",
   emptyDescription = "أضف منتجات إلى السلة للمتابعة",
-  totalLabel = "المجموع",
   checkoutLabel = "إتمام الطلب",
   removeLabel = "إزالة",
   quantityLabel = "الكمية",
@@ -90,13 +88,25 @@ export function CartDrawer({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
+  checkoutDisabled = false,
   className,
 }: CartDrawerProps) {
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const resolvedLineLabels = lineLabels ?? {
+    quantity: quantityLabel,
+    remove: removeLabel,
+    issues: {
+      "product-unavailable": "هذا المنتج لم يعد متاحًا. احذفه للمتابعة.",
+      "size-unavailable": "هذا الحجم لم يعد متاحًا. احذفه أو ارجع للمنتج.",
+      "price-changed": "تغير السعر منذ إضافة المنتج. احذف السطر وأضفه بالسعر الحالي.",
+      "invalid-quantity": "الكمية غير صالحة. عدّلها لتكون من ١ إلى ٢٠.",
+    },
+  };
+  const totalItems = items.reduce((sum, line) => sum + line.item.quantity, 0);
   const totalPrice = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, line) => sum + (line.size?.price ?? line.item.price) * line.item.quantity,
     0,
   );
+  const hasIssues = items.some((line) => line.issue !== null);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -119,103 +129,20 @@ export function CartDrawer({
             <p className="text-caption text-[var(--neutral-500)] mb-6">
               {emptyDescription}
             </p>
-            <Button variant="default" onClick={() => onOpenChange(false)}>
+            <Button render={<Link href={emptyHref} />} variant="primary">
               {continueShoppingLabel}
             </Button>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-4">
-            {items.map((item) => (
-              <div key={`${item.productId}-${formatSizeLabel(item.sizeLabel)}`}>
-                <div className="flex gap-3 py-4">
-                  {/* Image */}
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-                    <ProductImage
-                      slug={item.slug}
-                      src={item.image}
-                      name={item.name}
-                      tier="card"
-                      frame="thumb"
-                      sizes="64px"
-                      className="p-1"
-                    />
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
-                      {item.name}
-                    </h4>
-                    <p className="text-caption text-[var(--neutral-500)]">
-                      {formatSizeLabel(item.sizeLabel)}
-                    </p>
-
-                    {/* The stepper and the price share a narrow column. When
-                        they no longer fit side by side the price drops to its
-                        own line (end-aligned) instead of overflowing under
-                        the stepper — Arabic-Indic prices are wide. */}
-                    <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                      {/* Quantity controls — 24px visuals, ~44px hit areas
-                          (::after), spaced so the extended areas never
-                          overlap each other. */}
-                      <div className="flex shrink-0 items-center gap-4">
-                        <Button
-                          variant="outline"
-                          size="icon-xs"
-                          className="relative after:absolute after:-inset-2.5 after:content-['']"
-                          onClick={() =>
-                            onUpdateQuantity?.(
-                              item.productId,
-                              item.sizeLabel,
-                              item.quantity - 1,
-                            )
-                          }
-                          aria-label={`- ${quantityLabel}`}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span aria-live="polite" className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
-                          {formatNumber(item.quantity)}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="icon-xs"
-                          className="relative after:absolute after:-inset-2.5 after:content-['']"
-                          onClick={() =>
-                            onUpdateQuantity?.(
-                              item.productId,
-                              item.sizeLabel,
-                              item.quantity + 1,
-                            )
-                          }
-                          aria-label={`+ ${quantityLabel}`}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-
-                      {/* Price — never breaks between the digits and the
-                          currency, and stays aligned to the row end when it
-                          wraps onto its own line. */}
-                      <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold tabular-nums text-[var(--neutral-800)]">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Remove */}
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() =>
-                      onRemoveItem?.(item.productId, item.sizeLabel)
-                    }
-                    className="relative self-start text-[var(--neutral-400)] hover:text-[var(--color-error)] after:absolute after:-inset-2.5 after:content-['']"
-                    aria-label={removeLabel}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+            {items.map((line) => (
+              <div key={`${line.item.productId}-${line.item.sizeLabel}`}>
+                <CartLine
+                  line={line}
+                  labels={resolvedLineLabels}
+                  onUpdateQuantity={(quantity) => onUpdateQuantity?.(line.item.productId, line.item.sizeLabel, quantity)}
+                  onRemove={() => onRemoveItem?.(line.item.productId, line.item.sizeLabel)}
+                />
                 <Separator />
               </div>
             ))}
@@ -224,40 +151,23 @@ export function CartDrawer({
 
         {items.length > 0 && (
           <SheetFooter>
-            <div className="space-y-2 w-full mb-2">
-              <div className="flex items-center justify-between text-caption">
-                <span className="text-[var(--neutral-600)]">
-                  {totalLabel}
-                </span>
-                <span className="text-[var(--neutral-800)]">
-                  {formatPrice(totalPrice)}
-                </span>
-              </div>
-              {shippingFee !== undefined && (
-                <div className="flex items-center justify-between text-caption">
-                  <span className="flex items-center gap-1.5 text-[var(--neutral-600)]">
-                    <Truck className="h-3.5 w-3.5" />
-                    مصاريف الشحن
-                  </span>
-                  <span className="text-[var(--neutral-800)]">
-                    {formatPrice(shippingFee)}
-                  </span>
-                </div>
-              )}
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-body font-bold text-[var(--neutral-800)]">الإجمالي</span>
-                <span className="text-headline font-bold text-[var(--color-accent)]">
-                  {formatPrice(totalPrice + (shippingFee ?? 0))}
-                </span>
-              </div>
+            <div className="mb-2 w-full">
+              <CartTotals
+                subtotal={totalPrice}
+                shipping={shippingFee ?? 0}
+                labels={totalsLabels}
+              />
             </div>
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={onCheckout}
-            >
+            {hasIssues && (
+              <p role="alert" className="mb-2 text-caption text-[var(--color-danger)]">
+                {resolveIssuesLabel}
+              </p>
+            )}
+            <Button className="w-full" size="lg" onClick={onCheckout} disabled={checkoutDisabled || hasIssues}>
               {checkoutLabel}
+            </Button>
+            <Button render={<Link href="/cart" />} variant="tertiary" className="mx-auto mt-2">
+              {viewCartLabel}
             </Button>
           </SheetFooter>
         )}

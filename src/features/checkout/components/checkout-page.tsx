@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ProductImage } from "@/components/product-image";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { CartLine, CartTotals, type CartLineLabels } from "@/features/cart/components/cart-line";
+import { resolveCartLines, getCartTotals, isCartCheckoutBlocked, type CartCatalogProduct } from "@/lib/cart-utils";
 import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
-import { formatNumber, formatPrice, formatSizeLabel } from "@/lib/currency";
+import { formatNumber, formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import type { FullSettings } from "@/types/services";
 import type { CheckoutFormData } from "@/schemas/checkout";
@@ -17,6 +18,7 @@ import type { CheckoutFormData } from "@/schemas/checkout";
 export interface CheckoutPageClientProps {
   /** Shipping config from data/settings.json (flat fee, no free threshold) */
   shipping: FullSettings["shipping"];
+  catalogue: CartCatalogProduct[];
 }
 
 /** Error thrown when the API rejects the order but explains why. */
@@ -28,6 +30,17 @@ const PAYMENT_METHOD = "الدفع عند الاستلام";
 const GENERIC_SUBMIT_ERROR =
   "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.";
 
+const CHECKOUT_LINE_LABELS: CartLineLabels = {
+  quantity: "الكمية",
+  remove: "إزالة المنتج",
+  issues: {
+    "product-unavailable": "هذا المنتج لم يعد متاحًا. احذفه للمتابعة.",
+    "size-unavailable": "هذا الحجم لم يعد متاحًا. احذفه أو ارجع للمنتج.",
+    "price-changed": "تغير السعر منذ إضافة المنتج. احذف السطر وأضفه بالسعر الحالي.",
+    "invalid-quantity": "الكمية غير صالحة. عدّلها لتكون من ١ إلى ٢٠.",
+  },
+};
+
 /**
  * CheckoutPageClient — full checkout page with two-column RTL layout.
  * Right column: checkout form.
@@ -35,18 +48,21 @@ const GENERIC_SUBMIT_ERROR =
  */
 export function CheckoutPageClient({
   shipping,
+  catalogue,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   const cart = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const subtotal = cart.totalPrice;
-  const shippingCost = getShippingFee({ shipping });
-  const total = subtotal + shippingCost;
+  const lines = useMemo(() => resolveCartLines(cart.items, catalogue), [cart.items, catalogue]);
+  const totals = getCartTotals(lines, getShippingFee({ shipping }));
+  const subtotal = totals.subtotal;
+  const shippingCost = totals.shipping;
+  const total = totals.total;
+  const cartBlocked = isCartCheckoutBlocked(lines);
 
   const handleSubmit = async (data: CheckoutFormData) => {
-    if (cart.items.length === 0) return;
+    if (cart.items.length === 0 || cartBlocked) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -122,7 +138,7 @@ export function CheckoutPageClient({
           <p className="text-[var(--neutral-500)] mb-8">
             أضف منتجات إلى السلة أولاً لمتابعة الشراء
           </p>
-          <Button render={<Link href="/" />}>
+          <Button render={<Link href="/shop" />}>
             <ArrowRight className="h-4 w-4 ms-1.5" />
             العودة للمتجر
           </Button>
@@ -157,6 +173,11 @@ export function CheckoutPageClient({
                 <p className="">{submitError}</p>
               </div>
             )}
+            {cartBlocked && (
+              <p role="alert" className="mb-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
+                احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.
+              </p>
+            )}
             <CheckoutForm
               title="بيانات التوصيل"
               nameLabel="الاسم بالكامل"
@@ -179,6 +200,7 @@ export function CheckoutPageClient({
               }
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
+              disabled={cartBlocked}
             />
           </div>
 
@@ -190,114 +212,31 @@ export function CheckoutPageClient({
               </h2>
 
               {/* Items */}
-              <div className="space-y-4 mb-4">
-                {cart.items.map((item) => (
-                  <div
-                    key={`${item.productId}-${item.sizeLabel}`}
-                    className="flex gap-3"
-                  >
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
-                      <ProductImage
-                        slug={item.slug}
-                        src={item.image}
-                        name={item.name}
-                        tier="card"
-                        frame="thumb"
-                        sizes="64px"
-                        className="p-1"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-caption font-medium text-[var(--neutral-800)] line-clamp-1">
-                        {item.name}
-                      </h4>
-                      <p className="text-caption text-[var(--neutral-500)]">
-                        {formatSizeLabel(item.sizeLabel)}
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-y-1">
-                        <div className="flex shrink-0 items-center gap-1.5">
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            onClick={() =>
-                              cart.updateQuantity(
-                                item.productId,
-                                item.sizeLabel,
-                                item.quantity - 1,
-                              )
-                            }
-                            aria-label="نقص الكمية"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span aria-live="polite" className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
-                            {formatNumber(item.quantity)}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="icon-xs"
-                            onClick={() =>
-                              cart.updateQuantity(
-                                item.productId,
-                                item.sizeLabel,
-                                item.quantity + 1,
-                              )
-                            }
-                            aria-label="زيادة الكمية"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <span className="ms-auto shrink-0 whitespace-nowrap text-caption font-bold text-[var(--neutral-800)] tabular-nums">
-                          {formatPrice(item.price * item.quantity)}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      onClick={() =>
-                        cart.removeItem(item.productId, item.sizeLabel)
-                      }
-                      className="self-start text-[var(--neutral-400)] hover:text-[var(--color-error)]"
-                      aria-label="إزالة المنتج"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+              <div className="mb-4 divide-y divide-[var(--color-border)]">
+                {lines.map((line) => (
+                  <CartLine
+                    key={`${line.item.productId}-${line.item.sizeLabel}`}
+                    line={line}
+                    labels={CHECKOUT_LINE_LABELS}
+                    onUpdateQuantity={(quantity) => cart.updateQuantity(line.item.productId, line.item.sizeLabel, quantity)}
+                    onRemove={() => cart.removeItem(line.item.productId, line.item.sizeLabel)}
+                  />
                 ))}
               </div>
 
               <Separator className="my-4" />
 
               {/* Totals */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2 text-caption">
-                  <span className="text-[var(--neutral-500)]">المجموع الفرعي</span>
-                  <span className="whitespace-nowrap text-[var(--neutral-700)] tabular-nums">
-                    {formatPrice(subtotal)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-2 text-caption">
-                  <span className="text-[var(--neutral-500)]">مصاريف الشحن</span>
-                  <span className="whitespace-nowrap text-[var(--neutral-700)] tabular-nums">
-                    {formatPrice(shippingCost)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-caption">
-                  <span className="text-[var(--neutral-500)]">طريقة الدفع</span>
-                  <span className="text-[var(--neutral-700)]">
-                    {PAYMENT_METHOD}
-                  </span>
-                </div>
-                <Separator className="my-2" />
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-body font-bold text-[var(--neutral-800)]">الإجمالي</span>
-                  <span className="whitespace-nowrap text-title-3 font-bold text-[var(--color-accent)] tabular-nums">
-                    {formatPrice(total)}
-                  </span>
-                </div>
+              <CartTotals subtotal={subtotal} shipping={shippingCost} labels={{ subtotal: "المجموع الفرعي", shipping: "مصاريف الشحن", total: "الإجمالي" }} />
+              <div className="mt-3 flex items-center justify-between text-caption">
+                <span className="text-[var(--neutral-500)]">طريقة الدفع</span>
+                <span className="text-[var(--neutral-700)]">{PAYMENT_METHOD}</span>
               </div>
+              {cartBlocked && (
+                <p role="alert" className="mt-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
+                  احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.
+                </p>
+              )}
 
             </div>
           </div>

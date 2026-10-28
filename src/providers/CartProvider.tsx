@@ -1,5 +1,6 @@
 "use client";
 
+import { clampCartQuantity } from "@/lib/cart-utils";
 import {
   createContext,
   useContext,
@@ -104,7 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map((item) =>
           item.productId === newItem.productId && item.sizeLabel === newItem.sizeLabel
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: clampCartQuantity(item.quantity + 1) }
             : item,
         );
       }
@@ -122,6 +123,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQuantity = useCallback(
     (productId: string, sizeLabel: string, quantity: number) => {
+      const boundedQuantity = clampCartQuantity(quantity);
       if (quantity <= 0) {
         removeItem(productId, sizeLabel);
         return;
@@ -129,7 +131,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems((prev) =>
         prev.map((item) =>
           item.productId === productId && item.sizeLabel === sizeLabel
-            ? { ...item, quantity }
+            ? { ...item, quantity: boundedQuantity }
             : item,
         ),
       );
