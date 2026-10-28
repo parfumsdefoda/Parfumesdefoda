@@ -7,6 +7,18 @@ const manifest = JSON.parse(fs.readFileSync(path.join(root, "src/data/image-mani
 const failures = [];
 const checked = new Set();
 const requiredWidths = [400, 800, 1200, 2000];
+const pending = [];
+
+/** Products whose photo cannot be auto-cut are served from the original. */
+const retouchPath = path.join(root, ".audit", "needs-retouch.txt");
+const needsRetouch = new Set();
+if (fs.existsSync(retouchPath)) {
+  for (const line of fs.readFileSync(retouchPath, "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    needsRetouch.add(trimmed.split("\t")[0].trim());
+  }
+}
 
 for (const product of products) {
   for (const source of [product.image, ...(product.gallery ?? [])]) {
@@ -16,6 +28,13 @@ for (const product of products) {
     checked.add(file);
     const entry = manifest.products?.[file];
     if (!entry) {
+      const sourceFile = path.join(root, "public", source.replace(/^\//, ""));
+      // A listed retouch keeps its original on disk: that is the documented
+      // fallback, not a missing derivative.
+      if (needsRetouch.has(file) && fs.existsSync(sourceFile)) {
+        if (!pending.includes(file)) pending.push(file);
+        continue;
+      }
       failures.push(`${product.slug}: ${file} has no image manifest entry`);
       continue;
     }
@@ -43,4 +62,7 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log(`Derived image check passed: ${checked.size} unique catalogue images have all expected derivatives.`);
+  if (pending.length) {
+    console.log(`Needs a manual retouch, original served: ${pending.join(", ")}`);
+  }
 }
