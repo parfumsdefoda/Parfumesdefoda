@@ -92,6 +92,7 @@ const validBody = {
     governorate: "القاهرة",
     city: "مدينة نصر",
     addressDetails: "شارع 9، مبنى 12",
+    notes: "اتصل عند الوصول",
   },
   items: [{ productId: "PF020", sizeLabel: "50 مل", quantity: 2 }],
 };
@@ -130,6 +131,7 @@ describe("POST /api/orders — optional persistence", () => {
     const [saved] = saveOrder.mock.calls[0];
     expect(saved.orderNumber).toBe("PDF-20261020-00001");
     expect(saved.total).toBe(1100);
+    expect(saved.customer.notes).toBe("اتصل عند الوصول");
   });
 
   it("still returns 201 when the store throws but email succeeded", async () => {

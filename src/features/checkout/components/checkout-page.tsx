@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, ArrowRight } from "lucide-react";
@@ -81,6 +82,7 @@ export function CheckoutPageClient({
             governorate: data.governorate,
             city: data.city,
             addressDetails: data.addressDetails,
+            notes: data.notes,
           },
           items: cart.items.map((item) => ({
             productId: item.productId,
@@ -98,7 +100,13 @@ export function CheckoutPageClient({
         | null;
 
       if (!response.ok) {
-        throw new OrderSubmitError(payload?.error ?? GENERIC_SUBMIT_ERROR);
+        const retryAfter = response.headers.get("Retry-After");
+        const message = response.status === 429
+          ? `وصلت للحد الأقصى من الطلبات. انتظر ${retryAfter ? formatNumber(Number(retryAfter)) : "قليلًا"} ثانية ثم أعد المحاولة.`
+          : response.status === 503
+            ? "تعذر إرسال الطلب مؤقتًا. بياناتك وسلتك محفوظتان؛ أعد المحاولة بعد قليل."
+            : payload?.error ?? GENERIC_SUBMIT_ERROR;
+        throw new OrderSubmitError(message);
       }
 
       const orderNumber = payload?.orderNumber;
@@ -161,9 +169,9 @@ export function CheckoutPageClient({
           إتمام الطلب
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)]">
           {/* ─── Right Column: Checkout Form (RTL primary side) ─── */}
-          <div className="order-1 lg:order-1">
+          <div className="order-2 min-w-0 lg:order-1">
             {submitError && (
               <div
                 role="alert"
@@ -192,7 +200,7 @@ export function CheckoutPageClient({
               addressDetailsPlaceholder="الشارع، رقم المبنى، العلامة القريبة"
               submitLabel={
                 <>
-                  تأكيد الطلب —{" "}
+                  {submitError ? "إعادة المحاولة" : "تأكيد الطلب"} —{" "}
                   <span className="whitespace-nowrap tabular-nums">
                     {formatPrice(total)}
                   </span>
@@ -201,15 +209,20 @@ export function CheckoutPageClient({
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
               disabled={cartBlocked}
+              total={total}
             />
           </div>
 
           {/* ─── Left Column: Order Summary ─── */}
-          <div className="order-2 lg:order-2">
-            <div className="reveal sticky top-24 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6">
-              <h2 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
-                ملخص الطلب ({formatNumber(cart.totalItems)} منتج)
-              </h2>
+          <div className="order-1 min-w-0 lg:order-2">
+            <Accordion className="overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface-muted)] lg:sticky lg:top-24" defaultValue={["order-summary"]}>
+              <AccordionItem value="order-summary">
+                <AccordionTrigger className="flex w-full items-center justify-between gap-3 p-4 text-start text-headline font-bold text-[var(--color-text)] lg:cursor-default">
+                  <span>ملخص الطلب</span>
+                  <span className="text-title-3 text-[var(--color-brand)]">{formatPrice(total)}</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-5 lg:block lg:px-6">
+                  <h2 className="sr-only">ملخص الطلب ({formatNumber(cart.totalItems)} منتج)</h2>
 
               {/* Items */}
               <div className="mb-4 divide-y divide-[var(--color-border)]">
@@ -238,7 +251,9 @@ export function CheckoutPageClient({
                 </p>
               )}
 
-            </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>

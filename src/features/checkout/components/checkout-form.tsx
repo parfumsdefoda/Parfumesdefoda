@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useMemo, type ReactNode } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, Phone, MessageCircle, MapPin, Send, Building2, Map } from "lucide-react";
+import { User, Phone, MessageCircle, MapPin, Send, Building2, Map, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { formatPrice } from "@/lib/currency";
+import { normalizeEgyptianPhone } from "@/schemas/checkout";
 import { checkoutSchema, type CheckoutFormData } from "@/schemas/checkout";
 
 // ─── Governorates & cities data ────────────────────────────────────────────
@@ -60,6 +63,8 @@ export interface CheckoutFormProps {
   onSubmit?: (data: CheckoutFormData) => void;
   /** Whether form is submitting */
   isSubmitting?: boolean;
+  /** Optional total displayed by the mobile sticky submit control. */
+  total?: number;
   className?: string;
 }
 
@@ -84,10 +89,12 @@ export function CheckoutForm({
   disabled = false,
   onSubmit,
   isSubmitting = false,
+  total,
   className,
 }: CheckoutFormProps) {
   const [selectedGovernorate, setSelectedGovernorate] = useState<string>("");
-
+  const [sameWhatsapp, setSameWhatsapp] = useState(false);
+  const [governorateQuery, setGovernorateQuery] = useState("");
   const cityOptions = useMemo(() => {
     if (!selectedGovernorate) return [];
     const entry = GOVERNORATES[selectedGovernorate];
@@ -98,6 +105,9 @@ export function CheckoutForm({
     register,
     handleSubmit,
     setValue,
+    control,
+    getValues,
+    setFocus,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(checkoutSchema),
@@ -108,19 +118,52 @@ export function CheckoutForm({
       governorate: "",
       city: "",
       addressDetails: "",
+      notes: "",
     },
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
+
+  const formPhone = useWatch({ control, name: "phone" });
+  const formWhatsapp = useWatch({ control, name: "whatsapp" });
+  const formCity = useWatch({ control, name: "city" });
+  const normalizedPhone = formPhone ? normalizeEgyptianPhone(formPhone) : "";
+  const visibleGovernorates = governorateOptions.filter((option) =>
+    option.label.includes(governorateQuery.trim()),
+  );
+  const errorEntries = Object.entries(errors) as [keyof CheckoutFormData, { message?: string }][];
+  const fieldIds: Partial<Record<keyof CheckoutFormData, string>> = {
+    name: "checkout-name", phone: "checkout-phone", whatsapp: "checkout-whatsapp",
+    governorate: "checkout-governorate", city: "checkout-city",
+    addressDetails: "checkout-address-details", notes: "checkout-notes",
+  };
 
   const handleGovernorateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedGovernorate(value);
-    setValue("governorate", value, { shouldValidate: true });
+    setValue("governorate", value, { shouldValidate: true, shouldTouch: true });
     // Reset city when governorate changes
-    setValue("city", "", { shouldValidate: true });
+    setValue("city", "", { shouldValidate: true, shouldTouch: true });
   };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue("city", e.target.value, { shouldValidate: true });
+    setValue("city", e.target.value, { shouldValidate: true, shouldTouch: true });
+  };
+
+  const handlePhoneBlur = (field: "phone" | "whatsapp") => {
+    const current = getValues(field);
+    if (!current) return;
+    const normalized = normalizeEgyptianPhone(current);
+    setValue(field, normalized, { shouldValidate: true, shouldTouch: true });
+    if (field === "phone" && sameWhatsapp) {
+      setValue("whatsapp", normalized, { shouldValidate: true, shouldTouch: true });
+    }
+  };
+
+  const onInvalidSubmit = () => {
+    requestAnimationFrame(() => {
+      document.getElementById("checkout-error-summary")?.focus();
+    });
   };
 
   return (
@@ -129,8 +172,22 @@ export function CheckoutForm({
         {title}
       </h3>
 
-      <form onSubmit={handleSubmit((data) => onSubmit?.(data))} noValidate>
-        <div className="space-y-4">
+      <form id="checkout-form" onSubmit={handleSubmit((data) => onSubmit?.(data), onInvalidSubmit)} noValidate>
+        {errorEntries.length > 0 && (
+          <div id="checkout-error-summary" tabIndex={-1} role="alert" aria-labelledby="checkout-error-title" className="mb-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]">
+            <h4 id="checkout-error-title" className="font-bold">يرجى مراجعة البيانات التالية</h4>
+            <ul className="mt-2 list-inside list-disc space-y-1">
+              {errorEntries.map(([field, error]) => (
+                <li key={field}>
+                  <a href={`#${fieldIds[field]}`} onClick={(event) => { event.preventDefault(); setFocus(field); }} className="underline underline-offset-2">
+                    {error.message}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="space-y-4 pb-24 lg:pb-0">
           {/* Name */}
           <div className="space-y-1.5">
             <Label htmlFor="checkout-name" className="gap-1.5">
@@ -143,13 +200,12 @@ export function CheckoutForm({
               placeholder={namePlaceholder}
               autoComplete="name"
               aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "checkout-name-error" : undefined}
               className="h-11"
             />
-            {errors.name && (
-              <p className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.name.message}
+            <p id="checkout-name-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.name ? "alert" : undefined}>
+                {errors.name?.message ?? " "}
               </p>
-            )}
           </div>
 
           {/* Phone */}
@@ -160,20 +216,26 @@ export function CheckoutForm({
             </Label>
             <Input
               id="checkout-phone"
-              {...register("phone")}
+              {...register("phone", {
+                onBlur: () => handlePhoneBlur("phone"),
+                onChange: (event) => {
+                  if (sameWhatsapp) {
+                    setValue("whatsapp", normalizeEgyptianPhone(event.target.value), { shouldValidate: true });
+                  }
+                },
+              })}
               placeholder={phonePlaceholder}
               dir="ltr"
               type="tel"
               inputMode="tel"
               autoComplete="tel"
               aria-invalid={!!errors.phone}
+              aria-describedby={errors.phone ? "checkout-phone-error" : undefined}
               className="h-11"
             />
-            {errors.phone && (
-              <p className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.phone.message}
-              </p>
-            )}
+            <p id="checkout-phone-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.phone ? "alert" : undefined}>
+              {errors.phone?.message ?? (normalizedPhone && /^01[0-25]\d{8}$/.test(normalizedPhone) ? `سيُحفظ بصيغة ${normalizedPhone}` : " ")}
+            </p>
           </div>
 
           {/* WhatsApp */}
@@ -182,22 +244,36 @@ export function CheckoutForm({
               <MessageCircle className="h-3.5 w-3.5 text-[var(--neutral-400)]" />
               {whatsappLabel}
             </Label>
-            <Input
-              id="checkout-whatsapp"
-              {...register("whatsapp")}
-              placeholder={whatsappPlaceholder}
-              dir="ltr"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              aria-invalid={!!errors.whatsapp}
-              className="h-11"
-            />
-            {errors.whatsapp && (
-              <p className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.whatsapp.message}
-              </p>
-            )}
+            <div className="flex items-center gap-2">
+              <Input
+                id="checkout-whatsapp"
+                {...register("whatsapp", { onBlur: () => handlePhoneBlur("whatsapp") })}
+                placeholder={whatsappPlaceholder}
+                dir="ltr"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                aria-invalid={!!errors.whatsapp}
+                aria-describedby={errors.whatsapp ? "checkout-whatsapp-error" : undefined}
+                readOnly={sameWhatsapp}
+                className="h-11"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="checkout-same-whatsapp"
+                checked={sameWhatsapp}
+                onCheckedChange={(checked) => {
+                  const enabled = checked === true;
+                  setSameWhatsapp(enabled);
+                  if (enabled) setValue("whatsapp", normalizedPhone, { shouldValidate: true, shouldTouch: true });
+                }}
+              />
+              <Label htmlFor="checkout-same-whatsapp">نفس رقم الهاتف</Label>
+            </div>
+            <p id="checkout-whatsapp-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.whatsapp ? "alert" : undefined}>
+              {errors.whatsapp?.message ?? (formWhatsapp && /^01[0-25]\d{8}$/.test(normalizeEgyptianPhone(formWhatsapp)) ? `سيُحفظ بصيغة ${normalizeEgyptianPhone(formWhatsapp)}` : " ")}
+            </p>
           </div>
 
           {/* Governorate */}
@@ -206,6 +282,10 @@ export function CheckoutForm({
               <Building2 className="h-3.5 w-3.5 text-[var(--neutral-400)]" />
               {governorateLabel}
             </Label>
+            <div className="mb-2 flex h-11 items-center gap-2 rounded-control border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3">
+              <Search aria-hidden="true" className="size-4 text-[var(--color-text-muted)]" />
+              <input type="search" value={governorateQuery} onChange={(event) => setGovernorateQuery(event.target.value)} placeholder="ابحث عن المحافظة" aria-label="ابحث عن المحافظة" className="h-full min-w-0 flex-1 bg-transparent text-caption outline-none" />
+            </div>
             <select
               id="checkout-governorate"
               value={selectedGovernorate}
@@ -223,17 +303,15 @@ export function CheckoutForm({
               }}
             >
               <option value="">اختر المحافظة</option>
-              {governorateOptions.map((opt) => (
+              {visibleGovernorates.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
               ))}
             </select>
-            {errors.governorate && (
-              <p id="governorate-error" className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.governorate.message}
-              </p>
-            )}
+            <p id="governorate-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.governorate ? "alert" : undefined}>
+              {errors.governorate?.message ?? " "}
+            </p>
           </div>
 
           {/* City */}
@@ -244,6 +322,7 @@ export function CheckoutForm({
             </Label>
             <select
               id="checkout-city"
+              value={formCity}
               onChange={handleCityChange}
               disabled={!selectedGovernorate}
               autoComplete="address-level2"
@@ -267,11 +346,9 @@ export function CheckoutForm({
                 </option>
               ))}
             </select>
-            {errors.city && (
-              <p id="city-error" className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.city.message}
-              </p>
-            )}
+            <p id="city-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.city ? "alert" : undefined}>
+              {errors.city?.message ?? " "}
+            </p>
           </div>
 
           {/* Address Details */}
@@ -286,16 +363,26 @@ export function CheckoutForm({
               placeholder={addressDetailsPlaceholder}
               autoComplete="street-address"
               aria-invalid={!!errors.addressDetails}
+              aria-describedby={errors.addressDetails ? "checkout-address-error" : undefined}
               className="h-11"
             />
-            {errors.addressDetails && (
-              <p className="text-caption text-[var(--color-error)]" role="alert">
-                {errors.addressDetails.message}
-              </p>
-            )}
+            <p id="checkout-address-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.addressDetails ? "alert" : undefined}>
+              {errors.addressDetails?.message ?? " "}
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="checkout-notes">ملاحظات (اختياري)</Label>
+            <textarea id="checkout-notes" {...register("notes")} rows={3} aria-invalid={!!errors.notes} aria-describedby={errors.notes ? "checkout-notes-error" : undefined} className="w-full rounded-control border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 py-2 text-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]" placeholder="أي ملاحظات إضافية" />
+            <p id="checkout-notes-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.notes ? "alert" : undefined}>{errors.notes?.message ?? " "}</p>
           </div>
 
           <Separator className="my-4" />
+
+          <div className="rounded-control border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+            <p className="font-bold">الدفع عند الاستلام</p>
+            <p className="mt-1 text-caption text-[var(--color-text-muted)]">تدفع عند وصول الطلب.</p>
+          </div>
 
           <Button
             type="submit"
@@ -307,6 +394,14 @@ export function CheckoutForm({
             {submitLabel}
           </Button>
         </div>
+        {total !== undefined && (
+          <div className="sticky bottom-0 z-30 -mx-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-soft lg:hidden">
+            <div className="mx-auto flex max-w-[1280px] items-center gap-3">
+              <span className="flex-1 text-caption font-bold">الإجمالي: {formatPrice(total)}</span>
+              <Button type="submit" size="lg" disabled={isSubmitting || disabled}>{submitLabel}</Button>
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );

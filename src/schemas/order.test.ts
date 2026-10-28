@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { orderRequestSchema } from "./order";
+import { normalizeEgyptianPhone } from "./checkout";
 
 const validBody = {
   customer: {
@@ -18,12 +19,29 @@ describe("orderRequestSchema", () => {
     expect(orderRequestSchema.safeParse(validBody).success).toBe(true);
   });
 
-  it("accepts a +20 phone number", () => {
-    const result = orderRequestSchema.safeParse({
-      ...validBody,
-      customer: { ...validBody.customer, phone: "+201012345678" },
-    });
-    expect(result.success).toBe(true);
+  it("normalizes every supported local and international phone format", () => {
+    const variants = ["01012345678", "+201012345678", "00201012345678", "٠١٠١٢٣٤٥٦٧٨", "+٢٠١٠١٢٣٤٥٦٧٨"];
+    for (const phone of variants) {
+      const parsed = orderRequestSchema.safeParse({
+        ...validBody,
+        customer: { ...validBody.customer, phone, whatsapp: phone },
+      });
+      expect(parsed.success, phone).toBe(true);
+      if (parsed.success) {
+        expect(parsed.data.customer.phone).toBe("01012345678");
+        expect(parsed.data.customer.whatsapp).toBe("01012345678");
+      }
+    }
+  });
+
+  it("normalizes accepted phone text on blur helper and rejects malformed input", () => {
+    expect(normalizeEgyptianPhone("+20 10-1234-5678")).toBe("01012345678");
+    for (const phone of ["12345", "02012345678", "+201312345678", "0101234567"]) {
+      expect(orderRequestSchema.safeParse({
+        ...validBody,
+        customer: { ...validBody.customer, phone },
+      }).success, phone).toBe(false);
+    }
   });
 
   it("rejects an invalid Egyptian phone number", () => {

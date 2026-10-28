@@ -9,6 +9,7 @@ export interface OrderFormData {
   governorate: string;
   city: string;
   addressDetails: string;
+  notes?: string;
 }
 
 export interface OrderItem {
@@ -29,6 +30,7 @@ export interface Order {
     governorate: string;
     city: string;
     addressDetails: string;
+    notes?: string;
   };
   items: OrderItem[];
   subtotal: number;
