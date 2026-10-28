@@ -15,6 +15,7 @@
  *   coloured     → NEVER auto-cut; listed for a manual retouch
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -65,6 +66,12 @@ function mb(bytes) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
+/** Content hash — two differently named files may be the same photograph. */
+async function hashFile(absPath) {
+  const buffer = await fs.readFile(absPath);
+  return crypto.createHash("sha256").update(buffer).digest("hex");
+}
+
 async function main() {
   const products = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf8"));
   const referenced = new Map();
@@ -101,19 +108,60 @@ async function main() {
 
   const diskFiles = await fs.readdir(path.join(ROOT, "public", "products"));
   const imageExt = /\.(png|jpe?g|webp|avif)$/i;
-  const unreferenced = diskFiles
-    .filter((f) => imageExt.test(f) && f !== "placeholder-unavailable.webp")
+  const onDisk = diskFiles.filter(
+    (f) => imageExt.test(f) && f !== "placeholder-unavailable.webp",
+  );
+  const unreferenced = onDisk
     .map((f) => `/products/${f}`)
     .filter((p) => !referenced.has(p));
+
+  // New photos arrive before the master is imported, so audit them too: a
+  // coloured/white background decides whether the multiply branch is used.
+  const unreferencedDetails = [];
+  for (const src of unreferenced) {
+    const info = await inspect(path.join(ROOT, "public", src.replace(/^\//, "")));
+    unreferencedDetails.push({
+      path: src,
+      background: info.background,
+      bytes: info.bytes,
+      square: info.square,
+    });
+  }
+
+  // Identical bytes under different names (a premium variant reusing the base
+  // photo, for example) — the owner needs to know before they look duplicated.
+  const byHash = new Map();
+  for (const file of onDisk) {
+    const src = `/products/${file}`;
+    const hash = await hashFile(path.join(ROOT, "public", "products", file));
+    if (!byHash.has(hash)) byHash.set(hash, []);
+    byHash.get(hash).push(src);
+  }
+  const duplicates = [...byHash.entries()]
+    .filter(([, paths]) => paths.length > 1)
+    .map(([hash, paths]) => ({ hash, paths }));
 
   const byClass = { transparent: 0, "pure-white": 0, "off-white": 0, coloured: 0 };
   for (const img of images) {
     if (img.background) byClass[img.background] += 1;
   }
 
+  const unreferencedByClass = {
+    transparent: 0,
+    "pure-white": 0,
+    "off-white": 0,
+    coloured: 0,
+  };
+  for (const img of unreferencedDetails) {
+    if (img.background) unreferencedByClass[img.background] += 1;
+  }
+
   const productsWithIssues = {
     missingFiles,
     noImage: products.filter((p) => !p.image).map((p) => p.slug ?? p.id),
+    photoPending: products
+      .filter((p) => /placeholder-unavailable\.webp$/.test(p.image ?? ""))
+      .map((p) => p.slug ?? p.id),
     multiImage: products
       .filter((p) => (p.gallery?.length ?? 0) > 1)
       .map((p) => p.slug ?? p.id),
@@ -138,8 +186,10 @@ async function main() {
       nonSquareCount: images.filter((i) => i.square === false).length,
       withRealTransparency: images.filter((i) => i.transparentPixels > 0).length,
       needsRetouch: images.filter((i) => i.background === "coloured").length,
+      unreferencedByClass,
     },
-    problems: { ...productsWithIssues, unreferenced },
+    problems: { ...productsWithIssues, unreferenced, unreferencedDetails },
+    duplicates,
     heaviest,
     images: images.sort((a, b) => a.path.localeCompare(b.path)),
   };
@@ -161,8 +211,20 @@ async function main() {
   );
   console.log(`missing files        ${missingFiles.length}`);
   console.log(`no image             ${productsWithIssues.noImage.length}`);
+  console.log(`photo pending        ${productsWithIssues.photoPending.length}`);
   console.log(`multiple images      ${productsWithIssues.multiImage.length}`);
-  console.log(`unreferenced on disk ${unreferenced.length}`);
+  console.log(
+    `unreferenced on disk ${unreferenced.length} (transparent ${unreferencedByClass.transparent} · pure-white ${unreferencedByClass["pure-white"]} · off-white ${unreferencedByClass["off-white"]} · coloured ${unreferencedByClass.coloured})`,
+  );
+  console.log(`identical files      ${duplicates.length} group(s)`);
+
+  if (productsWithIssues.photoPending.length) {
+    console.log(`\nPhoto pending (قريبًا): ${productsWithIssues.photoPending.join(", ")}`);
+  }
+
+  for (const group of duplicates) {
+    console.log(`  identical: ${group.paths.join(" = ")}`);
+  }
 
   const nonSquare = images.filter((i) => i.square === false);
   if (nonSquare.length) {

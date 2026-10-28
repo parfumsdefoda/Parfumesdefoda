@@ -18,6 +18,7 @@
  * Idempotent: skips products whose outputs are newer than the source.
  */
 
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
@@ -62,13 +63,21 @@ function imageSlug(src) {
   return path.basename(src, path.extname(src)).toLowerCase();
 }
 
-async function isUpToDate(src, dir) {
-  const srcStat = await fs.stat(src);
+/** Content hash of an original — mtimes lie after a git checkout. */
+async function sourceHash(src) {
+  const buffer = await fs.readFile(src);
+  return crypto.createHash("sha256").update(buffer).digest("hex");
+}
+
+/**
+ * Up to date means: the SAME bytes as last time AND every output still present.
+ * A replaced photo at the same path (the owner re-shoots a bottle) must rebuild
+ * even when the filesystem handed the new file an older mtime.
+ */
+async function isUpToDate(dir, previousEntry, hash) {
+  if (!previousEntry || previousEntry.sourceHash !== hash) return false;
   for (const out of OUTPUTS) {
-    const file = path.join(dir, `${out.name}.${out.format}`);
-    if (!(await exists(file))) return false;
-    const stat = await fs.stat(file);
-    if (stat.mtimeMs < srcStat.mtimeMs) return false;
+    if (!(await exists(path.join(dir, `${out.name}.${out.format}`)))) return false;
   }
   return true;
 }
@@ -104,7 +113,7 @@ async function normalise(absSrc) {
   return { buffer, canvas, background: info.background, box };
 }
 
-async function buildImage(slug, src, { force }) {
+async function buildImage(slug, src, { force, previousEntry }) {
   const absSrc = path.join(ROOT, "public", src.replace(/^\//, ""));
 
   if (!(await exists(absSrc))) {
@@ -113,6 +122,7 @@ async function buildImage(slug, src, { force }) {
 
   const dir = path.join(DERIVED_ROOT, slug);
   const relDir = `/products/derived/${slug}`;
+  const hash = await sourceHash(absSrc);
 
   const info = await analyse(absSrc);
   // A coloured/other background is never auto-cut — the owner retouches it.
@@ -125,7 +135,7 @@ async function buildImage(slug, src, { force }) {
     };
   }
 
-  if (!force && (await isUpToDate(absSrc, dir))) {
+  if (!force && (await isUpToDate(dir, previousEntry, hash))) {
     const files = await Promise.all(
       OUTPUTS.map(async (out) => {
         const stat = await fs.stat(path.join(dir, `${out.name}.${out.format}`));
@@ -144,6 +154,7 @@ async function buildImage(slug, src, { force }) {
       canvas: info.box
         ? Math.round(Math.max(info.box.width, info.box.height) / SUBJECT_SHARE)
         : null,
+      sourceHash: hash,
       sourceBytes: (await fs.stat(absSrc)).size,
     };
   }
@@ -173,6 +184,7 @@ async function buildImage(slug, src, { force }) {
     background: normalised.background,
     canvas: normalised.canvas,
     files,
+    sourceHash: hash,
     sourceBytes: (await fs.stat(absSrc)).size,
   };
 }
@@ -185,6 +197,7 @@ function manifestEntry(result) {
   }
   return {
     source: result.src,
+    sourceHash: result.sourceHash,
     background: result.background,
     // White sources keep a white residue inside the bottle cut-out; multiply
     // makes it disappear into the stage instead of showing a grey box.
@@ -239,7 +252,10 @@ async function main() {
 
   const results = [];
   for (const entry of filtered) {
-    const result = await buildImage(entry.slug, entry.src, { force });
+    const result = await buildImage(entry.slug, entry.src, {
+      force,
+      previousEntry: previous.products?.[entry.slug],
+    });
     results.push(result);
     const label = String(entry.slug).padEnd(8);
     if (result.status === "needs-retouch") {
