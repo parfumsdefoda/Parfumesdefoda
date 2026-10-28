@@ -17,6 +17,9 @@ const runsPerRoute = 3;
 const results = [];
 const failures = [];
 
+// Start from an empty directory: a stale report from an earlier run would be
+// read back as this run's measurement.
+fs.rmSync(outputDir, { recursive: true, force: true });
 fs.mkdirSync(outputDir, { recursive: true });
 
 for (const target of targets) {
@@ -34,12 +37,14 @@ for (const target of targets) {
       "--quiet",
       url,
     ];
-    const command = process.platform === "win32" ? "npx.cmd" : "npx";
-    const completed = spawnSync(command, ["--no-install", "lighthouse", ...args], {
+    // Node >=20.12 refuses to spawn a .cmd without a shell (EINVAL on Windows),
+    // so run npx through the shell on every platform.
+    const completed = spawnSync("npx", ["--no-install", "lighthouse", ...args], {
       encoding: "utf8",
       env: process.env,
       timeout: 180_000,
       windowsHide: true,
+      shell: true,
     });
     if (completed.status !== 0 || !fs.existsSync(output)) {
       failures.push(`${target.route}: Lighthouse run ${run} failed (${completed.error?.message ?? completed.stderr ?? completed.status})`);

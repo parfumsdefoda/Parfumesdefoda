@@ -108,7 +108,11 @@ else {
   if (sitemap) {
     const xml = await sitemap.text();
     if (!xml.includes("<loc>")) failures.push("sitemap: no loc entries");
-    if (xml.includes("/product/pf590")) failures.push("sitemap: coming-soon products should not be listed");
+    // Contract: every visible product is listed (coming-soon pages answer 200 and
+    // are indexable); hidden products must never appear.
+    for (const product of products.filter((entry) => entry.hidden === true)) {
+      if (xml.includes(`/product/${product.slug}`)) failures.push(`sitemap: hidden product listed (${product.slug})`);
+    }
   }
 }
 
