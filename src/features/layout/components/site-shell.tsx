@@ -31,7 +31,9 @@ export function SiteShell({ header, footer, cart, children }: SiteShellProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <HeaderBar {...header} reduced={reduced} />
-      <main id="main-content" className="flex-1">
+      {/* tabIndex=-1 is the skip link's focus target: without it, focusing
+          #main-content is a silent no-op and keyboard users stay at the top. */}
+      <main id="main-content" tabIndex={-1} className="flex-1">
         {children}
       </main>
       <Footer {...footer} reduced={reduced} />
