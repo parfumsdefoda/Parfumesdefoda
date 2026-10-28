@@ -1188,13 +1188,9 @@ function mergePass(
 
         const label = `${ml} مل`;
         const inStock = availCell ? readBool(availCell) === true : false;
-        if (!inStock) {
-          warn(
-            slug,
-            `avail_${ml}`,
-            availCell,
-            `new ${label} size starts out of stock (avail is blank or لا)`,
-          );
+        // An explicit لا is a decision; only a SILENT size is worth a warning.
+        if (!availCell) {
+          warn(slug, `avail_${ml}`, availCell, `new ${label} size starts out of stock (avail is blank)`);
         }
 
         size = { label, price, inStock, ml };
@@ -1333,13 +1329,8 @@ function buildNewProduct(
     // An unset availability is NOT assumed: the size starts unpurchasable
     // until the owner says نعم.
     const inStock = availCell ? readBool(availCell) === true : false;
-    if (!inStock) {
-      warn(
-        slug,
-        `avail_${ml}`,
-        availCell,
-        `new ${ml} مل size starts out of stock (avail is blank or لا)`,
-      );
+    if (!availCell) {
+      warn(slug, `avail_${ml}`, availCell, `new ${ml} مل size starts out of stock (avail is blank)`);
     }
     return [{ label: `${ml} مل`, price, inStock, ml }];
   });
