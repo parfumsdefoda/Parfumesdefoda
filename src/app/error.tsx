@@ -6,8 +6,8 @@
  * Includes a retry button that attempts to re-fetch the data.
  *
  * Note: This component renders outside the Provider tree,
- * so it cannot use the localization hook. Text matches
- * locales/ar.json keys: errors.loadFailed, errors.retry
+ * so it cannot use the localization hook. The Arabic here is intentionally
+ * hardcoded (see AGENTS.md).
  */
 
 export default function Error({

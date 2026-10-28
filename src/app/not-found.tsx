@@ -4,8 +4,8 @@ import Link from "next/link";
  * 404 page — displayed when a requested route does not exist.
  * Minimal design with logo, message, and return link.
  *
- * Note: This is a static server component outside the Provider tree.
- * Text matches locales/ar.json keys: errors.pageNotFound, errors.backToHome
+ * Note: This is a static server component outside the Provider tree,
+ * so the Arabic is intentionally hardcoded (see AGENTS.md).
  */
 
 export default function NotFound() {

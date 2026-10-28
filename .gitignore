@@ -47,3 +47,15 @@ next-env.d.ts
 
 # freebuff preview/logs
 .freebuff/
+# QA measurement & audit scratch (generated during verification runs)
+/.measure/
+/.lh/
+/.opencode/
+/.audit/*.png
+/.audit/*.jpg
+/.audit/v2/
+/.audit/v3/
+
+# playwright output (screenshots under e2e/__screenshots__ stay tracked)
+/playwright-report/
+/playwright-results/
