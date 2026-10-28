@@ -72,7 +72,7 @@ Client components must **never import types from service files** (e.g., `@/servi
 
 ## Key Constraints
 
-- **No loading spinners** — always skeleton placeholders (`src/app/loading.tsx` has the pattern, uses `aria-busy="true"`).
+- **No loading spinners** — always skeleton placeholders with `aria-busy="true"`. Note: there is deliberately **no route-level `loading.tsx`** — Next streams its skeleton in a hidden div that needs JavaScript to be revealed, so a no-JS browser (and the Phase 7 no-JS test) would never see the page. Skeletons live inside components instead.
 - **No account creation** — guest checkout only.
 - **No online payment** — orders go via WhatsApp + Email.
 - **4 clicks max** from landing to order submission.
