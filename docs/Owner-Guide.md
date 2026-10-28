@@ -1,8 +1,12 @@
 # دليل صاحب المتجر
 
+> عدّل **الملف الواحد** `data/product-master.csv`، ثم شغّل الأمر الواحد
+> `npm run data:refresh`، وبعده `npm run data:refresh -- --apply` عندما تكون
+> راضياً عن المعاينة. لا تحتاج لتعديل `data/products.json` أو أي كود.
+
 ## قبل أي تعديل
 
-افتح مجلد المشروع في الطرفية، ثم شغّل:
+افتح مجلد المشروع في الطرفية وشغّل:
 
 ```bash
 npm ci
@@ -15,49 +19,86 @@ npm test
 npm run build
 ```
 
-إذا فشل أمر، أصلح أول رسالة خطأ ثم أعد تشغيله. لا ترفع التعديلات قبل نجاح الفحوصات.
+إذا فشل أمر، أصلح أول رسالة خطأ ثم أعد تشغيله. لا ترفع التعديلات قبل نجاح
+الفحوصات. بعد أي تعديل على البيانات يكفي `npm run data:refresh -- --apply` لأنه
+يشغّل `validate-json` و`check:tokens` والفحص النوعي والـ lint والاختبارات والبناء.
 
 ## تعديل منتج
 
-افتح `data/products.json` وابحث عن المنتج باستخدام `id` مثل `PF020` أو `slug` مثل `pf020`. غيّر الاسم أو الوصف أو السعر أو حالة التوفر في الحقول الموجودة فقط. لا تغيّر `id` أو `slug` لأن الصور والروابط والسلة تعتمد عليها. السعر والتوفر لكل حجم موجودان داخل `sizes`.
+1. افتح `data/product-master.csv` وابحث عن `slug` المنتج (مثل `pf680`).
+   **لا تغيّر `slug` أو `sku`**: الصور والروابط والسلة تعتمد عليهما.
+2. عدّل الاسم أو الوصف أو السعر أو التوفر في خلاياه.
+3. `npm run data:refresh` (معاينة: يطبع كل تغيير مجمّعاً ولا يكتب شيئاً).
+4. `npm run data:refresh -- --apply` للكتابة.
 
-بعد التعديل شغّل `npm run validate-json` ثم بقية الفحوصات أعلاه.
+الأسعار تكون في `price_<الحجم>` (مثل `price_50`)، والتوفر في `avail_<الحجم>`
+(`نعم` / `لا`). الخلية **الفارغة** تعني «اتركها كما هي».
 
-## إضافة منتج وصورته
+## إضافة منتج جديد
 
-1. أضف صف المنتج إلى `data/product-master.csv` حسب الأعمدة الحالية، مع `id` و`slug` وبيانات كل حجم.
-2. ضع صورة الغلاف في `public/products/PFxxx.png`، وأضف صور المعرض بأسماء PF أخرى موجودة في الصف. استخدم صورة المنتج الحقيقية فقط.
-3. شغّل `npm run master:import` واقرأ خطة التغييرات/الرفض قبل اعتمادها. لا تتجاوز رفضاً دون معرفة السبب.
-4. شغّل `npm run build:images -- --slug=pfxxx` لإنشاء الصور المشتقة؛ الاسم بعد `--slug=` هو slug بحروف صغيرة.
-5. شغّل `npm run check:derived` و`npm run validate-json` وبقية الفحوصات.
+1. صوّر العبوة وسمِّ الملف نفس حروف `sku` + `.png`، مثل `PF690.png`، وضعه في
+   `public/products/`. لا صورة = لا إنشاء (هذا مقصود).
+2. أضف صفاً في `data/product-master.csv`: `slug`, `sku`, `name_ar`, `on_site`,
+   `gender`, `scent_style`, `tier`, `season`, `performance`، وسعر واحد على الأقل.
+3. `npm run data:refresh` — ستجد المنتج تحت «سيُنشأ». راجع أي سبب رفض.
+4. `npm run data:refresh -- --apply` — ينشئ المنتج ويشتق صوره ويشغّل الفحوصات.
 
-لا تنشئ مقاساً جديداً من نفسك؛ المقاسات المعتمدة هي 10 و30 و50 و100 مل كما يحددها مخطط البيانات.
+**زيت عطري جديد:** اكتب `نعم` في `is_oil` و`oil` في `concentration`، وضع أسعاره
+في `price_12` و`price_6` و`price_3` (أو أي حجم تبيعه). الموقع يعرض «زيت عطري»
+ويضيف «الصيغة» للفلاتر تلقائياً.
+
+**نسخة فاخرة:** أنشئ صفاً جديداً باسم يحتوي «(فاخر)» — مثل `تيروني (فاخر)`. لا
+تكرر كلمة فاخر: البطاقة الذهبية تظهر مرة واحدة فقط.
 
 ## إخفاء منتج أو إظهاره
 
-غيّر `on_site` في صف المنتج داخل `data/product-master.csv` إلى `لا` لإخفائه أو `نعم` لإظهاره، ثم شغّل `npm run master:import`. المنتج المخفي لا يظهر للزوار ولا في خريطة الموقع. لا تحذف بياناته أو صوره لمجرد إخفائه.
+غيّر `on_site` إلى `لا` لإخفائه أو `نعم` لإظهاره، ثم `npm run data:refresh -- --apply`.
+المنتج المخفي لا يظهر في القوائم ولا البحث ولا خريطة الموقع، ورابطه يرجع 404.
+لا تحذف بياناته أو صوره لمجرد إخفائه.
 
-## تغيير الشحن
+## مسح قيمة موجودة
 
-افتح `data/settings.json` وغيّر `shipping.cost`. الشحن الحالي مبلغ ثابت 100 جنيه لكل طلب، ولا يوجد حد للشحن المجاني. إذا قررت مبلغاً جديداً، حدّث الاختبارات والسياسات/الرسائل التي تذكر السعر بمراجعة مطور، ثم شغّل الفحوصات.
+خلية تحتوي **`-` فقط** تمسح القيمة. تعمل في: `gallery_extra` (يرجع للصورة
+الأساسية)، `description_ar`، `top_notes`، `heart_notes`، `base_notes`،
+`concentration`، `family`. مثال: صورة النسخة الفاخرة ظهرت في معرض المنتج
+الأساسي؟ اكتب `-` في `gallery_extra`.
+
+## الأعلام: فاخر / زيت / إنتاج فودا
+
+`is_featured` و`is_oil` و`is_fouda_original`: `نعم` = مفعّل، `لا` أو **فراغ** =
+مطفأ. الخلية الفارغة تُطفئ العلم — لذلك اكتب `نعم` لكل منتج تريد بقاءه فاخراً.
+المعاينة تطبع كل منتج سيكسب العلم أو سيفقده قبل الكتابة.
 
 ## تثبيت زجاجات الواجهة الرئيسية
 
-في `data/settings.json` أضف/عدّل `heroProducts` كقائمة slugs مثل `"heroProducts": ["pf080", "pf150", "pf240"]`. اختر فقط منتجات ظاهرة، متوفرة، ولها صورة مشتقة شفافة. عند عدم ضبطها يختار الموقع المنتجات المميزة من بيانات المبيعات.
+في `data/settings.json` عدّل `heroProducts` كقائمة slugs مثل
+`["pf080", "pf150", "pf240"]`. اختر فقط منتجات ظاهرة، متوفرة، وصورتها شفافة.
+عند تركها فارغة يختار الموقع المنتجات «فاخر» أولاً ثم يكمل الثلاثة بالأكثر
+مبيعاً، ولا يعرض زجاجة واحدة إلا إذا لم يوجد ثلاثة منتجات صالحة.
 
-## تجديد الصور
+## تغيير الشحن
 
-- لكل الصور: `npm run build:images`
-- صورة واحدة: `npm run build:images -- --slug=pfxxx`
+افتح `data/settings.json` وغيّر `shipping.cost`. الشحن الحالي مبلغ ثابت 100 جنيه
+لكل طلب، ولا يوجد حد للشحن المجاني. إذا قررت مبلغاً جديداً، راجع مع المطور
+السياسات التي تذكر السعر، ثم شغّل الفحوصات.
+
+## الصور
+
+- لكل الصور المتغيّرة: `npm run build:images` (يتخطى ما لم يتغيّر).
+- صورة واحدة: `npm run build:images -- --slug=pf680`
 - فرض إعادة التوليد: أضف `--force`
 - تحقق من الاكتمال: `npm run check:derived`
+- خلفية غير شفافة؟ تُسجَّل في `.audit/needs-retouch.txt` ولا تُقصّ تلقائياً؛
+  اقصّها يدوياً ثم `npm run build:images -- --slug=pfxxx --force`.
 
-الصورة الأصلية لا تُستبدل. ملفات AVIF/WebP المشتقة داخل `public/products/derived/`.
+الصورة الأصلية لا تُعدَّل. ملفات AVIF/WebP المشتقة داخل `public/products/derived/`.
 
 ## أوامر الفحوصات
 
 | الأمر | معناه |
 |---|---|
+| `npm run data:refresh` | معاينة تحديث البيانات: تحقق + تدقيق صور + فرق الاستيراد |
+| `npm run data:refresh -- --apply` | تطبيق التحديث ثم كل الفحوصات والبناء |
 | `npm run validate-json` | سلامة JSON ومخطط المنتجات والإعدادات |
 | `npm run check:tokens` | منع الألوان/الظلال/الأحجام خارج نظام التصميم |
 | `npm run check:derived` | اكتمال الصور المشتقة والـ manifest |
@@ -71,15 +112,40 @@ npm run build
 
 ## أخطاء شائعة وماذا تفعل
 
-- **فشل validate-json:** يوجد فاصلة/قوس غير صحيح أو قيمة لا تطابق مخطط المنتج؛ أصلح الحقل الذي يسميه الخطأ.
-- **فشل check:derived:** صورة مشتقة أو سجل manifest مفقود؛ تأكد من وجود الصورة الأصلية ثم أعد `npm run build:images -- --slug=...`.
-- **فشل build:** لا تنشر النسخة؛ احتفظ بنص الخطأ واطلب مساعدة المطور.
-- **تعذر إرسال الطلب / 503:** لا تمسح السلة. افحص متغيرات قناة البريد أو واتساب لدى مسؤول الاستضافة، ثم نفّذ طلباً تجريبياً.
-- **429:** أوقف المحاولات المتكررة وانتظر المدة المعروضة.
-- **فشل preflight في الإنتاج:** لا تطلق حتى تضبط قناة طلب واحدة على الأقل والـ domain وDNS ومتغيرات الاستضافة.
+- **`image public/products/PFxxx.png does not exist`**: المنتج الجديد يحتاج صورته
+  قبل الإنشاء. أضف الملف ثم أعد المحاولة.
+- **`duplicate column`**: اسم عمود مكرر في الرأس. احذف المكرر (يخبرك بالعمودين).
+- **`unknown ...`**: قيمة غير معروفة في ذلك العمود. راجع جدول القيم في
+  `docs/Product-Data.md`.
+- **`conflict: concentration is ...`**: `is_oil=نعم` مع تركيز غير `oil`. اكتب
+  `oil` أو امسح التركيز.
+- **`rejected cells`**: لا يُكتب شيء. أصلح الخلايا المذكورة (بأرقام سطورها) وأعد.
+- **فشل `validate-json`**: فاصلة/قوس غير صحيح أو قيمة لا تطابق المخطط.
+- **فشل `check:derived`**: صورة مشتقة أو سجل manifest مفقود؛ أعد `npm run build:images`.
+- **فشل `build`**: لا تنشر النسخة؛ احتفظ بنص الخطأ واطلب مساعدة المطور.
+- **تعذر إرسال الطلب / 503**: لا تمسح السلة. افحص متغيرات قناة البريد أو واتساب
+  لدى مسؤول الاستضافة، ثم نفّذ طلباً تجريبياً.
+- **429**: أوقف المحاولات وانتظر المدة المعروضة.
+- **فشل preflight في الإنتاج**: لا تطلق حتى تضبط قناة طلب واحدة على الأقل
+  والـ domain وDNS ومتغيرات الاستضافة.
 
 ---
 
 # Owner guide (English)
 
-Run `npm ci`, then the full check sequence in the opening section before shipping any edits. Edit products in `data/products.json`; add source photos as `public/products/PFxxx.png`, import master-sheet rows with `npm run master:import`, and generate AVIF/WebP assets using `npm run build:images -- --slug=pfxxx`. Never change an existing product ID/slug or invent product claims. Hide/show products by setting `on_site` in the existing master CSV and importing it. Flat shipping is configured in `data/settings.json`; the current fee is 100 EGP, with no free-shipping threshold. Pin hero bottle slugs with the optional `heroProducts` setting. Use `npm run check:derived` to verify generated image files. Before launch run `npm run preflight -- --url=https://your-domain`; a 503 requires channel configuration and never means the customer should clear their cart.
+Edit ONE file — `data/product-master.csv` — then run `npm run data:refresh` to
+preview and `npm run data:refresh -- --apply` to write, derive images and run every
+gate. Never edit `data/products.json` by hand and never change an existing slug or
+sku. Prices live in `price_<ml>` columns and availability in `avail_<ml>`; a blank
+cell keeps the current value, while a cell containing exactly `-` clears it (for
+gallery, description, notes, concentration and family). The three `is_*` flags are
+the exception: `نعم` means on, while `لا` **and a blank cell** mean off, and every
+flip is printed before anything is written. A new product needs its photo at
+`public/products/PFxxx.png`; a new oil needs `is_oil=نعم`, `concentration=oil` and
+its `price_12` / `price_6` / `price_3` cells. A premium variant is a separate row
+whose name contains "(فاخر)". Hide a product with `on_site=لا`. Pin hero bottles
+with the optional `heroProducts` setting; otherwise the hero shows featured
+products first and fills the trio with the best sellers. Flat shipping is
+`shipping.cost` in `data/settings.json` (100 EGP, no free-shipping threshold).
+Photos with a non-transparent background are listed in `.audit/needs-retouch.txt`
+and never auto-cut. Before launch run `npm run preflight -- --url=https://your-domain`.

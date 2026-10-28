@@ -25,7 +25,8 @@
     "master:export": "tsx scripts/export-product-master.mjs",
     "master:import": "tsx scripts/import-product-master.mjs",
     "check:derived": "node scripts/check-derived-images.mjs",
-    "check:links": "node scripts/check-links.mjs"
+    "check:links": "node scripts/check-links.mjs",
+    "data:refresh": "tsx scripts/data-refresh.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
