@@ -237,6 +237,21 @@ describe("getChatCompletion (openai provider)", () => {
     expect(result.recommended_product_codes).toEqual([]);
   });
 
+  it("does not log provider or customer error details when the API call fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
+    try {
+      createMock.mockRejectedValue(new Error("customer: Ahmed, prompt: secret content"));
+      await getChatCompletion([{ role: "user", content: "secret content" }], systemPrompt);
+      const output = [...errorSpy.mock.calls, ...infoSpy.mock.calls].flat().join(" ");
+      expect(output).not.toContain("secret content");
+      expect(output).not.toContain("customer: Ahmed");
+    } finally {
+      errorSpy.mockRestore();
+      infoSpy.mockRestore();
+    }
+  });
+
   it("logs the provider on success", async () => {
     const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
     try {

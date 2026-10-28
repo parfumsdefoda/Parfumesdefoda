@@ -31,12 +31,9 @@ export async function saveOrder(order: Order): Promise<SaveOrderResult> {
     await redis.set(`order:${order.orderNumber}`, JSON.stringify(order));
     await redis.lpush(ORDER_INDEX_KEY, order.orderNumber);
     return { ok: true };
-  } catch (error) {
+  } catch {
     // Log the failure only — no PII, no raw order body.
-    console.error(
-      "[order-store] Failed to persist order:",
-      error instanceof Error ? error.message : String(error),
-    );
+    console.error("[order-store] Failed to persist order.");
     return { ok: false };
   }
 }

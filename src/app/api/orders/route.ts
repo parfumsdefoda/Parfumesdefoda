@@ -147,21 +147,15 @@ export async function POST(request: Request) {
     try {
       await sendOrderEmail(order);
       delivery.email = true;
-    } catch (emailError) {
-      console.error(
-        "[email] Failed to send order notification email:",
-        emailError instanceof Error ? emailError.message : String(emailError),
-      );
+    } catch {
+      console.error("[email] Order notification delivery failed.");
     }
 
     try {
       await sendOrderWhatsApp(order);
       delivery.whatsapp = true;
-    } catch (whatsAppError) {
-      console.error(
-        "[whatsapp] Failed to send order notification WhatsApp:",
-        whatsAppError instanceof Error ? whatsAppError.message : String(whatsAppError),
-      );
+    } catch {
+      console.error("[whatsapp] Order notification delivery failed.");
     }
 
     // Optional persistence — bounded and failure-tolerant.
@@ -190,11 +184,8 @@ export async function POST(request: Request) {
     // Rank products by sales (non-blocking; never throws).
     try {
       await incrementProductSales(order.items);
-    } catch (salesError) {
-      console.error(
-        "[sales-tracking] Failed to track product sales for order:",
-        salesError instanceof Error ? salesError.message : String(salesError),
-      );
+    } catch {
+      console.error("[sales-tracking] Product sales update failed.");
     }
 
     return NextResponse.json(

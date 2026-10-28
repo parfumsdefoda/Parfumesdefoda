@@ -59,15 +59,11 @@ export function logOrderCreated(order: OrderLogInput, options?: LogOptions): voi
  * Only the error message, optional stack, request id, and environment
  * are logged. No secrets or raw request bodies are included.
  */
-export function logOrderError(error: unknown, options?: LogOptions): void {
-  const message = error instanceof Error ? error.message : "Unknown error";
-  const stack = error instanceof Error ? error.stack : undefined;
-
+export function logOrderError(_error: unknown, options?: LogOptions): void {
   const log = {
     event: "order.error",
     level: "error",
-    message,
-    stack,
+    message: "Order processing failed",
     environment: process.env.NODE_ENV ?? "unknown",
     requestId: getRequestId(options),
   };
@@ -83,17 +79,13 @@ export function logOrderError(error: unknown, options?: LogOptions): void {
  */
 export function logError(
   event: string,
-  error: unknown,
+  _error: unknown,
   extra?: Record<string, unknown>,
 ): void {
-  const message = error instanceof Error ? error.message : "Unknown error";
-  const stack = error instanceof Error ? error.stack : undefined;
-
   const log = {
     event,
     level: "error",
-    message,
-    stack,
+    message: "Server operation failed",
     environment: process.env.NODE_ENV ?? "unknown",
     ...extra,
   };

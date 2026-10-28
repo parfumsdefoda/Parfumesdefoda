@@ -192,11 +192,13 @@ export async function getChatCompletion(
     const result = await callOpenAI(messages, systemPrompt);
     console.info("[ai-provider] Serving response via provider: openai (gpt-5.6-luna)");
     return result;
-  } catch (error) {
-    logError("chat.provider_error", error, { provider: "openai", model: OPENAI_MODEL });
-    console.info(
-      `[ai-provider] OpenAI call failed; returning graceful fallback (error: ${error instanceof Error ? error.message.slice(0, 120) : "unknown"})`,
-    );
+  } catch {
+    // Provider messages can echo customer prompts or include credentials; keep
+    // runtime logs free of request-derived content and provider error details.
+    logError("chat.provider_error", new Error("AI provider request failed"), {
+      provider: "openai",
+      model: OPENAI_MODEL,
+    });
     return { reply: FALLBACK_REPLY, recommended_product_codes: [] };
   }
 }

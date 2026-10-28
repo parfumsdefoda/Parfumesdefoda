@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getChatCompletion, resolveProvider, type ChatMessage } from "@/lib/ai-provider";
+import { getChatCompletion, type ChatMessage } from "@/lib/ai-provider";
 import {
   buildProductContext,
   validateProductCodes,
@@ -11,8 +11,37 @@ import type { ChatProduct } from "@/features/chat-assistant/types";
 
 // ─── Config ─────────────────────────────────────────────────────────────────
 
-/** Maximum messages to send to the AI (controls token cost) */
+/** Maximum request size before JSON parsing. */
+const MAX_BODY_BYTES = 32 * 1024;
+/** Maximum messages to send to the AI (controls token cost). */
 const MAX_HISTORY = 10;
+/** Per-message character cap, including client-supplied assistant history. */
+const MAX_MESSAGE_LENGTH = 2_000;
+
+/** Read at most maxBytes from a request stream; never buffer an oversized body. */
+async function readBoundedBody(request: Request, maxBytes: number): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let byteLength = 0;
+  let body = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      byteLength += value.byteLength;
+      if (byteLength > maxBytes) {
+        await reader.cancel();
+        return null;
+      }
+      body += decoder.decode(value, { stream: true });
+    }
+    return body + decoder.decode();
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 /** Rate limit: 20 requests per minute per IP */
 const RATE_LIMIT_MAX = 20;
@@ -40,10 +69,6 @@ Never include product codes that are not in the catalog provided below.
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
-  // Provider-selection diagnostics — visible directly in Vercel runtime logs
-  const { provider, reason } = resolveProvider();
-  console.info(`[chat] provider: "${provider}", model: "gpt-5.6-luna", reason: ${reason}`);
-
   // Rate limiting by IP
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded?.split(",")[0]?.trim() || "unknown";
@@ -63,8 +88,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Parse request body
-    const body = await request.json() as { messages?: Array<{ role: string; content: string }> };
+    const contentLength = Number(request.headers.get("content-length") ?? 0);
+    if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: "الرسالة طويلة جدًا" }, { status: 413 });
+    }
+
+    // Enforce the cap while reading, including requests without Content-Length.
+    const rawBody = await readBoundedBody(request, MAX_BODY_BYTES);
+    if (rawBody === null) {
+      return NextResponse.json({ error: "الرسالة طويلة جدًا" }, { status: 413 });
+    }
+    const body = JSON.parse(rawBody) as { messages?: Array<{ role: string; content: string }> };
 
     if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
       return NextResponse.json(
@@ -76,10 +110,17 @@ export async function POST(request: Request) {
     // Cap conversation history
     const recentMessages = body.messages.slice(-MAX_HISTORY);
 
-    // Convert to our ChatMessage format
+    if (recentMessages.some((message) =>
+      !message || !["assistant", "user", "model"].includes(message.role) ||
+      typeof message.content !== "string" || message.content.length > MAX_MESSAGE_LENGTH
+    )) {
+      return NextResponse.json({ error: "إحدى الرسائل غير صالحة أو طويلة جدًا" }, { status: 400 });
+    }
+
+    // Convert to our ChatMessage format. Client system messages are never accepted.
     const messages: ChatMessage[] = recentMessages.map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      content: String(m.content),
+      role: m.role === "assistant" || m.role === "model" ? "model" : "user",
+      content: m.content,
     }));
 
     // Ensure last message is from user
@@ -155,8 +196,9 @@ export async function POST(request: Request) {
         },
       },
     );
-  } catch (error) {
-    console.error("[chat] API error:", error);
+  } catch {
+    // Invalid JSON and provider/catalog errors are not safe to log because
+    // provider error text may include shopper content. Return fixed fallback.
     return NextResponse.json(
       {
         reply: "عذراً، حصل مشكلة تقنية. جرب تاني شوية!",

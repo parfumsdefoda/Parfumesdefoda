@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const securityHeaders = [
+  {
+    key: "Content-Security-Policy-Report-Only",
+    // Report-only first: Next.js needs inline bootstrap scripts and styles;
+    // review browser reports before considering an enforcing policy.
+    value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob:; font-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self';",
+  },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-XSS-Protection", value: "1; mode=block" },
