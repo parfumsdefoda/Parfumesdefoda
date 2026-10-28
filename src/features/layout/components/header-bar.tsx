@@ -228,7 +228,9 @@ export function HeaderBar({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                  // inline-flex: an inline anchor's vertical padding does not count
+                  // towards its box, so the hit area stayed 17px tall.
+                  className="inline-flex items-center rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
                   {item.label}
                 </Link>
@@ -244,7 +246,7 @@ export function HeaderBar({
                       current ? null : event.currentTarget,
                     )
                   }
-                  className="rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                  className="inline-flex items-center rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
                   {labels.houses}
                 </button>

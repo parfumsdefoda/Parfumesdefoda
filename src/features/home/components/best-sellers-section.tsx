@@ -42,7 +42,7 @@ export function BestSellersSection({
         </h2>
         <Link
           href="/shop"
-          className="text-caption font-bold text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+          className="inline-flex items-center py-1 -my-1 text-caption font-bold text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
         >
           {labels.viewAll}
         </Link>

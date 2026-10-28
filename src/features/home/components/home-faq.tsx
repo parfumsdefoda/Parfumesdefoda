@@ -23,7 +23,7 @@ export function HomeFaq({ title, items, allLabel }: HomeFaqProps) {
       <FaqAccordion items={items.slice(0, 5)} title={title} />
       <Link
         href="/faq"
-        className="mt-4 inline-block text-caption font-bold text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+        className="mt-4 inline-flex items-center py-1 -my-0.5 text-caption font-bold text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
       >
         {allLabel}
       </Link>

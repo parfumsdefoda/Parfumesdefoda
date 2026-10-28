@@ -91,7 +91,7 @@ export function Footer({
               <a
                 key={link.label}
                 href={link.url}
-                className="text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
               >
                 {link.label}
               </a>
@@ -118,7 +118,7 @@ export function Footer({
                       {link.href ? (
                         <Link
                           href={link.href}
-                          className="text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
                         >
                           {link.label}
                         </Link>
@@ -131,7 +131,7 @@ export function Footer({
                               ? "noopener noreferrer"
                               : undefined
                           }
-                          className="text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
                         >
                           {link.label}
                         </a>
@@ -156,7 +156,7 @@ export function Footer({
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="break-all text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                      className="inline-block -my-1.5 break-all py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
                     >
                       {link.label}
                     </a>
