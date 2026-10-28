@@ -24,6 +24,9 @@ import {
   SEASONS,
 } from "./product-vocabulary";
 import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
+import { formatSizeLabel } from "./currency";
+import { genderPublicLabel } from "./site-nav";
+
 import type { SortOption } from "./sort-helpers";
 
 // ─── Size group ─────────────────────────────────────────────────────────────
@@ -260,7 +263,10 @@ export function facetValueLabel(key: FilterKey, value: string): string {
   if (key === "tier") {
     return PUBLIC_TIER_LABELS[value as House] ?? value;
   }
-  // `size` values are already the labels the shopper sees.
+  if (key === "gender") {
+    return genderPublicLabel(value);
+  }
+  if (key === "size") return formatSizeLabel(value);
   return value;
 }
 

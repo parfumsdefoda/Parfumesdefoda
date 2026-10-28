@@ -12,7 +12,7 @@ import {
   CATEGORY_ROUTES,
   categoryBySlug,
   categoryHref,
-  type CategorySlug,
+  genderPublicLabel,
 } from "@/lib/site-nav";
 import { CatalogSection } from "@/features/catalog";
 import {
@@ -35,12 +35,6 @@ interface CategoryPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-const CATEGORY_LABEL_KEY: Record<CategorySlug, string> = {
-  men: "nav.men",
-  women: "nav.women",
-  unisex: "nav.unisex",
-};
-
 export function generateStaticParams() {
   return CATEGORY_ROUTES.map((route) => ({ category: route.slug }));
 }
@@ -54,7 +48,7 @@ export async function generateMetadata({
   if (!route) return { title: "الصفحة غير موجودة" };
 
   const [locale, products] = await Promise.all([loadLocale(), loadVisibleProducts()]);
-  const label = t(locale, CATEGORY_LABEL_KEY[route.slug], route.slug);
+  const label = genderPublicLabel(route.gender);
   const count = products.filter((product) => product.gender === route.gender).length;
   const description = t(
     locale,
@@ -99,7 +93,7 @@ export default async function CategoryPage({
     (product) => product.gender === route.gender,
   ).length;
 
-  const label = t(locale, CATEGORY_LABEL_KEY[route.slug], route.slug);
+  const label = genderPublicLabel(route.gender);
   const shopLabel = t(locale, "nav.shop", "المتجر");
   const homeLabel = t(locale, "nav.home", "الرئيسية");
 

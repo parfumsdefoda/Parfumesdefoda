@@ -70,16 +70,19 @@ describe("selectRelatedProducts", () => {
     ]);
   });
 
-  it("orders featured first, then the owner's order, then name", () => {
+  it("orders by tier, then season, then performance closeness before owner order", () => {
     const catalogue = [
-      product({ id: "b", sortOrder: 2 }),
-      product({ id: "a", sortOrder: 1 }),
-      product({ id: "featured", featured: true, sortOrder: 9 }),
+      product({ id: "performance", house: "ديزاينر", season: "صيفي", performance: "أداء قوي", sortOrder: 0 }),
+      product({ id: "season", house: "ديزاينر", season: "شتوي", performance: "أداء ضعيف", sortOrder: 0 }),
+      product({ id: "tier", house: "نيش", season: "صيفي", performance: "أداء ضعيف", sortOrder: 0 }),
+      product({ id: "same-all", house: "نيش", season: "شتوي", performance: "أداء قوي", featured: false, sortOrder: 10 }),
+      product({ id: "same-all-featured", house: "نيش", season: "شتوي", performance: "أداء قوي", featured: true, sortOrder: 1 }),
     ];
     expect(selectRelatedProducts(current, catalogue).map((p) => p.id)).toEqual([
-      "featured",
-      "a",
-      "b",
+      "same-all-featured",
+      "same-all",
+      "tier",
+      "season",
     ]);
   });
 

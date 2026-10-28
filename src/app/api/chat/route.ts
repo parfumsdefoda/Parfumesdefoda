@@ -129,7 +129,7 @@ export async function POST(request: Request) {
     // Resolve grounded codes to product details for the chat cards
     // (the client widget is self-contained and does no catalog loading)
     const chatProducts: ChatProduct[] = products
-      .filter((p) => p.status === "active" && sortedCodes.includes(p.id))
+      .filter((p) => p.status === "active" && p.hidden !== true && sortedCodes.includes(p.id))
       .map((p) => ({
         id: p.id,
         slug: p.slug,
@@ -138,7 +138,6 @@ export async function POST(request: Request) {
         image: p.image,
         type: p.type,
         gender: p.gender,
-        house: p.house,
         season: p.season,
         performance: p.performance,
         sizes: p.sizes,

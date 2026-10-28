@@ -13,6 +13,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/currency";
 import { useCart } from "@/providers/CartProvider";
 import { openAdvisor } from "@/features/chat-assistant/advisor-bus";
 import type { NavLink } from "@/lib/site-nav";
@@ -177,12 +178,27 @@ export function HeaderBar({
         scrolled ? "border-[var(--color-border)]" : "border-transparent",
       )}
     >
-      <div className="mx-auto flex h-full w-full max-w-[1280px] items-center justify-between gap-3 px-4">
+      <div className="relative mx-auto flex h-full w-full max-w-[1280px] items-center justify-between gap-3 px-4">
+        {!reduced && (
+          <Button
+            ref={menuTriggerRef}
+            variant="ghost"
+            size="icon"
+            onClick={() => setMenuOpen(true)}
+            aria-label={labels.menu}
+            aria-expanded={menuOpen}
+            aria-haspopup="dialog"
+            className="md:hidden"
+          >
+            <Menu aria-hidden="true" />
+          </Button>
+        )}
+
         {/* ─── Logo ─── */}
         <Link
           href="/"
           aria-label={storeName}
-          className="flex shrink-0 items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+          className="flex shrink-0 items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 max-md:absolute max-md:start-1/2 max-md:-translate-x-1/2"
         >
           <Image
             src={logoSrc}
@@ -272,7 +288,7 @@ export function HeaderBar({
             </nav>
 
             {/* ─── Actions ─── */}
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-1 max-md:ms-auto">
               <Button
                 ref={searchTriggerRef}
                 variant="ghost"
@@ -289,7 +305,7 @@ export function HeaderBar({
                 size="icon"
                 onClick={openAdvisor}
                 aria-label={labels.advisor}
-                className="lg:w-auto lg:gap-2 lg:px-3"
+                className="hidden md:inline-flex lg:w-auto lg:gap-2 lg:px-3"
               >
                 <Sparkles aria-hidden="true" />
                 <span className="hidden text-caption font-medium lg:inline">
@@ -301,7 +317,7 @@ export function HeaderBar({
                 variant="ghost"
                 size="icon"
                 onClick={cart.openDrawer}
-                aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${cart.totalItems.toLocaleString("ar-EG")})` : ""}`}
+                aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
                 className="relative"
               >
                 <ShoppingCart aria-hidden="true" />
@@ -312,23 +328,11 @@ export function HeaderBar({
                   >
                     {cart.totalItems > 99
                       ? "٩٩+"
-                      : cart.totalItems.toLocaleString("ar-EG")}
+                      : formatNumber(cart.totalItems)}
                   </span>
                 )}
               </Button>
 
-              <Button
-                ref={menuTriggerRef}
-                variant="ghost"
-                size="icon"
-                onClick={() => setMenuOpen(true)}
-                aria-label={labels.menu}
-                aria-expanded={menuOpen}
-                aria-haspopup="dialog"
-                className="md:hidden"
-              >
-                <Menu aria-hidden="true" />
-              </Button>
             </div>
           </>
         )}

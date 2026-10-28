@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpLeft } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, formatSizeLabel } from "@/lib/currency";
 import type { ChatProduct } from "../types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -70,14 +70,14 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
             {product.name}
           </p>
           <p className="text-caption text-[var(--neutral-400)] truncate">
-            {product.brand} · {product.house}
+            {product.brand}
           </p>
         </div>
 
         {/* Sizes info */}
         {inStockSizes.length > 0 && (
           <p className="text-caption text-[var(--neutral-400)] truncate">
-            {inStockSizes.map((s) => s.label).join(" · ")}
+            {inStockSizes.map((s) => formatSizeLabel(s.label)).join(" · ")}
           </p>
         )}
 

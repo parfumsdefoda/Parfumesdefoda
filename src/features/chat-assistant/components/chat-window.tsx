@@ -111,7 +111,7 @@ export function ChatWindow({
               أنا مساعد العطور الافتراضي. قولي إيه اللي بتدور عليه وهأرشحلك أحلى عطر يناسبك!
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-              {["عطر شتوي", "هدية لحد", "عطر رجالي", "عطر نسائي"].map((suggestion) => (
+              {["عطر شتوي", "هدية لحد", "عطر رجالي", "عطر حريمي"].map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"

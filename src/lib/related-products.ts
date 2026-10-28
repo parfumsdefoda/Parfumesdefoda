@@ -3,8 +3,8 @@
  *
  * "Similar" is a data question, not a marketing one: same gender and same
  * scent style, buyable today, visible, and not the product being viewed. The
- * order is deterministic (featured, then the owner's sortOrder, then name), so
- * the row never shuffles between two renders of the same page.
+ * order rewards catalogue proximity (same tier, then season, then performance)
+ * and uses stable owner order/name as tie breakers.
  *
  * Pure and client-safe.
  */
@@ -34,8 +34,12 @@ export function selectRelatedProducts(
   );
 
   matches.sort((a, b) => {
-    const featured = Number(b.featured ?? false) - Number(a.featured ?? false);
-    if (featured !== 0) return featured;
+    const closeness = (candidate: Product) =>
+      Number(candidate.house === product.house) * 4 +
+      Number(candidate.season === product.season) * 2 +
+      Number(candidate.performance === product.performance);
+    const score = closeness(b) - closeness(a);
+    if (score !== 0) return score;
     const order = (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
     if (order !== 0) return order;
     return a.name.localeCompare(b.name, "ar");

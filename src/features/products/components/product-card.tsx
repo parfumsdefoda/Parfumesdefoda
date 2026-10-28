@@ -50,6 +50,8 @@ export interface ProductCardProps {
   loading?: "eager" | "lazy";
   /** Below-the-fold cards skip off-screen layout/paint work. */
   deferred?: boolean;
+  /** Related shelves avoid a second gold accent beside the PDP. */
+  suppressFeatured?: boolean;
   labels?: Partial<ProductCardLabels>;
   className?: string;
 }
@@ -87,11 +89,12 @@ export function ProductCard({
   priority = false,
   loading = "lazy",
   deferred = false,
+  suppressFeatured = false,
   labels,
   className,
 }: ProductCardProps) {
   const copy = { ...DEFAULT_CARD_LABELS, ...labels };
-  const badge = cardBadge(product);
+  const badge = cardBadge(product, { suppressFeatured });
   const comingSoon = badge === "coming-soon";
   const outOfStock = badge === "out-of-stock";
   const hasImage = hasProductImage(product);

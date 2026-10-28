@@ -21,6 +21,17 @@ export const CATEGORY_ROUTES: readonly CategoryRoute[] = [
   { slug: "unisex", gender: "للجنسين" },
 ] as const;
 
+/** Single customer-facing label lookup for stored gender enum values. */
+export const GENDER_PUBLIC_LABELS: Readonly<Record<string, string>> = {
+  رجالي: "رجالي",
+  نسائي: "حريمي",
+  للجنسين: "للجنسين",
+};
+
+export function genderPublicLabel(gender: string): string {
+  return GENDER_PUBLIC_LABELS[gender] ?? gender;
+}
+
 /** Resolve a URL slug to its route, or `undefined` for anything else (404). */
 export function categoryBySlug(slug: string): CategoryRoute | undefined {
   return CATEGORY_ROUTES.find((route) => route.slug === slug);
@@ -62,7 +73,10 @@ export function buildPrimaryNav(
   const links: NavLink[] = [{ label: labels.shop, href: "/shop" }];
   for (const route of CATEGORY_ROUTES) {
     if ((counts[route.gender] ?? 0) === 0) continue;
-    links.push({ label: labels[route.slug], href: categoryHref(route.slug) });
+    links.push({
+      label: route.slug === "women" ? genderPublicLabel(route.gender) : labels[route.slug],
+      href: categoryHref(route.slug),
+    });
   }
   return links;
 }

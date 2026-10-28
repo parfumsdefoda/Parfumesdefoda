@@ -10,7 +10,7 @@ import { selectRelatedProducts } from "@/lib/related-products";
 import { getShippingFee } from "@/lib/shipping";
 import { formatPrice } from "@/lib/currency";
 import { t } from "@/lib/locale";
-import { CATEGORY_ROUTES } from "@/lib/site-nav";
+import { CATEGORY_ROUTES, genderPublicLabel } from "@/lib/site-nav";
 import { buildCardLabels } from "@/features/catalog/catalog-props";
 import { ProductDetailPage } from "@/features/products/components/product-detail-page";
 
@@ -105,15 +105,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     (route) => route.gender === product.gender,
   );
   const categoryLabel = category
-    ? t(
-        locale,
-        category.slug === "men"
-          ? "nav.men"
-          : category.slug === "women"
-            ? "nav.women"
-            : "nav.unisex",
-        category.slug === "men" ? "رجالي" : category.slug === "women" ? "حريمي" : "للجنسين",
-      )
+    ? genderPublicLabel(category.gender)
     : undefined;
 
   const jsonLd = buildProductJsonLd(product, siteUrl);

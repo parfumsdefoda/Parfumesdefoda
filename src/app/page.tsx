@@ -6,7 +6,7 @@ import { loadLocale } from "@/services/localization";
 import { readProductSalesCounts } from "@/lib/sales-tracking";
 import { selectBestSellers } from "@/lib/best-sellers";
 import { selectHeroProducts } from "@/lib/hero-products";
-import { genderCounts, CATEGORY_ROUTES, categoryHref } from "@/lib/site-nav";
+import { genderCounts, CATEGORY_ROUTES, categoryHref, genderPublicLabel } from "@/lib/site-nav";
 import { getShippingFee } from "@/lib/shipping";
 import { formatPrice } from "@/lib/currency";
 import { t } from "@/lib/locale";
@@ -75,7 +75,7 @@ export default async function HomePage() {
 
   const categoryLabels: Record<(typeof CATEGORY_ROUTES)[number]["slug"], string> = {
     men: t(locale, "nav.men", "رجالي"),
-    women: t(locale, "nav.women", "حريمي"),
+    women: genderPublicLabel("نسائي"),
     unisex: t(locale, "nav.unisex", "للجنسين"),
   };
 

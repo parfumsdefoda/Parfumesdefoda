@@ -170,12 +170,16 @@ describe("size group", () => {
 });
 
 describe("facetValueLabel", () => {
-  it("shows a size under the same label the shopper reads on the card", () => {
-    expect(facetValueLabel("size", "50 مل")).toBe("50 مل");
+  it("shows a size with Arabic-Indic digits", () => {
+    expect(facetValueLabel("size", "50 مل")).toBe("٥٠ مل");
   });
 
   it("labels a tier through the public lookup", () => {
     expect(facetValueLabel("tier", "نيش")).toBe("نيش");
+  });
+
+  it("maps internal women enum to the public label", () => {
+    expect(facetValueLabel("gender", "نسائي")).toBe("حريمي");
   });
 
   it("falls back to the catalogue value", () => {

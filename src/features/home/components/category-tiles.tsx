@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { formatNumber } from "@/lib/currency";
 
 export interface CategoryTile {
   label: string;
@@ -50,7 +51,7 @@ export function CategoryTiles({ title, tiles, countLabel }: CategoryTilesProps) 
               </span>
               <span className="flex items-center justify-between gap-3">
                 <span className="text-caption text-[var(--color-text-muted)]">
-                  {countLabel.replace("{count}", String(tile.count))}
+                  {countLabel.replace("{count}", formatNumber(tile.count))}
                 </span>
                 <ArrowLeft
                   aria-hidden="true"

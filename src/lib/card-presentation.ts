@@ -41,10 +41,11 @@ export function hasProductImage(product: Pick<Product, "image">): boolean {
  */
 export function cardBadge(
   product: Pick<Product, "image" | "inStock" | "status" | "featured" | "sizes">,
+  options: { suppressFeatured?: boolean } = {},
 ): CardBadge | null {
   if (isComingSoon(product)) return "coming-soon";
   if (isUnavailableProduct(product) || !hasAnyStock(product)) return "out-of-stock";
-  if (product.featured) return "featured";
+  if (product.featured && !options.suppressFeatured) return "featured";
   return null;
 }
 

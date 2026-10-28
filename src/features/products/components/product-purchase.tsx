@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "re
 import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/features/toast";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, formatSizeLabel } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { Product, ProductSize } from "@/types";
 
@@ -56,8 +56,9 @@ export function ProductPurchase({
   const canBuy = chosen !== null && chosen.inStock;
 
   const [ctaPast, setCtaPast] = useState(false);
-  const [atPageEnd, setAtPageEnd] = useState(false);
+  const [footerReachedBar, setFooterReachedBar] = useState(false);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const stickyBarRef = useRef<HTMLDivElement>(null);
   const radios = useRef<Array<HTMLButtonElement | null>>([]);
 
   // The bar is a convenience for the phone, not a second checkout: it appears
@@ -78,6 +79,16 @@ export function ProductPurchase({
       // "Past" means scrolled *above* the viewport — not merely out of it.
       // A CTA that is still below the fold must not raise the bar.
       setCtaPast(node.getBoundingClientRect().bottom < 0);
+      const footer = document.querySelector<HTMLElement>("[data-page-end]");
+      const bar = stickyBarRef.current;
+      setFooterReachedBar(
+        Boolean(
+          footer &&
+            bar &&
+            footer.getBoundingClientRect().top <=
+              window.innerHeight - bar.getBoundingClientRect().height,
+        ),
+      );
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(evaluate);
@@ -87,26 +98,14 @@ export function ProductPurchase({
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
 
-    // The bar is chrome, not a checkout: it steps aside for the footer.
-    const pageEnd = document.querySelector("[data-page-end]");
-    let endObserver: IntersectionObserver | undefined;
-    if (pageEnd && typeof IntersectionObserver !== "undefined") {
-      endObserver = new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        if (entry) setAtPageEnd(entry.isIntersecting);
-      });
-      endObserver.observe(pageEnd);
-    }
-
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (frame) window.cancelAnimationFrame(frame);
-      endObserver?.disconnect();
     };
   }, []);
 
-  const showBar = ctaPast && !atPageEnd;
+  const showBar = ctaPast && !footerReachedBar;
 
   const add = useCallback(() => {
     if (!chosen || !chosen.inStock) return;
@@ -172,7 +171,7 @@ export function ProductPurchase({
           role="radiogroup"
           aria-label={labels.chooseSize}
           onKeyDown={handleKeyDown}
-          className="flex flex-wrap gap-2"
+          className="grid grid-cols-4 gap-2"
         >
           {product.sizes.map((size, index) => {
             const checked = size.label === selected;
@@ -232,6 +231,7 @@ export function ProductPurchase({
 
       {/* Phone-only bar: same size, same price, same line in the cart. */}
       <div
+        ref={stickyBarRef}
         data-sticky-bar
         data-visible={showBar ? "true" : "false"}
         className={cn(
@@ -248,7 +248,7 @@ export function ProductPurchase({
             </p>
             {chosen && (
               <p className="text-caption text-[var(--color-text-muted)] tabular-nums">
-                {chosen.label} · {price}
+                {formatSizeLabel(chosen.label)} · {price}
               </p>
             )}
           </div>
@@ -296,11 +296,11 @@ function SizeOption({
       onClick={onSelect}
       aria-label={
         out
-          ? `${size.label} — ${labels.sizeUnavailable}`
-          : `${size.label} ${formatPrice(size.price)}`
+          ? `${formatSizeLabel(size.label)} — ${labels.sizeUnavailable}`
+          : `${formatSizeLabel(size.label)} ${formatPrice(size.price)}`
       }
       className={cn(
-        "flex min-h-11 items-center gap-2 rounded-pill border px-4 text-caption transition-colors",
+        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-control border px-1 text-caption text-center transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
         checked
           ? "border-[var(--color-brand)] bg-[var(--purple-50)] font-bold text-[var(--color-text)]"
@@ -308,9 +308,9 @@ function SizeOption({
         out && "cursor-not-allowed opacity-50 line-through",
       )}
     >
-      <span>{size.label}</span>
+      <span>{formatSizeLabel(size.label)}</span>
       {!out && (
-        <span className="font-bold tabular-nums">{formatPrice(size.price)}</span>
+        <span className="whitespace-nowrap text-caption font-bold tabular-nums">{formatPrice(size.price)}</span>
       )}
     </button>
   );

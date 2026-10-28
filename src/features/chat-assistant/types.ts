@@ -23,7 +23,6 @@ export interface ChatProduct {
   image: string;
   type: "شرقي" | "غربي";
   gender: "رجالي" | "نسائي" | "للجنسين";
-  house: string;
   season: string;
   performance: string;
   sizes: { label: string; price: number; inStock: boolean }[];

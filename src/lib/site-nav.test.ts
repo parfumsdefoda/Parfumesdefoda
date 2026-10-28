@@ -5,6 +5,7 @@ import {
   categoryBySlug,
   categoryHref,
   genderCounts,
+  genderPublicLabel,
 } from "./site-nav";
 
 const labels = {
@@ -13,6 +14,12 @@ const labels = {
   women: "حريمي",
   unisex: "للجنسين",
 };
+
+describe("genderPublicLabel", () => {
+  it("uses the shopper-facing women label without changing the stored enum", () => {
+    expect(genderPublicLabel("نسائي")).toBe("حريمي");
+  });
+});
 
 describe("categoryBySlug", () => {
   it("maps every declared slug to its gender value", () => {
@@ -70,7 +77,7 @@ describe("buildPrimaryNav", () => {
   it("keeps all three when every gender has products", () => {
     const nav = buildPrimaryNav(
       { رجالي: 12, نسائي: 1, للجنسين: 4 },
-      labels,
+      { ...labels, women: "Women" },
     );
     expect(nav).toHaveLength(4);
     expect(nav[2]).toEqual({ label: "حريمي", href: "/shop/women" });

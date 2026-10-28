@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CheckoutForm } from "@/features/checkout";
 import { useCart } from "@/providers/CartProvider";
-import { formatPrice } from "@/lib/currency";
+import { formatNumber, formatPrice, formatSizeLabel } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import type { FullSettings } from "@/types/services";
 import type { CheckoutFormData } from "@/schemas/checkout";
@@ -186,7 +186,7 @@ export function CheckoutPageClient({
           <div className="order-2 lg:order-2">
             <div className="reveal sticky top-24 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6">
               <h2 className="text-headline font-bold text-[var(--neutral-800)] mb-4">
-                ملخص الطلب ({cart.totalItems} منتج)
+                ملخص الطلب ({formatNumber(cart.totalItems)} منتج)
               </h2>
 
               {/* Items */}
@@ -212,7 +212,7 @@ export function CheckoutPageClient({
                         {item.name}
                       </h4>
                       <p className="text-caption text-[var(--neutral-500)]">
-                        {item.sizeLabel}
+                        {formatSizeLabel(item.sizeLabel)}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center justify-between gap-y-1">
                         <div className="flex shrink-0 items-center gap-1.5">
@@ -230,8 +230,8 @@ export function CheckoutPageClient({
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
-                            {item.quantity}
+                          <span aria-live="polite" className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
+                            {formatNumber(item.quantity)}
                           </span>
                           <Button
                             variant="outline"

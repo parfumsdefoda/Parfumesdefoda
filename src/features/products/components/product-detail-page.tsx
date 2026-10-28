@@ -169,7 +169,13 @@ export function ProductDetailPage({
           ) : (
             <>
               <ProductPurchase
-                product={product}
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  image: product.image,
+                  sizes: product.sizes,
+                }}
                 description={product.description}
                 labels={labels.purchase}
               />
@@ -299,7 +305,12 @@ export function ProductDetailPage({
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} labels={cardLabels} />
+              <ProductCard
+                key={item.id}
+                product={item}
+                labels={cardLabels}
+                suppressFeatured
+              />
             ))}
           </div>
         </section>

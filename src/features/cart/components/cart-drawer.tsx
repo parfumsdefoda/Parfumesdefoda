@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { formatPrice } from "@/lib/currency";
+import { formatNumber, formatPrice, formatSizeLabel } from "@/lib/currency";
 import { ProductImage } from "@/components/product-image";
 
 export interface CartItemData {
@@ -104,7 +104,7 @@ export function CartDrawer({
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>
-            {itemsCountLabel}: {totalItems.toLocaleString("ar-EG")}
+            {itemsCountLabel}: {formatNumber(totalItems)}
           </SheetDescription>
         </SheetHeader>
 
@@ -126,7 +126,7 @@ export function CartDrawer({
         ) : (
           <div className="flex-1 overflow-y-auto px-4">
             {items.map((item) => (
-              <div key={`${item.productId}-${item.sizeLabel}`}>
+              <div key={`${item.productId}-${formatSizeLabel(item.sizeLabel)}`}>
                 <div className="flex gap-3 py-4">
                   {/* Image */}
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg">
@@ -147,7 +147,7 @@ export function CartDrawer({
                       {item.name}
                     </h4>
                     <p className="text-caption text-[var(--neutral-500)]">
-                      {item.sizeLabel}
+                      {formatSizeLabel(item.sizeLabel)}
                     </p>
 
                     {/* The stepper and the price share a narrow column. When
@@ -174,8 +174,8 @@ export function CartDrawer({
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
-                          {item.quantity}
+                        <span aria-live="polite" className="text-caption font-bold text-[var(--neutral-800)] min-w-[1.5rem] text-center">
+                          {formatNumber(item.quantity)}
                         </span>
                         <Button
                           variant="outline"

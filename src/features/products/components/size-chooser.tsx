@@ -9,7 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/currency";
+import { formatPrice, formatSizeLabel } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { ProductSize } from "@/types";
 
@@ -94,7 +94,7 @@ export default function SizeChooser({
         role="radiogroup"
         aria-label={labels.chooseSize}
         onKeyDown={handleKeyDown}
-        className="flex flex-col gap-1.5"
+        className="grid grid-cols-4 gap-1.5"
       >
         {sizes.map((size, index) => {
           const checked = size.label === selected;
@@ -111,7 +111,7 @@ export default function SizeChooser({
               tabIndex={checked ? 0 : -1}
               onClick={() => setSelected(size.label)}
               className={cn(
-                "flex items-center justify-between gap-3 rounded-control border px-3 py-2.5 text-caption",
+                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-control border px-1 py-2 text-caption text-center",
                 "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
                 checked
@@ -120,8 +120,8 @@ export default function SizeChooser({
                 !size.inStock && "cursor-not-allowed opacity-50 line-through",
               )}
             >
-              <span className="font-medium">{size.label}</span>
-              <span className="font-bold tabular-nums">
+              <span className="font-medium">{formatSizeLabel(size.label)}</span>
+              <span className="whitespace-nowrap text-caption font-bold tabular-nums">
                 {formatPrice(size.price)}
               </span>
             </button>

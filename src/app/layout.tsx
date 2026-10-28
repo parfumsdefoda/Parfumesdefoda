@@ -9,7 +9,7 @@ import { t } from "@/lib/locale";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
-import { buildPrimaryNav, genderCounts, type PrimaryNavLabels } from "@/lib/site-nav";
+import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
 import { SiteShell } from "@/features/layout";
 import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
 import "./globals.css";
@@ -183,7 +183,7 @@ export default async function RootLayout({
   const navLabels: PrimaryNavLabels = {
     shop: t(localeMessages, "nav.shop", "المتجر"),
     men: t(localeMessages, "nav.men", "رجالي"),
-    women: t(localeMessages, "nav.women", "حريمي"),
+    women: genderPublicLabel("نسائي"),
     unisex: t(localeMessages, "nav.unisex", "للجنسين"),
   };
 
