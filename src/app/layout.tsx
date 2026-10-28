@@ -85,7 +85,7 @@ export const metadata: Metadata = {
   // its own canonical instead.
   icons: {
     icon: "/favicon.svg",
-    apple: "/favicon.svg",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
