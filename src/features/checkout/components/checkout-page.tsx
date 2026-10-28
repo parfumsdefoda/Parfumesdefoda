@@ -15,6 +15,7 @@ import { formatNumber, formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import type { FullSettings } from "@/types/services";
 import type { CheckoutFormData } from "@/schemas/checkout";
+import { saveOrderSummary } from "@/features/checkout/order-summary-store";
 
 export interface CheckoutPageClientProps {
   /** Shipping config from data/settings.json (flat fee, no free threshold) */
@@ -96,7 +97,7 @@ export function CheckoutPageClient({
       const payload = (await response
         .json()
         .catch(() => null)) as
-        | { orderNumber?: string; error?: string }
+        | { orderNumber?: string; total?: number; error?: string }
         | null;
 
       if (!response.ok) {
@@ -114,12 +115,19 @@ export function CheckoutPageClient({
         throw new Error("Missing order number in response");
       }
 
-      // Store the SERVER order number for the success page
-      try {
-        sessionStorage.setItem("parfumsdefoda-last-order", orderNumber);
-      } catch {
-        // Silent fail
-      }
+      // The success page needs only a display summary; server response remains
+      // authoritative for acceptance and the final total.
+      saveOrderSummary({
+        orderNumber,
+        customerFirstName: data.name.trim().split(/\s+/)[0] ?? data.name.trim(),
+        lines: lines.map(({ item, size }) => ({
+          name: item.name,
+          sizeLabel: item.sizeLabel,
+          quantity: item.quantity,
+          unitPrice: size?.price ?? item.price,
+        })),
+        total: typeof payload.total === "number" ? payload.total : total,
+      });
 
       // Clear cart and redirect to success — ONLY on confirmed success
       cart.clearCart();

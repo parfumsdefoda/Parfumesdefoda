@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { loadFullSettings } from "@/services/settings";
+
+export const metadata: Metadata = {
+  title: "تأكيد الطلب",
+  robots: { index: false, follow: false },
+};
 import { CheckoutSuccess } from "@/features/checkout/components/checkout-success";
 
 /**
