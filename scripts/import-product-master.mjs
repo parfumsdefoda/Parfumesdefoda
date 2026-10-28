@@ -123,6 +123,48 @@ async function main() {
 
   printChanges(plan.changes);
 
+  if (plan.flagToggles.length > 0) {
+    const off = plan.flagToggles.filter((toggle) => !toggle.to);
+    const on = plan.flagToggles.filter((toggle) => toggle.to);
+    console.log(`\n── أعلام تتغير / flag changes (${plan.flagToggles.length})`);
+    for (const toggle of on) console.log(`   + ${toggle.slug}  ${toggle.field} → نعم`);
+    for (const toggle of off) console.log(`   − ${toggle.slug}  ${toggle.field} → لا`);
+    if (off.length > 0) {
+      console.log("   ⚠ blank flag cells mean لا — the products above lose a flag. Fill نعم to keep it.");
+    }
+  }
+
+  if (plan.imageFixes.length > 0) {
+    console.log(`\n── صور تُربط / placeholder → real photo (${plan.imageFixes.length})`);
+    for (const fix of plan.imageFixes) console.log(`   ${fix.slug}  ${fix.from} → ${fix.to}`);
+  }
+
+  if (plan.warnings.length > 0) {
+    console.log(`\nℹ ملاحظات / warnings (${plan.warnings.length})`);
+    for (const warning of plan.warnings) {
+      console.log(
+        `   line ${warning.line}  ${warning.slug}.${warning.column}: ${warning.message}`,
+      );
+    }
+  }
+
+  if (plan.absentFromMaster.length > 0) {
+    console.log(
+      `\nℹ في الكتالوج وليس في الملف / in the catalogue, absent from the file (kept): ${plan.absentFromMaster.join(", ")}`,
+    );
+  }
+
+  if (plan.duplicateNames.length > 0) {
+    console.log("\nℹ أسماء عامة مكررة / duplicate public names (allowed, review only):");
+    for (const collision of plan.duplicateNames) {
+      console.log(`   «${collision.name}» — ${collision.slugs.join(", ")}`);
+    }
+  }
+
+  if (plan.header.unknown.length > 0) {
+    console.log(`\nℹ أعمدة غير معروفة / unknown columns ignored: ${plan.header.unknown.join(", ")}`);
+  }
+
   if (plan.creations.length > 0) {
     console.log(`\n── سيشاء إنشاء منتجات جديدة / would create (${plan.creations.length})`);
     for (const creation of plan.creations) console.log(`   + ${creation.slug}  ${creation.name}`);
@@ -185,6 +227,11 @@ async function main() {
   console.log("");
   for (const row of summariseMasterStatus(mode === "dry-run" ? parsed.data : plan.products)) {
     console.log(`  ${row.field.padEnd(34)} ${row.filled}/${row.total}`);
+  }
+
+  const headerError = plan.rejections.some((rejection) => rejection.slug === "(header)");
+  if (headerError) {
+    console.error("\n❌ رأس الملف غير صالح — لم يتم الدمج / invalid header: nothing merged.");
   }
 
   const failed = plan.rejections.length > 0 || plan.duplicates.length > 0;

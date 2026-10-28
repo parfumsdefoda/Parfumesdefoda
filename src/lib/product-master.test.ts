@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest";
 import type { Product } from "@/schemas/product-schema";
 import {
-  MASTER_COLUMNS,
+  analyseMasterHeader,
   buildCsv,
+  catalogueSizes,
+  foldArabic,
+  masterColumnsFor,
   masterCsvRows,
   parseCsv,
   parseMasterFile,
@@ -154,11 +157,25 @@ describe("planMasterImport — classification and enrichment", () => {
     });
   });
 
-  it("reads a size volume from the label without inventing it", () => {
+  it("reads a size volume from the label without writing it back", () => {
     const plan = planMasterImport([makeProduct()], csv(["slug,on_site", "pf001,نعم"]), {
       mode: "apply",
     });
-    expect(plan.products[0].sizes.map((size) => size.ml)).toEqual([10, 50]);
+
+    expect(plan.products[0].sizes.map((size) => sizeMl(size))).toEqual([10, 50]);
+    expect(plan.products[0].sizes.every((size) => size.ml === undefined)).toBe(true);
+    expect(plan.changes).toEqual([]);
+  });
+
+  it("repairs a stored ml that contradicts its label", () => {
+    const wrong = makeProduct({
+      sizes: [{ label: "30 مل", price: 300, inStock: true, ml: 50 }],
+    });
+    const plan = planMasterImport([wrong], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+    });
+
+    expect(plan.products[0].sizes[0].ml).toBe(30);
   });
 
   it("leaves empty cells alone", () => {
@@ -240,12 +257,25 @@ describe("planMasterImport — commerce is gated", () => {
     expect(product.inStock).toBe(true); // the 10 مل size is still in stock
   });
 
-  it("reports a price for a size the product does not have instead of creating it", () => {
-    const plan = planMasterImport([makeProduct()], csv(["slug,price_100", "pf001,900"]), {
+  it("creates a missing size from its price", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,price_100,avail_100", "pf001,900,نعم"]), {
       mode: "sync-commerce",
     });
 
-    expect(plan.rejections[0].column).toBe("price_100");
+    expect(plan.rejections).toEqual([]);
+    expect(plan.products[0].sizes.find((size) => size.label === "100 مل")).toMatchObject({
+      price: 900,
+      inStock: true,
+      ml: 100,
+    });
+  });
+
+  it("rejects availability for a size no price creates", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,avail_100", "pf001,نعم"]), {
+      mode: "sync-commerce",
+    });
+
+    expect(plan.rejections[0].column).toBe("avail_100");
     expect(plan.rejections[0].reason).toContain("no 100 مل size");
     expect(plan.products[0].sizes).toHaveLength(2);
   });
@@ -329,6 +359,21 @@ describe("planMasterImport — --create-missing", () => {
     expect(created?.inStock).toBe(true);
   });
 
+  it("creates an oil product from its 12 مل price", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv([
+        "slug,sku,name_ar,gender,scent_style,tier,season,performance,is_oil,concentration,price_12,avail_12",
+        "pf999,PF999,زيت عود,رجالي,شرقي,نيش,شتوي,أداء قوي,نعم,oil,300,نعم",
+      ]),
+      { mode: "apply", createMissing: true, imageExists: () => true },
+    );
+
+    const created = plan.products.find((product) => product.slug === "pf999");
+    expect(created?.sizes).toEqual([{ label: "12 مل", price: 300, inStock: true, ml: 12 }]);
+    expect(created?.oily).toBe(true);
+  });
+
   it("refuses when the image is not on disk", () => {
     const plan = planMasterImport([makeProduct()], creationCsv, {
       mode: "apply",
@@ -400,11 +445,36 @@ describe("round trip", () => {
     expect(plan.unknownSlugs).toEqual([]);
   });
 
-  it("writes the columns in contract order with a header", () => {
+  it("writes the columns in contract order, sized for the catalogue", () => {
+    expect(catalogueSizes([makeProduct()])).toEqual([50, 10]);
     const rows = masterCsvRows([makeProduct()]);
-    expect(rows[0]).toEqual([...MASTER_COLUMNS]);
+    expect(rows[0]).toEqual(masterColumnsFor([50, 10]));
+    expect(rows[0].slice(0, 3)).toEqual(["slug", "sku", "name_ar"]);
+    expect(rows[0].indexOf("price_50")).toBeLessThan(rows[0].indexOf("price_10"));
+    expect(rows[0].indexOf("avail_10")).toBeLessThan(rows[0].indexOf("description_ar"));
     expect(rows[1][0]).toBe("pf001");
     expect(rows[1][3]).toBe("نعم");
+  });
+
+  it("round-trips oil sizes and never exports the clear token", () => {
+    const products = [
+      makeProduct({
+        sizes: [
+          { label: "12 مل", price: 300, inStock: true, ml: 12 },
+          { label: "6 مل", price: 200, inStock: false, ml: 6 },
+          { label: "3 مل", price: 120, inStock: true, ml: 3 },
+        ],
+      }),
+    ];
+
+    const rows = masterCsvRows(products);
+    expect(rows[0]).toEqual(masterColumnsFor([12, 6, 3]));
+    expect(rows[1]).not.toContain("-");
+
+    const plan = planMasterImport(products, `\uFEFF${buildCsv(rows)}`, { mode: "dry-run" });
+    expect(plan.changes).toEqual([]);
+    expect(plan.rejections).toEqual([]);
+    expect(plan.header.sizes).toEqual([12, 6, 3]);
   });
 
   it("quotes only cells that need it and round-trips Arabic", () => {
@@ -414,6 +484,351 @@ describe("round trip", () => {
       "pf001",
       "هيل|عود",
     ]);
+  });
+});
+
+// ─── Header contract ────────────────────────────────────────────────────────
+
+describe("analyseMasterHeader", () => {
+  it("finds every size whatever the column order", () => {
+    const report = analyseMasterHeader([
+      "slug",
+      "price_50",
+      "price_12",
+      "avail_3",
+      "price_100",
+      "name_ar",
+    ]);
+
+    expect(report.sizes).toEqual([100, 50, 12, 3]);
+    expect(report.duplicates).toEqual([]);
+    expect(report.unknown).toEqual([]);
+  });
+
+  it("lists a duplicate name with both column numbers", () => {
+    const report = analyseMasterHeader(["slug", "price_12", "avail_12", "price_12"]);
+    expect(report.duplicates).toEqual([{ name: "price_12", columns: [2, 4] }]);
+  });
+
+  it("reports unknown columns and ignores empty header cells", () => {
+    const report = analyseMasterHeader(["slug", "owner_note", "", "price_10"]);
+    expect(report.unknown).toEqual(["owner_note"]);
+    expect(report.duplicates).toEqual([]);
+  });
+});
+
+describe("planMasterImport — header errors", () => {
+  it("refuses a duplicate column and names both positions", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv(["slug,price_50,price_50", "pf001,1,2"]),
+      { mode: "sync-commerce" },
+    );
+
+    expect(plan.rejections[0]).toMatchObject({
+      slug: "(header)",
+      column: "price_50",
+      line: 1,
+    });
+    expect(plan.rejections[0].reason).toContain("columns 2 and 3");
+    expect(plan.changes).toEqual([]);
+    expect(plan.products[0].sizes[1].price).toBe(500);
+  });
+});
+
+// ─── Generalised sizes ──────────────────────────────────────────────────────
+
+describe("planMasterImport — generalised sizes", () => {
+  it("creates a 12 مل oil size and reports a blank avail as out of stock", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,price_12,avail_12", "pf001,300,"]), {
+      mode: "sync-commerce",
+    });
+
+    expect(plan.products[0].sizes.map((size) => size.label)).toEqual([
+      "50 مل",
+      "12 مل",
+      "10 مل",
+    ]);
+    expect(plan.products[0].sizes.find((size) => size.label === "12 مل")).toMatchObject({
+      price: 300,
+      inStock: false,
+      ml: 12,
+    });
+    expect(plan.warnings.some((warning) => warning.message.includes("starts out of stock"))).toBe(
+      true,
+    );
+  });
+
+  it("creates 3, 6 and 12 مل from a single header", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv([
+        "slug,price_12,avail_12,price_6,avail_6,price_3,avail_3",
+        "pf001,300,نعم,200,نعم,120,نعم",
+      ]),
+      { mode: "sync-commerce" },
+    );
+
+    expect(plan.products[0].sizes.map((size) => size.label)).toEqual([
+      "50 مل",
+      "12 مل",
+      "10 مل",
+      "6 مل",
+      "3 مل",
+    ]);
+    expect(plan.products[0].sizes.every((size) => size.inStock)).toBe(true);
+  });
+
+  it("never creates a size from availability alone", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,avail_12", "pf001,نعم"]), {
+      mode: "sync-commerce",
+    });
+
+    expect(plan.rejections[0].column).toBe("avail_12");
+    expect(plan.products[0].sizes).toHaveLength(2);
+  });
+
+  it("does not create a size during --apply (commerce is gated)", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,price_12", "pf001,300"]), {
+      mode: "apply",
+    });
+
+    expect(plan.products[0].sizes).toHaveLength(2);
+    expect(plan.changes.some((change) => change.field === "sizes.12 مل")).toBe(true);
+  });
+});
+
+// ─── Flag columns ───────────────────────────────────────────────────────────
+
+describe("planMasterImport — flag columns", () => {
+  const featured = makeProduct({ featured: true });
+
+  it("turns a flag off when the cell is blank", () => {
+    const plan = planMasterImport([featured], csv(["slug,is_featured", "pf001,"]), {
+      mode: "apply",
+    });
+
+    expect(plan.products[0].featured).toBe(false);
+    expect(plan.flagToggles).toEqual([{ slug: "pf001", field: "featured", to: false }]);
+  });
+
+  it("turns a flag off when the cell says لا and on when it says نعم", () => {
+    const off = planMasterImport([featured], csv(["slug,is_featured", "pf001,لا"]), {
+      mode: "apply",
+    });
+    expect(off.products[0].featured).toBe(false);
+
+    const on = planMasterImport([makeProduct()], csv(["slug,is_featured", "pf001,نعم"]), {
+      mode: "apply",
+    });
+    expect(on.products[0].featured).toBe(true);
+    expect(on.flagToggles).toEqual([{ slug: "pf001", field: "featured", to: true }]);
+  });
+
+  it("reports a flip in a dry run without applying it", () => {
+    const plan = planMasterImport([featured], csv(["slug,is_featured", "pf001,"]), {
+      mode: "dry-run",
+    });
+
+    expect(plan.products[0].featured).toBe(true);
+    expect(plan.flagToggles).toEqual([{ slug: "pf001", field: "featured", to: false }]);
+  });
+
+  it("rejects a flag cell that is neither نعم nor لا", () => {
+    const plan = planMasterImport([featured], csv(["slug,is_featured", "pf001,ممكن"]), {
+      mode: "apply",
+    });
+    expect(plan.rejections[0].column).toBe("is_featured");
+    expect(plan.products[0].featured).toBe(true);
+  });
+});
+
+// ─── Clear token ────────────────────────────────────────────────────────────
+
+describe("planMasterImport — the clear token", () => {
+  const full = makeProduct({
+    concentration: "edp",
+    family: "woody",
+    notes: { top: ["هيل"], middle: ["ورد"], base: ["عود"] },
+    gallery: ["/products/PF001.png", "/products/PF001-2.png"],
+  });
+
+  it("clears enrichment fields with -", () => {
+    const plan = planMasterImport(
+      [full],
+      csv(["slug,concentration,family,top_notes,gallery_extra", "pf001,-,-,-,-"]),
+      { mode: "apply" },
+    );
+
+    const product = plan.products[0];
+    expect(product.concentration).toBeUndefined();
+    expect(product.family).toBeUndefined();
+    expect(product.notes.top).toEqual([]);
+    expect(product.gallery).toEqual(["/products/PF001.png"]);
+  });
+
+  it("clears the description only with --sync-commerce", () => {
+    const apply = planMasterImport([full], csv(["slug,description_ar", "pf001,-"]), {
+      mode: "apply",
+    });
+    expect(apply.products[0].description).toBe("وصف تجريبي");
+    expect(
+      apply.changes.some((change) => change.field === "description" && change.group === "commerce"),
+    ).toBe(true);
+
+    const sync = planMasterImport([full], csv(["slug,description_ar", "pf001,-"]), {
+      mode: "sync-commerce",
+    });
+    expect(sync.products[0].description).toBe("");
+  });
+
+  it("is not a number: a - price is still rejected", () => {
+    const plan = planMasterImport([full], csv(["slug,price_50", "pf001,-"]), {
+      mode: "sync-commerce",
+    });
+    expect(plan.rejections[0].column).toBe("price_50");
+  });
+});
+
+// ─── Arabic folding ─────────────────────────────────────────────────────────
+
+describe("planMasterImport — Arabic spelling variants", () => {
+  it("folds ى to ي and reports the normalisation", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,gender", "pf001,رجالى"]), {
+      mode: "apply",
+    });
+
+    expect(plan.rejections).toEqual([]);
+    expect(plan.products[0].gender).toBe("رجالي");
+    expect(plan.warnings.some((warning) => warning.column === "gender")).toBe(true);
+    expect(foldArabic(" شتوى ")).toBe("شتوي");
+  });
+
+  it("still rejects a truly unknown value with its line", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,season", "pf001,موسمي"]), {
+      mode: "apply",
+    });
+    expect(plan.rejections[0]).toMatchObject({ column: "season", line: 2 });
+  });
+});
+
+// ─── Oil ────────────────────────────────────────────────────────────────────
+
+describe("planMasterImport — oil", () => {
+  it("sets oily from is_oil", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv(["slug,is_oil,concentration", "pf001,نعم,oil"]),
+      { mode: "apply" },
+    );
+
+    expect(plan.products[0].oily).toBe(true);
+    expect(plan.products[0].concentration).toBe("oil");
+  });
+
+  it("rejects is_oil when the concentration is not an oil", () => {
+    const plan = planMasterImport(
+      [makeProduct({ concentration: "edp" })],
+      csv(["slug,is_oil", "pf001,نعم"]),
+      { mode: "apply" },
+    );
+
+    expect(plan.rejections[0].column).toBe("is_oil");
+    expect(plan.rejections[0].reason).toContain("conflict");
+    expect(plan.products[0].oily).toBe(false);
+  });
+
+  it("accepts is_oil with an empty concentration", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,is_oil", "pf001,نعم"]), {
+      mode: "apply",
+    });
+
+    expect(plan.rejections).toEqual([]);
+    expect(plan.products[0].oily).toBe(true);
+  });
+});
+
+// ─── Reports ────────────────────────────────────────────────────────────────
+
+describe("planMasterImport — reports", () => {
+  it("lists catalogue products the file does not mention without deleting them", () => {
+    const other = makeProduct({ slug: "pf002", sku: "PF002", id: "PF002" });
+    const plan = planMasterImport([makeProduct(), other], csv(["slug,name_ar", "pf001,عطر"]), {
+      mode: "apply",
+    });
+
+    expect(plan.absentFromMaster).toEqual(["pf002"]);
+    expect(plan.products).toHaveLength(2);
+  });
+
+  it("reports duplicate public names among visible products", () => {
+    const variant = makeProduct({ slug: "pf540", sku: "PF540", id: "PF540" });
+    const plan = planMasterImport(
+      [makeProduct(), variant],
+      csv(["slug,on_site", "pf001,نعم", "pf540,نعم"]),
+      { mode: "apply" },
+    );
+
+    expect(plan.duplicateNames).toEqual([
+      { name: "عطر تجريبي", slugs: ["pf001", "pf540"] },
+    ]);
+  });
+
+  it("ignores an unknown column with a header warning", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv(["# notes", "slug,owner_note", "pf001,hi"]),
+      { mode: "apply" },
+    );
+
+    expect(plan.header.unknown).toEqual(["owner_note"]);
+    expect(plan.warnings[0]).toMatchObject({ slug: "(header)", line: 2 });
+    expect(plan.rejections).toEqual([]);
+  });
+});
+
+// ─── Placeholder reconciliation ─────────────────────────────────────────────
+
+describe("planMasterImport — placeholder images", () => {
+  const placeholder = makeProduct({
+    image: "/products/placeholder-unavailable.webp",
+    gallery: ["/products/placeholder-unavailable.webp"],
+  });
+
+  it("points a placeholder at the real photo that exists on disk", () => {
+    const plan = planMasterImport([placeholder], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+      imageExists: (path) => path === "/products/PF001.png",
+    });
+
+    expect(plan.imageFixes).toEqual([
+      {
+        slug: "pf001",
+        from: "/products/placeholder-unavailable.webp",
+        to: "/products/PF001.png",
+      },
+    ]);
+    expect(plan.products[0].image).toBe("/products/PF001.png");
+    expect(plan.products[0].gallery).toEqual(["/products/PF001.png"]);
+  });
+
+  it("never touches a product that already has a real image", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+      imageExists: () => true,
+    });
+
+    expect(plan.imageFixes).toEqual([]);
+  });
+
+  it("leaves a placeholder alone when no photo exists", () => {
+    const plan = planMasterImport([placeholder], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+      imageExists: () => false,
+    });
+
+    expect(plan.imageFixes).toEqual([]);
+    expect(plan.products[0].image).toBe(placeholder.image);
   });
 });
 

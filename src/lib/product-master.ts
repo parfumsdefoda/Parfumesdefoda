@@ -8,9 +8,16 @@
  * pure and unit-testable.
  *
  * Rules:
- * - An EMPTY cell means "unknown, do not touch". A value is never blanked.
+ * - An EMPTY cell means "unknown, do not touch". A value is never blanked by
+ *   an empty cell — except the three boolean flags, where blank means `لا`.
+ * - A cell containing exactly `-` clears the field (only in
+ *   {@link CLEARABLE_COLUMNS}).
  * - A cell that does not match an enum is rejected with a reason — never
- *   guessed at, never coerced.
+ *   guessed at. Arabic spelling variants (ى/ي, أ/إ/آ/ا) are folded with a
+ *   warning instead of a rejection.
+ * - Sizes come from the header: every `price_<ml>` / `avail_<ml>` pair is a
+ *   bottle volume, whatever the column order. A price creates a missing size;
+ *   an availability cell alone never does.
  * - Prices, availability, names and descriptions only move with
  *   `--sync-commerce`, so a typo cannot silently reprice the shop.
  * - Nothing is invented. `ml` is read from the size label ("100 مل"), which is
@@ -26,14 +33,21 @@ import {
   type ScentFamily,
 } from "../schemas/product-schema";
 import { CONCENTRATION_LABELS, FAMILY_LABELS } from "./product-labels";
+import { isPlaceholderImage } from "./product-availability";
 
 // ─── Columns ────────────────────────────────────────────────────────────────
 
 /**
  * The CSV contract, in the order the file is written. The owner may reorder
  * columns (header names win), but every name must stay as written here.
+ *
+ * Size columns are NOT in this list: they are discovered from the header
+ * (`price_12` / `avail_12` is a 12 مل size), so a new bottle volume never needs
+ * a code change.
  */
-export const MASTER_COLUMNS = [
+const SIZES_SLOT = "{{sizes}}";
+
+const COLUMN_ORDER = [
   "slug",
   "sku",
   "name_ar",
@@ -51,26 +65,73 @@ export const MASTER_COLUMNS = [
   "top_notes",
   "heart_notes",
   "base_notes",
-  "price_100",
-  "price_50",
-  "price_30",
-  "price_10",
-  "avail_100",
-  "avail_50",
-  "avail_30",
-  "avail_10",
+  SIZES_SLOT,
   "description_ar",
   "gallery_extra",
   "internal_note",
 ] as const;
 
-export type MasterColumn = (typeof MASTER_COLUMNS)[number];
+/** Every column that is not a per-volume price/availability column. */
+export const MASTER_BASE_COLUMNS: readonly string[] = COLUMN_ORDER.filter(
+  (column) => column !== SIZES_SLOT,
+);
+
+/**
+ * The full column list for a set of volumes, in contract order.
+ *
+ * Sizes are emitted largest-first (`price_100 … price_3`, then the matching
+ * `avail_*` block), which is the order the catalogue stores them in.
+ */
+export function masterColumnsFor(sizes: number[]): string[] {
+  const ordered = [...new Set(sizes)].filter((ml) => ml > 0).sort((a, b) => b - a);
+  const sizeColumns = [
+    ...ordered.map((ml) => `price_${ml}`),
+    ...ordered.map((ml) => `avail_${ml}`),
+  ];
+
+  return COLUMN_ORDER.flatMap((column) =>
+    column === SIZES_SLOT ? sizeColumns : [column],
+  );
+}
+
+/** The volumes the catalogue carried before the oil sizes existed. */
+export const DEFAULT_MASTER_SIZES = [100, 50, 30, 10] as const;
+
+/** Default header — the four catalogue sizes, for docs and simple callers. */
+export const MASTER_COLUMNS: readonly string[] = masterColumnsFor([
+  ...DEFAULT_MASTER_SIZES,
+]);
+
+/** A column name. Size columns are dynamic, so this is a plain string. */
+export type MasterColumn = string;
 
 /** Multi-value cells are joined with this separator (`|`). */
 export const CELL_SEPARATOR = "|";
 
-/** Size columns exist per volume; the volume is the key, not the label. */
-export const MASTER_SIZES = [100, 50, 30, 10] as const;
+/**
+ * A cell containing exactly this clears the existing value.
+ *
+ * Only applies to {@link CLEARABLE_COLUMNS}; anywhere else `-` is a normal
+ * (and usually invalid) value. An EMPTY cell still means "do not touch".
+ */
+export const CLEAR_TOKEN = "-";
+
+export const CLEARABLE_COLUMNS = [
+  "gallery_extra",
+  "description_ar",
+  "top_notes",
+  "heart_notes",
+  "base_notes",
+  "concentration",
+  "family",
+] as const;
+
+/** Boolean-flag columns: `نعم` = true; `لا` OR blank = false. */
+export const FLAG_COLUMNS = [
+  "is_fouda_original",
+  "is_oil",
+  "is_featured",
+] as const;
 
 /** Brand string used when `--create-missing` adds a product. */
 export const DEFAULT_BRAND = "Parfums De Foda";
@@ -159,22 +220,76 @@ export interface MasterRowEntry {
 
 export interface MasterFile {
   header: string[];
+  headerReport: MasterHeaderReport;
+  /** 1-based line of the header row. */
+  headerLine: number;
   entries: MasterRowEntry[];
   /** Lines above the header, `#` comments and rows without a slug. */
   skipped: number;
 }
 
-const EMPTY_ROW = Object.freeze(
-  Object.fromEntries(MASTER_COLUMNS.map((column) => [column, ""])),
-) as MasterRow;
+export interface MasterHeaderReport {
+  /** Volumes discovered from `price_*` / `avail_*` columns, largest first. */
+  sizes: number[];
+  /** Names that appear more than once, with their 1-based column numbers. */
+  duplicates: { name: string; columns: number[] }[];
+  /** Columns that are neither contract columns nor size columns. */
+  unknown: string[];
+}
 
-/** Map a CSV record onto the column contract; missing trailing cells are "". */
-export function rowFromCells(header: string[], cells: string[]): MasterRow {
-  const row: MasterRow = { ...EMPTY_ROW };
-  for (const column of MASTER_COLUMNS) {
-    const index = header.indexOf(column);
-    if (index !== -1) row[column] = (cells[index] ?? "").trim();
+const SIZE_COLUMN_PATTERN = /^(?:price|avail)_(\d+(?:\.\d+)?)$/;
+
+/**
+ * Read the header once and report everything that matters about it.
+ *
+ * Column order never matters (everything is looked up by name), duplicate
+ * names are an error (silently keeping one would drop a column's data), and an
+ * unknown column is ignored with a warning — the owner may keep extra notes in
+ * the file.
+ */
+export function analyseMasterHeader(header: string[]): MasterHeaderReport {
+  const duplicates: MasterHeaderReport["duplicates"] = [];
+  const unknown: string[] = [];
+  const sizes = new Set<number>();
+  const positions = new Map<string, number[]>();
+
+  header.forEach((rawName, index) => {
+    const name = rawName.trim();
+    if (!name) return;
+    const columns = positions.get(name) ?? [];
+    columns.push(index + 1);
+    positions.set(name, columns);
+
+    const sizeMatch = SIZE_COLUMN_PATTERN.exec(name);
+    if (sizeMatch) {
+      const ml = Number(sizeMatch[1]);
+      if (Number.isFinite(ml) && ml > 0) sizes.add(ml);
+      return;
+    }
+    if (!MASTER_BASE_COLUMNS.includes(name)) unknown.push(name);
+  });
+
+  for (const [name, columns] of positions) {
+    if (columns.length > 1) duplicates.push({ name, columns });
   }
+
+  return { sizes: [...sizes].sort((a, b) => b - a), duplicates, unknown };
+}
+
+/**
+ * Map a CSV record onto the column contract.
+ *
+ * Every header name becomes a key (so a dynamic `price_12` is carried), and
+ * the base columns default to "" so a short row behaves like empty cells.
+ */
+export function rowFromCells(header: string[], cells: string[]): MasterRow {
+  const row: MasterRow = {};
+  for (const column of MASTER_BASE_COLUMNS) row[column] = "";
+  header.forEach((rawName, index) => {
+    const name = rawName.trim();
+    if (!name) return;
+    row[name] = (cells[index] ?? "").trim();
+  });
   return row;
 }
 
@@ -195,10 +310,17 @@ export function parseMasterFile(text: string): MasterFile {
   );
 
   if (headerIndex === -1) {
-    return { header: [], entries: [], skipped: lines.length };
+    return {
+      header: [],
+      headerReport: { sizes: [], duplicates: [], unknown: [] },
+      headerLine: 0,
+      entries: [],
+      skipped: lines.length,
+    };
   }
 
   const header = lines[headerIndex].cells.map((cell) => cell.trim());
+  const headerReport = analyseMasterHeader(header);
   const entries: MasterRowEntry[] = [];
   let skipped = headerIndex + 1;
 
@@ -215,7 +337,13 @@ export function parseMasterFile(text: string): MasterFile {
     entries.push({ line: entry.line, row: rowFromCells(header, entry.cells) });
   }
 
-  return { header, entries, skipped };
+  return {
+    header,
+    headerReport,
+    headerLine: lines[headerIndex].line,
+    entries,
+    skipped,
+  };
 }
 
 /** Records of a CSV text with their 1-based starting line. */
@@ -273,6 +401,50 @@ function splitRecordsWithLines(input: string): { line: number; cells: string[] }
 // ─── Value decoding ─────────────────────────────────────────────────────────
 
 const lower = (value: string) => value.trim().toLowerCase();
+
+/**
+ * Fold the Arabic spelling variants the owner actually types.
+ *
+ * `رجالى` → `رجالي`, `أ`/`إ`/`آ` → `ا`, tatweel and tashkeel removed, whitespace
+ * collapsed. This runs BEFORE an enum lookup, so a typographic difference is a
+ * warning (reported) rather than a rejected row. It never rewrites a value.
+ */
+export function foldArabic(value: string): string {
+  return value
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+    .replace(/[\u0623\u0625\u0622\u0671]/g, "\u0627")
+    .replace(/\u0649/g, "\u064A")
+    .replace(/\u0640/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const foldKey = (value: string) => lower(foldArabic(value));
+
+/** Folded lookup index per alias map, built once. */
+const foldedIndexes = new WeakMap<object, Map<string, string>>();
+
+function foldedIndex(aliases: Map<string, string>): Map<string, string> {
+  let index = foldedIndexes.get(aliases);
+  if (!index) {
+    index = new Map();
+    for (const [key, value] of aliases) index.set(foldKey(key), value);
+    foldedIndexes.set(aliases, index);
+  }
+  return index;
+}
+
+/** Exact lookup first, then the folded one so `رجالى` still finds رجالي. */
+export function resolveAlias<T extends string>(
+  aliases: Map<string, T>,
+  cell: string,
+): T | undefined {
+  const direct = aliases.get(lower(cell));
+  if (direct !== undefined) return direct;
+  return foldedIndex(aliases as unknown as Map<string, string>).get(foldKey(cell)) as
+    | T
+    | undefined;
+}
 
 const GENDER_ALIASES = new Map<string, Product["gender"]>([
   ["رجالي", "رجالي"],
@@ -414,11 +586,49 @@ export interface MasterPlanOptions {
   imageExists?: (imagePath: string) => boolean;
 }
 
+/** A non-blocking remark: the row is still imported. */
+export interface MasterWarning {
+  slug: string;
+  line: number;
+  column: string;
+  value: string;
+  message: string;
+}
+
+/** A boolean flag that `--apply` would flip (on or off). */
+export interface MasterFlagToggle {
+  slug: string;
+  field: "fodaOriginal" | "oily" | "featured";
+  to: boolean;
+}
+
+/** A placeholder image that `--apply` would point at the product's real photo. */
+export interface MasterImageFix {
+  slug: string;
+  from: string;
+  to: string;
+}
+
+/** Two visible products sharing one public name. */
+export interface MasterNameCollision {
+  name: string;
+  slugs: string[];
+}
+
 export interface MasterPlan {
   /** Catalogue after the requested mode (unchanged for a dry run). */
   products: Product[];
   changes: MasterChange[];
   rejections: MasterRejection[];
+  warnings: MasterWarning[];
+  /** What the header declared, including duplicate and unknown columns. */
+  header: MasterHeaderReport;
+  /** Catalogue slugs the file does not mention (never deleted). */
+  absentFromMaster: string[];
+  /** Visible products sharing a name, e.g. a product and its فاخر variant. */
+  duplicateNames: MasterNameCollision[];
+  flagToggles: MasterFlagToggle[];
+  imageFixes: MasterImageFix[];
   unknownSlugs: string[];
   duplicates: string[];
   refusals: MasterRefusal[];
@@ -437,12 +647,17 @@ interface PassContext {
   createMissing: boolean;
   imageExists?: (imagePath: string) => boolean;
   includeCreates: boolean;
+  /** Volumes declared by the header: the only sizes a price may create. */
+  sizes: number[];
 }
 
 interface PassResult {
   products: Product[];
   changes: MasterChange[];
   rejections: MasterRejection[];
+  warnings: MasterWarning[];
+  flagToggles: MasterFlagToggle[];
+  imageFixes: MasterImageFix[];
   unknownSlugs: string[];
   duplicates: string[];
   refusals: MasterRefusal[];
@@ -465,11 +680,41 @@ export function planMasterImport(
   const mode = options.mode ?? "dry-run";
   const file = parseMasterFile(text);
   const createMissing = options.createMissing ?? false;
+  const header = file.headerReport;
+
+  // A duplicate column is an ERROR: keeping one silently would drop the other
+  // column's data on every future refresh.
+  if (header.duplicates.length > 0) {
+    return {
+      products,
+      changes: [],
+      rejections: header.duplicates.map((duplicate) => ({
+        slug: "(header)",
+        line: file.headerLine,
+        column: duplicate.name,
+        value: duplicate.name,
+        reason: `duplicate column — appears at columns ${duplicate.columns.join(" and ")}`,
+      })),
+      warnings: [],
+      header,
+      absentFromMaster: [],
+      duplicateNames: [],
+      flagToggles: [],
+      imageFixes: [],
+      unknownSlugs: [],
+      duplicates: [],
+      refusals: [],
+      creations: [],
+      skipped: file.skipped,
+      rows: file.entries.length,
+    };
+  }
 
   const report = mergePass(products, file.entries, ALL_GROUPS, {
     createMissing,
     imageExists: options.imageExists,
     includeCreates: false,
+    sizes: header.sizes,
   });
 
   const allowed: ReadonlySet<ChangeGroup> =
@@ -486,12 +731,43 @@ export function planMasterImport(
           createMissing,
           imageExists: options.imageExists,
           includeCreates: true,
+          sizes: header.sizes,
         });
+
+  const masterSlugs = new Set(
+    file.entries.map((entry) => entry.row.slug.trim()).filter(Boolean),
+  );
+  const absentFromMaster = products
+    .filter((product) => !masterSlugs.has(product.slug))
+    .map((product) => product.slug);
+
+  const byName = new Map<string, string[]>();
+  for (const product of products) {
+    if (product.hidden) continue;
+    byName.set(product.name, [...(byName.get(product.name) ?? []), product.slug]);
+  }
+  const duplicateNames = [...byName]
+    .filter(([, slugs]) => slugs.length > 1)
+    .map(([name, slugs]) => ({ name, slugs }));
+
+  const headerWarnings: MasterWarning[] = header.unknown.map((column) => ({
+    slug: "(header)",
+    line: file.headerLine,
+    column,
+    value: column,
+    message: "unknown column — ignored (no product field is written)",
+  }));
 
   return {
     products: applied.products,
     changes: report.changes,
     rejections: report.rejections,
+    warnings: [...headerWarnings, ...report.warnings],
+    header,
+    absentFromMaster,
+    duplicateNames,
+    flagToggles: report.flagToggles,
+    imageFixes: report.imageFixes,
     unknownSlugs: report.unknownSlugs,
     duplicates: report.duplicates,
     refusals: report.refusals,
@@ -527,6 +803,9 @@ function mergePass(
   const bySlug = new Map(products.map((product) => [product.slug, product]));
   const changes: MasterChange[] = [];
   const rejections: MasterRejection[] = [];
+  const warnings: MasterWarning[] = [];
+  const flagToggles: MasterFlagToggle[] = [];
+  const imageFixes: MasterImageFix[] = [];
   const unknownSlugs: string[] = [];
   const duplicates: string[] = [];
   const refusals: MasterRefusal[] = [];
@@ -545,6 +824,9 @@ function mergePass(
     value: string,
     reason: string,
   ) => rejections.push({ slug, line: currentLine, column, value, reason });
+
+  const warn = (slug: string, column: string, value: string, message: string) =>
+    warnings.push({ slug, line: currentLine, column, value, message });
 
   /**
    * Record a change and report whether this pass may mutate the draft.
@@ -574,7 +856,8 @@ function mergePass(
     assign: (value: T) => void,
   ) => {
     if (!cell) return;
-    const value = aliases.get(lower(cell));
+    const direct = aliases.get(lower(cell));
+    const value = resolveAlias(aliases, cell);
     if (!value) {
       reject(
         slug,
@@ -584,9 +867,21 @@ function mergePass(
       );
       return;
     }
+    const folded = foldArabic(cell);
+    // Only a lookup that NEEDED folding is worth reporting; "أداء متوسط" folds
+    // to "اداء متوسط" but matches exactly, so it is not a spelling variant.
+    if (direct === undefined && folded !== cell.trim()) {
+      warn(
+        slug,
+        column,
+        cell,
+        `normalised "${cell.trim()}" → "${folded}" before matching ${column}`,
+      );
+    }
     assign(value);
   };
 
+  /** `on_site` and other "blank = do not touch" booleans. */
   const applyBool = (
     slug: string,
     cell: string,
@@ -600,6 +895,29 @@ function mergePass(
       return;
     }
     assign(value);
+  };
+
+  /**
+   * The three flag columns: `نعم` = true, `لا` AND blank = false.
+   *
+   * Every flip is reported (on or off) so a dry run shows exactly which
+   * curated products would lose their flag before anything is written.
+   */
+  const applyFlag = (
+    slug: string,
+    cell: string,
+    column: MasterColumn,
+    field: MasterFlagToggle["field"],
+    current: boolean | undefined,
+    assign: (value: boolean) => void,
+  ) => {
+    const value = cell === "" ? false : readBool(cell);
+    if (value === null) {
+      reject(slug, column, cell, "use نعم / لا (or yes / no)");
+      return;
+    }
+    if (Boolean(current) !== value) flagToggles.push({ slug, field, to: value });
+    if (record(slug, field, "classification", current ?? false, value)) assign(value);
   };
 
   for (const entry of entries) {
@@ -627,7 +945,7 @@ function mergePass(
         continue;
       }
 
-      const built = buildNewProduct(row, slug, nextSortOrder, ctx, reject);
+      const built = buildNewProduct(row, slug, nextSortOrder, ctx, reject, warn);
       if ("reason" in built) {
         refusals.push({ slug, reason: built.reason });
         continue;
@@ -676,20 +994,19 @@ function mergePass(
       }
     });
 
-    applyBool(slug, row.is_fouda_original, "is_fouda_original", (value) => {
-      if (record(slug, "fodaOriginal", "classification", original.fodaOriginal, value)) {
+    applyFlag(
+      slug,
+      row.is_fouda_original,
+      "is_fouda_original",
+      "fodaOriginal",
+      original.fodaOriginal,
+      (value) => {
         draft.fodaOriginal = value;
-      }
-    });
+      },
+    );
 
-    applyBool(slug, row.is_oil, "is_oil", (value) => {
-      if (record(slug, "oily", "classification", original.oily, value)) draft.oily = value;
-    });
-
-    applyBool(slug, row.is_featured, "is_featured", (value) => {
-      if (record(slug, "featured", "classification", original.featured, value)) {
-        draft.featured = value;
-      }
+    applyFlag(slug, row.is_featured, "is_featured", "featured", original.featured, (value) => {
+      draft.featured = value;
     });
 
     applyBool(slug, row.on_site, "on_site", (value) => {
@@ -699,15 +1016,50 @@ function mergePass(
     });
 
     // ── Enrichment ──
-    applyEnum(slug, row.concentration, "concentration", CONCENTRATION_ALIASES, (value) => {
-      if (record(slug, "concentration", "enrichment", original.concentration, value)) {
-        draft.concentration = value;
+    if (row.concentration === CLEAR_TOKEN) {
+      if (record(slug, "concentration", "enrichment", original.concentration, undefined)) {
+        draft.concentration = undefined;
       }
-    });
+    } else {
+      applyEnum(slug, row.concentration, "concentration", CONCENTRATION_ALIASES, (value) => {
+        if (record(slug, "concentration", "enrichment", original.concentration, value)) {
+          draft.concentration = value;
+        }
+      });
+    }
 
-    applyEnum(slug, row.family, "family", FAMILY_ALIASES, (value) => {
-      if (record(slug, "family", "enrichment", original.family, value)) draft.family = value;
-    });
+    if (row.family === CLEAR_TOKEN) {
+      if (record(slug, "family", "enrichment", original.family, undefined)) {
+        draft.family = undefined;
+      }
+    } else {
+      applyEnum(slug, row.family, "family", FAMILY_ALIASES, (value) => {
+        if (record(slug, "family", "enrichment", original.family, value)) draft.family = value;
+      });
+    }
+
+    // Oil is a flag, but it may not disagree with the concentration: a product
+    // cannot be an attar and an EDP at the same time.
+    if (row.is_oil) {
+      const oilValue = readBool(row.is_oil);
+      if (oilValue === null) {
+        reject(slug, "is_oil", row.is_oil, "use نعم / لا (or yes / no)");
+      } else if (oilValue && draft.concentration && draft.concentration !== "oil") {
+        reject(
+          slug,
+          "is_oil",
+          row.is_oil,
+          `conflict: concentration is "${CONCENTRATION_LABELS[draft.concentration]}" — an oil product uses the oil concentration or leaves it empty`,
+        );
+      } else {
+        if (Boolean(original.oily) !== oilValue) {
+          flagToggles.push({ slug, field: "oily", to: oilValue });
+        }
+        if (record(slug, "oily", "classification", original.oily, oilValue)) {
+          draft.oily = oilValue;
+        }
+      }
+    }
 
     const noteColumns: Array<{
       column: MasterColumn;
@@ -722,6 +1074,13 @@ function mergePass(
       const cell = row[column];
       if (!cell) continue;
 
+      if (cell === CLEAR_TOKEN) {
+        if (record(slug, `notes.${level}`, "enrichment", original.notes[level], [])) {
+          draft.notes = { ...draft.notes, [level]: [] };
+        }
+        continue;
+      }
+
       if (cell.includes(",") || cell.includes("،")) {
         reject(slug, column, cell, `separate notes with "${CELL_SEPARATOR}", not commas`);
         continue;
@@ -734,16 +1093,29 @@ function mergePass(
       }
     }
 
-    // Per-size volume is read from the label — the label already says it.
+    // Per-size volume is read from the label — the label already says it. A
+    // missing `ml` is not a change: `sizeMl()` answers from the label anyway,
+    // so writing it would turn every round trip into 160 phantom diffs. Only a
+    // stored `ml` that CONTRADICTS its label is repaired.
     for (const size of draft.sizes) {
-      const ml = sizeMl(size);
-      if (ml === null || size.ml === ml) continue;
-      if (record(slug, `sizes.${size.label}.ml`, "enrichment", size.ml, ml)) {
-        size.ml = ml;
+      if (size.ml === undefined) continue;
+      const labelMatch = /^(\d+(?:[.,]\d+)?)/.exec(size.label.trim());
+      if (!labelMatch) continue;
+      const fromLabel = Number(labelMatch[1].replace(",", "."));
+      if (!Number.isFinite(fromLabel) || fromLabel <= 0 || fromLabel === size.ml) continue;
+      if (record(slug, `sizes.${size.label}.ml`, "enrichment", size.ml, fromLabel)) {
+        size.ml = fromLabel;
       }
     }
 
-    if (row.gallery_extra) {
+    if (row.gallery_extra === CLEAR_TOKEN) {
+      const onlyCover = [original.image];
+      if (
+        record(slug, "gallery", "enrichment", original.gallery ?? onlyCover, onlyCover)
+      ) {
+        draft.gallery = onlyCover;
+      }
+    } else if (row.gallery_extra) {
       const extras = splitList(row.gallery_extra);
       const valid: string[] = [];
       for (const path of extras) {
@@ -787,30 +1159,72 @@ function mergePass(
       }
     }
 
-    if (row.description_ar) {
+    if (row.description_ar === CLEAR_TOKEN) {
+      if (record(slug, "description", "commerce", original.description, "")) {
+        draft.description = "";
+      }
+    } else if (row.description_ar) {
       if (record(slug, "description", "commerce", original.description, row.description_ar)) {
         draft.description = row.description_ar;
       }
     }
 
-    for (const ml of MASTER_SIZES) {
-      const priceCell = row[`price_${ml}` as MasterColumn];
-      const availCell = row[`avail_${ml}` as MasterColumn];
+    // Every `price_<ml>` the header declares is a size, in ANY order. A price
+    // for a volume the product does not have yet creates that size; a blank
+    // price never does (avail alone cannot invent a bottle).
+    for (const ml of ctx.sizes) {
+      const priceCell = row[`price_${ml}`] ?? "";
+      const availCell = row[`avail_${ml}`] ?? "";
 
-      const size = draft.sizes.find((entry) => sizeMl(entry) === ml);
+      let size = draft.sizes.find((entry) => sizeMl(entry) === ml);
+      let createdHere = false;
+
+      if (!size && priceCell) {
+        const price = Number(priceCell.replace(",", "."));
+        if (!Number.isFinite(price) || price < 0) {
+          reject(slug, `price_${ml}`, priceCell, "price must be a number ≥ 0");
+          continue;
+        }
+
+        const label = `${ml} مل`;
+        const inStock = availCell ? readBool(availCell) === true : false;
+        if (!inStock) {
+          warn(
+            slug,
+            `avail_${ml}`,
+            availCell,
+            `new ${label} size starts out of stock (avail is blank or لا)`,
+          );
+        }
+
+        size = { label, price, inStock, ml };
+        createdHere = true;
+        if (record(slug, `sizes.${label}`, "commerce", "", `${price} ج.م`)) {
+          draft.sizes.push(size);
+          draft.sizes.sort((a, b) => (sizeMl(b) ?? 0) - (sizeMl(a) ?? 0));
+        }
+      }
+
+      if (!size) {
+        if (priceCell || availCell) {
+          const known = draft.sizes.map((entry) => entry.label).join(", ") || "none";
+          reject(
+            slug,
+            priceCell ? `price_${ml}` : `avail_${ml}`,
+            priceCell || availCell,
+            `this product has no ${ml} مل size (has: ${known}) — put a price in price_${ml} to create it`,
+          );
+        }
+        continue;
+      }
+
+      // A size created in this row already carries its price and availability.
+      if (createdHere) continue;
 
       if (priceCell) {
         const price = Number(priceCell.replace(",", "."));
         if (!Number.isFinite(price) || price < 0) {
-          reject(slug, `price_${ml}` as MasterColumn, priceCell, "price must be a number ≥ 0");
-        } else if (!size) {
-          const known = draft.sizes.map((entry) => entry.label).join(", ") || "none";
-          reject(
-            slug,
-            `price_${ml}` as MasterColumn,
-            priceCell,
-            `this product has no ${ml} مل size (has: ${known}) — a size is never created from a price`,
-          );
+          reject(slug, `price_${ml}`, priceCell, "price must be a number ≥ 0");
         } else if (record(slug, `sizes.${size.label}.price`, "commerce", size.price, price)) {
           size.price = price;
         }
@@ -819,24 +1233,24 @@ function mergePass(
       if (availCell) {
         const inStock = readBool(availCell);
         if (inStock === null) {
-          reject(
-            slug,
-            `avail_${ml}` as MasterColumn,
-            availCell,
-            "use نعم / لا (or yes / no)",
-          );
-        } else if (!size) {
-          const known = draft.sizes.map((entry) => entry.label).join(", ") || "none";
-          reject(
-            slug,
-            `avail_${ml}` as MasterColumn,
-            availCell,
-            `this product has no ${ml} مل size (has: ${known})`,
-          );
+          reject(slug, `avail_${ml}`, availCell, "use نعم / لا (or yes / no)");
         } else if (
           record(slug, `sizes.${size.label}.inStock`, "commerce", size.inStock, inStock)
         ) {
           size.inStock = inStock;
+        }
+      }
+    }
+
+    // A product still pointing at the shared placeholder but whose real photo
+    // exists on disk gets that photo — never a rename, never a delete.
+    const realImage = `/products/${original.sku}.png`;
+    if (isPlaceholderImage(original.image) && ctx.imageExists?.(realImage)) {
+      imageFixes.push({ slug, from: original.image, to: realImage });
+      if (record(slug, "image", "enrichment", original.image, realImage)) {
+        draft.image = realImage;
+        if ((draft.gallery ?? []).every((image) => image === original.image)) {
+          draft.gallery = [realImage];
         }
       }
     }
@@ -857,6 +1271,9 @@ function mergePass(
     products: [...merged, ...created],
     changes,
     rejections,
+    warnings,
+    flagToggles,
+    imageFixes,
     unknownSlugs: [...new Set(unknownSlugs)],
     duplicates: [...new Set(duplicates)],
     refusals,
@@ -879,6 +1296,7 @@ function buildNewProduct(
   sortOrder: number,
   ctx: PassContext,
   reject: (slug: string, column: MasterColumn | "(row)", value: string, reason: string) => void,
+  warn: (slug: string, column: string, value: string, message: string) => void,
 ): { product: Product } | { reason: string } {
   const missing = (field: MasterColumn) => `cannot create: ${field} is required`;
 
@@ -888,49 +1306,61 @@ function buildNewProduct(
   const sku = row.sku.trim();
   if (!sku) return { reason: missing("sku") };
 
-  const gender = GENDER_ALIASES.get(lower(row.gender));
+  const gender = resolveAlias(GENDER_ALIASES, row.gender);
   if (!gender) return { reason: row.gender ? `cannot create: unknown gender "${row.gender}"` : missing("gender") };
 
-  const type = STYLE_ALIASES.get(lower(row.scent_style));
+  const type = resolveAlias(STYLE_ALIASES, row.scent_style);
   if (!type) return { reason: row.scent_style ? `cannot create: unknown scent_style "${row.scent_style}"` : missing("scent_style") };
 
-  const house = TIER_ALIASES.get(lower(row.tier));
+  const house = resolveAlias(TIER_ALIASES, row.tier);
   if (!house) return { reason: row.tier ? `cannot create: unknown tier "${row.tier}"` : missing("tier") };
 
-  const season = SEASON_ALIASES.get(lower(row.season));
+  const season = resolveAlias(SEASON_ALIASES, row.season);
   if (!season) return { reason: row.season ? `cannot create: unknown season "${row.season}"` : missing("season") };
 
-  const performance = PERFORMANCE_ALIASES.get(lower(row.performance));
+  const performance = resolveAlias(PERFORMANCE_ALIASES, row.performance);
   if (!performance) return { reason: row.performance ? `cannot create: unknown performance "${row.performance}"` : missing("performance") };
 
-  const sizes = MASTER_SIZES.flatMap((ml) => {
-    const cell = row[`price_${ml}` as MasterColumn];
+  const sizes = ctx.sizes.flatMap((ml) => {
+    const cell = row[`price_${ml}`] ?? "";
     if (!cell) return [];
     const price = Number(cell.replace(",", "."));
     if (!Number.isFinite(price) || price < 0) {
-      reject(slug, `price_${ml}` as MasterColumn, cell, "price must be a number ≥ 0");
+      reject(slug, `price_${ml}`, cell, "price must be a number ≥ 0");
       return [];
     }
-    const availCell = row[`avail_${ml}` as MasterColumn];
+    const availCell = row[`avail_${ml}`] ?? "";
     // An unset availability is NOT assumed: the size starts unpurchasable
     // until the owner says نعم.
     const inStock = availCell ? readBool(availCell) === true : false;
+    if (!inStock) {
+      warn(
+        slug,
+        `avail_${ml}`,
+        availCell,
+        `new ${ml} مل size starts out of stock (avail is blank or لا)`,
+      );
+    }
     return [{ label: `${ml} مل`, price, inStock, ml }];
   });
 
-  if (sizes.length === 0) return { reason: "cannot create: at least one price (price_100/50/30/10) is required" };
+  if (sizes.length === 0) {
+    return {
+      reason: `cannot create: at least one price_<ml> cell is required (header sizes: ${ctx.sizes.join(", ") || "none"})`,
+    };
+  }
 
   const image = `/products/${sku}.png`;
   if (ctx.imageExists && !ctx.imageExists(image)) {
     return { reason: `cannot create: image ${image} does not exist` };
   }
 
-  const concentration = CONCENTRATION_ALIASES.get(lower(row.concentration));
+  const concentration = resolveAlias(CONCENTRATION_ALIASES, row.concentration);
   if (row.concentration && !concentration) {
     reject(slug, "concentration", row.concentration, `unknown concentration — allowed: ${CONCENTRATIONS.join(", ")}`);
   }
 
-  const family = FAMILY_ALIASES.get(lower(row.family));
+  const family = resolveAlias(FAMILY_ALIASES, row.family);
   if (row.family && !family) {
     reject(slug, "family", row.family, `unknown family — allowed: ${SCENT_FAMILIES.join(", ")}`);
   }
@@ -985,8 +1415,23 @@ function buildNewProduct(
 
 // ─── Export ─────────────────────────────────────────────────────────────────
 
+/** Every volume the catalogue carries, largest first. */
+export function catalogueSizes(products: Product[]): number[] {
+  const sizes = new Set<number>();
+  for (const product of products) {
+    for (const size of product.sizes) {
+      const ml = sizeMl(size);
+      if (ml !== null) sizes.add(ml);
+    }
+  }
+  return [...sizes].sort((a, b) => b - a);
+}
+
 /** The row the exporter writes for one product — the inverse of the importer. */
-export function masterRow(product: Product): string[] {
+export function masterRow(
+  product: Product,
+  sizes: number[] = catalogueSizes([product]),
+): string[] {
   const bySize = new Map<number, Product["sizes"][number]>();
   for (const size of product.sizes) {
     const ml = sizeMl(size);
@@ -1014,11 +1459,11 @@ export function masterRow(product: Product): string[] {
     product.notes.top.join(CELL_SEPARATOR),
     product.notes.middle.join(CELL_SEPARATOR),
     product.notes.base.join(CELL_SEPARATOR),
-    ...MASTER_SIZES.map((ml) => {
+    ...sizes.map((ml) => {
       const size = bySize.get(ml);
       return size ? String(size.price) : "";
     }),
-    ...MASTER_SIZES.map((ml) => {
+    ...sizes.map((ml) => {
       const size = bySize.get(ml);
       return size ? (size.inStock ? "نعم" : "لا") : "";
     }),
@@ -1032,7 +1477,8 @@ export function masterRow(product: Product): string[] {
 
 /** Header + one row per product, ready for `buildCsv`. */
 export function masterCsvRows(products: Product[]): string[][] {
-  return [[...MASTER_COLUMNS], ...products.map(masterRow)];
+  const sizes = catalogueSizes(products);
+  return [masterColumnsFor(sizes), ...products.map((product) => masterRow(product, sizes))];
 }
 
 // ─── Status report ──────────────────────────────────────────────────────────
@@ -1071,7 +1517,10 @@ export function summariseMasterStatus(products: Product[]): MasterStatusRow[] {
     { field: "notes.top", ...count((p) => p.notes.top.length > 0) },
     { field: "notes.middle", ...count((p) => p.notes.middle.length > 0) },
     { field: "notes.base", ...count((p) => p.notes.base.length > 0) },
-    { field: "price (all four sizes)", ...count((p) => sizesWithMl(p).length === MASTER_SIZES.length) },
+    {
+      field: "price (every size)",
+      ...count((p) => p.sizes.length > 0 && p.sizes.every((size) => size.price > 0)),
+    },
     {
       field: "avail (any نعم)",
       ...count((p) => p.sizes.some((size) => size.inStock)),
@@ -1080,12 +1529,6 @@ export function summariseMasterStatus(products: Product[]): MasterStatusRow[] {
     { field: "gallery (more than the cover)", ...count((p) => (p.gallery?.length ?? 0) > 1) },
     { field: "internal_note", ...count((p) => Boolean(p.internalNote)) },
   ];
-}
-
-function sizesWithMl(product: Product) {
-  return MASTER_SIZES.filter((ml) =>
-    product.sizes.some((size) => sizeMl(size) === ml),
-  );
 }
 
 /** Markdown rendering of {@link summariseMasterStatus}. */

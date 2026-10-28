@@ -19,8 +19,9 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import {
-  MASTER_COLUMNS,
   buildCsv,
+  catalogueSizes,
+  masterColumnsFor,
   masterCsvRows,
   parseMasterFile,
   planMasterImport,
@@ -76,7 +77,10 @@ async function main() {
     "utf8",
   );
 
-  console.log(`✅ Wrote ${products.length} rows × ${MASTER_COLUMNS.length} columns → data/product-master.csv`);
+  const sizes = catalogueSizes(products);
+  console.log(
+    `✅ Wrote ${products.length} rows × ${masterColumnsFor(sizes).length} columns (sizes: ${sizes.join("/")} مل) → data/product-master.csv`,
+  );
   console.log("✅ Wrote data/product-master-status.md");
   console.log("");
   console.log("الحقول الناقصة / Gaps:");
