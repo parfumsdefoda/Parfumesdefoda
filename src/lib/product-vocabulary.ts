@@ -11,6 +11,14 @@
  */
 
 export const GENDERS = ["رجالي", "نسائي", "للجنسين"] as const;
+/**
+ * The two formats the catalogue sells.
+ *
+ * A spray perfume is the default; an attar (`is_oil=نعم` in the master) is an
+ * oil. The values ARE the shop's labels, like every other facet value, so no
+ * translation table is needed and the URL stays readable.
+ */
+export const PRODUCT_FORMS = ["عطر", "زيت عطري"] as const;
 export const PRODUCT_TYPES = ["شرقي", "غربي"] as const;
 export const HOUSES = ["ديزاينر", "نيش", "دووب"] as const;
 export const SEASONS = ["صيفي", "شتوي", "خريفي", "ربيعي"] as const;
@@ -39,6 +47,7 @@ export const SCENT_FAMILIES = [
 ] as const;
 
 export type Gender = (typeof GENDERS)[number];
+export type ProductForm = (typeof PRODUCT_FORMS)[number];
 export type ProductType = (typeof PRODUCT_TYPES)[number];
 export type House = (typeof HOUSES)[number];
 export type Season = (typeof SEASONS)[number];

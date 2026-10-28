@@ -16,7 +16,7 @@ import type { Product } from "@/types";
 
 type CardProduct = Pick<
   Product,
-  "image" | "inStock" | "status" | "featured" | "sizes" | "house" | "type"
+  "image" | "inStock" | "status" | "featured" | "sizes" | "house" | "type" | "oily"
 > &
   Partial<Pick<Product, "concentration">>;
 
@@ -29,6 +29,7 @@ function product(overrides: Partial<CardProduct> = {}): CardProduct {
     inStock: true,
     status: "active",
     featured: false,
+    oily: false,
     house: "نيش",
     type: "شرقي",
     sizes: [
@@ -156,6 +157,18 @@ describe("cardMetaParts", () => {
     expect(cardMetaParts(product({ concentration: "oil" })).length).toBe(3);
   });
 
+  it("shows an oil as زيت عطري instead of a concentration code", () => {
+    expect(cardMetaParts(product({ oily: true, concentration: "edp" }))).toEqual([
+      "نيش",
+      "شرقي",
+      "زيت عطري",
+    ]);
+    // The concentration alone is still enough to recognise an oil.
+    expect(cardMetaLine(product({ concentration: "oil" }))).toBe(
+      "نيش · شرقي · زيت عطري",
+    );
+  });
+
   it("joins with a middle dot", () => {
     expect(cardMetaLine(product())).toBe("نيش · شرقي");
   });
@@ -166,6 +179,7 @@ describe("cardMetaParts", () => {
         house: "دووب",
         type: "" as Product["type"],
         concentration: undefined,
+        oily: false,
       }),
     ).toBeNull();
   });

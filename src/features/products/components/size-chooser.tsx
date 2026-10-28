@@ -94,7 +94,10 @@ export default function SizeChooser({
         role="radiogroup"
         aria-label={labels.chooseSize}
         onKeyDown={handleKeyDown}
-        className="grid grid-cols-4 gap-1.5"
+        // One row, one column per real size (max four). An oil with 3/6/12
+        // never wraps into a 3+1 layout.
+        style={{ gridTemplateColumns: `repeat(${Math.min(sizes.length, 4)}, minmax(0, 1fr))` }}
+        className="grid gap-1.5"
       >
         {sizes.map((size, index) => {
           const checked = size.label === selected;

@@ -46,6 +46,7 @@ import type { SortOption } from "@/lib/sort-helpers";
 export interface CatalogGroupLabels {
   gender: string;
   style: string;
+  form: string;
   tier: string;
   season: string;
   performance: string;
@@ -91,6 +92,7 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   groups: {
     gender: "الجنس",
     style: "النوع",
+    form: "الصيغة",
     tier: "الدار",
     season: "الفصل",
     performance: "الأداء",

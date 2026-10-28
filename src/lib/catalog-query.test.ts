@@ -109,6 +109,14 @@ const cheap = product({
   sizes: [size("10 مل", 120)],
 });
 
+const oil = product({
+  id: "oil",
+  name: "زيت عود",
+  oily: true,
+  concentration: "oil",
+  sizes: [size("3 مل", 120), size("6 مل", 200), size("12 مل", 300)],
+});
+
 const CATALOGUE = [african, amwag, wasm, soldOut, comingSoon, cheap];
 
 const state = (overrides: Partial<CatalogState> = {}): CatalogState => ({
@@ -203,6 +211,21 @@ describe("matchesFacetValue", () => {
     expect(matchesFacetValue(african, "tier", "نيش")).toBe(true);
     expect(matchesFacetValue(african, "tier", "ديزاينر")).toBe(false);
   });
+
+  it("treats the format as a field", () => {
+    expect(matchesFacetValue(oil, "form", "زيت عطري")).toBe(true);
+    expect(matchesFacetValue(oil, "form", "عطر")).toBe(false);
+    expect(matchesFacetValue(african, "form", "عطر")).toBe(true);
+  });
+
+  it("matches an oil's 12 مل size only while it is in stock", () => {
+    expect(matchesFacetValue(oil, "size", "12 مل")).toBe(true);
+    const soldOil = product({
+      id: "sold-oil",
+      sizes: [size("12 مل", 300, false)],
+    });
+    expect(matchesFacetValue(soldOil, "size", "12 مل")).toBe(false);
+  });
 });
 
 // ─── Facets ─────────────────────────────────────────────────────────────────
@@ -266,6 +289,32 @@ describe("buildFacets", () => {
     ).toEqual({ "10 مل": 4, "50 مل": 1, "100 مل": 1 });
     // 30 مل is not in this fixture, so the option is not offered at all.
     expect(size!.options.map((option) => option.value)).not.toContain("30 مل");
+  });
+
+  it("derives the sizes from the data, smallest first", () => {
+    const size = buildFacets([...CATALOGUE, oil], state()).find((g) => g.key === "size");
+    expect(size!.options.map((option) => option.value)).toEqual([
+      "3 مل",
+      "6 مل",
+      "10 مل",
+      "12 مل",
+      "50 مل",
+      "100 مل",
+    ]);
+  });
+
+  it("offers الصيغة only when both formats are sold", () => {
+    expect(buildFacets(CATALOGUE, state()).some((group) => group.key === "form")).toBe(
+      false,
+    );
+
+    const form = buildFacets([...CATALOGUE, oil], state()).find(
+      (group) => group.key === "form",
+    );
+    expect(form?.options.map((option) => [option.value, option.count])).toEqual([
+      ["عطر", 6],
+      ["زيت عطري", 1],
+    ]);
   });
 
   it("returns groups in a stable order", () => {

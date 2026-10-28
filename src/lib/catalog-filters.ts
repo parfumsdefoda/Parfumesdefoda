@@ -20,10 +20,12 @@ import type { Product } from "@/types";
 import {
   GENDERS,
   PERFORMANCES,
+  PRODUCT_FORMS,
   PRODUCT_TYPES,
   SEASONS,
 } from "./product-vocabulary";
 import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
+import { productForm } from "./card-presentation";
 import { formatSizeLabel } from "./currency";
 import { genderPublicLabel } from "./site-nav";
 
@@ -32,23 +34,18 @@ import type { SortOption } from "./sort-helpers";
 // ─── Size group ─────────────────────────────────────────────────────────────
 
 /**
- * The four bottle sizes every product is sold in — the catalogue's own labels,
- * never a new one.
+ * A bottle size label, e.g. "50 مل" or "12 مل".
  *
- * `data/products.json` carries exactly these four labels (40 products each), so
- * this list is data, not a design choice. Matching is availability-based: a
- * product matches "100 مل" only when that size is actually in stock, which is
- * what a shopper means by the filter. The value and the label are the same
- * string, so a size never needs a translation table.
+ * The catalogue's volumes are DATA: a 12/6/3 مل oil may appear at any time, so
+ * the URL accepts any `<number> مل` value and the options themselves are built
+ * from the products (see `catalogueSizeLabels`). Matching is availability-based:
+ * a product matches a size only when that size is actually in stock.
  */
-export const SIZE_FILTER_VALUES = [
-  "10 مل",
-  "30 مل",
-  "50 مل",
-  "100 مل",
-] as const;
+export const SIZE_LABEL_PATTERN = /^\d+(?:[.,]\d+)?\s*مل$/;
 
-export type SizeFilterValue = (typeof SIZE_FILTER_VALUES)[number];
+export function isSizeFilterValue(value: string): boolean {
+  return SIZE_LABEL_PATTERN.test(value.trim());
+}
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -56,6 +53,7 @@ export type SizeFilterValue = (typeof SIZE_FILTER_VALUES)[number];
 export const FILTER_KEYS = [
   "gender",
   "style",
+  "form",
   "tier",
   "season",
   "performance",
@@ -67,10 +65,12 @@ export type FilterKey = (typeof FILTER_KEYS)[number];
 export interface CatalogState {
   gender: string[];
   style: string[];
+  /** "عطر" / "زيت عطري" — only offered when both exist. */
+  form: string[];
   tier: string[];
   season: string[];
   performance: string[];
-  /** Bottle sizes (see SIZE_FILTER_VALUES). */
+  /** Bottle sizes (see isSizeFilterValue). */
   size: string[];
   /** "المتوفر فقط" */
   available: boolean;
@@ -84,6 +84,7 @@ export const DEFAULT_SORT: SortOption = "featured";
 export const EMPTY_CATALOG_STATE: CatalogState = {
   gender: [],
   style: [],
+  form: [],
   tier: [],
   season: [],
   performance: [],
@@ -98,13 +99,14 @@ export const FILTERABLE_TIERS = (Object.keys(PUBLIC_TIER_LABELS) as House[]).fil
   (house) => PUBLIC_TIER_LABELS[house] !== null,
 );
 
-const ALLOWED: Record<FilterKey, readonly string[]> = {
+/** Fixed vocabularies. `size` is validated by pattern instead (data-driven). */
+const ALLOWED: Record<Exclude<FilterKey, "size">, readonly string[]> = {
   gender: GENDERS,
   style: PRODUCT_TYPES,
+  form: PRODUCT_FORMS,
   tier: FILTERABLE_TIERS,
   season: SEASONS,
   performance: PERFORMANCES,
-  size: SIZE_FILTER_VALUES,
 };
 
 const SORT_OPTIONS: readonly SortOption[] = [
@@ -130,11 +132,13 @@ function readList(
   params: CatalogSearchParams,
   key: FilterKey,
 ): string[] {
-  const allowed = ALLOWED[key];
+  const allowed = key === "size" ? null : ALLOWED[key];
   const parts = firstValue(params[key])
     .split(",")
     .map((value) => value.trim())
-    .filter((value) => value !== "" && allowed.includes(value));
+    .filter((value) =>
+      value !== "" && (allowed ? allowed.includes(value) : isSizeFilterValue(value)),
+    );
   return [...new Set(parts)];
 }
 
@@ -153,6 +157,7 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
   return {
     gender: readList(params, "gender"),
     style: readList(params, "style"),
+    form: readList(params, "form"),
     tier: readList(params, "tier"),
     season: readList(params, "season"),
     performance: readList(params, "performance"),
@@ -277,6 +282,7 @@ export function productFacetValue(
 ): string | null {
   if (key === "gender") return product.gender;
   if (key === "style") return product.type;
+  if (key === "form") return productForm(product);
   if (key === "tier") return product.house;
   if (key === "season") return product.season;
   return product.performance;

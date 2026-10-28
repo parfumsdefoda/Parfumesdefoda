@@ -8,6 +8,7 @@
  */
 
 import type { Product } from "@/types";
+import type { ProductForm } from "./product-vocabulary";
 import { concentrationLabel, publicTierLabel } from "./product-labels";
 import { isComingSoon, isUnavailableProduct } from "./product-availability";
 
@@ -98,13 +99,27 @@ export function cardPrice(
 }
 
 /**
- * The meta line above the name: public tier · scent style · concentration.
+ * The format a product is sold in.
+ *
+ * `is_oil` in the owner's master is the source of truth; the concentration is
+ * only a fallback for an oil whose flag was never set.
+ */
+export function productForm(
+  product: Pick<Product, "oily" | "concentration">,
+): ProductForm {
+  return product.oily || product.concentration === "oil" ? "زيت عطري" : "عطر";
+}
+
+/**
+ * The meta line above the name: public tier · scent style · format.
  *
  * At most three parts, each present only when the catalogue has it. `دووب`
- * has no public label, so a dupe card simply starts with its scent style.
+ * has no public label, so a dupe card simply starts with its scent style. An
+ * oil shows "زيت عطري" instead of a concentration code, because the format is
+ * the fact a shopper needs there.
  */
 export function cardMetaParts(
-  product: Pick<Product, "house" | "type" | "concentration">,
+  product: Pick<Product, "house" | "type" | "concentration" | "oily">,
 ): string[] {
   const parts: string[] = [];
 
@@ -113,15 +128,20 @@ export function cardMetaParts(
 
   if (product.type) parts.push(product.type);
 
-  const concentration = concentrationLabel(product.concentration);
-  if (concentration) parts.push(concentration);
+  const format = productForm(product);
+  if (format === "زيت عطري") {
+    parts.push(format);
+  } else {
+    const concentration = concentrationLabel(product.concentration);
+    if (concentration) parts.push(concentration);
+  }
 
   return parts.slice(0, 3);
 }
 
 /** The meta line as one string, or null when there is nothing honest to say. */
 export function cardMetaLine(
-  product: Pick<Product, "house" | "type" | "concentration">,
+  product: Pick<Product, "house" | "type" | "concentration" | "oily">,
 ): string | null {
   const parts = cardMetaParts(product);
   return parts.length > 0 ? parts.join(` ${CARD_META_SEPARATOR} `) : null;

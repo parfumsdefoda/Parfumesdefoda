@@ -12,19 +12,19 @@ import type { Product } from "@/types";
 import {
   GENDERS,
   PERFORMANCES,
+  PRODUCT_FORMS,
   PRODUCT_TYPES,
   SEASONS,
 } from "./product-vocabulary";
 import {
   FILTER_KEYS,
   FILTERABLE_TIERS,
-  SIZE_FILTER_VALUES,
   facetValueLabel,
   productFacetValue,
   type CatalogState,
   type FilterKey,
 } from "./catalog-filters";
-import { hasAnyStock } from "./card-presentation";
+import { hasAnyStock, sizeMlFromLabel } from "./card-presentation";
 import { orderForCatalog } from "./catalog-order";
 import { isUnavailableProduct } from "./product-availability";
 import { productMatchesQuery } from "./search-helpers";
@@ -57,13 +57,37 @@ export interface CatalogView {
 
 // ─── Matching ───────────────────────────────────────────────────────────────
 
+/**
+ * Every buyable bottle volume in the catalogue, smallest first.
+ *
+ * Derived from the products, so an oil's 3/6/12 مل appears the moment it is in
+ * stock — no constant to edit, and a sold-out volume is not offered as a dead
+ * end. Labels come from the data ("12 مل"), never rebuilt by hand.
+ */
+export function catalogueSizeLabels(products: Product[]): string[] {
+  const byVolume = new Map<number, string>();
+  for (const product of products) {
+    for (const size of product.sizes) {
+      if (!size.inStock) continue;
+      const ml = sizeMlFromLabel(size.label);
+      if (ml === null) continue;
+      if (!byVolume.has(ml)) byVolume.set(ml, size.label);
+    }
+  }
+  return [...byVolume.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, label]) => label);
+}
+
 /** The catalogue's option vocabulary per group. */
-function optionValues(key: FilterKey): string[] {
+function optionValues(products: Product[], key: FilterKey): string[] {
   switch (key) {
     case "gender":
       return [...GENDERS];
     case "style":
       return [...PRODUCT_TYPES];
+    case "form":
+      return [...PRODUCT_FORMS];
     case "tier":
       return [...FILTERABLE_TIERS];
     case "season":
@@ -71,7 +95,7 @@ function optionValues(key: FilterKey): string[] {
     case "performance":
       return [...PERFORMANCES];
     case "size":
-      return [...SIZE_FILTER_VALUES];
+      return catalogueSizeLabels(products);
     default:
       return [];
   }
@@ -139,7 +163,7 @@ export function filterCatalog(
 
 /** Option values that exist anywhere in the catalogue, so nothing is a dead end. */
 function presentOptions(products: Product[], key: FilterKey): string[] {
-  return optionValues(key).filter((value) =>
+  return optionValues(products, key).filter((value) =>
     products.some((product) => matchesFacetValue(product, key, value)),
   );
 }
@@ -157,23 +181,27 @@ export function buildFacets(
   /** Groups the page has locked, e.g. gender on `/shop/men`. */
   hidden: readonly FilterKey[] = [],
 ): FacetGroup[] {
-  return FILTER_KEYS.filter((key) => !hidden.includes(key)).map((key) => {
-    const pool = products.filter((product) =>
-      productMatchesState(product, state, key),
-    );
+  return FILTER_KEYS.filter((key) => !hidden.includes(key))
+    .map((key) => {
+      const pool = products.filter((product) =>
+        productMatchesState(product, state, key),
+      );
 
-    return {
-      key,
-      options: presentOptions(products, key).map((value) => ({
-        value,
-        // Tier labels go through PUBLIC_TIER_LABELS, so `دووب` is not an
-        // option at all; every other label is the catalogue's own value.
-        label: facetValueLabel(key, value),
-        count: pool.filter((product) => matchesFacetValue(product, key, value))
-          .length,
-      })),
-    };
-  }).filter((group) => group.options.length > 0);
+      return {
+        key,
+        options: presentOptions(products, key).map((value) => ({
+          value,
+          // Tier labels go through PUBLIC_TIER_LABELS, so `دووب` is not an
+          // option at all; every other label is the catalogue's own value.
+          label: facetValueLabel(key, value),
+          count: pool.filter((product) => matchesFacetValue(product, key, value))
+            .length,
+        })),
+      };
+    })
+    // "الصيغة" is only a real choice when both formats are sold; a one-option
+    // group wastes a tap and looks like a bug.
+    .filter((group) => group.options.length > (group.key === "form" ? 1 : 0));
 }
 
 // ─── View ───────────────────────────────────────────────────────────────────

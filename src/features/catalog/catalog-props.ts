@@ -49,6 +49,7 @@ export function buildControlsLabels(
     groups: {
       gender: t(locale, "catalog.groupGender", "الجنس"),
       style: t(locale, "catalog.groupStyle", "النوع"),
+      form: t(locale, "catalog.groupForm", "الصيغة"),
       tier: t(locale, "catalog.groupTier", "الدار"),
       season: t(locale, "catalog.groupSeason", "الفصل"),
       performance: t(locale, "catalog.groupPerformance", "الأداء"),

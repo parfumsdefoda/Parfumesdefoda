@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   EMPTY_CATALOG_STATE,
-  SIZE_FILTER_VALUES,
   clearCatalogFilters,
   countActiveFilters,
   facetValueLabel,
   isDefaultCatalogState,
+  isSizeFilterValue,
   parseCatalogState,
   removeFacetValue,
   serializeCatalogState,
@@ -40,16 +40,22 @@ describe("parseCatalogState", () => {
     expect(parseCatalogState({ tier: "نيش,دووب" }).tier).toEqual(["نيش"]);
   });
 
-  it("ignores an unknown size and sort", () => {
-    const state = parseCatalogState({ size: "250 مل", sort: "cheapest" });
+  it("ignores a non-volume size and an unknown sort", () => {
+    const state = parseCatalogState({ size: "كبير", sort: "cheapest" });
     expect(state.size).toEqual([]);
     expect(state.sort).toBe("featured");
   });
 
-  it("reads the four real bottle sizes", () => {
-    const value = SIZE_FILTER_VALUES.join(",");
-    expect(parseCatalogState({ size: value }).size).toEqual([
-      ...SIZE_FILTER_VALUES,
+  it("reads any volume label the data can carry, oil sizes included", () => {
+    expect(
+      parseCatalogState({ size: "100 مل,50 مل,30 مل,12 مل,10 مل,6 مل,3 مل" }).size,
+    ).toEqual(["100 مل", "50 مل", "30 مل", "12 مل", "10 مل", "6 مل", "3 مل"]);
+  });
+
+  it("reads the الصيغة group and drops an unknown value", () => {
+    expect(parseCatalogState({ form: "عطر" }).form).toEqual(["عطر"]);
+    expect(parseCatalogState({ form: "بخاخ,زيت عطري" }).form).toEqual([
+      "زيت عطري",
     ]);
   });
 
@@ -102,6 +108,7 @@ describe("serializeCatalogState", () => {
     const state: CatalogState = {
       gender: ["نسائي"],
       style: ["شرقي"],
+      form: ["زيت عطري"],
       tier: ["نيش"],
       season: ["صيفي"],
       performance: ["أداء قوي"],
@@ -164,8 +171,12 @@ describe("transitions", () => {
 });
 
 describe("size group", () => {
-  it("offers exactly the four catalogue sizes, in order", () => {
-    expect(SIZE_FILTER_VALUES).toEqual(["10 مل", "30 مل", "50 مل", "100 مل"]);
+  it("accepts every volume label, including oil sizes", () => {
+    expect(isSizeFilterValue("12 مل")).toBe(true);
+    expect(isSizeFilterValue("3 مل")).toBe(true);
+    expect(isSizeFilterValue("100 مل")).toBe(true);
+    expect(isSizeFilterValue("كبير")).toBe(false);
+    expect(isSizeFilterValue("مل")).toBe(false);
   });
 });
 
@@ -184,5 +195,6 @@ describe("facetValueLabel", () => {
 
   it("falls back to the catalogue value", () => {
     expect(facetValueLabel("gender", "للجنسين")).toBe("للجنسين");
+    expect(facetValueLabel("form", "زيت عطري")).toBe("زيت عطري");
   });
 });

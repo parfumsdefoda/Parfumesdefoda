@@ -116,4 +116,35 @@ describe("resolveOrderItems", () => {
   it("rejects an empty cart", () => {
     expect(resolveOrderItems(catalog, []).ok).toBe(false);
   });
+
+  it("prices an oil's 12 مل size and a mixed cart on the server", () => {
+    const oil = makeProduct({
+      id: "PF680",
+      slug: "pf680",
+      name: "عود الصفا والمروه",
+      oily: true,
+      concentration: "oil",
+      sizes: [
+        { label: "12 مل", price: 850, inStock: true },
+        { label: "6 مل", price: 500, inStock: true },
+        { label: "3 مل", price: 350, inStock: true },
+      ],
+    });
+
+    const result = resolveOrderItems([...catalog, oil], [
+      { productId: "PF680", sizeLabel: "12 مل", quantity: 2 },
+      { productId: "PF001", sizeLabel: "50 مللى", quantity: 1 },
+    ]);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.items).toHaveLength(2);
+    expect(result.items[0]).toMatchObject({
+      productId: "PF680",
+      sizeLabel: "12 مل",
+      price: 850,
+      quantity: 2,
+    });
+    expect(result.subtotal).toBe(850 * 2 + 900);
+  });
 });

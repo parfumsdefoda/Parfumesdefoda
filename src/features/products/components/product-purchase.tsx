@@ -171,7 +171,12 @@ export function ProductPurchase({
           role="radiogroup"
           aria-label={labels.chooseSize}
           onKeyDown={handleKeyDown}
-          className="grid grid-cols-4 gap-2"
+          // One row, one column per real size (max four): a 3-size oil gets
+          // three equal columns instead of a 3+1 wrap.
+          style={{
+            gridTemplateColumns: `repeat(${Math.min(product.sizes.length, 4)}, minmax(0, 1fr))`,
+          }}
+          className="grid gap-2"
         >
           {product.sizes.map((size, index) => {
             const checked = size.label === selected;
