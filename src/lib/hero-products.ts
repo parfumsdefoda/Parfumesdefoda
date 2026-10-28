@@ -10,9 +10,13 @@
  *    (the derived image has real alpha, `blend: "normal"`) are candidates.
  *    A `multiply` cut-out is a white rectangle on the purple section.
  * 2. If the owner listed `settings.heroProducts`, that order wins.
- * 3. Otherwise: featured products, ordered by the cached sales counts, then by
- *    slug — deterministic, so the same data always renders the same hero.
- * 4. Fewer than three candidates means one centred bottle, not a lopsided trio.
+ * 3. Otherwise: featured products first (cached sales counts, then slug), then
+ *    the remaining candidates fill the trio by the same ranking. A hero with
+ *    one bottle when six could fill it reads as a broken layout, so the fill is
+ *    deliberate — but nothing is invented: every bottle is a real cut-out photo
+ *    of a product a shopper can buy.
+ * 4. Fewer than three candidates in TOTAL means one centred bottle, not a
+ *    lopsided trio.
  *
  * Pure and client-safe.
  */
@@ -65,17 +69,21 @@ export function selectHeroProducts(
     .map((slug) => bySlug.get(slug))
     .filter((product): product is Product => product !== undefined);
 
-  const ranked =
-    pinned.length > 0
-      ? pinned
-      : [...eligible]
-          .filter((product) => product.featured === true)
-          .sort((a, b) => {
-            const bySales = soldCount(counts, b) - soldCount(counts, a);
-            if (bySales !== 0) return bySales;
-            return a.slug.localeCompare(b.slug);
-          });
+  const byRanking = (a: Product, b: Product) => {
+    const bySales = soldCount(counts, b) - soldCount(counts, a);
+    if (bySales !== 0) return bySales;
+    return a.slug.localeCompare(b.slug);
+  };
 
+  const ranked = pinned.length > 0 ? [...pinned] : (() => {
+    const featured = eligible.filter((product) => product.featured === true).sort(byRanking);
+    const fillers = eligible
+      .filter((product) => product.featured !== true)
+      .sort(byRanking);
+    return [...featured, ...fillers];
+  })();
+
+  // The composition is three bottles or one; two is never symmetric.
   if (ranked.length < HERO_PRODUCT_LIMIT) return ranked.slice(0, 1);
   return ranked.slice(0, HERO_PRODUCT_LIMIT);
 }

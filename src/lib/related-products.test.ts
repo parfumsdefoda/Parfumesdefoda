@@ -58,6 +58,23 @@ describe("selectRelatedProducts", () => {
     ).not.toContain("current");
   });
 
+  it("sees a base product and its premium variant as two products", () => {
+    const base = product({ id: "pf240", name: "تيروني", featured: true, sortOrder: 1 });
+    const variant = product({
+      id: "pf241",
+      name: "تيروني",
+      featured: true,
+      sortOrder: 2,
+    });
+
+    expect(selectRelatedProducts(base, [base, variant]).map((p) => p.id)).toEqual([
+      "pf241",
+    ]);
+    expect(
+      selectRelatedProducts(variant, [base, variant]).map((p) => p.id),
+    ).toEqual(["pf240"]);
+  });
+
   it("never recommends hidden, sold-out or coming-soon products", () => {
     const catalogue = [
       product({ id: "hidden", hidden: true }),

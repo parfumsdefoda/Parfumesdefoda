@@ -15,6 +15,20 @@ import { isComingSoon, isUnavailableProduct } from "./product-availability";
 /** The single badge a card may show. Priority: coming-soon > out-of-stock > featured. */
 export type CardBadge = "coming-soon" | "out-of-stock" | "featured";
 
+/** The word a premium variant carries in its own name. */
+export const PREMIUM_NAME_MARK = "فاخر";
+
+/**
+ * True when the product name already says "فاخر".
+ *
+ * Premium variants are separate products named `تيروني (فاخر)`; the gold badge
+ * is only for the other products, so a variant never reads
+ * `تيروني (فاخر) ★ فاخر`.
+ */
+export function hasPremiumInName(name: string): boolean {
+  return name.includes(PREMIUM_NAME_MARK);
+}
+
 /** Separator used between the meta parts ("نيش · شرقي"). */
 export const CARD_META_SEPARATOR = "·";
 
@@ -41,12 +55,21 @@ export function hasProductImage(product: Pick<Product, "image">): boolean {
  * unavailable product, then the gold فاخر label.
  */
 export function cardBadge(
-  product: Pick<Product, "image" | "inStock" | "status" | "featured" | "sizes">,
+  product: Pick<
+    Product,
+    "image" | "inStock" | "status" | "featured" | "sizes" | "name"
+  >,
   options: { suppressFeatured?: boolean } = {},
 ): CardBadge | null {
   if (isComingSoon(product)) return "coming-soon";
   if (isUnavailableProduct(product) || !hasAnyStock(product)) return "out-of-stock";
-  if (product.featured && !options.suppressFeatured) return "featured";
+  if (
+    product.featured &&
+    !options.suppressFeatured &&
+    !hasPremiumInName(product.name)
+  ) {
+    return "featured";
+  }
   return null;
 }
 

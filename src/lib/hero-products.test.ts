@@ -105,9 +105,55 @@ describe("selectHeroProducts", () => {
     ).toBe(1);
   });
 
+  it("fills the trio with the best-selling cut-outs when fewer are featured", () => {
+    const oneFeatured = [
+      product({ slug: CUTOUT_A, featured: true }),
+      product({ slug: CUTOUT_B }),
+      product({ slug: CUTOUT_C }),
+      product({ slug: CUTOUT_D }),
+    ];
+
+    expect(selectHeroProducts(oneFeatured).map((p) => p.slug)).toEqual([
+      CUTOUT_A,
+      CUTOUT_B,
+      CUTOUT_C,
+    ]);
+    expect(
+      selectHeroProducts(oneFeatured, { [CUTOUT_D]: 9, [CUTOUT_C]: 2 }).map(
+        (p) => p.slug,
+      ),
+    ).toEqual([CUTOUT_A, CUTOUT_D, CUTOUT_C]);
+  });
+
+  it("keeps a featured bottle first even when a filler sold more", () => {
+    const one = [
+      product({ slug: CUTOUT_A, featured: true }),
+      product({ slug: CUTOUT_B }),
+      product({ slug: CUTOUT_C }),
+    ];
+    expect(
+      selectHeroProducts(one, { [CUTOUT_C]: 100, [CUTOUT_B]: 50 }).map(
+        (p) => p.slug,
+      ),
+    ).toEqual([CUTOUT_A, CUTOUT_C, CUTOUT_B]);
+  });
+
+  it("shows three even when nothing is featured", () => {
+    const none = catalogue
+      .slice(0, 3)
+      .map((p) => ({ ...p, featured: false }));
+    expect(selectHeroProducts(none).map((p) => p.slug)).toEqual([
+      CUTOUT_A,
+      CUTOUT_B,
+      CUTOUT_C,
+    ]);
+  });
+
   it("falls back to one centred bottle when fewer than three qualify", () => {
     expect(selectHeroProducts(catalogue.slice(0, 2))).toHaveLength(1);
     expect(selectHeroProducts(catalogue.slice(0, 1))[0].slug).toBe(CUTOUT_A);
+    // Two featured and nothing else is still two bottles: one, not two.
+    expect(selectHeroProducts(catalogue.slice(0, 2))[0].slug).toBe(CUTOUT_A);
   });
 
   it("returns nothing when no product can be shown", () => {

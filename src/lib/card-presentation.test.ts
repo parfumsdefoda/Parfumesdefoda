@@ -4,6 +4,7 @@ import {
   cardMetaLine,
   cardMetaParts,
   cardPrice,
+  hasPremiumInName,
   hasProductImage,
   lowestInStockPrice,
   quickAddMode,
@@ -16,7 +17,15 @@ import type { Product } from "@/types";
 
 type CardProduct = Pick<
   Product,
-  "image" | "inStock" | "status" | "featured" | "sizes" | "house" | "type" | "oily"
+  | "name"
+  | "image"
+  | "inStock"
+  | "status"
+  | "featured"
+  | "sizes"
+  | "house"
+  | "type"
+  | "oily"
 > &
   Partial<Pick<Product, "concentration">>;
 
@@ -25,6 +34,7 @@ const PLACEHOLDER = "/products/placeholder-unavailable.webp";
 
 function product(overrides: Partial<CardProduct> = {}): CardProduct {
   return {
+    name: "عطر تجريبي",
     image: PHOTO,
     inStock: true,
     status: "active",
@@ -78,6 +88,16 @@ describe("cardBadge", () => {
     expect(
       cardBadge(product({ image: PLACEHOLDER, featured: true, inStock: false })),
     ).toBe("coming-soon");
+  });
+
+  it("never doubles فاخر on a premium variant already named فاخر", () => {
+    const variant = product({ featured: true, name: "تيروني (فاخر)" });
+    expect(hasPremiumInName(variant.name)).toBe(true);
+    expect(cardBadge(variant)).toBeNull();
+    // Its base product still gets the badge.
+    expect(cardBadge(product({ featured: true, name: "تيروني" }))).toBe(
+      "featured",
+    );
   });
 });
 
