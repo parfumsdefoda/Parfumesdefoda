@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-22T16:29:37.587Z",
+  "generatedAt": "2026-10-28T22:43:05.384Z",
   "totals": {
     "products": 40,
     "referencedImages": 38,
     "onDiskImages": 38,
-    "totalBytes": 16903685,
-    "totalMb": 16.12,
+    "totalBytes": 17229459,
+    "totalMb": 16.43,
     "byClass": {
       "transparent": 37,
       "pure-white": 0,
@@ -15,25 +15,259 @@
     "squareCount": 38,
     "nonSquareCount": 0,
     "withRealTransparency": 37,
-    "needsRetouch": 1
+    "needsRetouch": 1,
+    "unreferencedByClass": {
+      "transparent": 28,
+      "pure-white": 1,
+      "off-white": 0,
+      "coloured": 2
+    }
   },
   "problems": {
     "missingFiles": [],
     "noImage": [],
+    "photoPending": [
+      "pf590",
+      "pf600",
+      "pf610",
+      "pf620",
+      "pf640"
+    ],
     "multiImage": [
       "pf090",
       "pf230"
     ],
     "unreferenced": [
+      "/products/PF010.png",
+      "/products/PF050.png",
+      "/products/PF060.png",
+      "/products/PF120.png",
+      "/products/PF160.png",
+      "/products/PF190.png",
+      "/products/PF200.png",
+      "/products/PF210.png",
+      "/products/PF220.png",
+      "/products/PF250.png",
+      "/products/PF270.png",
+      "/products/PF300.png",
+      "/products/PF340.png",
+      "/products/PF360.png",
+      "/products/PF400.png",
+      "/products/PF420.png",
+      "/products/PF440.png",
+      "/products/PF460.png",
+      "/products/PF470.png",
+      "/products/PF540.png",
+      "/products/PF560.png",
+      "/products/PF570.png",
+      "/products/PF590.png",
+      "/products/PF600.png",
+      "/products/PF610.png",
+      "/products/PF620.png",
+      "/products/PF640.png",
       "/products/PF650.png",
       "/products/PF660.png",
       "/products/PF670.png",
-      "/products/PF680.png",
-      "/products/PF690.png",
-      "/products/PF700.png",
-      "/products/PF710.png"
+      "/products/PF680.png"
+    ],
+    "unreferencedDetails": [
+      {
+        "path": "/products/PF010.png",
+        "background": "transparent",
+        "bytes": 109221,
+        "square": false
+      },
+      {
+        "path": "/products/PF050.png",
+        "background": "transparent",
+        "bytes": 79017,
+        "square": false
+      },
+      {
+        "path": "/products/PF060.png",
+        "background": "pure-white",
+        "bytes": 193081,
+        "square": true
+      },
+      {
+        "path": "/products/PF120.png",
+        "background": "transparent",
+        "bytes": 81362,
+        "square": false
+      },
+      {
+        "path": "/products/PF160.png",
+        "background": "transparent",
+        "bytes": 57970,
+        "square": false
+      },
+      {
+        "path": "/products/PF190.png",
+        "background": "transparent",
+        "bytes": 106553,
+        "square": false
+      },
+      {
+        "path": "/products/PF200.png",
+        "background": "transparent",
+        "bytes": 66491,
+        "square": false
+      },
+      {
+        "path": "/products/PF210.png",
+        "background": "transparent",
+        "bytes": 39039,
+        "square": false
+      },
+      {
+        "path": "/products/PF220.png",
+        "background": "transparent",
+        "bytes": 108936,
+        "square": false
+      },
+      {
+        "path": "/products/PF250.png",
+        "background": "transparent",
+        "bytes": 101110,
+        "square": false
+      },
+      {
+        "path": "/products/PF270.png",
+        "background": "transparent",
+        "bytes": 91926,
+        "square": false
+      },
+      {
+        "path": "/products/PF300.png",
+        "background": "transparent",
+        "bytes": 98323,
+        "square": false
+      },
+      {
+        "path": "/products/PF340.png",
+        "background": "transparent",
+        "bytes": 86928,
+        "square": false
+      },
+      {
+        "path": "/products/PF360.png",
+        "background": "transparent",
+        "bytes": 77019,
+        "square": false
+      },
+      {
+        "path": "/products/PF400.png",
+        "background": "transparent",
+        "bytes": 80549,
+        "square": false
+      },
+      {
+        "path": "/products/PF420.png",
+        "background": "transparent",
+        "bytes": 92494,
+        "square": false
+      },
+      {
+        "path": "/products/PF440.png",
+        "background": "transparent",
+        "bytes": 36997,
+        "square": false
+      },
+      {
+        "path": "/products/PF460.png",
+        "background": "transparent",
+        "bytes": 92153,
+        "square": false
+      },
+      {
+        "path": "/products/PF470.png",
+        "background": "transparent",
+        "bytes": 75947,
+        "square": false
+      },
+      {
+        "path": "/products/PF540.png",
+        "background": "transparent",
+        "bytes": 73687,
+        "square": false
+      },
+      {
+        "path": "/products/PF560.png",
+        "background": "transparent",
+        "bytes": 114818,
+        "square": false
+      },
+      {
+        "path": "/products/PF570.png",
+        "background": "coloured",
+        "bytes": 2372641,
+        "square": false
+      },
+      {
+        "path": "/products/PF590.png",
+        "background": "transparent",
+        "bytes": 82547,
+        "square": false
+      },
+      {
+        "path": "/products/PF600.png",
+        "background": "transparent",
+        "bytes": 403937,
+        "square": true
+      },
+      {
+        "path": "/products/PF610.png",
+        "background": "transparent",
+        "bytes": 373878,
+        "square": true
+      },
+      {
+        "path": "/products/PF620.png",
+        "background": "transparent",
+        "bytes": 254433,
+        "square": true
+      },
+      {
+        "path": "/products/PF640.png",
+        "background": "transparent",
+        "bytes": 378598,
+        "square": true
+      },
+      {
+        "path": "/products/PF650.png",
+        "background": "transparent",
+        "bytes": 107403,
+        "square": false
+      },
+      {
+        "path": "/products/PF660.png",
+        "background": "transparent",
+        "bytes": 126377,
+        "square": false
+      },
+      {
+        "path": "/products/PF670.png",
+        "background": "transparent",
+        "bytes": 111425,
+        "square": false
+      },
+      {
+        "path": "/products/PF680.png",
+        "background": "coloured",
+        "bytes": 701146,
+        "square": false
+      }
     ]
   },
+  "duplicates": [
+    {
+      "hash": "2fb108cf8911912e79ebd291c3db71167dcf33a1f9089141a8033eb782c2a3b6",
+      "paths": [
+        "/products/PF090.png",
+        "/products/PF091.png"
+      ]
+    }
+  ],
   "heaviest": [
     {
       "path": "/products/PF370.png",
@@ -42,6 +276,10 @@
     {
       "path": "/products/PF550.png",
       "bytes": 832525
+    },
+    {
+      "path": "/products/PF630.png",
+      "bytes": 729711
     },
     {
       "path": "/products/PF380.png",
@@ -69,10 +307,6 @@
     },
     {
       "path": "/products/PF090.png",
-      "bytes": 546846
-    },
-    {
-      "path": "/products/PF091.png",
       "bytes": 546846
     }
   ],
@@ -949,20 +1183,20 @@
       "format": "png",
       "width": 2000,
       "height": 2000,
-      "bytes": 403937,
+      "bytes": 729711,
       "hasAlpha": true,
-      "transparentPixels": 2880135,
+      "transparentPixels": 2400822,
       "background": "transparent",
       "sampleColour": null,
       "square": true,
       "subject": {
-        "x": 522,
-        "y": 176,
-        "width": 950,
-        "height": 1679,
-        "widthPct": 47.5,
-        "heightPct": 84,
-        "areaPct": 39.9
+        "x": 445,
+        "y": 72,
+        "width": 1110,
+        "height": 1881,
+        "widthPct": 55.5,
+        "heightPct": 94.1,
+        "areaPct": 52.2
       }
     },
     {

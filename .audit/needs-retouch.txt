@@ -1,4 +1,5 @@
 # Products whose photo cannot be normalised automatically.
 # Give each one a transparent PNG/WebP cut-out at the same file path,
 # then run: npm run build:images -- --slug=<slug> --force
-placeholder-unavailable	/products/placeholder-unavailable.webp	coloured background — cut it out manually, then re-run build:images
+pf570	/products/PF570.png	coloured background — cut it out manually, then re-run build:images
+pf680	/products/PF680.png	coloured background — cut it out manually, then re-run build:images
