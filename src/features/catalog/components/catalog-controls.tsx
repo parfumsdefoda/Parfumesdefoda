@@ -425,7 +425,11 @@ export function CatalogControls({
       >
         <SheetContent
           side="bottom"
-          className="h-[88vh] gap-0 rounded-t-card p-0"
+          // The bottom side sets h-auto, so a fixed h-[88vh] never applies and the
+          // sheet grew to its full content height: on a 375x812 phone the facets
+          // started ~470px above the viewport with no scroll container, making
+          // them unreachable. max-h caps the sheet and lets the middle pane scroll.
+          className="max-h-[88svh] gap-0 rounded-t-card p-0"
         >
           <SheetHeader className="border-b border-[var(--color-border)] px-4 py-3">
             <SheetTitle className="text-body font-bold">
