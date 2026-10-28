@@ -110,6 +110,9 @@ export function CheckoutForm({
     setFocus,
     formState: { errors },
   } = useForm({
+    // The error summary owns focus after a failed submit; RHF's own
+    // focus-first-error would steal it (the spec wants the summary focused).
+    shouldFocusError: false,
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       name: "",
@@ -161,9 +164,17 @@ export function CheckoutForm({
   };
 
   const onInvalidSubmit = () => {
-    requestAnimationFrame(() => {
-      document.getElementById("checkout-error-summary")?.focus();
-    });
+    // The summary only exists after React commits the errors, so keep looking
+    // for a few frames instead of focusing once and losing the race.
+    const focusSummary = (attempt: number) => {
+      const summary = document.getElementById("checkout-error-summary");
+      if (summary) {
+        summary.focus();
+        return;
+      }
+      if (attempt < 30) requestAnimationFrame(() => focusSummary(attempt + 1));
+    };
+    requestAnimationFrame(() => focusSummary(0));
   };
 
   return (
