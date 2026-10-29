@@ -44,6 +44,19 @@ const DEFAULT_PAYMENT_METHOD = "الدفع عند الاستلام";
 /** Persistence is an optional add-on: give it 2s, then move on. */
 const ORDER_STORE_TIMEOUT_MS = 2_000;
 
+/**
+ * Largest order body we will read.
+ *
+ * A real order — the three customer fields plus at most 30 lines — is under
+ * 8 KiB. The cap is generous for Arabic text and long addresses, small enough
+ * that a chunked request cannot make the server buffer arbitrary memory, and
+ * checked twice: from Content-Length when the client declares it, then against
+ * the bytes actually read (a chunked POST declares nothing).
+ */
+const MAX_ORDER_BODY_BYTES = 64 * 1024;
+
+const BODY_TOO_LARGE_MESSAGE = "حجم الطلب أكبر من المسموح.";
+
 function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   const candidate =
@@ -80,9 +93,24 @@ export async function POST(request: Request) {
     );
   }
 
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_ORDER_BODY_BYTES) {
+    return NextResponse.json(
+      { error: BODY_TOO_LARGE_MESSAGE },
+      { status: 413 },
+    );
+  }
+
   let body: unknown;
   try {
-    body = await request.json();
+    const raw = await request.text();
+    if (Buffer.byteLength(raw, "utf8") > MAX_ORDER_BODY_BYTES) {
+      return NextResponse.json(
+        { error: BODY_TOO_LARGE_MESSAGE },
+        { status: 413 },
+      );
+    }
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json(
       { error: "بيانات الطلب غير صالحة" },

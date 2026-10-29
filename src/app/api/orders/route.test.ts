@@ -62,8 +62,12 @@ const product: Product = {
   seo: { title: "", description: "" },
 };
 
+// The catalogue the route reads. A test can swap it (e.g. to hide a product)
+// without re-registering the mock.
+const catalogState = vi.hoisted(() => ({ products: [] as unknown[] }));
+
 vi.mock("@/services/products", () => ({
-  loadProducts: async () => [product],
+  loadProducts: async () => catalogState.products,
 }));
 
 vi.mock("@/services/settings", () => ({
@@ -109,6 +113,7 @@ function makeRequest(): Request {
 const { POST } = await import("./route");
 
 beforeEach(() => {
+  catalogState.products = [product];
   sendOrderEmail.mockReset();
   sendOrderWhatsApp.mockReset();
   saveOrder.mockReset();
@@ -196,6 +201,61 @@ describe("POST /api/orders — all channels failed", () => {
     const response = await POST(makeRequest());
 
     expect(response.status).toBe(201);
+  });
+});
+
+describe("POST /api/orders — input size and unavailable products", () => {
+  it("rejects a body larger than the cap before parsing it", async () => {
+    const body = JSON.stringify({ ...validBody, padding: "x".repeat(70 * 1024) });
+    const request = new Request("http://localhost:3000/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": String(Buffer.byteLength(body)),
+      },
+      body,
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+    expect(sendOrderEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects an oversized chunked body that declares no length", async () => {
+    // A stream body has no Content-Length, so only the bytes we actually read
+    // can enforce the cap.
+    const payload = new TextEncoder().encode(
+      JSON.stringify({ ...validBody, padding: "x".repeat(70 * 1024) }),
+    );
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(payload);
+        controller.close();
+      },
+    });
+    const request = new Request("http://localhost:3000/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: stream,
+      duplex: "half",
+    } as RequestInit);
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+  });
+
+  it("refuses a hidden product (BUG-001 regression)", async () => {
+    catalogState.products = [{ ...product, hidden: true }];
+
+    const response = await POST(makeRequest());
+    const body = (await response.json()) as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain("لم يعد متوفراً");
+    expect(sendOrderEmail).not.toHaveBeenCalled();
+    expect(sendOrderWhatsApp).not.toHaveBeenCalled();
   });
 });
 
