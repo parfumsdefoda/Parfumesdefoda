@@ -10,7 +10,34 @@ import {
   concentrationLabel,
   familyLabel,
   formatConcentrationSize,
+  sortSizesByVolume,
 } from "./product-labels";
+
+describe("sortSizesByVolume", () => {
+  const label = (sizes: { label: string }[]) => sizes.map((size) => size.label).join(" | ");
+
+  it("keeps an ascending catalogue untouched", () => {
+    const sizes = [{ label: "10 مل" }, { label: "30 مل" }, { label: "50 مل" }, { label: "100 مل" }];
+    expect(label(sortSizesByVolume(sizes))).toBe("10 مل | 30 مل | 50 مل | 100 مل");
+  });
+
+  it("orders the importer's descending oil sizes small to large", () => {
+    // Regression (BUG-004): 12/6/3 rendered backwards next to 10/30/50/100.
+    const sizes = [{ label: "12 مل" }, { label: "6 مل" }, { label: "3 مل" }];
+    expect(label(sortSizesByVolume(sizes))).toBe("3 مل | 6 مل | 12 مل");
+  });
+
+  it("does not mutate the input array", () => {
+    const sizes = [{ label: "50 مل" }, { label: "10 مل" }];
+    sortSizesByVolume(sizes);
+    expect(label(sizes)).toBe("50 مل | 10 مل");
+  });
+
+  it("puts an unnumbered label last instead of first", () => {
+    const sizes = [{ label: "حجم خاص" }, { label: "10 مل" }];
+    expect(label(sortSizesByVolume(sizes))).toBe("10 مل | حجم خاص");
+  });
+});
 
 describe("enum labels", () => {
   it("covers every concentration", () => {

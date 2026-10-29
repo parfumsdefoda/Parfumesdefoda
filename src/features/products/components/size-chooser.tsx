@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatSizeLabel } from "@/lib/currency";
+import { sortSizesByVolume } from "@/lib/product-labels";
 import { cn } from "@/lib/utils";
 import type { ProductSize } from "@/types";
 
@@ -34,11 +35,14 @@ export interface SizeChooserProps {
 export default function SizeChooser({
   mode,
   anchor,
-  sizes,
+  sizes: rawSizes,
   labels,
   onOpenChange,
   onSelect,
 }: SizeChooserProps) {
+  // Same small → large order as the product page, whatever the data stores.
+  const sizes = sortSizesByVolume(rawSizes);
+
   const [selected, setSelected] = useState<string | null>(
     sizes.find((size) => size.inStock)?.label ?? null,
   );

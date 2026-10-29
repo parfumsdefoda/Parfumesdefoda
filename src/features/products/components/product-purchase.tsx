@@ -5,6 +5,7 @@ import { useCart } from "@/providers/CartProvider";
 import { useToast } from "@/features/toast";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatSizeLabel } from "@/lib/currency";
+import { sortSizesByVolume } from "@/lib/product-labels";
 import { cn } from "@/lib/utils";
 import type { Product, ProductSize } from "@/types";
 
@@ -45,14 +46,17 @@ export function ProductPurchase({
   const cart = useCart();
   const { showToast } = useToast();
 
+  // Small → large, regardless of how the catalogue stores the sizes.
+  const sizes = sortSizesByVolume(product.sizes);
+
   const [selected, setSelected] = useState<string>(() => {
-    const firstInStock = product.sizes.find((size) => size.inStock);
-    return firstInStock?.label ?? product.sizes[0]?.label ?? "";
+    const firstInStock = sizes.find((size) => size.inStock);
+    return firstInStock?.label ?? sizes[0]?.label ?? "";
   });
 
   const chosen =
-    product.sizes.find((size) => size.label === selected) ?? null;
-  const buyable = product.sizes.filter((size) => size.inStock);
+    sizes.find((size) => size.label === selected) ?? null;
+  const buyable = sizes.filter((size) => size.inStock);
   const canBuy = chosen !== null && chosen.inStock;
 
   const [ctaPast, setCtaPast] = useState(false);
@@ -155,7 +159,7 @@ export function ProductPurchase({
 
     const target = buyable[next];
     setSelected(target.label);
-    radios.current[product.sizes.indexOf(target)]?.focus();
+    radios.current[sizes.indexOf(target)]?.focus();
   };
 
   const price = chosen ? formatPrice(chosen.price) : null;
@@ -190,11 +194,11 @@ export function ProductPurchase({
           // One row, one column per real size (max four): a 3-size oil gets
           // three equal columns instead of a 3+1 wrap.
           style={{
-            gridTemplateColumns: `repeat(${Math.min(product.sizes.length, 4)}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${Math.min(sizes.length, 4)}, minmax(0, 1fr))`,
           }}
           className="grid gap-2"
         >
-          {product.sizes.map((size, index) => {
+          {sizes.map((size, index) => {
             const checked = size.label === selected;
             const out = !size.inStock;
             return (

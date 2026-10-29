@@ -78,6 +78,26 @@ export function familyLabel(family?: ScentFamily | null): string | null {
 }
 
 /**
+ * Sizes in one stable order (smallest first), whatever order the catalogue
+ * stores them in.
+ *
+ * `data/products.json` is not uniform: the four original sizes are stored
+ * 10/30/50/100 while a product created by the master importer is stored
+ * 100/50/30/10 (the importer sorts by ml descending). A size selector must not
+ * flip its reading order because of a data detail, and the arrow-key walk in
+ * the radiogroup follows the rendered order.
+ */
+export function sortSizesByVolume<T extends { label: string }>(
+  sizes: readonly T[],
+): T[] {
+  const ml = (label: string) => {
+    const match = /(\d+)/.exec(label);
+    return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
+  };
+  return [...sizes].sort((a, b) => ml(a.label) - ml(b.label));
+}
+
+/**
  * Compact spec line, e.g. `EDP · 50 مل`.
  *
  * Returns null unless BOTH halves are known — a half-filled badge would claim
