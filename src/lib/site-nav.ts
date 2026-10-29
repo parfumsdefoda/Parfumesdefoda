@@ -58,17 +58,29 @@ export interface NavLink {
   href: string;
 }
 
-export type PrimaryNavLabels = Record<"shop" | CategorySlug, string>;
+export type PrimaryNavLabels = Record<"shop" | CategorySlug, string> & {
+  /** Only shown when the catalogue actually has a visible oil product. */
+  oils?: string;
+};
+
+/** Which optional groups the catalogue can actually fill. */
+export interface PrimaryNavOptions {
+  /** True when at least one visible product is an attar (oil). */
+  hasOil?: boolean;
+}
 
 /**
  * The header's primary links.
  *
  * A category with no visible products is dropped rather than linked to an empty
  * page — the count comes from the same filtered product list the catalogue uses.
+ * "زيوت عطرية" is only offered when an oil product exists, so it is never a
+ * dead end.
  */
 export function buildPrimaryNav(
   counts: Record<string, number>,
   labels: PrimaryNavLabels,
+  options: PrimaryNavOptions = {},
 ): NavLink[] {
   const links: NavLink[] = [{ label: labels.shop, href: "/shop" }];
   for (const route of CATEGORY_ROUTES) {
@@ -77,6 +89,9 @@ export function buildPrimaryNav(
       label: route.slug === "women" ? genderPublicLabel(route.gender) : labels[route.slug],
       href: categoryHref(route.slug),
     });
+  }
+  if (options.hasOil && labels.oils) {
+    links.push({ label: labels.oils, href: "/shop?form=oil" });
   }
   return links;
 }

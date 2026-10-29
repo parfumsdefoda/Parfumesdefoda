@@ -82,4 +82,17 @@ describe("buildPrimaryNav", () => {
     expect(nav).toHaveLength(4);
     expect(nav[2]).toEqual({ label: "حريمي", href: "/shop/women" });
   });
+
+  it("offers the oils route only when a visible oil product exists", () => {
+    const withOils = { ...labels, oils: "زيوت عطرية" };
+    expect(buildPrimaryNav({}, withOils).map((link) => link.href)).toEqual([
+      "/shop",
+    ]);
+    expect(
+      buildPrimaryNav({}, withOils, { hasOil: true }).map((link) => link.href),
+    ).toContain("/shop?form=oil");
+    expect(
+      buildPrimaryNav({}, { ...labels, oils: undefined }, { hasOil: true }),
+    ).toHaveLength(1);
+  });
 });

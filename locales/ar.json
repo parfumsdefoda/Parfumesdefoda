@@ -5,12 +5,17 @@
     "shop": "المتجر",
     "men": "رجالي",
     "unisex": "للجنسين",
+    "oils": "زيوت عطرية",
     "houses": "الدور"
   },
   "header": {
     "nav": "القائمة الرئيسية",
     "search": "بحث",
     "searchSubmit": "ابحث",
+    "searchSuggestions": "اقتراحات البحث",
+    "searchViewAll": "عرض كل النتائج",
+    "searchResultsCount": "{n} نتيجة",
+    "searchNoResults": "لا توجد نتائج مطابقة",
     "menu": "القائمة",
     "close": "إغلاق",
     "backToCart": "العودة للسلة"

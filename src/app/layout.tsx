@@ -186,9 +186,13 @@ export default async function RootLayout({
     men: t(localeMessages, "nav.men", "رجالي"),
     women: genderPublicLabel("نسائي"),
     unisex: t(localeMessages, "nav.unisex", "للجنسين"),
+    oils: t(localeMessages, "nav.oils", "زيوت عطرية"),
   };
 
-  const headerNav = buildPrimaryNav(genderCounts(products), navLabels);
+  // "زيوت عطرية" only when the catalogue can fill it — a visible oil product.
+  const headerNav = buildPrimaryNav(genderCounts(products), navLabels, {
+    hasOil: products.some((product) => product.oily),
+  });
   const cartCatalogue: CartCatalogProduct[] = products.map((product) => ({
     id: product.id,
     slug: product.slug,
@@ -280,7 +284,26 @@ export default async function RootLayout({
       "ابحث عن عطرك...",
     ),
     searchSubmit: t(localeMessages, "header.searchSubmit", "ابحث"),
-    advisor: t(localeMessages, "home.advisorCta", "اختر عطرك"),
+    searchSuggestions: t(
+      localeMessages,
+      "header.searchSuggestions",
+      "اقتراحات البحث",
+    ),
+    searchViewAll: t(
+      localeMessages,
+      "header.searchViewAll",
+      "عرض كل النتائج",
+    ),
+    searchResultsCount: t(
+      localeMessages,
+      "header.searchResultsCount",
+      "{n} نتيجة",
+    ),
+    searchNoResults: t(
+      localeMessages,
+      "header.searchNoResults",
+      "لا توجد نتائج مطابقة",
+    ),
     cart: t(localeMessages, "cart.title", "سلة التسوق"),
     menu: t(localeMessages, "header.menu", "القائمة"),
     closeMenu: t(localeMessages, "header.close", "إغلاق"),
@@ -331,6 +354,7 @@ export default async function RootLayout({
               whatsappHref: settings.contact.whatsapp
                 ? `https://wa.me/${settings.contact.whatsapp}`
                 : undefined,
+              menuNote: footerNote,
             }}
             footer={{
               storeName: settings.store.name,

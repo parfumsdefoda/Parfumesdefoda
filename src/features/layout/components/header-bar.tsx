@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Menu, MessageCircle, Search, ShoppingCart, Sparkles, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  ChevronDown,
+  Menu,
+  MessageCircle,
+  Search,
+  ShoppingCart,
+  X,
+} from "lucide-react";
 import { Popover } from "@base-ui/react/popover";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/currency";
 import { useCart } from "@/providers/CartProvider";
-import { openAdvisor } from "@/features/chat-assistant/advisor-bus";
+import { HeaderSearch } from "@/features/search/components/header-search";
 import type { NavLink } from "@/lib/site-nav";
 
 export interface HouseLink {
@@ -30,7 +37,10 @@ export interface HeaderLabels {
   search: string;
   searchPlaceholder: string;
   searchSubmit: string;
-  advisor: string;
+  searchSuggestions: string;
+  searchViewAll: string;
+  searchResultsCount: string;
+  searchNoResults: string;
   cart: string;
   menu: string;
   closeMenu: string;
@@ -45,22 +55,35 @@ export interface HeaderBarProps {
   labels: HeaderLabels;
   /** Checkout wears a reduced bar: logo + a way back to the cart, nothing else. */
   reduced?: boolean;
-  logoSrc?: string;
   /** wa.me link from data/contact.json; the mobile menu ends with it. */
   whatsappHref?: string;
+  /** Cash-on-delivery + shipping note, already resolved from the helpers. */
+  menuNote?: string;
+}
+
+/** Is this nav link the current route? Query strings never decide it. */
+function isActiveRoute(pathname: string, href: string): boolean {
+  const path = href.split("?")[0].replace(/\/+$/, "") || "/";
+  if (path === "/shop") {
+    return pathname === "/shop" || pathname.startsWith("/shop/");
+  }
+  return pathname === path || pathname === `${path}/`;
 }
 
 /**
  * HeaderBar — the site's one header, mounted by the root layout.
  *
- * 56px on phones, 64px from the tablet breakpoint up; translucent with a blur
- * where the browser supports it and opaque where it does not; a hairline only
- * once the page has scrolled, so the top of every page starts border-less.
+ * 56px on phones, 64px from the desktop breakpoint up: translucent with a blur
+ * where the browser supports it, a hairline only once the page has scrolled.
+ * The bar is TEXT ONLY — the brand mark is the logo file painted as a CSS
+ * background, so no <img> (and no product thumbnail) ever sits in the header,
+ * its menus or its search suggestions.
  *
- * Desktop carries the primary links, a houses menu (public tier labels only),
- * search, the advisor entry point and the cart. Below the desktop breakpoint
- * the same links live in a full-height sheet, which is the only navigation a
- * phone gets — including on product pages, which used to have none.
+ * The smart hide is deliberately not React state: a rAF-throttled scroll
+ * listener writes `data-hidden` on the element itself, so scrolling never
+ * re-renders the bar. It stays put at the top, while the search/dropdown/sheet
+ * is open (`data-locked`), while focus is inside it, and when the visitor asks
+ * for reduced motion.
  */
 export function HeaderBar({
   storeName,
@@ -68,23 +91,69 @@ export function HeaderBar({
   houses,
   labels,
   reduced = false,
-  logoSrc = "/logos/logo.svg",
   whatsappHref,
+  menuNote,
 }: HeaderBarProps) {
   const cart = useCart();
-  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname() ?? "/";
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [housesAnchor, setHousesAnchor] = useState<HTMLButtonElement | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+  const locked = searchOpen || menuOpen || housesAnchor !== null;
+
+  /* Show the bar immediately when something inside it takes over. */
+  const reveal = useCallback(() => {
+    const header = headerRef.current;
+    if (header) header.dataset.hidden = "false";
   }, []);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+    let lastY = Math.max(0, window.scrollY);
+
+    const update = () => {
+      frame = 0;
+      const y = Math.max(0, window.scrollY);
+      header.dataset.scrolled = y > 4 ? "true" : "false";
+
+      const focusInside = header.contains(document.activeElement);
+      if (motion.matches || y <= 8 || header.dataset.locked === "true" || focusInside) {
+        header.dataset.hidden = "false";
+        lastY = y;
+        return;
+      }
+
+      if (y > lastY + 4) header.dataset.hidden = "true";
+      else if (y < lastY - 4) header.dataset.hidden = "false";
+      lastY = y;
+    };
+
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    motion.addEventListener("change", schedule);
+    header.addEventListener("focusin", reveal);
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      motion.removeEventListener("change", schedule);
+      header.removeEventListener("focusin", reveal);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [reveal]);
 
   const closeSearch = useCallback(() => {
     setSearchOpen(false);
@@ -97,14 +166,11 @@ export function HeaderBar({
    * The menu is a modal sheet, so it must take focus when it opens, keep Tab
    * inside it and hand focus back to the button that opened it. Base UI's
    * dialog parts do not move focus in this build, so the small amount of
-   * behaviour a keyboard user needs is implemented here — measured with a real
-   * Tab/Escape walk-through rather than assumed.
+   * behaviour a keyboard user needs is implemented here.
    */
   useEffect(() => {
     if (!menuOpen) return;
     const trigger = menuTriggerRef.current;
-    // The panel is portalled and committed after this effect, so it is looked
-    // up from the document each time instead of being captured once.
     const getPanel = () =>
       document.querySelector<HTMLElement>('[data-slot="sheet-content"]');
 
@@ -147,7 +213,6 @@ export function HeaderBar({
       const last = items[items.length - 1];
       const active = document.activeElement;
       if (!inside()) {
-        // Tab from outside the panel enters it instead of walking the page.
         event.preventDefault();
         (event.shiftKey ? last : first).focus();
       } else if (event.shiftKey && active === first) {
@@ -169,51 +234,63 @@ export function HeaderBar({
 
   return (
     <header
+      ref={headerRef}
+      data-locked={locked ? "true" : "false"}
+      data-scrolled="false"
+      data-hidden="false"
       className={cn(
         "sticky top-0 z-40 w-full",
-        "h-14 md:h-16",
+        "h-14 lg:h-16",
+        "border-b border-transparent",
         "bg-[var(--color-surface)]",
         "supports-[backdrop-filter]:bg-[var(--color-surface)]/80 supports-[backdrop-filter]:backdrop-blur-md",
-        "border-b transition-colors duration-[var(--duration-fast)]",
-        scrolled ? "border-[var(--color-border)]" : "border-transparent",
+        // Tailwind v4 hides with the `translate` property, so that is the
+        // property the slide transition must name.
+        "transition-[translate,background-color,border-color] duration-[var(--duration-base)] ease-[var(--ease-apple)]",
+        "data-[scrolled=true]:border-[var(--color-border)]",
+        "data-[hidden=true]:-translate-y-full",
+        "motion-reduce:transition-none motion-reduce:data-[hidden=true]:translate-y-0",
       )}
     >
-      <div className="relative mx-auto flex h-full w-full max-w-[1280px] items-center justify-between gap-3 px-4">
+      <div className="relative mx-auto flex h-full w-full max-w-[1280px] items-center gap-3 px-4">
         {!reduced && (
           <Button
             ref={menuTriggerRef}
             variant="ghost"
             size="icon"
-            onClick={() => setMenuOpen(true)}
+            onClick={() => {
+              reveal();
+              setMenuOpen(true);
+            }}
             aria-label={labels.menu}
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
-            className="md:hidden"
+            className="lg:hidden"
           >
             <Menu aria-hidden="true" />
           </Button>
         )}
 
-        {/* ─── Logo ─── */}
+        {/* ─── Brand mark (CSS background: text-only header, no <img>) ─── */}
         <Link
           href="/"
           aria-label={storeName}
-          className="flex shrink-0 items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 max-md:absolute max-md:start-1/2 max-md:-translate-x-1/2"
+          // Physical `left` on purpose: centring is symmetric, while
+          // `start-1/2` in RTL anchors the right edge and shifts the mark one
+          // logo-width off centre.
+          className="flex shrink-0 items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2"
         >
-          <Image
-            src={logoSrc}
-            alt={storeName}
-            width={149}
-            height={146}
-            priority
-            className="h-7 w-auto md:h-8"
+          <span
+            aria-hidden="true"
+            className="block h-7 w-7 bg-contain bg-center bg-no-repeat lg:h-8 lg:w-8"
+            style={{ backgroundImage: "url(/logos/logo.svg)" }}
           />
         </Link>
 
         {reduced ? (
           <Link
             href="/checkout"
-            className="text-caption font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            className="ms-auto text-caption font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
           >
             {labels.backToCart}
           </Link>
@@ -222,33 +299,49 @@ export function HeaderBar({
             {/* ─── Desktop nav ─── */}
             <nav
               aria-label={labels.nav}
-              className="hidden flex-1 items-center gap-1 md:flex"
+              className="hidden flex-1 items-center justify-center gap-0.5 lg:flex"
             >
-              {nav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  // inline-flex: an inline anchor's vertical padding does not count
-                  // towards its box, so the hit area stayed 17px tall.
-                  className="inline-flex items-center rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {nav.map((item) => {
+                const active = isActiveRoute(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "relative inline-flex h-10 items-center rounded-control px-3 text-caption font-medium transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+                      active
+                        ? "text-[var(--color-brand)]"
+                        : "text-[var(--color-text)] hover:text-[var(--color-brand)]",
+                    )}
+                  >
+                    {item.label}
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-3 bottom-1 h-0.5 rounded-pill bg-[var(--color-brand)]"
+                      />
+                    )}
+                  </Link>
+                );
+              })}
 
               {houses.length > 0 && (
                 <button
                   type="button"
                   aria-haspopup="dialog"
                   aria-expanded={housesAnchor !== null}
-                  onClick={(event) =>
+                  onClick={(event) => {
+                    reveal();
                     setHousesAnchor((current) =>
                       current ? null : event.currentTarget,
-                    )
-                  }
-                  className="inline-flex items-center rounded-control px-3 py-2 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                    );
+                  }}
+                  className="inline-flex h-10 items-center gap-1 rounded-control px-3 text-caption font-medium text-[var(--color-text)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
                   {labels.houses}
+                  <ChevronDown aria-hidden="true" className="size-4" />
                 </button>
               )}
 
@@ -290,29 +383,38 @@ export function HeaderBar({
             </nav>
 
             {/* ─── Actions ─── */}
-            <div className="flex shrink-0 items-center gap-1 max-md:ms-auto">
+            <div className="ms-auto flex shrink-0 items-center gap-1 lg:ms-0">
+              <HeaderSearch
+                className="hidden lg:block"
+                labels={{
+                  placeholder: labels.searchPlaceholder,
+                  submit: labels.searchSubmit,
+                  suggestions: labels.searchSuggestions,
+                  viewAll: labels.searchViewAll,
+                  resultsCount: labels.searchResultsCount,
+                  noResults: labels.searchNoResults,
+                }}
+              />
+
               <Button
                 ref={searchTriggerRef}
                 variant="ghost"
                 size="icon"
-                onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
+                onClick={() => {
+                  reveal();
+                  if (searchOpen) closeSearch();
+                  else setSearchOpen(true);
+                }}
                 aria-label={labels.search}
                 aria-expanded={searchOpen}
+                aria-controls="mobile-search-panel"
+                className="lg:hidden"
               >
-                <Search aria-hidden="true" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={openAdvisor}
-                aria-label={labels.advisor}
-                className="hidden md:inline-flex lg:w-auto lg:gap-2 lg:px-3"
-              >
-                <Sparkles aria-hidden="true" />
-                <span className="hidden text-caption font-medium lg:inline">
-                  {labels.advisor}
-                </span>
+                {searchOpen ? (
+                  <X aria-hidden="true" />
+                ) : (
+                  <Search aria-hidden="true" />
+                )}
               </Button>
 
               <Button
@@ -326,58 +428,36 @@ export function HeaderBar({
                 {cart.totalItems > 0 && (
                   <span
                     aria-hidden="true"
-                    className="absolute -top-0.5 -start-0.5 flex h-4 min-w-4 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1 text-caption font-bold text-white"
+                    className="absolute -top-0.5 -start-0.5 flex h-4 min-w-4 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1 text-caption font-bold tabular-nums text-white"
                   >
-                    {cart.totalItems > 99
-                      ? "٩٩+"
-                      : formatNumber(cart.totalItems)}
+                    {cart.totalItems > 99 ? "٩٩+" : formatNumber(cart.totalItems)}
                   </span>
                 )}
               </Button>
-
             </div>
           </>
         )}
       </div>
 
-      {/* ─── Inline search (desktop) ─── */}
+      {/* ─── Search panel (phones) ─── */}
       {searchOpen && !reduced && (
-        <div className="absolute inset-x-0 top-full border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-soft">
-          <form
-            action="/shop"
-            method="get"
-            role="search"
-            onKeyDown={(event) => {
-              if (event.key === "Escape") closeSearch();
+        <div
+          id="mobile-search-panel"
+          className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 lg:hidden"
+        >
+          <HeaderSearch
+            variant="panel"
+            autoFocus
+            onClose={closeSearch}
+            labels={{
+              placeholder: labels.searchPlaceholder,
+              submit: labels.searchSubmit,
+              suggestions: labels.searchSuggestions,
+              viewAll: labels.searchViewAll,
+              resultsCount: labels.searchResultsCount,
+              noResults: labels.searchNoResults,
             }}
-            className="mx-auto flex w-full max-w-[720px] items-center gap-2"
-          >
-            <label htmlFor="site-search" className="sr-only">
-              {labels.search}
-            </label>
-            <input
-              ref={searchInputRef}
-              id="site-search"
-              type="search"
-              name="q"
-              autoFocus
-              autoComplete="off"
-              placeholder={labels.searchPlaceholder}
-              className="h-11 w-full rounded-pill border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-            />
-            <Button type="submit" variant="primary" size="md">
-              {labels.searchSubmit}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={closeSearch}
-              aria-label={labels.closeMenu}
-            >
-              <X aria-hidden="true" />
-            </Button>
-          </form>
+          />
         </div>
       )}
 
@@ -388,6 +468,29 @@ export function HeaderBar({
             <SheetHeader className="border-b border-[var(--color-border)]">
               <SheetTitle className="text-body font-bold">{labels.nav}</SheetTitle>
             </SheetHeader>
+
+            <form action="/shop" method="get" role="search" className="border-b border-[var(--color-border)] p-4">
+              <label htmlFor="mobile-menu-search" className="sr-only">
+                {labels.search}
+              </label>
+              <div className="flex items-center gap-2 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface-muted)]">
+                <Search
+                  aria-hidden="true"
+                  className="ms-3 size-4 shrink-0 text-[var(--color-text-muted)]"
+                />
+                <input
+                  id="mobile-menu-search"
+                  type="search"
+                  name="q"
+                  autoComplete="off"
+                  placeholder={labels.searchPlaceholder}
+                  className="h-11 w-full min-w-0 bg-transparent px-1 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none"
+                />
+                <Button type="submit" variant="tertiary" className="me-2 shrink-0 font-bold">
+                  {labels.searchSubmit}
+                </Button>
+              </div>
+            </form>
 
             <nav aria-label={labels.nav} className="flex flex-col px-4 py-2">
               {[...nav, ...houses].map((item) => (
@@ -403,40 +506,27 @@ export function HeaderBar({
             </nav>
 
             <div className="mt-auto flex flex-col gap-3 border-t border-[var(--color-border)] p-4">
-              <form action="/shop" method="get" role="search" className="flex gap-2">
-                <label htmlFor="mobile-search" className="sr-only">
-                  {labels.search}
-                </label>
-                <input
-                  id="mobile-search"
-                  type="search"
-                  name="q"
-                  autoComplete="off"
-                  placeholder={labels.searchPlaceholder}
-                  className="h-11 w-full rounded-pill border border-[var(--color-border)] bg-[var(--color-surface-muted)] px-4 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-                />
-                <Button type="submit" variant="secondary" size="icon" aria-label={labels.searchSubmit}>
-                  <Search aria-hidden="true" />
-                </Button>
-              </form>
-
-              <Button variant="primary" className="w-full font-bold" onClick={() => { setMenuOpen(false); openAdvisor(); }}>
-                <Sparkles aria-hidden="true" />
-                {labels.advisor}
-              </Button>
-
               {whatsappHref && (
                 <Button
                   variant="secondary"
                   className="w-full font-bold"
                   render={
-                    <a href={whatsappHref} target="_blank" rel="noopener noreferrer" />
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
                   }
                   nativeButton={false}
                 >
                   <MessageCircle aria-hidden="true" />
                   {labels.whatsapp}
                 </Button>
+              )}
+              {menuNote && (
+                <p className="text-caption leading-relaxed text-[var(--color-text-muted)]">
+                  {menuNote}
+                </p>
               )}
             </div>
           </SheetContent>
