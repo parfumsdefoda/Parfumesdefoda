@@ -6,7 +6,7 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 1. `data/settings.json` — store config (currency, grid: 4/3/2, flat shipping: 100 EGP, no free-shipping threshold)
 2. `data/theme.json` — brand colours, injected server-side (see `docs/Design-System.md`)
-3. `data/products.json` — product catalog (array of 40 products, sizes: `10 مل`, `30 مل`, `50 مل`, `100 مل`)
+3. `data/products.json` — product catalog (an array; sizes are per product — the four standard ones plus the oil sizes `12 مل`, `6 مل`, `3 مل`)
 4. `locales/ar.json` — all user-facing Arabic text (with fallback defaults in components)
 5. `data/contact.json` — WhatsApp number + email for orders
 6. `content/faq.json`, `content/policies.json` — page content
@@ -15,7 +15,7 @@ Arabic perfume e-commerce. Next.js 16 (Turbopack), App Router, Tailwind CSS v4, 
 
 ```
 npm run validate-json   # validates all 18 JSON files (scripts/validate-json.js — CommonJS)
-npm run validate-products  # Zod schema check on data/products.json (src/schemas/product-schema.ts)
+npm run validate-json   # includes the Zod product schema (src/schemas/product-schema.ts)
 npm run typecheck       # tsc --noEmit (strict)
 npm run lint            # ESLint (scripts/ is ignored — uses require())
 npm run test            # vitest run (200 tests across src/lib/*.test.ts + services + API routes)

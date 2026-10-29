@@ -12,7 +12,7 @@
 | `src/types/` | Global TypeScript types |
 | `src/schemas/` | Zod validation schemas |
 | `src/providers/` | React Context providers |
-| `src/store/` | Future Zustand stores |
+| `src/providers/` | React providers (cart, theme) mounted in `app/providers.tsx` |
 | `src/config/` | Site configuration constants |
 | `public/` | Static assets (logos, products, patterns, icons, etc.) |
 | `tests/` | Unit, integration, and E2E tests |
