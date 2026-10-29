@@ -1,5 +1,14 @@
 # Products whose photo cannot be normalised automatically.
 # Give each one a transparent PNG/WebP cut-out at the same file path,
 # then run: npm run build:images -- --slug=<slug> --force
+pf290	/products/PF290.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf290 --force
+pf480	/products/PF480.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf480 --force
+pf600	/products/PF600.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf600 --force
+pf630	/products/PF630.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf630 --force
+pf091	/products/PF091.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf091 --force
 pf570	/products/PF570.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf570 --force
 pf680	/products/PF680.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf680 --force
+pf571	/products/PF571.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf571 --force
+pf572	/products/PF572.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf572 --force
+pf700	/products/PF700.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf700 --force
+pf720	/products/PF720.png	coloured background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=pf720 --force

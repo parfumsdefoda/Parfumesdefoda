@@ -1,36 +1,42 @@
 {
-  "generatedAt": "2026-10-29T16:18:36.032Z",
+  "generatedAt": "2026-10-29T22:12:16.503Z",
   "totals": {
-    "products": 68,
-    "referencedImages": 68,
-    "onDiskImages": 68,
-    "totalBytes": 23994121,
-    "totalMb": 22.88,
+    "products": 73,
+    "referencedImages": 73,
+    "onDiskImages": 72,
+    "totalBytes": 36660704,
+    "totalMb": 34.96,
     "byClass": {
-      "transparent": 65,
-      "pure-white": 1,
+      "transparent": 59,
+      "pure-white": 2,
       "off-white": 0,
-      "coloured": 2
+      "coloured": 11
     },
-    "squareCount": 42,
-    "nonSquareCount": 26,
-    "withRealTransparency": 65,
-    "needsRetouch": 2,
+    "squareCount": 37,
+    "nonSquareCount": 35,
+    "withRealTransparency": 59,
+    "needsRetouch": 11,
     "unreferencedByClass": {
-      "transparent": 3,
+      "transparent": 2,
       "pure-white": 0,
       "off-white": 0,
       "coloured": 0
     }
   },
   "problems": {
-    "missingFiles": [],
+    "missingFiles": [
+      {
+        "src": "/products/PF670.png",
+        "products": [
+          "pf670"
+        ]
+      }
+    ],
     "noImage": [],
     "photoPending": [],
     "multiImage": [],
     "unreferenced": [
       "/products/PF690.png",
-      "/products/PF700.png",
       "/products/PF710.png"
     ],
     "unreferencedDetails": [
@@ -38,12 +44,6 @@
         "path": "/products/PF690.png",
         "background": "transparent",
         "bytes": 254433,
-        "square": true
-      },
-      {
-        "path": "/products/PF700.png",
-        "background": "transparent",
-        "bytes": 729711,
         "square": true
       },
       {
@@ -56,24 +56,10 @@
   },
   "duplicates": [
     {
-      "hash": "2fb108cf8911912e79ebd291c3db71167dcf33a1f9089141a8033eb782c2a3b6",
-      "paths": [
-        "/products/PF090.png",
-        "/products/PF091.png"
-      ]
-    },
-    {
       "hash": "7c464950ef2bb035dbdf623291c7a69909c72910afaaa7c0061d9a2bd3c2c317",
       "paths": [
         "/products/PF620.png",
         "/products/PF690.png"
-      ]
-    },
-    {
-      "hash": "1471215339da246f47b4b2dff2348a431cd3f98bbdc953859189c1d000c2aa0c",
-      "paths": [
-        "/products/PF630.png",
-        "/products/PF700.png"
       ]
     },
     {
@@ -86,8 +72,36 @@
   ],
   "heaviest": [
     {
-      "path": "/products/PF570.png",
-      "bytes": 2372641
+      "path": "/products/PF571.png",
+      "bytes": 2345104
+    },
+    {
+      "path": "/products/PF630.png",
+      "bytes": 2219612
+    },
+    {
+      "path": "/products/PF660.png",
+      "bytes": 2181442
+    },
+    {
+      "path": "/products/PF091.png",
+      "bytes": 1991947
+    },
+    {
+      "path": "/products/PF720.png",
+      "bytes": 1937061
+    },
+    {
+      "path": "/products/PF600.png",
+      "bytes": 1784606
+    },
+    {
+      "path": "/products/PF700.png",
+      "bytes": 1776670
+    },
+    {
+      "path": "/products/PF290.png",
+      "bytes": 1670804
     },
     {
       "path": "/products/PF370.png",
@@ -96,34 +110,6 @@
     {
       "path": "/products/PF550.png",
       "bytes": 832525
-    },
-    {
-      "path": "/products/PF630.png",
-      "bytes": 729711
-    },
-    {
-      "path": "/products/PF380.png",
-      "bytes": 727951
-    },
-    {
-      "path": "/products/PF680.png",
-      "bytes": 701146
-    },
-    {
-      "path": "/products/PF290.png",
-      "bytes": 687692
-    },
-    {
-      "path": "/products/PF320.png",
-      "bytes": 643378
-    },
-    {
-      "path": "/products/PF150.png",
-      "bytes": 627502
-    },
-    {
-      "path": "/products/PF530.png",
-      "bytes": 566129
     }
   ],
   "images": [
@@ -325,22 +311,22 @@
         "pf091"
       ],
       "format": "png",
-      "width": 2000,
-      "height": 2000,
-      "bytes": 546846,
-      "hasAlpha": true,
-      "transparentPixels": 2763089,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": true,
+      "width": 2048,
+      "height": 1152,
+      "bytes": 1991947,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#B6BABF",
+      "square": false,
       "subject": {
-        "x": 565,
-        "y": 158,
-        "width": 854,
-        "height": 1687,
-        "widthPct": 42.7,
-        "heightPct": 84.4,
-        "areaPct": 36
+        "x": 0,
+        "y": 0,
+        "width": 2048,
+        "height": 1152,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     },
     {
@@ -829,22 +815,22 @@
         "pf290"
       ],
       "format": "png",
-      "width": 2000,
-      "height": 2000,
-      "bytes": 687692,
-      "hasAlpha": true,
-      "transparentPixels": 2594172,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": true,
+      "width": 1200,
+      "height": 1600,
+      "bytes": 1670804,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#211802",
+      "square": false,
       "subject": {
-        "x": 501,
-        "y": 158,
-        "width": 982,
-        "height": 1688,
-        "widthPct": 49.1,
-        "heightPct": 84.4,
-        "areaPct": 41.4
+        "x": 0,
+        "y": 0,
+        "width": 1200,
+        "height": 1600,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     },
     {
@@ -1285,22 +1271,22 @@
         "pf480"
       ],
       "format": "png",
-      "width": 2000,
-      "height": 2000,
-      "bytes": 399935,
-      "hasAlpha": true,
-      "transparentPixels": 2752972,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": true,
+      "width": 1599,
+      "height": 1066,
+      "bytes": 617070,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#2C0F11",
+      "square": false,
       "subject": {
-        "x": 502,
-        "y": 114,
-        "width": 999,
-        "height": 1776,
-        "widthPct": 50,
-        "heightPct": 88.8,
-        "areaPct": 44.4
+        "x": 0,
+        "y": 0,
+        "width": 1599,
+        "height": 1066,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     },
     {
@@ -1501,19 +1487,67 @@
         "pf570"
       ],
       "format": "png",
-      "width": 1920,
-      "height": 1280,
-      "bytes": 2372641,
+      "width": 725,
+      "height": 1145,
+      "bytes": 706862,
       "hasAlpha": false,
       "transparentPixels": 0,
       "background": "coloured",
-      "sampleColour": "#24301D",
+      "sampleColour": "#404F34",
       "square": false,
       "subject": {
         "x": 0,
         "y": 0,
-        "width": 1920,
-        "height": 1280,
+        "width": 725,
+        "height": 1145,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
+      }
+    },
+    {
+      "path": "/products/PF571.png",
+      "products": [
+        "pf571"
+      ],
+      "format": "png",
+      "width": 1280,
+      "height": 1936,
+      "bytes": 2345104,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#0F1010",
+      "square": false,
+      "subject": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 1936,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
+      }
+    },
+    {
+      "path": "/products/PF572.png",
+      "products": [
+        "pf572"
+      ],
+      "format": "png",
+      "width": 774,
+      "height": 1139,
+      "bytes": 764164,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#B9CBC6",
+      "square": false,
+      "subject": {
+        "x": 0,
+        "y": 0,
+        "width": 774,
+        "height": 1139,
         "widthPct": 100,
         "heightPct": 100,
         "areaPct": 100
@@ -1549,22 +1583,22 @@
         "pf600"
       ],
       "format": "png",
-      "width": 2000,
-      "height": 2000,
-      "bytes": 403937,
-      "hasAlpha": true,
-      "transparentPixels": 2880135,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": true,
+      "width": 1920,
+      "height": 1280,
+      "bytes": 1784606,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#7F5F3A",
+      "square": false,
       "subject": {
-        "x": 522,
-        "y": 176,
-        "width": 950,
-        "height": 1679,
-        "widthPct": 47.5,
-        "heightPct": 84,
-        "areaPct": 39.9
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1280,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     },
     {
@@ -1621,22 +1655,22 @@
         "pf630"
       ],
       "format": "png",
-      "width": 2000,
-      "height": 2000,
-      "bytes": 729711,
-      "hasAlpha": true,
-      "transparentPixels": 2400822,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": true,
+      "width": 1920,
+      "height": 1280,
+      "bytes": 2219612,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#405944",
+      "square": false,
       "subject": {
-        "x": 445,
-        "y": 72,
-        "width": 1110,
-        "height": 1881,
-        "widthPct": 55.5,
-        "heightPct": 94.1,
-        "areaPct": 52.2
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1280,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     },
     {
@@ -1693,22 +1727,22 @@
         "pf660"
       ],
       "format": "png",
-      "width": 375,
-      "height": 500,
-      "bytes": 126377,
-      "hasAlpha": true,
-      "transparentPixels": 93410,
-      "background": "transparent",
-      "sampleColour": null,
+      "width": 1296,
+      "height": 1616,
+      "bytes": 2181442,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "pure-white",
+      "sampleColour": "#FFFFFF",
       "square": false,
       "subject": {
-        "x": 73,
-        "y": 16,
-        "width": 229,
-        "height": 469,
-        "widthPct": 61.1,
-        "heightPct": 93.8,
-        "areaPct": 57.3
+        "x": 0,
+        "y": 104,
+        "width": 1296,
+        "height": 1509,
+        "widthPct": 100,
+        "heightPct": 93.4,
+        "areaPct": 93.4
       }
     },
     {
@@ -1716,24 +1750,7 @@
       "products": [
         "pf670"
       ],
-      "format": "png",
-      "width": 375,
-      "height": 500,
-      "bytes": 111425,
-      "hasAlpha": true,
-      "transparentPixels": 86322,
-      "background": "transparent",
-      "sampleColour": null,
-      "square": false,
-      "subject": {
-        "x": 59,
-        "y": 15,
-        "width": 258,
-        "height": 469,
-        "widthPct": 68.8,
-        "heightPct": 93.8,
-        "areaPct": 64.5
-      }
+      "error": "missing-file"
     },
     {
       "path": "/products/PF680.png",
@@ -1757,6 +1774,78 @@
         "widthPct": 100,
         "heightPct": 100,
         "areaPct": 100
+      }
+    },
+    {
+      "path": "/products/PF700.png",
+      "products": [
+        "pf700"
+      ],
+      "format": "png",
+      "width": 1080,
+      "height": 1350,
+      "bytes": 1776670,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#CBAAAB",
+      "square": false,
+      "subject": {
+        "x": 0,
+        "y": 0,
+        "width": 1080,
+        "height": 1350,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
+      }
+    },
+    {
+      "path": "/products/PF720.png",
+      "products": [
+        "pf720"
+      ],
+      "format": "png",
+      "width": 1920,
+      "height": 1280,
+      "bytes": 1937061,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#7290A3",
+      "square": false,
+      "subject": {
+        "x": 0,
+        "y": 0,
+        "width": 1920,
+        "height": 1280,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
+      }
+    },
+    {
+      "path": "/products/PF740.png",
+      "products": [
+        "pf740"
+      ],
+      "format": "png",
+      "width": 375,
+      "height": 500,
+      "bytes": 49805,
+      "hasAlpha": true,
+      "transparentPixels": 108086,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": false,
+      "subject": {
+        "x": 87,
+        "y": 16,
+        "width": 200,
+        "height": 468,
+        "widthPct": 53.3,
+        "heightPct": 93.6,
+        "areaPct": 49.9
       }
     }
   ]
