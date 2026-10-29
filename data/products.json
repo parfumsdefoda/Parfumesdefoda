@@ -2398,6 +2398,10 @@
       "base": []
     },
     "hidden": true,
+    "similarTo": [
+      "pf740",
+      "pf560"
+    ],
     "seo": {
       "title": "الثائر | Parfums De Foda",
       "description": ""
@@ -2492,25 +2496,25 @@
     "sizes": [
       {
         "label": "100 مل",
-        "price": 700,
+        "price": 950,
         "inStock": true,
         "ml": 100
       },
       {
         "label": "50 مل",
-        "price": 500,
+        "price": 700,
         "inStock": true,
         "ml": 50
       },
       {
         "label": "30 مل",
-        "price": 350,
+        "price": 500,
         "inStock": true,
         "ml": 30
       },
       {
         "label": "10 مل",
-        "price": 120,
+        "price": 220,
         "inStock": true,
         "ml": 10
       }
@@ -2521,6 +2525,9 @@
       "middle": [],
       "base": []
     },
+    "similarTo": [
+      "pf090"
+    ],
     "seo": {
       "title": "أمواج انترلود (فاخر) | Parfums De Foda",
       "description": ""
@@ -3831,7 +3838,7 @@
     "id": "PF660",
     "sku": "PF660",
     "slug": "pf660",
-    "name": "عود عمان",
+    "name": "عود عمانى",
     "brand": "Parfums De Foda",
     "description": "",
     "image": "/products/PF660.png",
@@ -3944,6 +3951,7 @@
       "middle": [],
       "base": []
     },
+    "hidden": true,
     "seo": {
       "title": "عنبر عود | Parfums De Foda",
       "description": ""
@@ -4001,6 +4009,309 @@
     },
     "seo": {
       "title": "عود الصفا والمروه | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF571",
+    "sku": "PF571",
+    "slug": "pf571",
+    "name": "فودة 7",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF571.png",
+    "gallery": [
+      "/products/PF571.png"
+    ],
+    "gender": "رجالي",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": true,
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 69,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 1250,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 900,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 550,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 250,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "hidden": true,
+    "seo": {
+      "title": "فودة 7 | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF572",
+    "sku": "PF572",
+    "slug": "pf572",
+    "name": "فودة 3",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF572.png",
+    "gallery": [
+      "/products/PF572.png"
+    ],
+    "gender": "رجالي",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": true,
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 70,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 1250,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 900,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 550,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 250,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "hidden": true,
+    "seo": {
+      "title": "فودة 3 | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF700",
+    "sku": "PF700",
+    "slug": "pf700",
+    "name": "لاف اذ هيفنلى",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF700.png",
+    "gallery": [
+      "/products/PF700.png"
+    ],
+    "gender": "نسائي",
+    "type": "غربي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 71,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 700,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 500,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 350,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 120,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "لاف اذ هيفنلى | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF720",
+    "sku": "PF720",
+    "slug": "pf720",
+    "name": "سكلبتشر",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF720.png",
+    "gallery": [
+      "/products/PF720.png"
+    ],
+    "gender": "رجالي",
+    "type": "غربي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 72,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 700,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 500,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 350,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 180,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "سكلبتشر | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF740",
+    "sku": "PF740",
+    "slug": "pf740",
+    "name": "ناين بى ام",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF740.png",
+    "gallery": [
+      "/products/PF740.png"
+    ],
+    "gender": "للجنسين",
+    "type": "غربي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء متوسط",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 73,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 700,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 500,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 350,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 120,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "hidden": true,
+    "seo": {
+      "title": "ناين بى ام | Parfums De Foda",
       "description": ""
     }
   }
