@@ -72,7 +72,11 @@ test.describe("production storefront and checkout", () => {
     await trigger.click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole("button", { name: /اختر عطرك/ })).toBeVisible();
+    // The advisor entry point moved from this menu to the floating launcher, so
+    // this asserts what the menu now promises: the WhatsApp order channel and
+    // text-only navigation (the launcher itself is covered separately).
+    await expect(dialog.getByRole("link", { name: /واتساب/ })).toHaveAttribute("href", /wa\.me/);
+    await expect(dialog.locator("img")).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(trigger).toBeFocused();
@@ -252,6 +256,12 @@ test.describe("production storefront and checkout", () => {
       await expect(page.locator("link[rel='canonical']")).toHaveCount(1);
       const blocks = await page.locator("script[type='application/ld+json']").allTextContents();
       for (const block of blocks) expect(() => JSON.parse(block)).not.toThrow();
+    }
+    // Private routes must never be indexed (BUG-005: /checkout inherited the
+    // root metadata and was open to search engines).
+    for (const path of ["/cart", "/checkout", "/checkout/success"]) {
+      await page.goto(path);
+      await expect(page.locator("meta[name='robots']")).toHaveAttribute("content", /noindex/);
     }
     await page.goto("/route-that-does-not-exist");
     await expect(page).toHaveTitle(/404|غير موجودة|Parfums De Foda/);
