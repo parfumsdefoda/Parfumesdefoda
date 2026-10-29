@@ -1,6 +1,21 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type { Product, ProductSize } from "@/types";
 import { selectHeroProducts } from "./hero-products";
+
+// The image manifest is DATA: it is rebuilt whenever the owner replaces a
+// photo, so a hero test must not assume today's file happens to be a cut-out.
+// These fixtures pin the manifest shape instead.
+vi.mock("./product-image", () => {
+  const cutouts = new Set(["pf080", "pf150", "pf240", "pf290"]);
+  return {
+    getProductImageEntry: (slug?: string | null) => {
+      const key = String(slug ?? "").toLowerCase();
+      return cutouts.has(key)
+        ? { blend: "normal", background: "transparent" }
+        : { blend: "multiply", background: "coloured" };
+    },
+  };
+});
 
 const size = (label: string, price: number, inStock = true): ProductSize => ({
   label,
@@ -38,7 +53,7 @@ function product(overrides: Partial<Product> & { slug: string }): Product {
   } as Product;
 }
 
-// Real manifest slugs: pf080 is a transparent cut-out, pf070's photo is not.
+// Fixture slugs: these four are cut-outs in the mocked manifest, pf590 is not.
 const CUTOUT_A = "pf080";
 const CUTOUT_B = "pf150";
 const CUTOUT_C = "pf240";
