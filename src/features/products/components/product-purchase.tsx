@@ -107,6 +107,22 @@ export function ProductPurchase({
 
   const showBar = ctaPast && !footerReachedBar;
 
+  // The floating advisor reads this offset (CSS custom property) so it sits
+  // above the phone purchase bar instead of covering its CTA.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!showBar) {
+      root.style.removeProperty("--advisor-launcher-offset");
+      return;
+    }
+    const height =
+      stickyBarRef.current?.getBoundingClientRect().height ?? 64;
+    root.style.setProperty("--advisor-launcher-offset", `${height + 8}px`);
+    return () => {
+      root.style.removeProperty("--advisor-launcher-offset");
+    };
+  }, [showBar]);
+
   const add = useCallback(() => {
     if (!chosen || !chosen.inStock) return;
     cart.addItem({

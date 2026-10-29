@@ -11,7 +11,7 @@ import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/providers/CartProvider";
 import { useChat } from "../hooks/use-chat";
-import { subscribeAdvisor } from "../advisor-bus";
+import { consumeAdvisorOpen, subscribeAdvisor } from "../advisor-bus";
 import { ChatWindow } from "./chat-window";
 
 export interface AdvisorLabels {
@@ -55,7 +55,8 @@ function serverSnapshot(): boolean {
  * opened it when it closes, and Tab stays inside the panel.
  */
 export function ChatWidget({ labels }: ChatWidgetProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  // A click made while this chunk was still downloading is not lost.
+  const [isOpen, setIsOpen] = useState(() => consumeAdvisorOpen());
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
   const { isDrawerOpen } = useCart();
   const pathname = usePathname();

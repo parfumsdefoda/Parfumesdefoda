@@ -318,6 +318,41 @@ body {
   animation: toast-rise var(--duration-base) var(--ease-apple) both;
 }
 
+/* ─── Floating advisor launcher ───
+   Two soft rings when the button first paints, never a loop. The button is
+   hidden by CSS (not by React) while the cart drawer or any Sheet/Dialog is
+   open, and while the footer is on screen. */
+@keyframes advisor-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 32%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--color-brand) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 0%, transparent);
+  }
+}
+
+[data-advisor-launcher] {
+  transition:
+    opacity var(--duration-fast) var(--ease-apple),
+    visibility 0s linear var(--duration-fast);
+}
+
+[data-advisor-launcher] > button {
+  animation: advisor-ring 1.3s var(--ease-apple) 2;
+}
+
+html[data-cart-open="true"] [data-advisor-launcher],
+body:has([data-slot="sheet-content"][data-open]) [data-advisor-launcher],
+body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
+[data-advisor-launcher][data-footer-visible="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Global reduced-motion contract: no decorative motion, ever. */
 @media (prefers-reduced-motion: reduce) {
   html {

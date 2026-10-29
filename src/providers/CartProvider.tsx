@@ -158,6 +158,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openDrawer = useCallback(() => setDrawerOpenState(true), []);
   const closeDrawer = useCallback(() => setDrawerOpenState(false), []);
 
+  // The floating advisor steps aside while the drawer is open. This is a DOM
+  // attribute + CSS fade on purpose: a floating button must not re-render (or
+  // re-mount) because the cart opened.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.cartOpen = drawerOpen ? "true" : "false";
+    return () => {
+      delete root.dataset.cartOpen;
+    };
+  }, [drawerOpen]);
+
   return (
     <CartContext.Provider
       value={{

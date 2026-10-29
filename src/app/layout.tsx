@@ -386,6 +386,23 @@ export default async function RootLayout({
               title: t(localeMessages, "advisor.title", "مساعد العطور"),
               close: t(localeMessages, "advisor.close", "إغلاق"),
             }}
+            launcher={{
+              open: t(
+                localeMessages,
+                "advisor.launcher",
+                "اختر عطرك بمساعدة المساعد الذكي",
+              ),
+              greeting: t(
+                localeMessages,
+                "advisor.greeting",
+                "محتار في الاختيار؟ اسألني وأرشّح لك عطراً يناسب ذوقك.",
+              ),
+              dismiss: t(
+                localeMessages,
+                "advisor.dismissGreeting",
+                "إخفاء الترحيب",
+              ),
+            }}
           />
         </Providers>
       </body>

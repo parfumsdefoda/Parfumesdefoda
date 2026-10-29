@@ -17,9 +17,26 @@ type Listener = () => void;
 
 const listeners = new Set<Listener>();
 
+/**
+ * A request made before the lazily-loaded panel mounted.
+ *
+ * The header, hero, band and floating launcher can ask for the advisor at any
+ * time; the panel chunk may still be in flight. The request is remembered and
+ * consumed by the panel's first render, so the click is never lost.
+ */
+let pendingOpen = false;
+
 /** Ask whoever renders the advisor to open it. */
 export function openAdvisor(): void {
+  pendingOpen = true;
   for (const listener of listeners) listener();
+}
+
+/** Read and clear the pending open request (called by the panel on mount). */
+export function consumeAdvisorOpen(): boolean {
+  const pending = pendingOpen;
+  pendingOpen = false;
+  return pending;
 }
 
 /** Subscribe to open requests. Returns the unsubscribe function. */
