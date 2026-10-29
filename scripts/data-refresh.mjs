@@ -119,15 +119,18 @@ async function main() {
     process.exit(1);
   }
 
+  // A missing photo or field on a NEW row is reported by the importer and
+  // skipped: it must not block the price/availability updates of every other
+  // product until the owner adds the file. Real errors (rejected cells,
+  // duplicate slugs, an unreadable master) still stop above.
   if (plan.refusals.length > 0) {
-    console.error(`❌ منتجات جديدة غير مكتملة / new products cannot be created: ${plan.refusals.length}`);
+    console.warn(`⚠ منتجات جديدة لم تُنشأ / new products not created: ${plan.refusals.length}`);
     for (const refusal of plan.refusals) {
-      console.error(`   ${refusal.slug}: ${refusal.reason}`);
+      console.warn(`   ${refusal.slug}: ${refusal.reason}`);
     }
-    console.error(
-      "\n   كل منتج جديد يحتاج صورة public/products/PFxxx.png وحقوله الأساسية.\n   Every new product needs its photo on disk and its required fields.",
+    console.warn(
+      "   أضف الصورة ثم أعد التشغيل — بقية الملف يُطبّق عاديًا.\n   Add the photo and run again — the rest of the file still applies.",
     );
-    process.exit(1);
   }
 
   if (plan.duplicates.length > 0) {
@@ -188,6 +191,7 @@ async function main() {
 
   console.log("\n═══ الملخص / summary ═══");
   console.log(`  منتجات جديدة / new products        ${plan.creations.length}`);
+  console.log(`  لم تُنشأ / not created             ${plan.refusals.length}`);
   console.log(`  أحجام جديدة / new sizes            ${sizesCreated}`);
   console.log(`  أسعار معدّلة / price changes        ${priceChanges}`);
   console.log(`  مخزون معدّل / availability changes ${availabilityChanges}`);
