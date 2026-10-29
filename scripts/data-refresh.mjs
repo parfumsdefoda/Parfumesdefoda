@@ -34,10 +34,34 @@ const CSV_PATH = path.join(ROOT, "data", "product-master.csv");
 
 const apply = process.argv.includes("--apply");
 
+/**
+ * `--hide-absent` hides every product the master no longer lists;
+ * `--hide-absent=pf670,pf671` restricts that to the named rows.
+ * Without it an absent product is only reported and stays visible.
+ */
+const hideAbsentArg = process.argv.find(
+  (arg) => arg === "--hide-absent" || arg.startsWith("--hide-absent="),
+);
+const hideAbsent =
+  hideAbsentArg === "--hide-absent"
+    ? true
+    : hideAbsentArg
+      ? hideAbsentArg
+          .slice("--hide-absent=".length)
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean)
+      : undefined;
+
 /** Run an npm script. Stops the whole refresh on a non-zero exit. */
 function run(label, args, { capture = false } = {}) {
   console.log(`\n── ${label}  (npm run ${args.join(" ")})`);
-  const result = spawnSync("npm", ["run", ...args], {
+  // `npm run script --flag` is an npm CONFIG flag, not a script argument: npm
+  // warns "Unknown cli config" and the script never sees it. The `--` separator
+  // is what forwards everything to the script (this is how --create-missing
+  // silently stopped reaching the importer).
+  const npmArgs = ["run", args[0], "--", ...args.slice(1)];
+  const result = spawnSync("npm", npmArgs, {
     cwd: ROOT,
     shell: true,
     encoding: "utf8",
@@ -102,6 +126,7 @@ async function main() {
   const plan = planMasterImport(parsed.data, csv, {
     mode: apply ? "sync-commerce" : "dry-run",
     createMissing: true,
+    hideAbsent,
     imageExists: (imagePath) =>
       existsSync(path.join(ROOT, "public", imagePath.replace(/^\//, ""))),
   });
@@ -156,6 +181,7 @@ async function main() {
   // ── 3. Import ──
   console.log("\n── 3/5 الاستيراد / import");
   const importArgs = ["master:import", "--create-missing"];
+  if (hideAbsentArg) importArgs.push(hideAbsentArg);
   if (apply) importArgs.push("--apply", "--sync-commerce");
   run(
     apply ? "استيراد وكتابة / import and write" : "استيراد معاينة / import preview",
@@ -198,6 +224,11 @@ async function main() {
   console.log(`  أعلام تشغّل / flags on              ${plan.flagToggles.length - flagsOff}`);
   console.log(`  أعلام تُطفأ / flags off             ${flagsOff}`);
   console.log(`  صور placeholder → حقيقية / photos   ${plan.imageFixes.length}`);
+  console.log(`  أعمدة غائبة / absent columns        ${plan.header.absent.join(", ") || "none"}`);
+  console.log(`  في الكتالوج وليس الملف / absent rows ${plan.absentFromMaster.join(", ") || "none"}`);
+  console.log(
+    `  ${apply ? "أُخفي" : "سيُخفى"} / hidden via absent  ${plan.hiddenByAbsence.join(", ") || "none"}`,
+  );
   console.log(`  ملاحظات / warnings                  ${plan.warnings.length}`);
   console.log(`  الصور / images                     ${builtSummary}`);
 
