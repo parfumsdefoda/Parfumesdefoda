@@ -41,6 +41,8 @@ export interface ProductDetailLabels {
   trustConfirm: string;
   askAbout: string;
   related: string;
+  /** "بدائل مشابهة" — used when the viewed product has nothing in stock. */
+  alternatives: string;
   comingSoonTitle: string;
   comingSoonBody: string;
   backToShop: string;
@@ -50,6 +52,8 @@ export interface ProductDetailLabels {
 export interface ProductDetailPageProps {
   product: Product;
   related: Product[];
+  /** The product has no buyable size, so the row is a way out, not a match. */
+  relatedIsAlternatives?: boolean;
   labels: ProductDetailLabels;
   cardLabels: ProductCardLabels;
   /** The category label, already resolved by the route's locale. */
@@ -76,6 +80,7 @@ export interface ProductDetailPageProps {
 export function ProductDetailPage({
   product,
   related,
+  relatedIsAlternatives = false,
   labels,
   cardLabels,
   categoryLabel,
@@ -273,7 +278,7 @@ export function ProductDetailPage({
                 {labels.seasonPerformance}
               </AccordionTrigger>
               <AccordionContent className="pb-4 text-caption text-[var(--color-text-muted)]">
-                {product.season} · {product.performance}
+                {[product.season, product.performance].filter(Boolean).join(" · ")}
               </AccordionContent>
             </AccordionItem>
 
@@ -301,7 +306,7 @@ export function ProductDetailPage({
           className="mt-[var(--space-section)]"
         >
           <h2 id="related-heading" className="mb-6 text-title-2 font-bold">
-            {labels.related}
+            {relatedIsAlternatives ? labels.alternatives : labels.related}
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             {related.map((item) => (

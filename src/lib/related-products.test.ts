@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import type { Product, ProductSize } from "@/types";
-import { selectRelatedProducts } from "./related-products";
+import {
+  getSimilarProducts,
+  isPurchasable,
+  selectRelatedProducts,
+} from "./related-products";
 
 const size = (inStock = true): ProductSize => ({
   label: "50 مل",
@@ -38,6 +42,8 @@ function product(overrides: Partial<Product> & { id: string }): Product {
 }
 
 const current = product({ id: "current" });
+const ids = (selection: ReturnType<typeof selectRelatedProducts>) =>
+  selection.products.map((entry) => entry.id);
 
 describe("selectRelatedProducts", () => {
   it("matches on gender and style only", () => {
@@ -47,15 +53,11 @@ describe("selectRelatedProducts", () => {
       product({ id: "other-gender", gender: "نسائي" }),
       product({ id: "other-style", type: "غربي" }),
     ];
-    expect(selectRelatedProducts(current, catalogue).map((p) => p.id)).toEqual([
-      "same",
-    ]);
+    expect(ids(selectRelatedProducts(current, catalogue))).toEqual(["same"]);
   });
 
   it("excludes the product being viewed", () => {
-    expect(
-      selectRelatedProducts(current, [current]).map((p) => p.id),
-    ).not.toContain("current");
+    expect(ids(selectRelatedProducts(current, [current]))).not.toContain("current");
   });
 
   it("sees a base product and its premium variant as two products", () => {
@@ -67,12 +69,8 @@ describe("selectRelatedProducts", () => {
       sortOrder: 2,
     });
 
-    expect(selectRelatedProducts(base, [base, variant]).map((p) => p.id)).toEqual([
-      "pf241",
-    ]);
-    expect(
-      selectRelatedProducts(variant, [base, variant]).map((p) => p.id),
-    ).toEqual(["pf240"]);
+    expect(ids(selectRelatedProducts(base, [base, variant]))).toEqual(["pf241"]);
+    expect(ids(selectRelatedProducts(variant, [base, variant]))).toEqual(["pf240"]);
   });
 
   it("never recommends hidden, sold-out or coming-soon products", () => {
@@ -82,9 +80,7 @@ describe("selectRelatedProducts", () => {
       product({ id: "coming", image: "/products/placeholder-unavailable.webp" }),
       product({ id: "real" }),
     ];
-    expect(selectRelatedProducts(current, catalogue).map((p) => p.id)).toEqual([
-      "real",
-    ]);
+    expect(ids(selectRelatedProducts(current, catalogue))).toEqual(["real"]);
   });
 
   it("orders by tier, then season, then performance closeness before owner order", () => {
@@ -95,7 +91,7 @@ describe("selectRelatedProducts", () => {
       product({ id: "same-all", house: "نيش", season: "شتوي", performance: "أداء قوي", featured: false, sortOrder: 10 }),
       product({ id: "same-all-featured", house: "نيش", season: "شتوي", performance: "أداء قوي", featured: true, sortOrder: 1 }),
     ];
-    expect(selectRelatedProducts(current, catalogue).map((p) => p.id)).toEqual([
+    expect(ids(selectRelatedProducts(current, catalogue))).toEqual([
       "same-all-featured",
       "same-all",
       "tier",
@@ -107,10 +103,79 @@ describe("selectRelatedProducts", () => {
     const catalogue = Array.from({ length: 7 }, (_, index) =>
       product({ id: `p${index}` }),
     );
-    expect(selectRelatedProducts(current, catalogue)).toHaveLength(4);
+    expect(selectRelatedProducts(current, catalogue).products).toHaveLength(4);
   });
 
   it("returns an empty list when nothing is similar", () => {
-    expect(selectRelatedProducts(current, [])).toEqual([]);
+    expect(selectRelatedProducts(current, [])).toEqual({
+      products: [],
+      variant: "related",
+    });
+  });
+});
+
+describe("explicit similar links", () => {
+  it("puts the master's links first, in the owner's order", () => {
+    const explicitA = product({ id: "explicit-a", gender: "نسائي" });
+    const explicitB = product({ id: "explicit-b", type: "غربي" });
+    const linked = product({
+      id: "linked",
+      similarTo: ["explicit-b", "explicit-a"],
+    });
+    const fallback = product({ id: "fallback" });
+
+    const selection = selectRelatedProducts(linked, [
+      linked,
+      explicitA,
+      explicitB,
+      fallback,
+    ]);
+
+    expect(ids(selection)).toEqual(["explicit-b", "explicit-a", "fallback"]);
+    expect(selection.variant).toBe("related");
+  });
+
+  it("treats the link as mutual in either direction", () => {
+    const target = product({ id: "target", similarTo: ["source"] });
+    const source = product({ id: "source" });
+
+    expect(getSimilarProducts(target, [target, source]).map((p) => p.id)).toEqual([
+      "source",
+    ]);
+    expect(getSimilarProducts(source, [target, source]).map((p) => p.id)).toEqual([
+      "target",
+    ]);
+  });
+
+  it("filters hidden and sold-out links but keeps the fallback", () => {
+    const linked = product({
+      id: "linked",
+      similarTo: ["hidden", "sold-out", "good"],
+    });
+    const catalogue = [
+      linked,
+      product({ id: "hidden", hidden: true }),
+      product({ id: "sold-out", sizes: [size(false)] }),
+      product({ id: "good" }),
+    ];
+
+    // Only one product qualifies (< the minimum of two), so the row is not
+    // rendered — the selection still returns what it found.
+    expect(ids(selectRelatedProducts(linked, catalogue))).toEqual(["good"]);
+  });
+
+  it("orders the fallback as alternatives and switches the heading flag", () => {
+    const unavailable = product({ id: "gone", sizes: [size(false)] });
+    const catalogue = [
+      unavailable,
+      product({ id: "one" }),
+      product({ id: "two" }),
+    ];
+
+    const selection = selectRelatedProducts(unavailable, catalogue);
+    expect(selection.variant).toBe("alternatives");
+    expect(isPurchasable(unavailable)).toBe(false);
+    expect(isPurchasable(product({ id: "buyable" }))).toBe(true);
+    expect(selection.products).toHaveLength(2);
   });
 });

@@ -122,7 +122,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       <ProductDetailPage
         product={product}
-        related={related}
+        related={related.products}
+        relatedIsAlternatives={related.variant === "alternatives"}
         siteUrl={siteUrl}
         categoryLabel={categoryLabel}
         shippingFee={shippingFee}
@@ -168,6 +169,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           notifyMe: t(locale, "product.notifyMe", "أبلغني عند التوفر"),
           backToShop: t(locale, "product.backToShop", "تصفّح المتجر"),
           related: t(locale, "product.related", "عطور مشابهة"),
+          alternatives: t(locale, "product.alternatives", "بدائل مشابهة"),
           comingSoonTitle: t(locale, "product.comingSoonTitle", "قريبًا"),
           comingSoonBody: t(
             locale,

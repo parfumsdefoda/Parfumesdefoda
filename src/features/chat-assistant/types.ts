@@ -26,6 +26,8 @@ export interface ChatProduct {
   season: string;
   performance: string;
   sizes: { label: string; price: number; inStock: boolean }[];
+  /** Explicit similar products, so the advisor can offer alternatives. */
+  similarTo?: string[];
 }
 
 /** API response shape from POST /api/chat */
