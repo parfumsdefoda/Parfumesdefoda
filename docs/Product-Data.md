@@ -110,11 +110,12 @@ with a warning — you may keep extra notes in the file.
 | `gender` | الجنس | لا تغيير |
 | `scent_style` | شرقي / غربي (يُخزَّن في `type`) | لا تغيير |
 | `tier` | الدار: ديزاينر / نيش / دووب (تُخزَّن في `house`) | لا تغيير |
-| `season` | الفصل | لا تغيير |
+| `season` | الفصل — **عمود اختياري**: غيابه لا يمسح القيم ولا يمنع الإنشاء | لا تغيير |
 | `performance` | الأداء | لا تغيير |
 | `is_fouda_original` | من إنتاج فودا نفسه | **`لا`** (اقرأ §4) |
 | `is_oil` | زيت عطري (بدون كحول) | **`لا`** |
 | `is_featured` | فاخر (البطاقة الذهبية + الترتيب في الهيرو) | **`لا`** |
+| `is_similar` | منتجات مشابهة (SKUs أو slugs) — **قائمة وليست علماً** (اقرأ §4ب) | لا تغيير |
 | `concentration` | التركيز | غير معروف |
 | `family` | العائلة العطرية | غير معروفة |
 | `top_notes` | المقدمة | غير معروفة |
@@ -161,6 +162,9 @@ with a blank `avail` starts out of stock and is reported.
 
 لا تستخدم الفاصلة `,` ولا `،` — الخلية تُرفض مع سبب واضح.
 
+**الاستثناء الوحيد هو `is_similar`** (اقرأ §4ب): يقبل الفاصلة العادية والفاصلة
+العربية والشرطة العمودية والفاصلة المنقوطة والمسافات.
+
 ### الأسعار والمخزون / Prices and availability
 
 - `avail_*=لا` يجعل ذلك الحجم غير قابل للشراء. الخلية الفارغة تُبقي الحالة كما هي.
@@ -192,6 +196,39 @@ contradict a non-oil concentration.
 
 ---
 
+## 4ب. المنتجات المشابهة / Similar products (`is_similar`)
+
+`is_similar` **ليس علماً**: لا يقبل `نعم`/`لا`. هو قائمة أكواد أو معرّفات تفصلها
+فاصلة أو فاصلة عربية أو `|` أو `;` أو مسافة:
+
+```
+PF740, PF560
+pf090;pf240
+```
+
+القواعد:
+
+- حتى **٦ منتجات** لكل منتج، ويُحفظ ترتيبك (الباقي يُطبع كتنبيه).
+- التكرار يُزال تلقائياً.
+- كود أو `slug` غير موجود في الكتالوج **خطأ** برقم السطر.
+- إشارة المنتج لنفسه **خطأ**.
+- الإشارة لمنتج مخفي أو «قريبًا» أو غير مذكور في الملف **تنبيه** فقط، وتُخزَّن.
+- الإشارة في اتجاه واحد تنبيه أيضاً: الموقع يعامل الرابط كـ**متبادل** في العرض،
+  فلا حاجة لكتابته مرتين.
+- `season` إذا غاب العمود بالكامل: يبقى كل منتج كما هو، ولا يُنشأ منتج بلا فصل
+  إلا إذا غاب العمود/الخلية فعلاً.
+- خلية `-` تمسح كل الروابط.
+
+الاستيراد يطبع كل رابط جديد وكل رابط يُمسح قبل الكتابة، والتصدير يكتب الأكواد
+(`PFxxx`) مفصولة بـ`, `.
+
+The column is a LIST, not a boolean: SKUs or slugs separated by comma, Arabic
+comma, `|`, `;` or spaces, at most six, in your order. Unknown references and
+self-references are errors; hidden / coming-soon / absent rows are warnings. The
+site treats the link as mutual, so one direction is enough. `-` clears the list.
+
+---
+
 ## 5. مسح قيمة / Clearing a value with `-`
 
 خلية تحتوي **`-` فقط** (وليس `-` داخل نص) تمسح القيمة الموجودة. الأعمدة التي
@@ -204,6 +241,7 @@ contradict a non-oil concentration.
 | `top_notes` / `heart_notes` / `base_notes` | المستوى يصبح فارغاً |
 | `concentration` | التركيز يُزال |
 | `family` | العائلة تُزال |
+| `is_similar` | كل الروابط تُمسح |
 
 `-` في أي عمود آخر ليس مسحاً، بل قيمة عادية (وسعر `-` يُرفض لأنه ليس رقماً).
 الخلية **الفارغة** تبقى «لا تغيير».
@@ -313,6 +351,23 @@ blank, because "unknown" is not "available".
 excluded from every list, search, the sitemap and the AI suggestions, and its own
 URL returns 404. The internal `دووب` tier never appears in any public surface.
 
+### منتج أزلت صفه من الملف / A row you removed from the file
+
+حذف الصف وحده لا يخفي المنتج: المنتج يبقى في الكتالوج ويُطبع تحت «في الكتالوج
+وليس في الملف». الأفضل دائماً `on_site=لا` بدل حذف الصف. إذا حذفت الصف فعلاً
+وتريد إخفاءه، أضف:
+
+```bash
+npm run data:refresh -- --apply --hide-absent=pf670
+```
+
+`--hide-absent` يخفي **كل** منتج غائب عن الملف، و`--hide-absent=pf670,pf671`
+يخفي المذكور فقط. لا يُحذف أي منتج أو صورة في الحالتين.
+
+Removing a row never deletes the product: it is reported as absent. Hide it with
+`on_site=لا` (the normal way) or, after removing the row, with `--hide-absent`
+(all absent rows) / `--hide-absent=<slugs>` (only those). Nothing is ever deleted.
+
 ---
 
 ## 9. الصور / Images
@@ -337,6 +392,10 @@ The photo name IS the key. A product still on the shared placeholder is pointed 
 its real photo by `--apply` when that file exists. A non-transparent background is
 never auto-cut: it is listed for a manual retouch. Identical files under different
 names are reported by the audit.
+
+**A framed (uncut) photo never upscales**: a 774px-wide source stops at 774px,
+so `check:derived` expects the 400 tier and the source's own width, not a fake
+1200px upscale.
 
 ---
 
