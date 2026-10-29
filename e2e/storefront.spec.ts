@@ -122,14 +122,18 @@ test.describe("production storefront and checkout", () => {
     await expect(zoom).toBeHidden();
   });
 
-  test("coming-soon product has no price or add CTA and visible PDP uses derived images", async ({ page }) => {
-    await page.goto("/product/pf590");
+  test("sold-out product has no buyable CTA and a visible PDP uses derived images", async ({ page }) => {
+    // The catalogue has no coming-soon product since every photo arrived; the
+    // same contract is checked on a product whose every size is sold out.
+    await page.goto("/product/pf290");
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.getByText("قريبًا").first()).toBeVisible();
+    const cta = page.locator("[data-purchase-cta] button").first();
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveText("غير متوفر");
+    await expect(cta).toBeDisabled();
     // Related-product quick-adds still exist with names like
     // "أضف إلى السلة — تيروني"; the main CTA would be the exact name.
     await expect(page.getByRole("button", { name: "أضف إلى السلة", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "تصفّح المتجر" })).toHaveAttribute("href", "/shop");
     await page.goto("/product/pf090");
     await expect(page.locator("picture source[type='image/avif']").first()).toHaveAttribute("srcset", /products\/derived/);
     const requestedOriginals: string[] = [];
@@ -334,8 +338,14 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
   });
 
   test("size filter narrows the grid and an impossible search shows the empty state", async ({ page }) => {
-    await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
+    // Read the catalogue size from the page instead of hardcoding 40: the
+    // owner's master decides how many products are on site.
+    await page.goto("/shop");
     const count = page.locator('p[aria-live="polite"]').first();
+    const fullCatalogue = (await count.textContent())?.trim() ?? "";
+    await expect(count).not.toHaveText("٠ منتج");
+
+    await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
     await expect(count).not.toHaveText("٠ منتج");
 
     const search = page.getByRole("searchbox", { name: "بحث" }).first();
@@ -345,7 +355,7 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await page.getByRole("link", { name: "مسح الفلاتر" }).click();
     await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden();
     await expect(page).toHaveURL(/\/shop$/);
-    await expect(count).toHaveText("٤٠ منتج");
+    await expect(count).toHaveText(fullCatalogue);
   });
 
   test("out-of-stock products are ordered after every in-stock product", async ({ page }) => {
