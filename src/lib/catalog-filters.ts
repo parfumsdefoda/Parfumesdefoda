@@ -284,6 +284,7 @@ export function productFacetValue(
   if (key === "style") return product.type;
   if (key === "form") return productForm(product);
   if (key === "tier") return product.house;
-  if (key === "season") return product.season;
+  // A product may have no season (the master's season column is optional).
+  if (key === "season") return product.season ?? null;
   return product.performance;
 }

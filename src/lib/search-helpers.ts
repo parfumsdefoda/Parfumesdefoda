@@ -29,7 +29,7 @@ function searchableText(product: Product): string[] {
     product.gender,
     product.type,
     product.house,
-    product.season,
+    product.season ?? "",
     product.performance,
     ...(product.notes?.top ?? []),
     ...(product.notes?.middle ?? []),

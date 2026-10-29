@@ -39,7 +39,7 @@ export function buildProductContext(products: Product[]): string {
         `نوع: ${p.type}`,
         `الدار: ${p.house}`,
         `جنس: ${p.gender}`,
-        `الفصل: ${p.season}`,
+        p.season ? `الفصل: ${p.season}` : "",
         `الأداء: ${p.performance}`,
         `السعر: ${priceRange} ج.م`,
         `الأحجام: ${sizes || "غير متوفر"}`,

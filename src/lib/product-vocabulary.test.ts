@@ -28,7 +28,12 @@ describe("product vocabulary covers the data", () => {
       ...new Set(
         rows
           .map((row) => row[field])
-          .filter((value) => !(values as readonly string[]).includes(value)),
+          // `season` is optional now: an absent value is unknown, not invalid.
+          .filter(
+            (value) =>
+              value !== undefined &&
+              !(values as readonly string[]).includes(value),
+          ),
       ),
     ];
     expect(unknown).toEqual([]);

@@ -179,9 +179,12 @@ export async function POST(request: Request) {
         image: p.image,
         type: p.type,
         gender: p.gender,
-        season: p.season,
+        season: p.season ?? "",
         performance: p.performance,
         sizes: p.sizes,
+        ...(p.similarTo && p.similarTo.length > 0
+          ? { similarTo: p.similarTo }
+          : {}),
       }));
 
     return NextResponse.json(

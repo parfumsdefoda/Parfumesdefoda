@@ -40,6 +40,20 @@ const args = process.argv.slice(2);
 const apply = args.includes("--apply");
 const syncCommerce = args.includes("--sync-commerce");
 const createMissing = args.includes("--create-missing");
+const hideAbsentArg = args.find(
+  (arg) => arg === "--hide-absent" || arg.startsWith("--hide-absent="),
+);
+/** `--hide-absent` hides every absent row; `--hide-absent=a,b` only those. */
+const hideAbsent =
+  hideAbsentArg === "--hide-absent"
+    ? true
+    : hideAbsentArg
+      ? hideAbsentArg
+          .slice("--hide-absent=".length)
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean)
+      : undefined;
 const fileArg = args.find((arg) => arg.startsWith("--file="));
 const csvPath = path.resolve(ROOT, fileArg ? fileArg.slice("--file=".length) : DEFAULT_CSV);
 
@@ -111,6 +125,7 @@ async function main() {
   const plan = planMasterImport(parsed.data, csv, {
     mode,
     createMissing,
+    hideAbsent,
     imageExists: (imagePath) =>
       existsSync(path.join(ROOT, "public", imagePath.replace(/^\//, ""))),
   });
@@ -148,10 +163,26 @@ async function main() {
     }
   }
 
-  if (plan.absentFromMaster.length > 0) {
+  if (plan.header.absent.length > 0) {
     console.log(
-      `\nℹ في الكتالوج وليس في الملف / in the catalogue, absent from the file (kept): ${plan.absentFromMaster.join(", ")}`,
+      `\nℹ أعمدة غائبة عن الملف / columns absent from the file (left untouched): ${plan.header.absent.join(", ")}`,
     );
+  }
+
+  if (plan.absentFromMaster.length > 0) {
+    const hidden = new Set(plan.hiddenByAbsence);
+    const kept = plan.absentFromMaster.filter((slug) => !hidden.has(slug));
+    console.log(
+      `\nℹ في الكتالوج وليس في الملف / in the catalogue, absent from the file: ${plan.absentFromMaster.join(", ")}`,
+    );
+    if (plan.hiddenByAbsence.length > 0) {
+      console.log(
+        `   ${mode === "dry-run" ? "سيُخفى" : "أُخفي"} / ${mode === "dry-run" ? "would hide" : "hidden"}: ${plan.hiddenByAbsence.join(", ")}`,
+      );
+    }
+    if (kept.length > 0) {
+      console.log(`   بقي ظاهراً / left visible (not in --hide-absent): ${kept.join(", ")}`);
+    }
   }
 
   if (plan.duplicateNames.length > 0) {
@@ -181,6 +212,10 @@ async function main() {
 
   if (plan.duplicates.length > 0) {
     console.error(`\n⚠ معرّفات مكررة / duplicate slugs: ${plan.duplicates.join(", ")}`);
+  }
+
+  if (plan.rejections.some((rejection) => rejection.slug === "(header)")) {
+    console.error("\n⚠ رأس الملف مرفوض / the header was rejected — nothing was imported.");
   }
 
   if (plan.rejections.length > 0) {

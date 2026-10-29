@@ -384,10 +384,27 @@ describe("planMasterImport — --create-missing", () => {
     expect(plan.refusals[0].reason).toContain("does not exist");
   });
 
+  it("creates a row whose season cell is blank (season is optional)", () => {
+    const [headerLine, dataLine] = creationCsv.split("\r\n");
+    const header = headerLine.split(",");
+    const cells = dataLine.split(",");
+    cells[header.indexOf("season")] = "";
+
+    const plan = planMasterImport([makeProduct()], csv([headerLine, cells.join(",")]), {
+      mode: "apply",
+      createMissing: true,
+      imageExists,
+    });
+
+    expect(plan.refusals).toEqual([]);
+    expect(plan.creations).toEqual([{ slug: "pf999", name: "عطر جديد" }]);
+    const created = plan.products.find((product) => product.slug === "pf999");
+    expect(created?.season).toBeUndefined();
+  });
+
   it.each([
     ["name_ar", "name_ar"],
     ["gender", "gender"],
-    ["season", "season"],
     ["price_50", "at least one price"],
     ["sku", "sku"],
   ])("refuses a row without %s", (column, reason) => {
@@ -852,5 +869,254 @@ describe("status report", () => {
     const md = renderMasterStatusMarkdown([makeProduct()], "2026-10-24");
     expect(md).toContain("2026-10-24");
     expect(md).toContain("| concentration | 0 | 1 | 0% |");
+  });
+});
+
+// ─── is_similar / similar links ─────────────────────────────────────────────
+
+describe("planMasterImport — is_similar", () => {
+  const other = makeProduct({
+    slug: "pf002",
+    sku: "PF002",
+    id: "PF002",
+    name: "عطر آخر",
+  });
+
+  it("parses SKUs separated by commas, Arabic commas, pipes and spaces", () => {
+    const plan = planMasterImport(
+      [makeProduct(), other],
+      csv([
+        "slug,is_similar",
+        "pf001,PF002",
+        "pf002, pf001 ",
+      ]),
+      { mode: "apply" },
+    );
+
+    expect(plan.rejections).toEqual([]);
+    expect(plan.products[0].similarTo).toEqual(["pf002"]);
+    expect(plan.products[1].similarTo).toEqual(["pf001"]);
+  });
+
+  it("treats similar_skus as the same column", () => {
+    const plan = planMasterImport(
+      [makeProduct(), other],
+      csv(["slug,similar_skus", "pf001,PF002"]),
+      { mode: "apply" },
+    );
+
+    expect(plan.header.unknown).toEqual([]);
+    expect(plan.products[0].similarTo).toEqual(["pf002"]);
+  });
+
+  it("de-duplicates references, keeps the order and caps at six", () => {
+    const catalogue = [
+      makeProduct(),
+      ...Array.from({ length: 8 }, (_, index) =>
+        makeProduct({
+          slug: `pf00${index + 2}`,
+          sku: `PF00${index + 2}`,
+          id: `PF00${index + 2}`,
+          name: `عطر ${index + 2}`,
+        }),
+      ),
+    ];
+    const refs = catalogue
+      .slice(1)
+      .map((product) => product.sku)
+      .join(", ");
+
+    const plan = planMasterImport(
+      catalogue,
+      csv(["slug,is_similar", `pf001,"PF003,PF002,${refs}"`]),
+      { mode: "apply" },
+    );
+
+    expect(plan.products[0].similarTo).toEqual([
+      "pf003",
+      "pf002",
+      "pf004",
+      "pf005",
+      "pf006",
+      "pf007",
+    ]);
+    expect(
+      plan.warnings.some((warning) => warning.message.includes("first 6")),
+    ).toBe(true);
+  });
+
+  it("rejects an unknown SKU and a self-reference with the row line", () => {
+    const plan = planMasterImport(
+      [makeProduct(), other],
+      csv(["slug,is_similar", 'pf001,"PF999,PF001"']),
+      { mode: "apply" },
+    );
+
+    expect(plan.rejections.map((rejection) => rejection.column)).toEqual([
+      "is_similar",
+      "is_similar",
+    ]);
+    expect(plan.rejections[0]).toMatchObject({ line: 2, value: "PF999" });
+    expect(plan.rejections[0].reason).toContain("unknown SKU");
+    expect(plan.rejections[1].reason).toContain("itself");
+    expect(plan.products[0].similarTo).toBeUndefined();
+  });
+
+  it("warns (without blocking) about hidden, absent and one-way links", () => {
+    const hidden = makeProduct({
+      slug: "pf003",
+      sku: "PF003",
+      id: "PF003",
+      name: "مخفي",
+      hidden: true,
+    });
+    const plan = planMasterImport(
+      [makeProduct(), hidden, other],
+      csv(["slug,is_similar", "pf001,PF003"]),
+      { mode: "apply" },
+    );
+
+    const messages = plan.warnings.map((warning) => warning.message).join("\n");
+    expect(messages).toContain("hidden");
+    expect(messages).toContain("absent from this master file");
+    expect(messages).toContain("one-way link");
+    expect(plan.products[0].similarTo).toEqual(["pf003"]);
+  });
+
+  it("clears the links with - and leaves them alone when blank", () => {
+    const linked = makeProduct({ similarTo: ["pf002"] });
+    const cleared = planMasterImport(
+      [linked, other],
+      csv(["slug,is_similar", "pf001,-"]),
+      { mode: "apply" },
+    );
+    expect(cleared.products[0].similarTo).toBeUndefined();
+
+    const untouched = planMasterImport(
+      [linked, other],
+      csv(["slug,is_similar", "pf001,"]),
+      { mode: "apply" },
+    );
+    expect(untouched.products[0].similarTo).toEqual(["pf002"]);
+  });
+});
+
+// ─── Optional columns and absent products ───────────────────────────────────
+
+describe("planMasterImport — optional columns and absent products", () => {
+  it("reports known columns the file does not carry", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,name_ar", "pf001,عطر"]), {
+      mode: "apply",
+    });
+
+    expect(plan.header.absent).toContain("season");
+    expect(plan.header.absent).toContain("is_similar");
+    expect(plan.header.absent).not.toContain("slug");
+    expect(plan.rejections).toEqual([]);
+  });
+
+  it("tolerates a product whose season is missing (no rejection, no change)", () => {
+    const seasonLess = makeProduct({ season: undefined });
+    const plan = planMasterImport(
+      [seasonLess],
+      csv(["slug,name_ar", "pf001,عطر"]),
+      { mode: "sync-commerce" },
+    );
+
+    expect(plan.rejections).toEqual([]);
+    expect(plan.products[0].season).toBeUndefined();
+  });
+
+  it("hide-absent hides only the requested absent slugs, never deletes", () => {
+    const a = makeProduct({ slug: "pf670", sku: "PF670", id: "PF670" });
+    const b = makeProduct({ slug: "pf999", sku: "PF999", id: "PF999" });
+    const plan = planMasterImport(
+      [makeProduct(), a, b],
+      csv(["slug,on_site", "pf001,نعم"]),
+      { mode: "apply", hideAbsent: ["pf670"] },
+    );
+
+    expect(plan.absentFromMaster).toEqual(["pf670", "pf999"]);
+    expect(plan.hiddenByAbsence).toEqual(["pf670"]);
+    expect(plan.products).toHaveLength(3);
+    expect(plan.products.find((product) => product.slug === "pf670")?.hidden).toBe(true);
+    expect(plan.products.find((product) => product.slug === "pf999")?.hidden).toBeUndefined();
+  });
+
+  it("hide-absent=true hides every absent product; a dry run changes nothing", () => {
+    const absent = makeProduct({ slug: "pf670", sku: "PF670", id: "PF670" });
+    const dry = planMasterImport(
+      [makeProduct(), absent],
+      csv(["slug,on_site", "pf001,نعم"]),
+      { hideAbsent: true },
+    );
+    expect(dry.hiddenByAbsence).toEqual(["pf670"]);
+    expect(dry.products.find((product) => product.slug === "pf670")?.hidden).toBeUndefined();
+
+    const applied = planMasterImport(
+      [makeProduct(), absent],
+      csv(["slug,on_site", "pf001,نعم"]),
+      { mode: "apply", hideAbsent: true },
+    );
+    expect(applied.products.find((product) => product.slug === "pf670")?.hidden).toBe(true);
+  });
+});
+
+// ─── Round trip ─────────────────────────────────────────────────────────────
+
+describe("master export round trip", () => {
+  it("writes the similar column as SKUs and re-imports with zero changes", () => {
+    const products = [
+      makeProduct({ similarTo: ["pf002"] }),
+      makeProduct({
+        slug: "pf002",
+        sku: "PF002",
+        id: "PF002",
+        name: "عطر آخر",
+        similarTo: ["pf001"],
+      }),
+    ];
+    const rows = masterCsvRows(products);
+    const header = rows[0];
+
+    expect(header).toContain("is_similar");
+    expect(rows[1][header.indexOf("is_similar")]).toBe("PF002");
+    expect(rows[2][header.indexOf("is_similar")]).toBe("PF001");
+
+    const plan = planMasterImport(products, buildCsv(rows), { mode: "sync-commerce" });
+    expect(plan.changes.filter((change) => change.field !== "sizes")).toEqual([]);
+    expect(plan.rejections).toEqual([]);
+  });
+});
+
+describe("is_similar — references to a row being created", () => {
+  it("resolves a link to a new row in the same file", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv([
+        "slug,sku,name_ar,gender,scent_style,tier,performance,price_50,is_similar",
+        "pf001,PF001,عطر,رجالي,شرقي,نيش,أداء قوي,600,PF999",
+        "pf999,PF999,عطر جديد,رجالي,شرقي,نيش,أداء قوي,500,PF001",
+      ]),
+      { mode: "apply", createMissing: true, imageExists: () => true },
+    );
+
+    expect(plan.rejections).toEqual([]);
+    expect(plan.creations).toEqual([{ slug: "pf999", name: "عطر جديد" }]);
+    expect(plan.products.find((product) => product.slug === "pf001")?.similarTo).toEqual([
+      "pf999",
+    ]);
+    expect(plan.products.find((product) => product.slug === "pf999")?.similarTo).toEqual([
+      "pf001",
+    ]);
+  });
+
+  it("still rejects a reference to a slug that is nowhere", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv(["slug,is_similar", "pf001,PF999"]),
+      { mode: "apply" },
+    );
+    expect(plan.rejections[0].reason).toContain("unknown SKU");
   });
 });

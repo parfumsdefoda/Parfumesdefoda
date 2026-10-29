@@ -85,7 +85,11 @@ export const productSchema = z.object({
   house: z.enum(HOUSES),
   oily: z.boolean(),
   fodaOriginal: z.boolean(),
-  season: z.enum(SEASONS),
+  /**
+   * Optional: the master's `season` column may be absent entirely. A product
+   * without a season simply shows no season line and no season facet.
+   */
+  season: z.enum(SEASONS).optional(),
   performance: z.enum(PERFORMANCES),
   featured: z.boolean(),
   badge: z.string(),
@@ -116,6 +120,12 @@ export const productSchema = z.object({
    * stored only so a CSV round-trip cannot silently drop it.
    */
   internalNote: z.string().optional(),
+  /**
+   * Explicit similar-product links (`is_similar` in the master), stored as
+   * slugs in the owner's order. The relation is treated as MUTUAL at read
+   * time, so the data never has to carry the same link twice.
+   */
+  similarTo: z.array(z.string()).optional(),
   seo: z.object({
     title: z.string(),
     description: z.string(),

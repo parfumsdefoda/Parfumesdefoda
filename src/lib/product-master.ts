@@ -33,7 +33,7 @@ import {
   type ScentFamily,
 } from "../schemas/product-schema";
 import { CONCENTRATION_LABELS, FAMILY_LABELS } from "./product-labels";
-import { isPlaceholderImage } from "./product-availability";
+import { isComingSoon, isPlaceholderImage } from "./product-availability";
 
 // ─── Columns ────────────────────────────────────────────────────────────────
 
@@ -60,6 +60,7 @@ const COLUMN_ORDER = [
   "is_fouda_original",
   "is_oil",
   "is_featured",
+  "is_similar",
   "concentration",
   "family",
   "top_notes",
@@ -124,6 +125,7 @@ export const CLEARABLE_COLUMNS = [
   "base_notes",
   "concentration",
   "family",
+  "is_similar",
 ] as const;
 
 /** Boolean-flag columns: `نعم` = true; `لا` OR blank = false. */
@@ -132,6 +134,44 @@ export const FLAG_COLUMNS = [
   "is_oil",
   "is_featured",
 ] as const;
+
+/**
+ * Header spellings the owner may use for the same contract column.
+ *
+ * `is_similar` starts with `is_` but is a LIST of related products, not a
+ * yes/no flag — it is deliberately absent from {@link FLAG_COLUMNS}.
+ */
+export const MASTER_COLUMN_ALIASES: Readonly<Record<string, string>> = {
+  similar_skus: "is_similar",
+};
+
+/** The contract name for a header cell (aliases folded, no trimming). */
+export function canonicalColumn(name: string): string {
+  return MASTER_COLUMN_ALIASES[name] ?? name;
+}
+
+/** Hard ceiling on explicit similar-product links per product. */
+export const SIMILAR_LIMIT = 6;
+
+/**
+ * Split an `is_similar` cell into references, keeping the owner's order.
+ *
+ * SKUs or slugs may be separated by a comma, an Arabic comma, `|`, `;` or
+ * whitespace ("PF740, PF560"). Empty cells and repeats are dropped.
+ */
+export function parseSimilarCell(cell: string): string[] {
+  const seen = new Set<string>();
+  const refs: string[] = [];
+  for (const part of cell.split(/[,،|;]+|\s+/)) {
+    const value = part.trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    refs.push(value);
+  }
+  return refs;
+}
 
 /** Brand string used when `--create-missing` adds a product. */
 export const DEFAULT_BRAND = "Parfums De Foda";
@@ -235,6 +275,8 @@ export interface MasterHeaderReport {
   duplicates: { name: string; columns: number[] }[];
   /** Columns that are neither contract columns nor size columns. */
   unknown: string[];
+  /** Known contract columns the header does not carry (= do not touch). */
+  absent: string[];
 }
 
 const SIZE_COLUMN_PATTERN = /^(?:price|avail)_(\d+(?:\.\d+)?)$/;
@@ -254,7 +296,7 @@ export function analyseMasterHeader(header: string[]): MasterHeaderReport {
   const positions = new Map<string, number[]>();
 
   header.forEach((rawName, index) => {
-    const name = rawName.trim();
+    const name = canonicalColumn(rawName.trim());
     if (!name) return;
     const columns = positions.get(name) ?? [];
     columns.push(index + 1);
@@ -273,7 +315,12 @@ export function analyseMasterHeader(header: string[]): MasterHeaderReport {
     if (columns.length > 1) duplicates.push({ name, columns });
   }
 
-  return { sizes: [...sizes].sort((a, b) => b - a), duplicates, unknown };
+  return {
+    sizes: [...sizes].sort((a, b) => b - a),
+    duplicates,
+    unknown,
+    absent: MASTER_BASE_COLUMNS.filter((column) => !positions.has(column)),
+  };
 }
 
 /**
@@ -286,7 +333,7 @@ export function rowFromCells(header: string[], cells: string[]): MasterRow {
   const row: MasterRow = {};
   for (const column of MASTER_BASE_COLUMNS) row[column] = "";
   header.forEach((rawName, index) => {
-    const name = rawName.trim();
+    const name = canonicalColumn(rawName.trim());
     if (!name) return;
     row[name] = (cells[index] ?? "").trim();
   });
@@ -312,7 +359,7 @@ export function parseMasterFile(text: string): MasterFile {
   if (headerIndex === -1) {
     return {
       header: [],
-      headerReport: { sizes: [], duplicates: [], unknown: [] },
+      headerReport: { sizes: [], duplicates: [], unknown: [], absent: [] },
       headerLine: 0,
       entries: [],
       skipped: lines.length,
@@ -478,7 +525,7 @@ const TIER_ALIASES = new Map<string, Product["house"]>([
   ["clone", "دووب"],
 ]);
 
-const SEASON_ALIASES = new Map<string, Product["season"]>([
+const SEASON_ALIASES = new Map<string, NonNullable<Product["season"]>>([
   ["صيفي", "صيفي"],
   ["summer", "صيفي"],
   ["شتوي", "شتوي"],
@@ -584,6 +631,14 @@ export interface MasterPlanOptions {
   createMissing?: boolean;
   /** Disk check for `/products/{SKU}.png`; the script passes fs.existsSync. */
   imageExists?: (imagePath: string) => boolean;
+  /**
+   * Hide products that exist in the catalogue but not in the master.
+   *
+   * `true` hides every absent product; an array restricts the hiding to those
+   * slugs (e.g. only the rows an earlier import created). Either way the
+   * products are never deleted.
+   */
+  hideAbsent?: boolean | string[];
 }
 
 /** A non-blocking remark: the row is still imported. */
@@ -625,6 +680,8 @@ export interface MasterPlan {
   header: MasterHeaderReport;
   /** Catalogue slugs the file does not mention (never deleted). */
   absentFromMaster: string[];
+  /** Absent slugs this run would (or did) hide via `hideAbsent`. */
+  hiddenByAbsence: string[];
   /** Visible products sharing a name, e.g. a product and its فاخر variant. */
   duplicateNames: MasterNameCollision[];
   flagToggles: MasterFlagToggle[];
@@ -698,6 +755,7 @@ export function planMasterImport(
       warnings: [],
       header,
       absentFromMaster: [],
+      hiddenByAbsence: [],
       duplicateNames: [],
       flagToggles: [],
       imageFixes: [],
@@ -737,9 +795,26 @@ export function planMasterImport(
   const masterSlugs = new Set(
     file.entries.map((entry) => entry.row.slug.trim()).filter(Boolean),
   );
-  const absentFromMaster = products
+  const afterImport = applied.products;
+  const absentFromMaster = afterImport
     .filter((product) => !masterSlugs.has(product.slug))
     .map((product) => product.slug);
+
+  const hideScope = options.hideAbsent;
+  const requested =
+    hideScope === true
+      ? absentFromMaster
+      : Array.isArray(hideScope)
+        ? absentFromMaster.filter((slug) => hideScope.includes(slug))
+        : [];
+  const hiddenByAbsence = [...new Set(requested)];
+  const hiddenSet = new Set(hiddenByAbsence);
+  const finalProducts =
+    mode === "dry-run"
+      ? afterImport
+      : afterImport.map((product) =>
+          hiddenSet.has(product.slug) ? { ...product, hidden: true } : product,
+        );
 
   const byName = new Map<string, string[]>();
   for (const product of products) {
@@ -759,12 +834,13 @@ export function planMasterImport(
   }));
 
   return {
-    products: applied.products,
+    products: finalProducts,
     changes: report.changes,
     rejections: report.rejections,
     warnings: [...headerWarnings, ...report.warnings],
     header,
     absentFromMaster,
+    hiddenByAbsence,
     duplicateNames,
     flagToggles: report.flagToggles,
     imageFixes: report.imageFixes,
@@ -801,6 +877,25 @@ function mergePass(
   ctx: PassContext,
 ): PassResult {
   const bySlug = new Map(products.map((product) => [product.slug, product]));
+  const byLowerCaseSlug = new Map(
+    products.map((product) => [product.slug.toLowerCase(), product]),
+  );
+  const byLowerCaseSku = new Map(
+    products.map((product) => [product.sku.toLowerCase(), product]),
+  );
+  /** Slugs this master file actually carries — used for "absent" warnings. */
+  const masterSlugSet = new Set(
+    entries.map((entry) => entry.row.slug.trim()).filter(Boolean),
+  );
+  /** Rows in this same file, so a link to a row being created still resolves. */
+  const masterBySlug = new Map(
+    entries.map((entry) => [entry.row.slug.trim().toLowerCase(), entry.row]),
+  );
+  const masterBySku = new Map(
+    entries
+      .filter((entry) => entry.row.sku.trim() !== "")
+      .map((entry) => [entry.row.sku.trim().toLowerCase(), entry.row]),
+  );
   const changes: MasterChange[] = [];
   const rejections: MasterRejection[] = [];
   const warnings: MasterWarning[] = [];
@@ -827,6 +922,93 @@ function mergePass(
 
   const warn = (slug: string, column: string, value: string, message: string) =>
     warnings.push({ slug, line: currentLine, column, value, message });
+
+  /**
+   * Resolve `is_similar` references (SKUs or slugs) in one product.
+   *
+   * Unknown references and self-references are errors. A reference to a
+   * hidden / coming-soon / absent-from-this-file product is a warning: the link
+   * is stored, and the PDP filters it at read time.
+   */
+  const readSimilar = (slug: string, cell: string): string[] => {
+    const refs = parseSimilarCell(cell);
+    if (refs.length > SIMILAR_LIMIT) {
+      warn(
+        slug,
+        "is_similar",
+        cell,
+        `only the first ${SIMILAR_LIMIT} linked products are kept`,
+      );
+    }
+
+    const resolved: string[] = [];
+    for (const ref of refs.slice(0, SIMILAR_LIMIT)) {
+      const key = ref.toLowerCase();
+      // A reference may point at a catalogue product or at a row this same file
+      // is about to create (PF740 on an earlier row).
+      const target = byLowerCaseSlug.get(key) ?? byLowerCaseSku.get(key);
+      const masterRow = target ? undefined : (masterBySlug.get(key) ?? masterBySku.get(key));
+      const canonical = target ? target.slug : masterRow?.slug.trim();
+
+      if (!canonical) {
+        reject(
+          slug,
+          "is_similar",
+          ref,
+          "unknown SKU or slug — use a row from this catalogue (e.g. PF740)",
+        );
+        continue;
+      }
+      if (canonical === slug) {
+        reject(slug, "is_similar", ref, "a product cannot list itself as similar");
+        continue;
+      }
+      if (resolved.includes(canonical)) continue;
+
+      if (target) {
+        if (target.hidden) {
+          warn(slug, "is_similar", ref, `links to ${target.slug}, which is hidden from the site`);
+        } else if (isComingSoon(target)) {
+          warn(slug, "is_similar", ref, `links to ${target.slug}, which is coming soon`);
+        }
+        if (!masterSlugSet.has(target.slug)) {
+          warn(
+            slug,
+            "is_similar",
+            ref,
+            `links to ${target.slug}, which is absent from this master file`,
+          );
+        }
+      } else if (masterRow) {
+        if (readBool(masterRow.on_site) === false) {
+          warn(
+            slug,
+            "is_similar",
+            ref,
+            `links to ${canonical}, which this file hides from the site`,
+          );
+        }
+      }
+
+      const backLink =
+        target?.similarTo?.some((value) => value.toLowerCase() === slug) ??
+        (masterRow
+          ? parseSimilarCell(masterRow.is_similar).some(
+              (value) => value.toLowerCase() === slug,
+            )
+          : false);
+      if (!backLink) {
+        warn(
+          slug,
+          "is_similar",
+          ref,
+          `one-way link: ${canonical} does not list ${slug} back (the site treats links as mutual)`,
+        );
+      }
+      resolved.push(canonical);
+    }
+    return resolved;
+  };
 
   /**
    * Record a change and report whether this pass may mutate the draft.
@@ -951,6 +1133,13 @@ function mergePass(
         continue;
       }
 
+      // `is_similar` on a brand-new row is resolved against the catalogue it
+      // is joining; `-` on a new product simply means "no links".
+      if (row.is_similar && row.is_similar !== CLEAR_TOKEN) {
+        const similarTo = readSimilar(slug, row.is_similar);
+        built.product.similarTo = similarTo.length > 0 ? similarTo : undefined;
+      }
+
       creations.push({ slug, name: built.product.name });
       if (ctx.includeCreates) {
         created.push(built.product);
@@ -970,6 +1159,26 @@ function mergePass(
       },
       gallery: original.gallery ? [...original.gallery] : undefined,
     };
+
+    // ── Explicit similar-product links ──
+    if (row.is_similar === CLEAR_TOKEN) {
+      if (record(slug, "similarTo", "enrichment", original.similarTo, undefined)) {
+        draft.similarTo = undefined;
+      }
+    } else if (row.is_similar) {
+      const similarTo = readSimilar(slug, row.is_similar);
+      if (
+        record(
+          slug,
+          "similarTo",
+          "enrichment",
+          original.similarTo,
+          similarTo.length > 0 ? similarTo : undefined,
+        )
+      ) {
+        draft.similarTo = similarTo.length > 0 ? similarTo : undefined;
+      }
+    }
 
     // ── Classification ──
     applyEnum(slug, row.gender, "gender", GENDER_ALIASES, (value) => {
@@ -1311,8 +1520,10 @@ function buildNewProduct(
   const house = resolveAlias(TIER_ALIASES, row.tier);
   if (!house) return { reason: row.tier ? `cannot create: unknown tier "${row.tier}"` : missing("tier") };
 
+  // `season` is optional (the column can be absent entirely): a missing value
+  // is simply unknown, not a reason to refuse the row.
   const season = resolveAlias(SEASON_ALIASES, row.season);
-  if (!season) return { reason: row.season ? `cannot create: unknown season "${row.season}"` : missing("season") };
+  if (row.season && !season) return { reason: `cannot create: unknown season "${row.season}"` };
 
   const performance = resolveAlias(PERFORMANCE_ALIASES, row.performance);
   if (!performance) return { reason: row.performance ? `cannot create: unknown performance "${row.performance}"` : missing("performance") };
@@ -1372,7 +1583,7 @@ function buildNewProduct(
     house,
     oily: readBool(row.is_oil) === true,
     fodaOriginal: readBool(row.is_fouda_original) === true,
-    season,
+    ...(season ? { season } : {}),
     performance,
     featured: readBool(row.is_featured) === true,
     badge: "",
@@ -1422,6 +1633,8 @@ export function catalogueSizes(products: Product[]): number[] {
 export function masterRow(
   product: Product,
   sizes: number[] = catalogueSizes([product]),
+  /** slug → SKU, so links are exported as SKUs. Defaults to uppercased slugs. */
+  skuBySlug: ReadonlyMap<string, string> = new Map(),
 ): string[] {
   const bySize = new Map<number, Product["sizes"][number]>();
   for (const size of product.sizes) {
@@ -1440,11 +1653,14 @@ export function masterRow(
     product.gender,
     product.type,
     product.house,
-    product.season,
+    product.season ?? "",
     product.performance,
     product.fodaOriginal ? "نعم" : "لا",
     product.oily ? "نعم" : "لا",
     product.featured ? "نعم" : "لا",
+    (product.similarTo ?? [])
+      .map((slug) => skuBySlug.get(slug) ?? slug.toUpperCase())
+      .join(", "),
     label(CONCENTRATION_LABELS, product.concentration),
     label(FAMILY_LABELS, product.family),
     product.notes.top.join(CELL_SEPARATOR),
@@ -1469,7 +1685,11 @@ export function masterRow(
 /** Header + one row per product, ready for `buildCsv`. */
 export function masterCsvRows(products: Product[]): string[][] {
   const sizes = catalogueSizes(products);
-  return [masterColumnsFor(sizes), ...products.map((product) => masterRow(product, sizes))];
+  const skuBySlug = new Map(products.map((product) => [product.slug, product.sku]));
+  return [
+    masterColumnsFor(sizes),
+    ...products.map((product) => masterRow(product, sizes, skuBySlug)),
+  ];
 }
 
 // ─── Status report ──────────────────────────────────────────────────────────
@@ -1499,6 +1719,7 @@ export function summariseMasterStatus(products: Product[]): MasterStatusRow[] {
     { field: "is_fouda_original", ...count((p) => p.fodaOriginal) },
     { field: "is_oil", ...count((p) => p.oily) },
     { field: "is_featured", ...count((p) => p.featured) },
+    { field: "is_similar", ...count((p) => (p.similarTo?.length ?? 0) > 0) },
     { field: "concentration", ...count((p) => Boolean(p.concentration)) },
     { field: "family", ...count((p) => Boolean(p.family)) },
     {
