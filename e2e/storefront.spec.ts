@@ -75,7 +75,9 @@ test.describe("production storefront and checkout", () => {
     // The advisor entry point moved from this menu to the floating launcher, so
     // this asserts what the menu now promises: the WhatsApp order channel and
     // text-only navigation (the launcher itself is covered separately).
-    await expect(dialog.getByRole("link", { name: /واتساب/ })).toHaveAttribute("href", /wa\.me/);
+    const whatsapp = dialog.locator('a[href*="wa.me"]');
+    await expect(whatsapp).toBeVisible();
+    await expect(whatsapp).toContainText("واتساب");
     await expect(dialog.locator("img")).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
