@@ -45,6 +45,11 @@ a clear Arabic + English message. It never pushes, commits or deletes anything.
 A dry run skips the image build and the gates — it only validates, audits the
 photos and prints the diff.
 
+A **new row whose photo is missing** is a refusal, not a failure: it is listed
+under «لم تُنشأ / not created», the rest of the file is applied, and the buy
+fields of every existing product still update. A rejected cell, a duplicate
+slug or an unreadable master does stop the run.
+
 ### إذا أردت خطوة بخطوة / Step by step
 
 ```bash
