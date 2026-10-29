@@ -1,5 +1,7 @@
 import type { Order } from "@/types/order";
 import { formatOrderNotification } from "@/lib/order-notification";
+import { resolveOrderChannelMode } from "@/lib/order-channels";
+import { writeOrderPreview } from "@/lib/order-preview";
 
 interface WhatsappRecipient {
   phone: string;
@@ -36,6 +38,14 @@ async function sendToRecipient(recipient: WhatsappRecipient, text: string): Prom
 
 /** Send the same complete, formatted order to every configured recipient. */
 export async function sendOrderWhatsApp(order: Order): Promise<void> {
+  const mode = resolveOrderChannelMode();
+  if (mode === "fail") throw new Error("WhatsApp delivery disabled by ORDER_CHANNELS_MODE=fail");
+  if (mode === "log") {
+    const preview = await writeOrderPreview("whatsapp", order);
+    console.log(`[whatsapp] log mode: wrote ${preview.path}`);
+    return;
+  }
+
   const recipients = buildRecipients();
   const text = buildOrderWhatsAppMessage(order);
   const results = await Promise.allSettled(

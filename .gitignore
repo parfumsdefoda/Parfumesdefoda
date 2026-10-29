@@ -56,6 +56,11 @@ next-env.d.ts
 /.audit/v2/
 /.audit/v3/
 
+# order-notification previews written by ORDER_CHANNELS_MODE=log
+/.tmp/
+# QA scratch (probes, screenshots, contact sheets)
+/.qa/
+
 # playwright output (screenshots under e2e/__screenshots__ stay tracked)
 /playwright-report/
 /playwright-results/
