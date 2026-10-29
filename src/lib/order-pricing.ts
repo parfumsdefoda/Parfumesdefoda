@@ -1,5 +1,6 @@
 import type { Product } from "@/types";
 import { MAX_ITEM_QUANTITY, type OrderLineRequest } from "@/schemas/order";
+import { isComingSoon, isUnavailableProduct } from "./product-availability";
 
 /**
  * Server-side order pricing.
@@ -54,7 +55,14 @@ export function resolveOrderItems(
     if (!product) {
       return { ok: false, error: MSG_UNKNOWN_PRODUCT };
     }
-    if (product.inStock === false) {
+    // A product the owner took off the site (`on_site=لا`) is gone from every
+    // shopper surface, so this server — the only authority on money — must not
+    // sell it either. Without this a stale or crafted cart could still order a
+    // hidden product whose row is merely absent from the storefront.
+    if (product.hidden === true || isComingSoon(product)) {
+      return { ok: false, error: MSG_UNKNOWN_PRODUCT };
+    }
+    if (isUnavailableProduct(product)) {
       return { ok: false, error: MSG_OUT_OF_STOCK };
     }
 

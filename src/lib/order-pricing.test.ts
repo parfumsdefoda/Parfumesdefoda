@@ -117,6 +117,40 @@ describe("resolveOrderItems", () => {
     expect(resolveOrderItems(catalog, []).ok).toBe(false);
   });
 
+  it("rejects a hidden product even though its row and stock are intact", () => {
+    // Regression (BUG-001): `on_site=لا` only sets `hidden`, so the server used
+    // to price and deliver an order for a product the storefront no longer sells.
+    const hidden = makeProduct({ id: "PF670", name: "عنبر عود", hidden: true });
+    const result = resolveOrderItems([...catalog, hidden], [
+      { productId: "PF670", sizeLabel: "50 مللى", quantity: 1 },
+    ]);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("لم يعد متوفراً");
+  });
+
+  it("rejects a coming-soon product that still has a placeholder photo", () => {
+    const comingSoon = makeProduct({
+      id: "PF999",
+      image: "/products/placeholder-unavailable.webp",
+    });
+    const result = resolveOrderItems([...catalog, comingSoon], [
+      { productId: "PF999", sizeLabel: "50 مللى", quantity: 1 },
+    ]);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a product whose status is not active", () => {
+    const archived = makeProduct({ id: "PF777", status: "archived" });
+    const result = resolveOrderItems([...catalog, archived], [
+      { productId: "PF777", sizeLabel: "50 مللى", quantity: 1 },
+    ]);
+
+    expect(result.ok).toBe(false);
+  });
+
   it("prices an oil's 12 مل size and a mixed cart on the server", () => {
     const oil = makeProduct({
       id: "PF680",
