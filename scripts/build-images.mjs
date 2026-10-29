@@ -145,8 +145,18 @@ async function buildFramed(slug, src, absSrc, info, hash, dir, relDir, { force, 
   if (reusable) {
     const files = await Promise.all(
       outputs.map(async (out) => {
-        const stat = await fs.stat(path.join(dir, `${out.name}.${out.format}`));
-        return { ...out, bytes: stat.size };
+        const file = path.join(dir, `${out.name}.${out.format}`);
+        const stat = await fs.stat(file);
+        // Read the real dimensions back: a cached run must record the same
+        // `w`/`h` a fresh build does, otherwise the manifest silently loses the
+        // height (and `check:derived` rightly fails).
+        const meta = await sharp(file).metadata();
+        return {
+          ...out,
+          w: meta.width ?? out.w,
+          ...(meta.height ? { h: meta.height } : {}),
+          bytes: stat.size,
+        };
       }),
     );
     return {

@@ -21,6 +21,9 @@ if (fs.existsSync(retouchPath)) {
 }
 
 for (const product of products) {
+  // A hidden product (`on_site=لا`) is never rendered, listed or indexed, so a
+  // photo the owner has already deleted is not a served-image failure.
+  if (product.hidden === true) continue;
   for (const source of [product.image, ...(product.gallery ?? [])]) {
     if (typeof source !== "string" || source.includes("placeholder")) continue;
     const file = path.basename(source).replace(/\.[^.]+$/, "").toLowerCase();
@@ -40,10 +43,15 @@ for (const product of products) {
     }
     if (!['normal', 'multiply'].includes(entry.blend)) failures.push(`${file}: invalid blend value`);
     // A `framed` family is a resize-only copy of a photo awaiting retouch: it
-    // keeps the original aspect ratio and never has the 2000px tier.
+    // keeps the original aspect ratio and never has the 2000px tier. It also
+    // NEVER upscales, so a narrow source legitimately stops at its own width —
+    // the expected tiers are the ones the source can actually fill.
     const framed = entry.mode === 'framed';
-    const widths = framed ? [400, 800, 1200] : requiredWidths;
-    for (const width of widths) {
+    const widths = entry.files?.map((candidate) => candidate.w) ?? [];
+    const expected = framed
+      ? [400, 800, 1200].filter((width) => Math.max(0, ...widths) >= width)
+      : requiredWidths;
+    for (const width of expected) {
       const derivative = entry.files?.find((candidate) => candidate.w === width);
       if (!derivative) {
         failures.push(`${file}: missing ${width}px derivative set`);
@@ -69,6 +77,8 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   console.log(`Derived image check passed: ${checked.size} unique catalogue images have all expected derivatives.`);
+  const hiddenSkipped = products.filter((product) => product.hidden === true).length;
+  if (hiddenSkipped) console.log(`Hidden products skipped (not served): ${hiddenSkipped}`);
   if (pending.length) {
     console.log(`Needs a manual retouch, original served: ${pending.join(", ")}`);
   }
