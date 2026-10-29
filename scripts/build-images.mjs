@@ -14,6 +14,11 @@
  *      (72% of the longest side), centred, with a 2% upward optical shift
  *   3. keep a transparent background — the UI multiplies away white residues
  *
+ * A photo with a coloured (or otherwise unusable) background is NEVER cut: it
+ * is written as a "framed" family — the original pixels, resized and encoded,
+ * aspect ratio untouched — so the page still gets a light file while the owner
+ * prepares a proper cut-out. The manifest marks those entries `mode: "framed"`.
+ *
  * Usage: npm run build:images [--force] [--slug=pf020]
  * Idempotent: skips products whose outputs are newer than the source.
  */
@@ -34,6 +39,9 @@ const RETOUCH_PATH = path.join(ROOT, ".audit", "needs-retouch.txt");
 const SUBJECT_SHARE = 0.72;
 /** Optical centring: nudge the subject up so the optical mass sits centred. */
 const OPTICAL_SHIFT = 0.02;
+
+/** Widths for a `framed` family (no upscaling past the source). */
+const FRAMED_WIDTHS = [400, 800, 1200];
 
 const OUTPUTS = [
   { name: "card-400", w: 400, format: "avif", quality: 60 },
@@ -113,6 +121,82 @@ async function normalise(absSrc) {
   return { buffer, canvas, background: info.background, box };
 }
 
+/**
+ * Resize-only family for a photo we cannot normalise. Same pixels, same
+ * aspect ratio, no trim and no pad — the rectangular photo stays rectangular,
+ * exactly as the owner framed it. Never upscales.
+ */
+async function buildFramed(slug, src, absSrc, info, hash, dir, relDir, { force, previousEntry }) {
+  const outputs = [];
+  for (const width of FRAMED_WIDTHS) {
+    for (const format of ["avif", "webp"]) {
+      outputs.push({ name: `framed-${width}`, w: width, format });
+    }
+  }
+
+  const reusable =
+    !force &&
+    previousEntry?.sourceHash === hash &&
+    previousEntry?.mode === "framed" &&
+    (await Promise.all(
+      outputs.map((out) => exists(path.join(dir, `${out.name}.${out.format}`))),
+    )).every(Boolean);
+
+  if (reusable) {
+    const files = await Promise.all(
+      outputs.map(async (out) => {
+        const stat = await fs.stat(path.join(dir, `${out.name}.${out.format}`));
+        return { ...out, bytes: stat.size };
+      }),
+    );
+    return {
+      slug,
+      status: "cached",
+      src,
+      dir: relDir,
+      mode: "framed",
+      background: info.background,
+      files,
+      sourceHash: hash,
+      sourceBytes: (await fs.stat(absSrc)).size,
+    };
+  }
+
+  await fs.mkdir(dir, { recursive: true });
+  const files = [];
+  for (const out of outputs) {
+    const file = path.join(dir, `${out.name}.${out.format}`);
+    let image = sharp(absSrc).resize({
+      width: out.w,
+      withoutEnlargement: true,
+    });
+    image =
+      out.format === "avif"
+        ? image.avif({ quality: 62, effort: 4 })
+        : image.webp({ quality: 80, effort: 5 });
+    await image.toFile(file);
+    const meta = await sharp(file).metadata();
+    files.push({
+      ...out,
+      w: meta.width ?? out.w,
+      h: meta.height ?? out.w,
+      bytes: (await fs.stat(file)).size,
+    });
+  }
+
+  return {
+    slug,
+    status: "built",
+    src,
+    dir: relDir,
+    mode: "framed",
+    background: info.background,
+    files,
+    sourceHash: hash,
+    sourceBytes: (await fs.stat(absSrc)).size,
+  };
+}
+
 async function buildImage(slug, src, { force, previousEntry }) {
   const absSrc = path.join(ROOT, "public", src.replace(/^\//, ""));
 
@@ -125,14 +209,14 @@ async function buildImage(slug, src, { force, previousEntry }) {
   const hash = await sourceHash(absSrc);
 
   const info = await analyse(absSrc);
-  // A coloured/other background is never auto-cut — the owner retouches it.
+  // A coloured/other background is never auto-cut — but it is still served
+  // light, as a framed (resize-only) family, until the owner retouches it.
   if (info.background === "coloured") {
-    return {
-      slug,
-      status: "needs-retouch",
-      src,
-      background: info.background,
-    };
+    const framed = await buildFramed(slug, src, absSrc, info, hash, dir, relDir, {
+      force,
+      previousEntry,
+    });
+    return { ...framed, needsRetouch: true };
   }
 
   if (!force && (await isUpToDate(dir, previousEntry, hash))) {
@@ -193,16 +277,22 @@ function manifestEntry(result) {
   const byWidth = new Map();
   for (const file of result.files) {
     if (!byWidth.has(file.w)) byWidth.set(file.w, { w: file.w });
-    byWidth.get(file.w)[file.format] = `${result.dir}/${file.name}.${file.format}`;
+    const bucket = byWidth.get(file.w);
+    bucket[file.format] = `${result.dir}/${file.name}.${file.format}`;
+    if (file.h) bucket.h = file.h;
   }
+  const framed = result.mode === "framed";
   return {
     source: result.src,
     sourceHash: result.sourceHash,
     background: result.background,
+    mode: framed ? "framed" : "cutout",
     // White sources keep a white residue inside the bottle cut-out; multiply
-    // makes it disappear into the stage instead of showing a grey box.
-    blend: result.background === "transparent" ? "normal" : "multiply",
-    canvas: result.canvas,
+    // makes it disappear into the stage instead of showing a grey box. A
+    // framed photo is opaque, so it is always drawn as-is.
+    blend:
+      framed || result.background === "transparent" ? "normal" : "multiply",
+    canvas: result.canvas ?? null,
     files: [...byWidth.values()].sort((a, b) => a.w - b.w),
   };
 }
@@ -258,9 +348,7 @@ async function main() {
     });
     results.push(result);
     const label = String(entry.slug).padEnd(8);
-    if (result.status === "needs-retouch") {
-      console.log(`  ⚠ ${label} needs a manual retouch (${result.background} background) — original kept`);
-    } else if (result.status === "missing-source") {
+    if (result.status === "missing-source") {
       console.log(`  ✖ ${label} source missing: ${result.src}`);
     } else if (result.status === "empty-frame") {
       console.log(`  ✖ ${label} no subject found in the frame`);
@@ -269,7 +357,7 @@ async function main() {
       console.log(
         `  ${result.status === "cached" ? "·" : "✓"} ${label} ${result.files.length} files, ${kb(total)}${
           result.sourceBytes ? ` (source ${kb(result.sourceBytes)})` : ""
-        }`,
+        }${result.needsRetouch ? "  ⚠ framed (retouch pending)" : ""}`,
       );
     }
   }
@@ -300,8 +388,11 @@ async function main() {
   await fs.writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
   const retouch = results
-    .filter((r) => r.status === "needs-retouch")
-    .map((r) => `${r.slug}\t${r.src}\t${r.background} background — cut it out manually, then re-run build:images`);
+    .filter((r) => r.needsRetouch)
+    .map(
+      (r) =>
+        `${r.slug}\t${r.src}\t${r.background} background — served as a framed (uncut) resize for now; give it a transparent cut-out, then run: npm run build:images -- --slug=${r.slug} --force`,
+    );
   await fs.mkdir(path.dirname(RETOUCH_PATH), { recursive: true });
   await fs.writeFile(
     RETOUCH_PATH,
@@ -319,10 +410,10 @@ async function main() {
   const built = results.filter((r) => r.files?.length);
   const sourceTotal = built.reduce((sum, r) => sum + (r.sourceBytes ?? 0), 0);
   const derivedTotal = built.reduce((sum, r) => sum + r.files.reduce((s, f) => s + f.bytes, 0), 0);
-  const skipped = results.filter((r) => r.status === "needs-retouch");
+  const skipped = results.filter((r) => r.needsRetouch);
 
   console.log("\n═══ DERIVED IMAGES ═══");
-  console.log(`built ${results.filter((r) => r.status === "built").length} · cached ${results.filter((r) => r.status === "cached").length} · skipped ${skipped.length}`);
+  console.log(`built ${results.filter((r) => r.status === "built").length} · cached ${results.filter((r) => r.status === "cached").length} · framed ${skipped.length}`);
   if (built.length) {
     console.log(`originals (this run)   ${kb(sourceTotal)}`);
     console.log(`all derivatives        ${kb(derivedTotal)}`);
@@ -336,7 +427,9 @@ async function main() {
     );
   }
   if (skipped.length) {
-    console.log(`\nNeeds retouch (originals kept): ${skipped.map((s) => s.slug).join(", ")}`);
+    console.log(
+      `\nRetouch pending (framed resize served meantime): ${skipped.map((s) => s.slug).join(", ")}`,
+    );
   }
   console.log(`Manifest: ${path.relative(ROOT, MANIFEST_PATH)}`);
 }

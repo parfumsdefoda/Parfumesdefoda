@@ -67,12 +67,16 @@ export function ProductImage({
   // The derived canvas is square; on a 4:5 stage `cover` crops only the empty
   // side margins (the subject never exceeds 72% of the canvas), which is what
   // keeps the bottle the same size on every card. Originals keep `contain`.
+  // A `framed` family is the untouched photo (retouch pending): it is shown
+  // whole and never cropped, exactly like its original.
   const imgClassName = cn(
     "absolute inset-0 h-full w-full",
     sources
-      ? frame === "stage"
-        ? "object-cover"
-        : "object-contain"
+      ? sources.mode === "framed"
+        ? "object-contain"
+        : frame === "stage"
+          ? "object-cover"
+          : "object-contain"
       : "object-contain p-4",
     className,
   );

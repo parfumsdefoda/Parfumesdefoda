@@ -39,11 +39,18 @@ for (const product of products) {
       continue;
     }
     if (!['normal', 'multiply'].includes(entry.blend)) failures.push(`${file}: invalid blend value`);
-    for (const width of requiredWidths) {
+    // A `framed` family is a resize-only copy of a photo awaiting retouch: it
+    // keeps the original aspect ratio and never has the 2000px tier.
+    const framed = entry.mode === 'framed';
+    const widths = framed ? [400, 800, 1200] : requiredWidths;
+    for (const width of widths) {
       const derivative = entry.files?.find((candidate) => candidate.w === width);
       if (!derivative) {
         failures.push(`${file}: missing ${width}px derivative set`);
         continue;
+      }
+      if (framed && !(typeof derivative.h === 'number' && derivative.h > 0)) {
+        failures.push(`${file}: ${width}px framed set has no height`);
       }
       const formats = width === 2000 ? ["webp"] : ["avif", "webp"];
       for (const format of formats) {

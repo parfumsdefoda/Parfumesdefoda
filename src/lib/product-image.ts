@@ -12,10 +12,17 @@ import manifestJson from "@/data/image-manifest.json";
 
 export type ImageTier = "card" | "pdp";
 export type ImageBlend = "normal" | "multiply";
+/**
+ * `cutout` — normalised square cut-out, cropped to the stage.
+ * `framed` — the original photo, resize-only, drawn whole (retouch pending).
+ */
+export type ImageMode = "cutout" | "framed";
 
 export interface ManifestFile {
-  /** Rendered width in pixels (derived frames are square). */
+  /** Rendered width in pixels (cut-out frames are square). */
   w: number;
+  /** Real height, recorded for framed (aspect-preserving) files. */
+  h?: number;
   avif?: string;
   webp?: string;
 }
@@ -23,10 +30,12 @@ export interface ManifestFile {
 export interface ManifestEntry {
   /** Original file this was derived from (kept as the ultimate fallback). */
   source: string;
-  background: "transparent" | "pure-white" | "off-white";
+  background: "transparent" | "pure-white" | "off-white" | "coloured";
   /** `multiply` makes a white cut-out vanish into the stage. */
   blend: ImageBlend;
-  canvas: number;
+  /** Absent on older entries, which are all cut-outs. */
+  mode?: ImageMode;
+  canvas: number | null;
   files: ManifestFile[];
 }
 
@@ -75,6 +84,7 @@ export interface ProductImageSources {
   width: number;
   height: number;
   blend: ImageBlend;
+  mode: ImageMode;
 }
 
 function toSrcSet(files: ManifestFile[], format: "avif" | "webp"): string {
@@ -110,7 +120,8 @@ export function buildProductImageSources(
     src: largest.webp as string,
     srcSet: webp,
     width: largest.w,
-    height: largest.w,
+    height: largest.h ?? largest.w,
     blend: entry.blend,
+    mode: entry.mode ?? "cutout",
   };
 }
