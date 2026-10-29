@@ -7,6 +7,7 @@ import {
   loadCatalog,
 } from "@/lib/product-grounding";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { isSameOriginRequest } from "@/lib/request-origin";
 import type { ChatProduct } from "@/features/chat-assistant/types";
 
 // ─── Config ─────────────────────────────────────────────────────────────────
@@ -69,6 +70,12 @@ Never include product codes that are not in the catalog provided below.
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  // A third-party page must not be able to spend the store's AI credits (or
+  // probe the assistant) on a visitor's behalf. Same guard as /api/orders.
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json({ error: "طلب غير مصرح به" }, { status: 403 });
+  }
+
   // Rate limiting by IP
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded?.split(",")[0]?.trim() || "unknown";

@@ -43,6 +43,9 @@ const CATALOG_QUERY_KEYS = [
 ];
 
 const nextConfig: NextConfig = {
+  // Do not advertise the framework on every response.
+  poweredByHeader: false,
+
   async redirects() {
     return CATALOG_QUERY_KEYS.map((key) => ({
       source: "/",

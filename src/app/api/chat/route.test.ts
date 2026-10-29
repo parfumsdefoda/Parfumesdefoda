@@ -43,6 +43,19 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("POST /api/chat input and privacy boundaries", () => {
+  it("rejects a cross-site origin (BUG-006 regression)", async () => {
+    const crossSite = new Request("http://localhost:3000/api/chat", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: "https://evil.example" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "مرحبا" }] }),
+    });
+
+    const response = await POST(crossSite);
+
+    expect(response.status).toBe(403);
+    expect(getChatCompletion).not.toHaveBeenCalled();
+  });
+
   it("rejects an oversized Content-Length before parsing", async () => {
     const response = await POST(request("{}", "999999"));
     expect(response.status).toBe(413);
