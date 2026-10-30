@@ -1,4 +1,6 @@
-import { ProductCard, type ProductCardLabels } from "./product-card";
+import { CARD_IMAGE_SIZES, ProductCard, type ProductCardLabels } from "./product-card";
+import { buildProductImageSources } from "@/lib/product-image";
+import { hasProductImage } from "@/lib/card-presentation";
 import { orderForCatalog } from "@/lib/catalog-order";
 import type { GridColumns } from "@/lib/grid-columns";
 import type { Product } from "@/types";
@@ -54,6 +56,11 @@ export function ProductGrid({
   className,
 }: ProductGridProps) {
   const ordered = orderForCatalog(products);
+  // The first card is the mobile LCP element on a catalogue page. It is already
+  // eager + high priority, but the browser only discovers it while parsing the
+  // body; a head preload removes that delay on a slow connection.
+  const first = ordered[0];
+  const firstSources = first && hasProductImage(first) ? buildProductImageSources(first.slug, "card") : null;
 
   return (
     <div
@@ -65,6 +72,17 @@ export function ProductGrid({
         className ?? "",
       ].join(" ")}
     >
+      {firstSources?.avif && (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imageSrcSet={firstSources.avif}
+          imageSizes={CARD_IMAGE_SIZES}
+          fetchPriority="high"
+        />
+      )}
+
       {ordered.map((product, index) => (
         <ProductCard
           key={product.id}

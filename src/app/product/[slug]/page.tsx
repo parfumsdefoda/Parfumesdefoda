@@ -5,6 +5,7 @@ import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { buildProductTitle, getSiteUrl, productPath } from "@/lib/seo";
 import { buildProductImageSources } from "@/lib/product-image";
+import { isComingSoon } from "@/lib/product-availability";
 import { buildProductJsonLd } from "@/lib/product-jsonld";
 import { selectRelatedProducts } from "@/lib/related-products";
 import { getShippingFee } from "@/lib/shipping";
@@ -110,9 +111,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const jsonLd = buildProductJsonLd(product, siteUrl);
   const related = selectRelatedProducts(product, products);
+  // The stage photo is the LCP element. Eager + high priority still waits for
+  // the body parser; one media-scoped head preload starts the right tier at
+  // once (phones get 92vw, desktops the 600px column).
+  const coverSources = isComingSoon(product)
+    ? null
+    : buildProductImageSources(product.slug, "pdp");
 
   return (
     <>
+      {coverSources?.avif && (
+        <>
+          <link
+            rel="preload"
+            as="image"
+            type="image/avif"
+            imageSrcSet={coverSources.avif}
+            imageSizes="92vw"
+            media="(max-width: 767px)"
+            fetchPriority="high"
+          />
+          <link
+            rel="preload"
+            as="image"
+            type="image/avif"
+            imageSrcSet={coverSources.avif}
+            imageSizes="(max-width: 1280px) 50vw, 600px"
+            media="(min-width: 768px)"
+            fetchPriority="high"
+          />
+        </>
+      )}
       <script
         type="application/ld+json"
         // Structured data built from the catalogue's own fields — no rating,

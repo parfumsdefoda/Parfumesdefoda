@@ -63,7 +63,7 @@ export interface ProductCardProps {
  * card on the page: half the viewport on phones, a third on tablets, a quarter
  * on wide screens.
  */
-const CARD_IMAGE_SIZES =
+export const CARD_IMAGE_SIZES =
   "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
 
 // ─── Component ──────────────────────────────────────────────────────────────
