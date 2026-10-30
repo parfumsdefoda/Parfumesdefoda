@@ -18,6 +18,15 @@ interface SearchBarProps {
   className?: string;
 }
 
+/**
+ * SearchBar — the catalogue toolbar's search field.
+ *
+ * It wears the same tokens as the header's search pill (surface fill, a 1px
+ * `--color-border-strong` edge, the brand focus ring) at the same 44px height
+ * as the header's panel field, so the two searches read as one control and the
+ * catalogue field never looks greyed out or disabled. Icons sit on logical
+ * edges, so RTL mirrors without a second rule.
+ */
 export function SearchBar({
   value,
   onChange,
@@ -32,7 +41,7 @@ export function SearchBar({
         {label}
       </label>
       <Search
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--neutral-400)] pointer-events-none"
+        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-[var(--color-text-muted)]"
         aria-hidden="true"
       />
       <Input
@@ -41,17 +50,17 @@ export function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 ps-10 pe-10 rounded-full bg-[var(--bg-secondary)] border-[var(--border-light)] focus-visible:border-[var(--color-accent)] focus-visible:ring-[var(--color-accent)]/20"
+        className="h-11 rounded-pill border border-[var(--color-border-strong)] bg-[var(--color-surface-muted)] ps-10 pe-11 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] transition-colors focus-visible:border-[var(--color-brand)] focus-visible:bg-[var(--color-surface)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-0"
       />
       {value && (
         <Button
           variant="ghost"
           size="icon-xs"
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--neutral-400)] hover:text-[var(--neutral-700)]"
+          className="absolute end-2 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
           aria-label={clearLabel}
         >
-          <X className="h-3.5 w-3.5" />
+          <X aria-hidden="true" />
         </Button>
       )}
     </div>
