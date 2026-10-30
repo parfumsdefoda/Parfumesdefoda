@@ -58,10 +58,34 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Log mode writes the exact email/WhatsApp payload to .tmp/order-previews
+      # and contacts nobody; the channel keys are blanked so a stray runtime
+      # path could not send anything even if the mode were ignored.
+      - name: First-load JS budget
+        env:
+          ORDER_CHANNELS_MODE: log
+          RESEND_API_KEY: ""
+          OWNER_EMAIL: ""
+          RESEND_FROM_EMAIL: ""
+          OPENAI_API_KEY: ""
+        run: |
+          npx next start --hostname 127.0.0.1 --port 3227 &
+          SERVER_PID=$!
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:3227/ && break; sleep 2; done
+          npm run perf:budget
+          STATUS=$?
+          kill "$SERVER_PID" 2>/dev/null || true
+          exit $STATUS
+
       - name: Run Playwright against production build
         run: npm run e2e -- --project=chromium-desktop --project=chromium-mobile
         env:
           CI: true
+          ORDER_CHANNELS_MODE: log
+          RESEND_API_KEY: ""
+          OWNER_EMAIL: ""
+          RESEND_FROM_EMAIL: ""
+          OPENAI_API_KEY: ""
 
       - name: Upload Playwright report on failure
         if: failure()

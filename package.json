@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-derived-images.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -19,6 +20,7 @@
     "e2e:ui": "playwright test --ui",
     "e2e:update": "playwright test --update-snapshots",
     "perf:check": "node scripts/perf-check.mjs",
+    "perf:budget": "node scripts/perf-budget.mjs",
     "preflight": "node scripts/preflight.mjs",
     "audit:images": "node scripts/audit-images.mjs",
     "build:images": "node scripts/build-images.mjs",
