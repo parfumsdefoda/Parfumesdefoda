@@ -7,13 +7,13 @@ attention to itself.
 
 ## Where the tokens live
 
-| Layer | File | Notes |
-| --- | --- | --- |
-| Tokens | `src/app/globals.css` | The only place colours, radii, shadows, motion and the type scale are declared. |
-| Brand inputs | `data/theme.json` | `colors.accent → --brand-purple`, `colors.gold → --brand-gold`, `colors.secondary → --brand-green`, `colors.primary → --brand-white`. |
-| Injection | `src/app/layout.tsx` | The four brand values are written as an inline style on `<html>` during the **server** render, so no palette flash after hydration. |
-| Contrast mirror | `src/lib/design-tokens.ts` | Reproduces the CSS derivations in TypeScript so the dev page and the test can measure real ratios. |
-| Guard | `npm run check:tokens` | Fails on raw hex, arbitrary `shadow-[…]`, sub-14px text, or an undeclared `var(--token)`. |
+| Layer           | File                       | Notes                                                                                                                                 |
+| --------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Tokens          | `src/app/globals.css`      | The only place colours, radii, shadows, motion and the type scale are declared.                                                       |
+| Brand inputs    | `data/theme.json`          | `colors.accent → --brand-purple`, `colors.gold → --brand-gold`, `colors.secondary → --brand-green`, `colors.primary → --brand-white`. |
+| Injection       | `src/app/layout.tsx`       | The four brand values are written as an inline style on `<html>` during the **server** render, so no palette flash after hydration.   |
+| Contrast mirror | `src/lib/design-tokens.ts` | Reproduces the CSS derivations in TypeScript so the dev page and the test can measure real ratios.                                    |
+| Guard           | `npm run check:tokens`     | Fails on raw hex, arbitrary `shadow-[…]`, sub-14px text, or an undeclared `var(--token)`.                                             |
 
 Nothing else may define a colour. `src/lib/email.ts` is the only exception
 (mail clients cannot read CSS variables), and `src/lib/design-tokens.ts`
@@ -26,23 +26,23 @@ TypeScript to re-theme the store.
 
 Each hue has exactly one job.
 
-| Role | Token | Value | Use |
-| --- | --- | --- | --- |
-| Brand / action | `--color-brand` (`--purple-600`) | `#632989` | Primary buttons, prices, selected states, links, focus ring |
-| Deep section | `--purple-950` | `#341648` | Dark panels, chat card |
-| Tint | `--purple-50` | `#F6F2F8` | Secondary button hover, quiet backgrounds |
-| Signature detail | `--brand-gold` | `#D4AF37` | Hairlines, ornaments, one element per component |
-| Gold text | `--color-gold-text` (`--gold-700`) | `#836D22` | Gold labels (4.7:1 on `gold-50`, 5.0:1 on white) |
-| Status | `--color-positive` (`--green-700`) | `#497535` | In-stock dot, success text (5.4:1 on white) |
-| Status tint | `--green-50` | `#F1F9EC` | Positive badge background |
-| Danger | `--color-danger` | `#B3261E` | Errors, destructive actions |
-| Text | `--color-text` (`--neutral-800`) | `#1D1D1F` | Body copy |
-| Muted text | `--color-text-muted` (`--neutral-500`) | `#5B5B66` | Secondary copy, captions |
-| Page | `--color-bg` | `#FBFAF9` | Page background |
-| Surface | `--color-surface` | `#FFFFFF` | Cards, sheets, inputs |
-| Muted surface | `--color-surface-muted` | `#F5F3F7` | Neutral badges, hover states |
-| Hairline | `--color-border` | `#E7E3EC` | Dividers, card edges |
-| Control edge | `--color-border-strong` | `#8C8499` | Input/checkbox borders (3.7:1 — a visible edge without a shadow) |
+| Role             | Token                                  | Value     | Use                                                              |
+| ---------------- | -------------------------------------- | --------- | ---------------------------------------------------------------- |
+| Brand / action   | `--color-brand` (`--purple-600`)       | `#632989` | Primary buttons, prices, selected states, links, focus ring      |
+| Deep section     | `--purple-950`                         | `#341648` | Dark panels, chat card                                           |
+| Tint             | `--purple-50`                          | `#F6F2F8` | Secondary button hover, quiet backgrounds                        |
+| Signature detail | `--brand-gold`                         | `#D4AF37` | Hairlines, ornaments, one element per component                  |
+| Gold text        | `--color-gold-text` (`--gold-700`)     | `#836D22` | Gold labels (4.7:1 on `gold-50`, 5.0:1 on white)                 |
+| Status           | `--color-positive` (`--green-700`)     | `#497535` | In-stock dot, success text (5.4:1 on white)                      |
+| Status tint      | `--green-50`                           | `#F1F9EC` | Positive badge background                                        |
+| Danger           | `--color-danger`                       | `#B3261E` | Errors, destructive actions                                      |
+| Text             | `--color-text` (`--neutral-800`)       | `#1D1D1F` | Body copy                                                        |
+| Muted text       | `--color-text-muted` (`--neutral-500`) | `#5B5B66` | Secondary copy, captions                                         |
+| Page             | `--color-bg`                           | `#FBFAF9` | Page background                                                  |
+| Surface          | `--color-surface`                      | `#FFFFFF` | Cards, sheets, inputs                                            |
+| Muted surface    | `--color-surface-muted`                | `#F5F3F7` | Neutral badges, hover states                                     |
+| Hairline         | `--color-border`                       | `#E7E3EC` | Dividers, card edges                                             |
+| Control edge     | `--color-border-strong`                | `#8C8499` | Input/checkbox borders (3.7:1 — a visible edge without a shadow) |
 
 Rules:
 
@@ -54,16 +54,16 @@ Rules:
 
 Measured contrast (WCAG 2.1, default theme):
 
-| Pair | Ratio |
-| --- | --- |
-| Text on page | 16.1:1 |
-| Text on surface | 16.8:1 |
-| Muted text on surface | 6.7:1 |
-| White on brand (primary button) | 9.5:1 |
-| Brand on white (secondary button) | 9.5:1 |
-| Gold text on gold-50 (featured badge) | 4.7:1 |
-| Positive text on green-50 | 5.0:1 |
-| White on positive (success state) | 5.4:1 |
+| Pair                                  | Ratio  |
+| ------------------------------------- | ------ |
+| Text on page                          | 16.1:1 |
+| Text on surface                       | 16.8:1 |
+| Muted text on surface                 | 6.7:1  |
+| White on brand (primary button)       | 9.5:1  |
+| Brand on white (secondary button)     | 9.5:1  |
+| Gold text on gold-50 (featured badge) | 4.7:1  |
+| Positive text on green-50             | 5.0:1  |
+| White on positive (success state)     | 5.4:1  |
 
 The full table (22 pairs) lives at `/dev/design-system` and is asserted by
 `src/lib/design-tokens.test.ts`.
@@ -74,15 +74,15 @@ Cairo, Arabic subset, **three weights only**: 400 / 500 / 700. No
 letter-spacing and no uppercase tracking on Arabic. Line heights are tuned for
 Arabic: tight for display, generous for body.
 
-| Utility | Size | Line height | Use |
-| --- | --- | --- | --- |
-| `text-display` | `clamp(40px, 5.2vw, 64px)` | 1.15 | Hero statements |
-| `text-title-1` | `clamp(32px, 3.6vw, 48px)` | 1.25 | Page title |
-| `text-title-2` | `clamp(26px, 2.6vw, 32px)` | 1.25 | Product name on the PDP |
-| `text-title-3` | `clamp(20px, 2vw, 24px)` | 1.25 | Section titles, price |
-| `text-headline` | `clamp(18px, 1.5vw, 20px)` | 1.4 | Card titles |
-| `text-body` | `clamp(16px, 1.15vw, 17px)` | 1.7 | Running text |
-| `text-caption` | `14px` | 1.6 | **The floor.** Labels, chips, meta |
+| Utility         | Size                        | Line height | Use                                |
+| --------------- | --------------------------- | ----------- | ---------------------------------- |
+| `text-display`  | `clamp(40px, 5.2vw, 64px)`  | 1.15        | Hero statements                    |
+| `text-title-1`  | `clamp(32px, 3.6vw, 48px)`  | 1.25        | Page title                         |
+| `text-title-2`  | `clamp(26px, 2.6vw, 32px)`  | 1.25        | Product name on the PDP            |
+| `text-title-3`  | `clamp(20px, 2vw, 24px)`    | 1.25        | Section titles, price              |
+| `text-headline` | `clamp(18px, 1.5vw, 20px)`  | 1.4         | Card titles                        |
+| `text-body`     | `clamp(16px, 1.15vw, 17px)` | 1.7         | Running text                       |
+| `text-caption`  | `14px`                      | 1.6         | **The floor.** Labels, chips, meta |
 
 Every surface uses at most seven sizes and three weights. Nothing renders
 below 14px — `check:tokens` fails the build if it tries to.
@@ -115,14 +115,14 @@ shimmer) and collapses transitions.
 
 ### Button (`src/components/ui/button.tsx`)
 
-| Variant | Look | Use |
-| --- | --- | --- |
-| `primary` | purple fill, white text, pill | The one action on a screen |
-| `secondary` | purple outline, transparent | The alternative action |
-| `tertiary` | purple text, no chrome | Inline "learn more" |
-| `destructive` | danger fill | Irreversible actions |
-| `outline` (legacy) | neutral outline | Quantity steppers, dialog close |
-| `ghost` (legacy) | transparent, surface-muted hover | Icon and Chrome controls |
+| Variant            | Look                             | Use                             |
+| ------------------ | -------------------------------- | ------------------------------- |
+| `primary`          | purple fill, white text, pill    | The one action on a screen      |
+| `secondary`        | purple outline, transparent      | The alternative action          |
+| `tertiary`         | purple text, no chrome           | Inline "learn more"             |
+| `destructive`      | danger fill                      | Irreversible actions            |
+| `outline` (legacy) | neutral outline                  | Quantity steppers, dialog close |
+| `ghost` (legacy)   | transparent, surface-muted hover | Icon and Chrome controls        |
 
 Sizes: `sm` 40px, `default`/`md` 44px, `lg` 52px, `icon` 44px,
 `icon-sm` 40px, `icon-xs` 36px with a transparent 4px bleed (44px target).
@@ -185,38 +185,43 @@ The query string is the single source of truth. The server reads it, filters
 and counts the catalogue, and renders the grid; the controls only rewrite it
 with `router.replace(..., { scroll: false })`.
 
-| Param | Values |
-| --- | --- |
-| `gender` | `رجالي`, `نسائي`, `للجنسين` (comma-separated) |
-| `style` | `شرقي`, `غربي` |
-| `tier` | `ديزاينر`, `نيش` — never `دووب` |
-| `season` | `صيفي`, `شتوي`, `خريفي`, `ربيعي` |
-| `performance` | `أداء ضعيف`, `أداء متوسط`, `أداء قوي`, `أداء صاروخي` |
-| `price` | `up-to-120`, `121-to-150`, `over-150` |
-| `available` | `1` |
-| `sort` | `featured` (default), `price-asc`, `price-desc`, `alphabetical` |
-| `q` | the search query, trimmed to 80 characters |
+| Param         | Values                                                          |
+| ------------- | --------------------------------------------------------------- |
+| `gender`      | `رجالي`, `نسائي`, `للجنسين` (comma-separated)                   |
+| `style`       | `شرقي`, `غربي`                                                  |
+| `tier`        | `ديزاينر`, `نيش` — never `دووب`                                 |
+| `performance` | `أداء ضعيف`, `أداء متوسط`, `أداء قوي`, `أداء صاروخي`            |
+| `price`       | `up-to-120`, `121-to-150`, `over-150`                           |
+| `available`   | `1`                                                             |
+| `sort`        | `featured` (default), `price-asc`, `price-desc`, `alphabetical` |
+| `q`           | the search query, trimmed to 80 characters                      |
 
 An unknown value is ignored, so a hand-edited URL cannot produce a broken
 view. Defaults are omitted from the URL, and the key order is fixed.
 
-- **Facet counts** are computed against the *other* active filters (never the
-group's own), so a count answers "what would adding this show?". Options that
-exist in the catalogue stay visible with a zero count and are disabled; an
-option no product uses is not offered at all.
+**`season` is not a filter.** It stays optional product data (the PDP's
+"الفصل والأداء" row still shows it), but the catalogue offers no الفصل facet, no
+chip and no count. A legacy link such as `/shop?season=شتوي` loads normally, the
+parameter is dropped silently, and it never appears in a canonical URL or a
+generated link.
+
+- **Facet counts** are computed against the _other_ active filters (never the
+  group's own), so a count answers "what would adding this show?". Options that
+  exist in the catalogue stay visible with a zero count and are disabled; an
+  option no product uses is not offered at all.
 - **Price bands** describe the cheapest buyable size. Their boundaries come
-from the data, not from round numbers: the catalogue's entry prices are 120,
-150, 180 and 220 EGP, so 120 and 150 are the only cuts that separate real
-groups. The catalogue currently clusters at 120 (26 products), which the facet
-counts show honestly.
+  from the data, not from round numbers: the catalogue's entry prices are 120,
+  150, 180 and 220 EGP, so 120 and 150 are the only cuts that separate real
+  groups. The catalogue currently clusters at 120 (26 products), which the facet
+  counts show honestly.
 - **Ordering** is availability first: buyable, then sold out, then coming soon,
-stable inside each group. The chosen sort decides everything else.
+  stable inside each group. The chosen sort decides everything else.
 - **Layout**: 2 columns below 640px (12px gap), 3 columns to 1279px, 4 columns
-from 1280px (24px gap). Laptop gets a bar of pill triggers with popovers; below
-1024px a single "الفلاتر" button opens a full-height bottom sheet with the same
-groups and a live "عرض N منتج". Closing the sheet returns focus to its trigger.
+  from 1280px (24px gap). Laptop gets a bar of pill triggers with popovers; below
+  1024px a single "الفلاتر" button opens a full-height bottom sheet with the same
+  groups and a live "عرض N منتج". Closing the sheet returns focus to its trigger.
 - The result count is an `aria-live="polite"` region; every checkbox, chip and
-toggle has an Arabic accessible name.
+  toggle has an Arabic accessible name.
 
 ## Reference page
 

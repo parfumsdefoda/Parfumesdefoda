@@ -7,7 +7,8 @@
  *
  * Rules:
  * - Unknown values are ignored, never applied. A hand-edited URL can only ever
- *   produce a valid state.
+ *   produce a valid state — a legacy `?season=شتوي` link still loads, and the
+ *   season is simply not a filter any more (the data stays optional).
  * - The serialised form is deterministic (fixed key order, no empty values), so
  *   the same view always has the same URL and a link never accumulates noise.
  * - Values are the catalogue's own Arabic labels (the data is the vocabulary);
@@ -17,13 +18,7 @@
  */
 
 import type { Product } from "@/types";
-import {
-  GENDERS,
-  PERFORMANCES,
-  PRODUCT_FORMS,
-  PRODUCT_TYPES,
-  SEASONS,
-} from "./product-vocabulary";
+import { GENDERS, PERFORMANCES, PRODUCT_FORMS, PRODUCT_TYPES } from "./product-vocabulary";
 import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
 import { productForm } from "./card-presentation";
 import { formatSizeLabel } from "./currency";
@@ -50,15 +45,7 @@ export function isSizeFilterValue(value: string): boolean {
 // ─── State ──────────────────────────────────────────────────────────────────
 
 /** Every filter group, in URL order. `available` is a toggle, not a list. */
-export const FILTER_KEYS = [
-  "gender",
-  "style",
-  "form",
-  "tier",
-  "season",
-  "performance",
-  "size",
-] as const;
+export const FILTER_KEYS = ["gender", "style", "form", "tier", "performance", "size"] as const;
 
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
@@ -68,7 +55,6 @@ export interface CatalogState {
   /** "عطر" / "زيت عطري" — only offered when both exist. */
   form: string[];
   tier: string[];
-  season: string[];
   performance: string[];
   /** Bottle sizes (see isSizeFilterValue). */
   size: string[];
@@ -86,7 +72,6 @@ export const EMPTY_CATALOG_STATE: CatalogState = {
   style: [],
   form: [],
   tier: [],
-  season: [],
   performance: [],
   size: [],
   available: false,
@@ -105,39 +90,28 @@ const ALLOWED: Record<Exclude<FilterKey, "size">, readonly string[]> = {
   style: PRODUCT_TYPES,
   form: PRODUCT_FORMS,
   tier: FILTERABLE_TIERS,
-  season: SEASONS,
   performance: PERFORMANCES,
 };
 
-const SORT_OPTIONS: readonly SortOption[] = [
-  "featured",
-  "price-asc",
-  "price-desc",
-  "alphabetical",
-];
+const SORT_OPTIONS: readonly SortOption[] = ["featured", "price-asc", "price-desc", "alphabetical"];
 
 /** Longest search query we keep — a URL is not a text field. */
 export const MAX_QUERY_LENGTH = 80;
 
-export type CatalogSearchParams = Readonly<
-  Record<string, string | string[] | undefined>
->;
+export type CatalogSearchParams = Readonly<Record<string, string | string[] | undefined>>;
 
 function firstValue(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] ?? "";
   return value ?? "";
 }
 
-function readList(
-  params: CatalogSearchParams,
-  key: FilterKey,
-): string[] {
+function readList(params: CatalogSearchParams, key: FilterKey): string[] {
   const allowed = key === "size" ? null : ALLOWED[key];
   const parts = firstValue(params[key])
     .split(",")
     .map((value) => value.trim())
-    .filter((value) =>
-      value !== "" && (allowed ? allowed.includes(value) : isSizeFilterValue(value)),
+    .filter(
+      (value) => value !== "" && (allowed ? allowed.includes(value) : isSizeFilterValue(value)),
     );
   return [...new Set(parts)];
 }
@@ -159,7 +133,6 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
     style: readList(params, "style"),
     form: readList(params, "form"),
     tier: readList(params, "tier"),
-    season: readList(params, "season"),
     performance: readList(params, "performance"),
     size: readList(params, "size"),
     available: firstValue(params.available) === "1",
@@ -195,10 +168,7 @@ export function serializeCatalogState(
 }
 
 /** A catalogue URL for a state. */
-export function catalogHref(
-  state: CatalogState,
-  basePath = "/shop",
-): string {
+export function catalogHref(state: CatalogState, basePath = "/shop"): string {
   const query = serializeCatalogState(state);
   return query ? `${basePath}?${query}` : basePath;
 }
@@ -206,11 +176,7 @@ export function catalogHref(
 // ─── Transitions ────────────────────────────────────────────────────────────
 
 /** Add or remove one value of a group. */
-export function toggleFacetValue(
-  state: CatalogState,
-  key: FilterKey,
-  value: string,
-): CatalogState {
+export function toggleFacetValue(state: CatalogState, key: FilterKey, value: string): CatalogState {
   const current = state[key];
   const next = current.includes(value)
     ? current.filter((entry) => entry !== value)
@@ -219,11 +185,7 @@ export function toggleFacetValue(
 }
 
 /** Drop one value of a group (a chip's ×). */
-export function removeFacetValue(
-  state: CatalogState,
-  key: FilterKey,
-  value: string,
-): CatalogState {
+export function removeFacetValue(state: CatalogState, key: FilterKey, value: string): CatalogState {
   return { ...state, [key]: state[key].filter((entry) => entry !== value) };
 }
 
@@ -245,10 +207,7 @@ export function clearCatalogFilters(state: CatalogState): CatalogState {
 }
 
 /** How many filter values (plus the availability toggle) are active. */
-export function countActiveFilters(
-  state: CatalogState,
-  omit: readonly FilterKey[] = [],
-): number {
+export function countActiveFilters(state: CatalogState, omit: readonly FilterKey[] = []): number {
   const values = FILTER_KEYS.reduce(
     (sum, key) => (omit.includes(key) ? sum : sum + state[key].length),
     0,
@@ -284,7 +243,5 @@ export function productFacetValue(
   if (key === "style") return product.type;
   if (key === "form") return productForm(product);
   if (key === "tier") return product.house;
-  // A product may have no season (the master's season column is optional).
-  if (key === "season") return product.season ?? null;
   return product.performance;
 }

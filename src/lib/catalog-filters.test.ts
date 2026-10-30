@@ -29,10 +29,18 @@ describe("parseCatalogState", () => {
   it("ignores a value the catalogue does not know", () => {
     const state = parseCatalogState({
       gender: "رجالي,غير-موجود",
-      season: "صيفي,الخريف",
+      performance: "أداء قوي,أداء خرافي",
     });
     expect(state.gender).toEqual(["رجالي"]);
-    expect(state.season).toEqual(["صيفي"]);
+    expect(state.performance).toEqual(["أداء قوي"]);
+  });
+
+  it("ignores a legacy season parameter completely", () => {
+    // `season` is optional catalogue DATA, not a filter: an old shared link
+    // such as /shop?season=شتوي must load as if the parameter were absent.
+    expect(parseCatalogState({ season: "شتوي" })).toEqual(EMPTY_CATALOG_STATE);
+    expect(parseCatalogState({ season: "صيفي,شتوي,خريفي" })).toEqual(EMPTY_CATALOG_STATE);
+    expect(parseCatalogState({ season: "شتوي" })).not.toHaveProperty("season");
   });
 
   it("never accepts دووب as a tier filter", () => {
@@ -47,16 +55,20 @@ describe("parseCatalogState", () => {
   });
 
   it("reads any volume label the data can carry, oil sizes included", () => {
-    expect(
-      parseCatalogState({ size: "100 مل,50 مل,30 مل,12 مل,10 مل,6 مل,3 مل" }).size,
-    ).toEqual(["100 مل", "50 مل", "30 مل", "12 مل", "10 مل", "6 مل", "3 مل"]);
+    expect(parseCatalogState({ size: "100 مل,50 مل,30 مل,12 مل,10 مل,6 مل,3 مل" }).size).toEqual([
+      "100 مل",
+      "50 مل",
+      "30 مل",
+      "12 مل",
+      "10 مل",
+      "6 مل",
+      "3 مل",
+    ]);
   });
 
   it("reads the الصيغة group and drops an unknown value", () => {
     expect(parseCatalogState({ form: "عطر" }).form).toEqual(["عطر"]);
-    expect(parseCatalogState({ form: "بخاخ,زيت عطري" }).form).toEqual([
-      "زيت عطري",
-    ]);
+    expect(parseCatalogState({ form: "بخاخ,زيت عطري" }).form).toEqual(["زيت عطري"]);
   });
 
   it("accepts a known sort", () => {
@@ -76,9 +88,7 @@ describe("parseCatalogState", () => {
   });
 
   it("reads the first value of a repeated parameter", () => {
-    expect(parseCatalogState({ gender: ["نسائي", "رجالي"] }).gender).toEqual([
-      "نسائي",
-    ]);
+    expect(parseCatalogState({ gender: ["نسائي", "رجالي"] }).gender).toEqual(["نسائي"]);
   });
 });
 
@@ -92,16 +102,27 @@ describe("serializeCatalogState", () => {
       ...EMPTY_CATALOG_STATE,
       q: "عود",
       sort: "price-desc",
-      season: ["شتوي"],
+      performance: ["أداء قوي"],
       gender: ["رجالي"],
     };
-    const withSize = new URLSearchParams(
-      serializeCatalogState({ ...state, size: ["30 مل"] }),
-    );
+    const withSize = new URLSearchParams(serializeCatalogState({ ...state, size: ["30 مل"] }));
     expect(withSize.get("size")).toBe("30 مل");
     expect(serializeCatalogState(state)).toBe(
-      `gender=${encodeURIComponent("رجالي")}&season=${encodeURIComponent("شتوي")}&sort=price-desc&q=${encodeURIComponent("عود")}`,
+      new URLSearchParams([
+        ["gender", "رجالي"],
+        ["performance", "أداء قوي"],
+        ["sort", "price-desc"],
+        ["q", "عود"],
+      ]).toString(),
     );
+  });
+
+  it("never writes a legacy season into the URL", () => {
+    const legacy = { ...EMPTY_CATALOG_STATE, gender: ["رجالي"] } as CatalogState & {
+      season?: string[];
+    };
+    legacy.season = ["شتوي"];
+    expect(serializeCatalogState(legacy)).toBe(`gender=${encodeURIComponent("رجالي")}`);
   });
 
   it("round-trips through the parser", () => {
@@ -110,7 +131,6 @@ describe("serializeCatalogState", () => {
       style: ["شرقي"],
       form: ["زيت عطري"],
       tier: ["نيش"],
-      season: ["صيفي"],
       performance: ["أداء قوي"],
       size: ["100 مل"],
       available: true,
@@ -132,9 +152,7 @@ describe("transitions", () => {
 
   it("removes only the requested value", () => {
     const state = { ...EMPTY_CATALOG_STATE, gender: ["رجالي", "نسائي"] };
-    expect(removeFacetValue(state, "gender", "رجالي").gender).toEqual([
-      "نسائي",
-    ]);
+    expect(removeFacetValue(state, "gender", "رجالي").gender).toEqual(["نسائي"]);
   });
 
   it("keeps the sort when clearing the filters", () => {
@@ -162,9 +180,7 @@ describe("transitions", () => {
   });
 
   it("setters return new objects", () => {
-    expect(setSort(EMPTY_CATALOG_STATE, "alphabetical").sort).toBe(
-      "alphabetical",
-    );
+    expect(setSort(EMPTY_CATALOG_STATE, "alphabetical").sort).toBe("alphabetical");
     expect(setQuery(EMPTY_CATALOG_STATE, " عود ").q).toBe("عود");
     expect(setAvailable(EMPTY_CATALOG_STATE, true).available).toBe(true);
   });

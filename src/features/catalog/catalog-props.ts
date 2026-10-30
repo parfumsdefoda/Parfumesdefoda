@@ -28,9 +28,7 @@ export function buildCardLabels(locale: LocaleMessages): ProductCardLabels {
   };
 }
 
-export function buildControlsLabels(
-  locale: LocaleMessages,
-): CatalogControlsLabels {
+export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabels {
   return {
     searchPlaceholder: t(locale, "home.searchPlaceholder", "ابحث عن عطرك..."),
     search: t(locale, "catalog.search", "بحث"),
@@ -51,7 +49,6 @@ export function buildControlsLabels(
       style: t(locale, "catalog.groupStyle", "النوع"),
       form: t(locale, "catalog.groupForm", "الصيغة"),
       tier: t(locale, "catalog.groupTier", "الدار"),
-      season: t(locale, "catalog.groupSeason", "الفصل"),
       performance: t(locale, "catalog.groupPerformance", "الأداء"),
       size: t(locale, "catalog.groupSize", "المقاس"),
     },
@@ -62,11 +59,7 @@ export function buildSectionLabels(locale: LocaleMessages): CatalogSectionLabels
   return {
     title: t(locale, "nav.products", "منتجاتنا"),
     emptyTitle: t(locale, "catalog.emptyTitle", "لا توجد منتجات مطابقة"),
-    emptyHint: t(
-      locale,
-      "catalog.emptyHint",
-      "جرّب إزالة بعض الفلاتر أو البحث باسم آخر",
-    ),
+    emptyHint: t(locale, "catalog.emptyHint", "جرّب إزالة بعض الفلاتر أو البحث باسم آخر"),
     clearFilters: t(locale, "catalog.clearFilters", "مسح الفلاتر"),
   };
 }

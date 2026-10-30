@@ -1,26 +1,13 @@
 "use client";
 
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { SearchBar } from "@/features/search";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/currency";
 import {
@@ -48,7 +35,6 @@ export interface CatalogGroupLabels {
   style: string;
   form: string;
   tier: string;
-  season: string;
   performance: string;
   size: string;
 }
@@ -94,7 +80,6 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
     style: "النوع",
     form: "الصيغة",
     tier: "الدار",
-    season: "الفصل",
     performance: "الأداء",
     size: "المقاس",
   },
@@ -184,19 +169,13 @@ export function CatalogControls({
   }, [query, state.q, commit]);
 
   const activeCount = countActiveFilters(state, lockedKeys);
-  const openFacet = openGroup
-    ? facets.find((group) => group.key === openGroup.key)
-    : undefined;
-  const activeValues = FILTER_KEYS.filter(
-    (key) => !lockedKeys.includes(key),
-  ).flatMap((key) => state[key].map((value) => ({ key, value })));
-  const showResults = labels.showResults.replace(
-    "{count}",
-    formatNumber(total),
+  const openFacet = openGroup ? facets.find((group) => group.key === openGroup.key) : undefined;
+  const activeValues = FILTER_KEYS.filter((key) => !lockedKeys.includes(key)).flatMap((key) =>
+    state[key].map((value) => ({ key, value })),
   );
+  const showResults = labels.showResults.replace("{count}", formatNumber(total));
 
-  const toggle = (key: FilterKey, value: string) =>
-    commit(toggleFacetValue(state, key, value));
+  const toggle = (key: FilterKey, value: string) => commit(toggleFacetValue(state, key, value));
 
   const clearAll = () => commit(clearCatalogFilters(state));
 
@@ -219,10 +198,7 @@ export function CatalogControls({
     </div>
   );
 
-  const optionsFor = (
-    group: FacetGroup,
-    variant: "popover" | "sheet",
-  ) => (
+  const optionsFor = (group: FacetGroup, variant: "popover" | "sheet") => (
     <div
       role="group"
       aria-label={labels.groups[group.key]}
@@ -273,10 +249,7 @@ export function CatalogControls({
         </div>
 
         <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p
-            aria-live="polite"
-            className="text-caption text-[var(--color-text-muted)]"
-          >
+          <p aria-live="polite" className="text-caption text-[var(--color-text-muted)]">
             {formatNumber(total)} {labels.resultUnit}
           </p>
           <div className="relative">
@@ -286,9 +259,7 @@ export function CatalogControls({
             <select
               id="catalog-sort"
               value={state.sort}
-              onChange={(event) =>
-                commit(setSort(state, event.target.value as SortOption))
-              }
+              onChange={(event) => commit(setSort(state, event.target.value as SortOption))}
               className={cn(
                 "h-11 appearance-none rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)]",
                 "ps-4 pe-9 text-caption font-medium text-[var(--color-text)]",
@@ -322,9 +293,7 @@ export function CatalogControls({
               onClick={(event) => {
                 const anchor = event.currentTarget;
                 setOpenGroup((current) =>
-                  current?.key === group.key
-                    ? null
-                    : { key: group.key, anchor },
+                  current?.key === group.key ? null : { key: group.key, anchor },
                 );
               }}
               className={cn(
@@ -338,9 +307,7 @@ export function CatalogControls({
             >
               <span>{labels.groups[group.key]}</span>
               {active > 0 && (
-                <span className="text-caption font-bold tabular-nums">
-                  {formatNumber(active)}
-                </span>
+                <span className="text-caption font-bold tabular-nums">{formatNumber(active)}</span>
               )}
               <ChevronDown aria-hidden="true" className="h-4 w-4" />
             </button>
@@ -354,9 +321,7 @@ export function CatalogControls({
               group={openFacet}
               title={labels.groups[openFacet.key]}
               active={state[openFacet.key]}
-              onToggle={(value) =>
-                commit(toggleFacetValue(state, openFacet.key, value))
-              }
+              onToggle={(value) => commit(toggleFacetValue(state, openFacet.key, value))}
               onClose={() => setOpenGroup(null)}
             />
           </Suspense>
@@ -434,9 +399,7 @@ export function CatalogControls({
           className="max-h-[88svh] gap-0 rounded-t-card p-0"
         >
           <SheetHeader className="border-b border-[var(--color-border)] px-4 py-3">
-            <SheetTitle className="text-body font-bold">
-              {labels.filters}
-            </SheetTitle>
+            <SheetTitle className="text-body font-bold">{labels.filters}</SheetTitle>
           </SheetHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4">

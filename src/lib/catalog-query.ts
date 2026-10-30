@@ -9,13 +9,7 @@
  */
 
 import type { Product } from "@/types";
-import {
-  GENDERS,
-  PERFORMANCES,
-  PRODUCT_FORMS,
-  PRODUCT_TYPES,
-  SEASONS,
-} from "./product-vocabulary";
+import { GENDERS, PERFORMANCES, PRODUCT_FORMS, PRODUCT_TYPES } from "./product-vocabulary";
 import {
   FILTER_KEYS,
   FILTERABLE_TIERS,
@@ -74,9 +68,7 @@ export function catalogueSizeLabels(products: Product[]): string[] {
       if (!byVolume.has(ml)) byVolume.set(ml, size.label);
     }
   }
-  return [...byVolume.entries()]
-    .sort((a, b) => a[0] - b[0])
-    .map(([, label]) => label);
+  return [...byVolume.entries()].sort((a, b) => a[0] - b[0]).map(([, label]) => label);
 }
 
 /** The catalogue's option vocabulary per group. */
@@ -90,8 +82,6 @@ function optionValues(products: Product[], key: FilterKey): string[] {
       return [...PRODUCT_FORMS];
     case "tier":
       return [...FILTERABLE_TIERS];
-    case "season":
-      return [...SEASONS];
     case "performance":
       return [...PERFORMANCES];
     case "size":
@@ -102,17 +92,11 @@ function optionValues(products: Product[], key: FilterKey): string[] {
 }
 
 /** True when a product matches one value of one group. */
-export function matchesFacetValue(
-  product: Product,
-  key: FilterKey,
-  value: string,
-): boolean {
+export function matchesFacetValue(product: Product, key: FilterKey, value: string): boolean {
   if (key === "size") {
     // Availability-based: the size has to be one a shopper can actually buy
     // today, so a sold-out size never matches its own filter.
-    return product.sizes.some(
-      (size) => size.label === value && size.inStock,
-    );
+    return product.sizes.some((size) => size.label === value && size.inStock);
   }
   const field = productFacetValue(product, key);
   return field !== null && field === value;
@@ -152,10 +136,7 @@ export function productMatchesState(
 }
 
 /** The products matching every active filter and the query. */
-export function filterCatalog(
-  products: Product[],
-  state: CatalogState,
-): Product[] {
+export function filterCatalog(products: Product[], state: CatalogState): Product[] {
   return products.filter((product) => productMatchesState(product, state));
 }
 
@@ -181,27 +162,26 @@ export function buildFacets(
   /** Groups the page has locked, e.g. gender on `/shop/men`. */
   hidden: readonly FilterKey[] = [],
 ): FacetGroup[] {
-  return FILTER_KEYS.filter((key) => !hidden.includes(key))
-    .map((key) => {
-      const pool = products.filter((product) =>
-        productMatchesState(product, state, key),
-      );
+  return (
+    FILTER_KEYS.filter((key) => !hidden.includes(key))
+      .map((key) => {
+        const pool = products.filter((product) => productMatchesState(product, state, key));
 
-      return {
-        key,
-        options: presentOptions(products, key).map((value) => ({
-          value,
-          // Tier labels go through PUBLIC_TIER_LABELS, so `دووب` is not an
-          // option at all; every other label is the catalogue's own value.
-          label: facetValueLabel(key, value),
-          count: pool.filter((product) => matchesFacetValue(product, key, value))
-            .length,
-        })),
-      };
-    })
-    // "الصيغة" is only a real choice when both formats are sold; a one-option
-    // group wastes a tap and looks like a bug.
-    .filter((group) => group.options.length > (group.key === "form" ? 1 : 0));
+        return {
+          key,
+          options: presentOptions(products, key).map((value) => ({
+            value,
+            // Tier labels go through PUBLIC_TIER_LABELS, so `دووب` is not an
+            // option at all; every other label is the catalogue's own value.
+            label: facetValueLabel(key, value),
+            count: pool.filter((product) => matchesFacetValue(product, key, value)).length,
+          })),
+        };
+      })
+      // "الصيغة" is only a real choice when both formats are sold; a one-option
+      // group wastes a tap and looks like a bug.
+      .filter((group) => group.options.length > (group.key === "form" ? 1 : 0))
+  );
 }
 
 // ─── View ───────────────────────────────────────────────────────────────────
