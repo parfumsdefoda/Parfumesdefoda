@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-10-30T08:26:56.396Z",
+  "generatedAt": "2026-10-30T08:55:28.599Z",
   "totals": {
-    "products": 73,
-    "referencedImages": 73,
-    "onDiskImages": 72,
-    "totalBytes": 36660704,
-    "totalMb": 34.96,
+    "products": 74,
+    "referencedImages": 74,
+    "onDiskImages": 73,
+    "totalBytes": 37149026,
+    "totalMb": 35.43,
     "byClass": {
-      "transparent": 59,
+      "transparent": 60,
       "pure-white": 2,
       "off-white": 0,
       "coloured": 11
     },
-    "squareCount": 37,
+    "squareCount": 38,
     "nonSquareCount": 35,
-    "withRealTransparency": 59,
+    "withRealTransparency": 60,
     "needsRetouch": 11,
     "unreferencedByClass": {
-      "transparent": 3,
+      "transparent": 2,
       "pure-white": 0,
       "off-white": 0,
       "coloured": 0
@@ -36,17 +36,10 @@
     "photoPending": [],
     "multiImage": [],
     "unreferenced": [
-      "/products/PF241.png",
       "/products/PF690.png",
       "/products/PF710.png"
     ],
     "unreferencedDetails": [
-      {
-        "path": "/products/PF241.png",
-        "background": "transparent",
-        "bytes": 488322,
-        "square": true
-      },
       {
         "path": "/products/PF690.png",
         "background": "transparent",
@@ -707,6 +700,30 @@
       "path": "/products/PF240.png",
       "products": [
         "pf240"
+      ],
+      "format": "png",
+      "width": 2000,
+      "height": 2000,
+      "bytes": 488322,
+      "hasAlpha": true,
+      "transparentPixels": 2960276,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": true,
+      "subject": {
+        "x": 594,
+        "y": 155,
+        "width": 796,
+        "height": 1706,
+        "widthPct": 39.8,
+        "heightPct": 85.3,
+        "areaPct": 33.9
+      }
+    },
+    {
+      "path": "/products/PF241.png",
+      "products": [
+        "pf241"
       ],
       "format": "png",
       "width": 2000,

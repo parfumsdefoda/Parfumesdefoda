@@ -10,6 +10,11 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   outputDir: "playwright-results",
+  // The suite runs against a production build on one machine (and 2 workers on
+  // CI). A full-page capture of four routes or a full-document search navigation
+  // can take longer than the 5 s default without anything being wrong; the
+  // assertions themselves are unchanged.
+  expect: { timeout: 12_000 },
   // projectName keeps the 1440 and 375 baselines from overwriting each other.
   snapshotPathTemplate: "{testDir}/__screenshots__/{projectName}/{arg}{ext}",
   use: {

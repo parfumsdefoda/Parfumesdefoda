@@ -315,10 +315,25 @@ test.describe("production storefront and checkout", () => {
       // derived images and the CSS are still settling.
       await page.goto(path, { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
+      // `networkidle` can fire while images are still decoding; a full-page
+      // capture then catches half-painted cards (the PDP flaked this way).
+      await page.evaluate(async () => {
+        const settle = (image: HTMLImageElement) =>
+          Promise.race([
+            image.decode().catch(() => undefined),
+            // Lazy images below the fold never load until scrolled to; the
+            // capture must not wait for them.
+            new Promise((resolve) => setTimeout(resolve, 2000)),
+          ]);
+        await Promise.all(Array.from(document.images).map(settle));
+      });
       await expect(page).toHaveScreenshot(`${name}.png`, {
         animations: "disabled",
         fullPage: true,
-        mask: [page.locator("footer")],
+        // Footer and the floating advisor are chrome, not page content: the
+        // greeting bubble appears on a timer and would otherwise enter the
+        // baseline at an arbitrary scroll position.
+        mask: [page.locator("footer"), page.locator('button[aria-label*="المساعد"]')],
         maxDiffPixelRatio: 0.015,
       });
     }
@@ -368,7 +383,12 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     const search = page.getByRole("searchbox", { name: "بحث" }).first();
     await search.pressSequentially("zzzzzzz");
     await search.press("Enter");
-    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible();
+    // Enter with no highlighted suggestion is a native form submit, so this is
+    // a full document navigation to /shop?q=… (not a client transition) on a
+    // dynamic page; 5 s is tight when the suite runs in parallel.
+    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible({
+      timeout: 15_000,
+    });
     await page.getByRole("link", { name: "مسح الفلاتر" }).click();
     await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden();
     await expect(page).toHaveURL(/\/shop$/);
