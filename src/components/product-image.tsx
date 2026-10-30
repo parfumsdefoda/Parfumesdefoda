@@ -112,6 +112,8 @@ export function ProductImage({
             loading={priority ? "eager" : loading}
             decoding="async"
             fetchPriority={priority ? "high" : "auto"}
+            // Read by <DerivedImageFallback> when a derived file 404s.
+            data-original={src}
             className={imgClassName}
             style={
               sources.blend === "multiply"

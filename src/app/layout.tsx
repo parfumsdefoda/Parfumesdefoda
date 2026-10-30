@@ -12,6 +12,7 @@ import { getShippingFee } from "@/lib/shipping";
 import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
 import { SiteShell } from "@/features/layout";
+import { DerivedImageFallback } from "@/components/derived-image-fallback";
 import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
 import "./globals.css";
 
@@ -343,6 +344,9 @@ export default async function RootLayout({
           انتقل إلى المحتوى الرئيسي
         </a>
         <Providers theme={theme}>
+          {/* One delegated listener: a derived photo that 404s at runtime falls
+              back to the original the catalogue still ships. Renders nothing. */}
+          <DerivedImageFallback />
           {/* Header + footer live here, so every route — catalogue, category,
               product, FAQ, contact and checkout — wears the same shell. */}
           <SiteShell
