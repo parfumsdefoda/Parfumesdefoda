@@ -1,10 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { useCart } from "@/providers/CartProvider";
-import { CartDrawer } from "./cart-drawer";
 import { resolveCartLines, type CartCatalogProduct } from "@/lib/cart-utils";
+
+/**
+ * The drawer is a separate chunk: the shell only carries the cart state and the
+ * resolved lines, which is what the badge and the stale-line validation need.
+ * Opening the cart fetches the panel (Sheet content, lines, totals).
+ */
+const CartDrawer = dynamic(
+  () => import("./cart-drawer").then((module) => module.CartDrawer),
+  { ssr: false },
+);
+
+/**
+ * Warm the drawer chunk on hover/focus of the cart button, before the click.
+ * Importing the same module the dynamic loader imports fills the browser cache,
+ * so the component resolves immediately instead of starting a cold request.
+ */
+export function preloadCartDrawer() {
+  void import("./cart-drawer");
+}
 
 export interface CartShellLabels {
   title: string;
@@ -46,11 +65,16 @@ export interface CartShellProps {
 export function CartShell({ labels, shippingFee, catalogue }: CartShellProps) {
   const cart = useCart();
   const router = useRouter();
+  // Mount on the first open and keep it: closing must still animate, and a
+  // remount would lose the sheet's focus bookkeeping.
+  const mountDrawer = cart.hasOpenedDrawer || cart.isDrawerOpen;
 
   const items = useMemo(
     () => resolveCartLines(cart.items, catalogue),
     [cart.items, catalogue],
   );
+
+  if (!mountDrawer) return null;
 
   return (
     <CartDrawer

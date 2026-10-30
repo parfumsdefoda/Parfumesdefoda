@@ -5,7 +5,7 @@ import { ProductImage } from "@/components/product-image";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatNumber, formatPrice, formatSizeLabel } from "@/lib/currency";
-import { MAX_ITEM_QUANTITY } from "@/schemas/order";
+import { MAX_ITEM_QUANTITY } from "@/schemas/order-limits";
 import type { ResolvedCartLine } from "@/lib/cart-utils";
 
 export interface CartLineLabels {

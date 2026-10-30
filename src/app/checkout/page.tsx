@@ -3,6 +3,7 @@ import { loadFullSettings } from "@/services/settings";
 import { loadVisibleProducts } from "@/services/products";
 import type { CartCatalogProduct } from "@/lib/cart-utils";
 import { CheckoutPageClient } from "@/features/checkout/components/checkout-page";
+import governorates from "../../../data/egypt-governorates.json";
 
 /**
  * Checkout page — Server Component.
@@ -29,5 +30,12 @@ export default async function CheckoutPage() {
     sizes: product.sizes.map(({ label, price, inStock }) => ({ label, price, inStock })),
   }));
 
-  return <CheckoutPageClient shipping={settings.shipping} catalogue={catalogue} />;
+  // Owner data, read on the server: keeps the ~12 KB JSON out of client JS.
+  return (
+    <CheckoutPageClient
+      shipping={settings.shipping}
+      catalogue={catalogue}
+      governorates={governorates}
+    />
+  );
 }

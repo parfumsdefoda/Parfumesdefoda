@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { checkoutSchema } from "./checkout";
+import { MAX_ITEM_QUANTITY, MAX_ORDER_LINES } from "./order-limits";
 
 /**
  * Order request schema — the SHARED contract between the checkout form and
@@ -16,11 +17,9 @@ import { checkoutSchema } from "./checkout";
  * cannot influence anything.
  */
 
-/** Maximum quantity per line — matches the cart's own limit. */
-export const MAX_ITEM_QUANTITY = 20;
-
-/** Maximum number of distinct lines in one order. */
-export const MAX_ORDER_LINES = 30;
+// Re-exported so server code keeps importing the contract from one place.
+// Client modules import `./order-limits` directly: this file carries zod.
+export { MAX_ITEM_QUANTITY, MAX_ORDER_LINES } from "./order-limits";
 
 export const orderLineSchema = z.object({
   productId: z.string().min(1),

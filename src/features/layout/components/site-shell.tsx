@@ -3,7 +3,9 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { isCheckoutPath } from "@/lib/route-shell";
-import { CartShell, type CartShellProps } from "@/features/cart";
+// Direct module import, not the feature barrel: the barrel also re-exports the
+// (now lazy) drawer, and a barrel import would put it back in first-load JS.
+import { CartShell, type CartShellProps } from "@/features/cart/components/cart-shell";
 import { HeaderBar, type HeaderBarProps } from "./header-bar";
 import { Footer, type FooterProps } from "./footer";
 

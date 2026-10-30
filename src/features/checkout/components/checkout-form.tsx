@@ -14,18 +14,11 @@ import { normalizeEgyptianPhone } from "@/schemas/checkout";
 import { checkoutSchema, type CheckoutFormData } from "@/schemas/checkout";
 
 // ─── Governorates & cities data ────────────────────────────────────────────
-// Static import — the JSON file is small (~5 KB) and bundled at build time.
-import governoratesData from "../../../../data/egypt-governorates.json";
-
-type GovernorateEntry = { name: string; cities: string[] };
-type GovernoratesMap = Record<string, GovernorateEntry>;
-
-const GOVERNORATES = governoratesData as GovernoratesMap;
-
-const governorateOptions = Object.entries(GOVERNORATES).map(([key, val]) => ({
-  value: key,
-  label: val.name,
-}));
+// The list is owner data (`data/egypt-governorates.json`). It is loaded by the
+// checkout Server Component and passed in, so the JSON lives in the page's
+// markup instead of the client JavaScript.
+export type GovernorateEntry = { name: string; cities: string[] };
+export type GovernoratesMap = Record<string, GovernorateEntry>;
 
 /* ---------- Re-export for backward compatibility ---------- */
 export type { CheckoutFormData };
@@ -65,6 +58,8 @@ export interface CheckoutFormProps {
   isSubmitting?: boolean;
   /** Optional total displayed by the mobile sticky submit control. */
   total?: number;
+  /** Governorate → cities map from `data/egypt-governorates.json`. */
+  governorates: GovernoratesMap;
   className?: string;
 }
 
@@ -90,16 +85,25 @@ export function CheckoutForm({
   onSubmit,
   isSubmitting = false,
   total,
+  governorates,
   className,
 }: CheckoutFormProps) {
   const [selectedGovernorate, setSelectedGovernorate] = useState<string>("");
   const [sameWhatsapp, setSameWhatsapp] = useState(false);
   const [governorateQuery, setGovernorateQuery] = useState("");
+  const governorateOptions = useMemo(
+    () =>
+      Object.entries(governorates).map(([value, entry]) => ({
+        value,
+        label: entry.name,
+      })),
+    [governorates],
+  );
   const cityOptions = useMemo(() => {
     if (!selectedGovernorate) return [];
-    const entry = GOVERNORATES[selectedGovernorate];
+    const entry = governorates[selectedGovernorate];
     return entry ? entry.cities : [];
-  }, [selectedGovernorate]);
+  }, [selectedGovernorate, governorates]);
 
   const {
     register,

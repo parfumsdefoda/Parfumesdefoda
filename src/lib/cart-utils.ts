@@ -1,4 +1,4 @@
-import { MAX_ITEM_QUANTITY } from "@/schemas/order";
+import { MAX_ITEM_QUANTITY } from "@/schemas/order-limits";
 import { isComingSoon } from "./product-availability";
 
 export interface CartLineRecord {

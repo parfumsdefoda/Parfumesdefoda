@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/currency";
 import { useCart } from "@/providers/CartProvider";
+import { preloadCartDrawer } from "@/features/cart/components/cart-shell";
 import { HeaderSearch } from "@/features/search/components/header-search";
 import type { NavLink } from "@/lib/site-nav";
 
@@ -421,6 +422,10 @@ export function HeaderBar({
                 variant="ghost"
                 size="icon"
                 onClick={cart.openDrawer}
+                // Warm the drawer chunk before the click so opening feels local.
+                onPointerEnter={preloadCartDrawer}
+                onPointerDown={preloadCartDrawer}
+                onFocus={preloadCartDrawer}
                 aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
                 className="relative"
               >

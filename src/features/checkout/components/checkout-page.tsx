@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, ArrowRight } from "lucide-react";
@@ -9,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CartLine, CartTotals, type CartLineLabels } from "@/features/cart/components/cart-line";
 import { resolveCartLines, getCartTotals, isCartCheckoutBlocked, type CartCatalogProduct } from "@/lib/cart-utils";
-import { CheckoutForm } from "@/features/checkout";
+// Direct module import (not the feature barrel): the barrel also re-exports the
+// success page, which the checkout form does not need.
+import { CheckoutForm, type GovernoratesMap } from "./checkout-form";
 import { useCart } from "@/providers/CartProvider";
 import { formatNumber, formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
@@ -21,6 +22,8 @@ export interface CheckoutPageClientProps {
   /** Shipping config from data/settings.json (flat fee, no free threshold) */
   shipping: FullSettings["shipping"];
   catalogue: CartCatalogProduct[];
+  /** Governorate → cities map, loaded by the Server Component. */
+  governorates: GovernoratesMap;
 }
 
 /** Error thrown when the API rejects the order but explains why. */
@@ -51,6 +54,7 @@ const CHECKOUT_LINE_LABELS: CartLineLabels = {
 export function CheckoutPageClient({
   shipping,
   catalogue,
+  governorates,
 }: CheckoutPageClientProps) {
   const router = useRouter();
   const cart = useCart();
@@ -195,6 +199,7 @@ export function CheckoutPageClient({
               </p>
             )}
             <CheckoutForm
+              governorates={governorates}
               title="بيانات التوصيل"
               nameLabel="الاسم بالكامل"
               namePlaceholder="أدخل اسمك الكامل"
@@ -223,13 +228,17 @@ export function CheckoutPageClient({
 
           {/* ─── Left Column: Order Summary ─── */}
           <div className="order-1 min-w-0 lg:order-2">
-            <Accordion className="overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface-muted)] lg:sticky lg:top-24" defaultValue={["order-summary"]}>
-              <AccordionItem value="order-summary">
-                <AccordionTrigger className="flex w-full items-center justify-between gap-3 p-4 text-start text-headline font-bold text-[var(--color-text)] lg:cursor-default">
-                  <span>ملخص الطلب</span>
-                  <span className="text-title-3 text-[var(--color-brand)]">{formatPrice(total)}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-5 lg:block lg:px-6">
+            {/* Native <details>: open on load, collapsible on phones, and no
+                accordion JavaScript in the checkout bundle. */}
+            <details
+              open
+              className="overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface-muted)] lg:sticky lg:top-24"
+            >
+              <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-3 p-4 text-start text-headline font-bold text-[var(--color-text)] [&::-webkit-details-marker]:hidden lg:cursor-default">
+                <span>ملخص الطلب</span>
+                <span className="text-title-3 text-[var(--color-brand)]">{formatPrice(total)}</span>
+              </summary>
+              <div className="px-4 pb-5 lg:px-6">
                   <h2 className="sr-only">ملخص الطلب ({formatNumber(cart.totalItems)} منتج)</h2>
 
               {/* Items */}
@@ -259,9 +268,8 @@ export function CheckoutPageClient({
                 </p>
               )}
 
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+              </div>
+            </details>
           </div>
         </div>
       </section>

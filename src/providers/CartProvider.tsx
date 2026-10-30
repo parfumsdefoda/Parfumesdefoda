@@ -32,6 +32,12 @@ interface CartContextValue {
   totalPrice: number;
   /** Cart drawer visibility — shared so floating UI (chat widget) can unmount while it's open */
   isDrawerOpen: boolean;
+  /**
+   * True once the drawer has been opened in this session. The drawer's own
+   * chunk is fetched on first intent; until it has loaded there is nothing to
+   * keep mounted, so the shell uses this flag to mount it exactly once.
+   */
+  hasOpenedDrawer: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
 }
@@ -155,7 +161,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const [drawerOpen, setDrawerOpenState] = useState(false);
-  const openDrawer = useCallback(() => setDrawerOpenState(true), []);
+  const [hasOpenedDrawer, setHasOpenedDrawer] = useState(false);
+  const openDrawer = useCallback(() => {
+    setHasOpenedDrawer(true);
+    setDrawerOpenState(true);
+  }, []);
   const closeDrawer = useCallback(() => setDrawerOpenState(false), []);
 
   // The floating advisor steps aside while the drawer is open. This is a DOM
@@ -180,6 +190,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         totalItems,
         totalPrice,
         isDrawerOpen: drawerOpen,
+        hasOpenedDrawer,
         openDrawer,
         closeDrawer,
       }}
