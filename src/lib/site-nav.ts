@@ -7,6 +7,8 @@
  * pages and the sitemap all read it.
  */
 
+import { PRODUCT_FORMS } from "./product-vocabulary";
+
 export type CategorySlug = "men" | "women" | "unisex";
 
 export interface CategoryRoute {
@@ -43,9 +45,7 @@ export function categoryHref(slug: CategorySlug): string {
 }
 
 /** How many visible products each gender holds. */
-export function genderCounts(
-  products: readonly { gender: string }[],
-): Record<string, number> {
+export function genderCounts(products: readonly { gender: string }[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const product of products) {
     counts[product.gender] = (counts[product.gender] ?? 0) + 1;
@@ -62,6 +62,9 @@ export type PrimaryNavLabels = Record<"shop" | CategorySlug, string> & {
   /** Only shown when the catalogue actually has a visible oil product. */
   oils?: string;
 };
+
+/** The attar format — the value the oils link filters on. */
+export const OIL_FORM = PRODUCT_FORMS[1];
 
 /** Which optional groups the catalogue can actually fill. */
 export interface PrimaryNavOptions {
@@ -91,7 +94,12 @@ export function buildPrimaryNav(
     });
   }
   if (options.hasOil && labels.oils) {
-    links.push({ label: labels.oils, href: "/shop?form=oil" });
+    links.push({
+      label: labels.oils,
+      // The filter value, not an English slug: `?form=oil` was silently dropped
+      // by the parser, so "زيوت عطرية" used to open the unfiltered catalogue.
+      href: `/shop?form=${encodeURIComponent(OIL_FORM)}`,
+    });
   }
   return links;
 }

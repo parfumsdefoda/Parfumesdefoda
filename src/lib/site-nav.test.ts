@@ -49,11 +49,7 @@ describe("categoryHref", () => {
 
 describe("genderCounts", () => {
   it("counts visible products per gender and ignores gaps", () => {
-    const counts = genderCounts([
-      { gender: "رجالي" },
-      { gender: "رجالي" },
-      { gender: "للجنسين" },
-    ]);
+    const counts = genderCounts([{ gender: "رجالي" }, { gender: "رجالي" }, { gender: "للجنسين" }]);
     expect(counts).toEqual({ رجالي: 2, للجنسين: 1 });
     expect(counts["نسائي"]).toBeUndefined();
   });
@@ -67,32 +63,23 @@ describe("buildPrimaryNav", () => {
 
   it("drops a category that would show nothing", () => {
     const nav = buildPrimaryNav({ رجالي: 12, للجنسين: 3 }, labels);
-    expect(nav.map((link) => link.href)).toEqual([
-      "/shop",
-      "/shop/men",
-      "/shop/unisex",
-    ]);
+    expect(nav.map((link) => link.href)).toEqual(["/shop", "/shop/men", "/shop/unisex"]);
   });
 
   it("keeps all three when every gender has products", () => {
-    const nav = buildPrimaryNav(
-      { رجالي: 12, نسائي: 1, للجنسين: 4 },
-      { ...labels, women: "Women" },
-    );
+    const nav = buildPrimaryNav({ رجالي: 12, نسائي: 1, للجنسين: 4 }, { ...labels, women: "Women" });
     expect(nav).toHaveLength(4);
     expect(nav[2]).toEqual({ label: "حريمي", href: "/shop/women" });
   });
 
   it("offers the oils route only when a visible oil product exists", () => {
     const withOils = { ...labels, oils: "زيوت عطرية" };
-    expect(buildPrimaryNav({}, withOils).map((link) => link.href)).toEqual([
-      "/shop",
-    ]);
-    expect(
-      buildPrimaryNav({}, withOils, { hasOil: true }).map((link) => link.href),
-    ).toContain("/shop?form=oil");
-    expect(
-      buildPrimaryNav({}, { ...labels, oils: undefined }, { hasOil: true }),
-    ).toHaveLength(1);
+    expect(buildPrimaryNav({}, withOils).map((link) => link.href)).toEqual(["/shop"]);
+    // The value is the catalogue's own format label, so the filter actually
+    // applies instead of being dropped as an unknown value.
+    expect(buildPrimaryNav({}, withOils, { hasOil: true }).map((link) => link.href)).toContain(
+      `/shop?form=${encodeURIComponent("زيت عطري")}`,
+    );
+    expect(buildPrimaryNav({}, { ...labels, oils: undefined }, { hasOil: true })).toHaveLength(1);
   });
 });

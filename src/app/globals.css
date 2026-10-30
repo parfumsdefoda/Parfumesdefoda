@@ -98,6 +98,17 @@
   --color-on-dark-muted: color-mix(in srgb, var(--brand-white) 76%, var(--purple-950));
   --color-on-dark-border: color-mix(in srgb, var(--brand-white) 18%, var(--purple-950));
 
+  /* ── Floating header (the glass capsule) ───────────────────────
+     One offset drives the page: the capsule's height plus the gap it
+     floats in. Non-hero pages pad `main` by it; the homepage hero eats
+     it with a negative margin so the hero runs under the capsule. */
+  --header-gap: 12px;
+  --header-capsule: 52px;
+  --header-offset: calc(var(--header-capsule) + var(--header-gap));
+  /* The capsule's 1px hairline is the only gold in the header. */
+  --ui-gold-hairline: color-mix(in srgb, var(--brand-gold) 58%, transparent);
+  --ui-hairline-soft: color-mix(in srgb, var(--ui-border-strong) 26%, transparent);
+
   /* ── Legacy names kept because existing components read them ─ */
   --color-primary: var(--brand-white);
   --color-secondary: var(--brand-green);
@@ -150,6 +161,83 @@
   --animation-fast: var(--duration-fast) var(--ease-apple);
   --animation-default: var(--duration-base) var(--ease-apple);
   --animation-slow: var(--duration-slow) var(--ease-apple);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-capsule: 60px;
+  }
+}
+
+/* ── Header tones ────────────────────────────────────────────────
+   The capsule is one component with two palettes. `data-tone` is written
+   during the server render (dark on the homepage while the hero is behind
+   it, light everywhere else) and flipped by a client island once the hero
+   has scrolled away — so there is never a flash of the wrong tone. */
+.site-header {
+  --header-fg: var(--color-text);
+  --header-fg-muted: var(--color-text-muted);
+  --header-accent: var(--color-brand);
+  --header-surface: color-mix(in srgb, var(--brand-white) 88%, transparent);
+  --header-field: color-mix(in srgb, var(--ui-surface-muted) 92%, transparent);
+  --header-field-strong: var(--color-surface);
+  --header-field-border: var(--ui-border-strong);
+  --header-hover: color-mix(in srgb, var(--brand-purple) 7%, transparent);
+  --header-ring: var(--color-focus);
+}
+
+.site-header[data-tone="dark"] {
+  --header-fg: var(--color-on-dark);
+  --header-fg-muted: var(--color-on-dark-muted);
+  --header-accent: var(--color-on-dark);
+  --header-surface: color-mix(in srgb, var(--brand-white) 8%, transparent);
+  --header-field: color-mix(in srgb, var(--brand-white) 12%, transparent);
+  --header-field-strong: color-mix(in srgb, var(--brand-white) 18%, transparent);
+  --header-field-border: color-mix(in srgb, var(--brand-white) 55%, var(--purple-950));
+  --header-hover: color-mix(in srgb, var(--brand-white) 12%, transparent);
+  --header-ring: var(--color-on-dark);
+}
+
+/* No blur support, or the visitor asked for less transparency: the capsule
+   becomes a solid surface in the same tone, with the same text contrast. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    --header-surface: var(--color-surface);
+    --header-field: var(--ui-surface-muted);
+  }
+
+  .site-header[data-tone="dark"] {
+    --header-surface: var(--purple-950);
+    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    --header-surface: var(--color-surface);
+    --header-field: var(--ui-surface-muted);
+  }
+
+  .site-header[data-tone="dark"] {
+    --header-surface: var(--purple-950);
+    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
+  }
+}
+
+/* The cart count: ivory on the dark tone, brand purple on the light tone. */
+.header-cart-badge {
+  background: var(--color-brand);
+  color: var(--brand-white);
+}
+
+.site-header[data-tone="dark"] .header-cart-badge {
+  background: var(--color-on-dark);
+  color: var(--purple-950);
+}
+
+/* Anchors land below the floating capsule instead of behind it. */
+html {
+  scroll-padding-top: calc(var(--header-offset) + var(--space-4));
 }
 
 /* ── Tailwind theme bridge ─────────────────────────────────────

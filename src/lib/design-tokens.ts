@@ -189,6 +189,41 @@ export function buildContrastPairs(palette: Palette = PALETTE): ContrastPair[] {
     ["positive text on surface", palette.positive, palette.surface],
     ["white on positive (success state)", palette["brand-white"], palette.positive],
     ["white on purple-950 (dark section)", palette["brand-white"], palette["purple-950"]],
+    // The floating header capsule, measured against the two surfaces it
+    // actually floats over: the purple-950 hero (dark tone) and the ivory page
+    // behind the white card grid (light tone).
+    [
+      "header text on dark capsule (over hero)",
+      palette["brand-white"],
+      mix(palette["brand-white"], palette["purple-950"], 8),
+    ],
+    [
+      "header muted text on dark capsule",
+      mix(palette["brand-white"], palette["purple-950"], 76),
+      mix(palette["brand-white"], palette["purple-950"], 8),
+    ],
+    [
+      "header field border on dark capsule (UI edge)",
+      mix(palette["brand-white"], palette["purple-950"], 55),
+      mix(palette["brand-white"], palette["purple-950"], 8),
+      3,
+    ],
+    [
+      "header text on light capsule (over card grid)",
+      palette.text,
+      mix(palette.surface, palette.bg, 88),
+    ],
+    [
+      "header muted text on light capsule",
+      palette["text-muted"],
+      mix(palette.surface, palette.bg, 88),
+    ],
+    [
+      "header field border on light capsule (UI edge)",
+      palette["border-strong"],
+      mix(palette.surface, palette.bg, 88),
+      3,
+    ],
     ["border-strong vs surface (UI edge)", palette["border-strong"], palette.surface, 3],
     ["brand vs surface (focus ring edge)", palette.brand, palette.surface, 3],
   ];

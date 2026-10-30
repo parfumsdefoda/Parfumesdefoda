@@ -44,27 +44,19 @@ const PLATE_SIZE = {
  * fetch priority; the flanking two stay lazy. The section renders completely
  * without JavaScript.
  */
-export function HeroSection({
-  heading,
-  lead,
-  shopCta,
-  advisorCta,
-  bottles,
-}: HeroSectionProps) {
+export function HeroSection({ heading, lead, shopCta, advisorCta, bottles }: HeroSectionProps) {
   const centre = bottles[0] ?? null;
   const flanks = bottles.slice(1, 3);
 
   return (
     <section
       aria-labelledby="hero-heading"
-      className="relative border-b-2 border-[var(--brand-gold)] bg-[var(--purple-950)]"
+      data-hero-sentinel=""
+      className="relative -mt-[var(--header-offset)] border-b-2 border-[var(--brand-gold)] bg-[var(--purple-950)]"
     >
-      <div className="mx-auto grid w-full max-w-[1280px] items-center gap-6 px-4 pb-[var(--space-8)] pt-[var(--space-8)] md:grid-cols-[minmax(0,1fr)_minmax(0,520px)] md:gap-10 md:pb-[var(--space-16)] md:pt-[var(--space-16)]">
+      <div className="mx-auto grid w-full max-w-[1280px] items-center gap-6 px-4 pb-[var(--space-8)] pt-[calc(var(--header-offset)+var(--space-6))] md:grid-cols-[minmax(0,1fr)_minmax(0,520px)] md:gap-10 md:pb-[var(--space-16)] md:pt-[calc(var(--header-offset)+var(--space-8))]">
         <div className="flex max-w-[560px] flex-col gap-4">
-          <h1
-            id="hero-heading"
-            className="text-display font-bold text-[var(--color-on-dark)]"
-          >
+          <h1 id="hero-heading" className="text-display font-bold text-[var(--color-on-dark)]">
             {heading}
           </h1>
           <p className="text-body text-[var(--color-on-dark-muted)]">{lead}</p>
@@ -91,19 +83,11 @@ export function HeroSection({
 
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-center">
               {flanks[0] && (
-                <BottlePlate
-                  product={flanks[0]}
-                  plate="flank"
-                  className="z-10 translate-y-3"
-                />
+                <BottlePlate product={flanks[0]} plate="flank" className="z-10 translate-y-3" />
               )}
               <BottlePlate product={centre} plate="centre" className="z-20" />
               {flanks[1] && (
-                <BottlePlate
-                  product={flanks[1]}
-                  plate="flank"
-                  className="z-10 translate-y-3"
-                />
+                <BottlePlate product={flanks[1]} plate="flank" className="z-10 translate-y-3" />
               )}
             </div>
           </div>

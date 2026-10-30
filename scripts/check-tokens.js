@@ -43,6 +43,7 @@ const OWNED_PREFIXES = [
   "--gold-",
   "--green-",
   "--brand-",
+  "--header-",
   "--space-",
   "--radius-",
   "--shadow-",

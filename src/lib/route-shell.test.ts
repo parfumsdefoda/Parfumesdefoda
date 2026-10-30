@@ -37,6 +37,6 @@ describe("isAdvisorLauncherVisible", () => {
 
   it("ignores query strings and trailing slashes", () => {
     expect(isAdvisorLauncherVisible("/cart/?x=1")).toBe(false);
-    expect(isAdvisorLauncherVisible("/shop?form=oil")).toBe(true);
+    expect(isAdvisorLauncherVisible(`/shop?form=${encodeURIComponent("زيت عطري")}`)).toBe(true);
   });
 });

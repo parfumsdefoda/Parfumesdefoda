@@ -81,15 +81,12 @@ export function HeaderSearch({
   const needle = normalizeArabic(query.trim());
   const matches = needle
     ? index
-        .filter((item) =>
-          normalizeArabic(`${item.name} ${item.meta}`).includes(needle),
-        )
+        .filter((item) => normalizeArabic(`${item.name} ${item.meta}`).includes(needle))
         .slice(0, 6)
     : [];
 
   const options = [...matches.map((item) => item.slug), "__all__"];
-  const open =
-    focused && needle !== "" && (matches.length > 0 || query.trim() !== "");
+  const open = focused && needle !== "" && (matches.length > 0 || query.trim() !== "");
   const showEmpty = focused && needle !== "" && index.length > 0 && matches.length === 0;
 
   const close = useCallback(() => {
@@ -121,6 +118,13 @@ export function HeaderSearch({
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
+      // ArrowDown on a field that still holds a query is the visitor asking
+      // for the list back: reopen it instead of doing nothing.
+      if (!open && query.trim() !== "") {
+        setFocused(true);
+        setActive(0);
+        return;
+      }
       const next = active + 1 >= options.length ? 0 : active + 1;
       setActive(open ? next : -1);
       return;
@@ -155,16 +159,23 @@ export function HeaderSearch({
         </label>
         <div
           className={cn(
-            "flex items-center gap-1 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface-muted)]",
-            "transition-[width,background-color] duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
+            "flex items-center gap-1 rounded-pill border",
+            "transition-[width,background-color,border-color] duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
+            // Desktop: the capsule's own tone tokens, so the field reads on
+            // glass in both tones and never looks disabled.
             variant === "desktop"
-              ? "h-10 w-60 focus-within:w-90 focus-within:bg-[var(--color-surface)]"
-              : "h-11 w-full bg-[var(--color-surface)]",
+              ? "h-9 w-[190px] border-[var(--header-field-border)] bg-[var(--header-field)] focus-within:w-[320px] focus-within:bg-[var(--header-field-strong)]"
+              : "h-11 w-full border-[var(--color-border-strong)] bg-[var(--color-surface)]",
           )}
         >
           <Search
             aria-hidden="true"
-            className="ms-3 size-4 shrink-0 text-[var(--color-text-muted)]"
+            className={cn(
+              "ms-3 size-4 shrink-0",
+              variant === "desktop"
+                ? "text-[var(--header-fg-muted)]"
+                : "text-[var(--color-text-muted)]",
+            )}
           />
           <input
             id={inputId}
@@ -176,14 +187,16 @@ export function HeaderSearch({
             aria-expanded={open}
             aria-controls={listId}
             aria-autocomplete="list"
-            aria-activedescendant={
-              active >= 0 ? `${inputId}-option-${active}` : undefined
-            }
+            aria-activedescendant={active >= 0 ? `${inputId}-option-${active}` : undefined}
             placeholder={labels.placeholder}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
               setActive(-1);
+              // Typing is using the field: after Escape dismissed the list, the
+              // next keystroke must bring it back instead of staying silent
+              // until the visitor blurs and focuses again.
+              setFocused(true);
               if (!indexRef.current) void loadIndex();
             }}
             onFocus={() => {
@@ -196,12 +209,22 @@ export function HeaderSearch({
               }
             }}
             onKeyDown={onKeyDown}
-            className="h-full w-full min-w-0 bg-transparent px-1 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus-visible:outline-none"
+            className={cn(
+              "h-full w-full min-w-0 bg-transparent px-1 text-caption focus-visible:outline-none",
+              variant === "desktop"
+                ? "text-[var(--header-fg)] placeholder:text-[var(--header-fg-muted)]"
+                : "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+            )}
           />
           <button
             type="submit"
             aria-label={labels.submit}
-            className="me-1 inline-flex size-8 shrink-0 items-center justify-center rounded-pill text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+            className={cn(
+              "me-1 inline-flex size-8 shrink-0 items-center justify-center rounded-pill transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]",
+              variant === "desktop"
+                ? "text-[var(--header-fg-muted)] hover:text-[var(--header-fg)]"
+                : "text-[var(--color-text-muted)] hover:text-[var(--color-brand)]",
+            )}
           >
             <Search aria-hidden="true" className="size-4" />
           </button>
@@ -209,9 +232,7 @@ export function HeaderSearch({
       </form>
 
       <span role="status" aria-live="polite" className="sr-only">
-        {open
-          ? labels.resultsCount.replace("{n}", formatNumber(matches.length))
-          : ""}
+        {open ? labels.resultsCount.replace("{n}", formatNumber(matches.length)) : ""}
       </span>
 
       {(open || showEmpty) && (
@@ -220,8 +241,11 @@ export function HeaderSearch({
           role="listbox"
           aria-label={labels.suggestions}
           className={cn(
-            "absolute inset-x-0 top-full z-50 mt-2 overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lifted",
-            variant === "desktop" ? "min-w-80" : "w-full",
+            "absolute inset-x-0 top-full z-50 overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lifted",
+            // The desktop list opens BELOW the floating capsule, not on top of
+            // its bottom hairline: the pill sits 12px inside the capsule, so
+            // the gap has to clear the capsule's own edge.
+            variant === "desktop" ? "mt-4 min-w-80" : "mt-2 w-full",
           )}
         >
           {showEmpty ? (
@@ -249,9 +273,7 @@ export function HeaderSearch({
                   <span className="text-caption font-bold text-[var(--color-text)]">
                     {item.name}
                   </span>
-                  <span className="text-caption text-[var(--color-text-muted)]">
-                    {item.meta}
-                  </span>
+                  <span className="text-caption text-[var(--color-text-muted)]">{item.meta}</span>
                 </button>
               ))}
               {query.trim() !== "" && (

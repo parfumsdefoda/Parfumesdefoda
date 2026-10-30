@@ -134,6 +134,87 @@ Focus ring: 2px purple with a 2px offset on every variant.
 (availability), `primary` (purple fill), `destructive`. Badges use
 `text-caption` and a pill radius; `gold`/`positive` never use white text.
 
+### Header (`src/features/layout/components/header-bar.tsx`)
+
+A floating glass **capsule**, not a full-width bar: it is inset from the
+viewport, sits 12px below the top edge, is 52px tall on phones and 60px from
+1024px, fully rounded, with a single 1px gold hairline and `--shadow-soft`.
+The page scrolls underneath it.
+
+```
+╭──────────────── 12px ────────────────╮
+│  ◯ PARFUMS DE FODA   nav        ⌕ 🛒 │  ← capsule, --header-capsule high
+╰──────────────────────────────────────╯
+   the page runs under it (fixed, z-30)
+```
+
+Tokens (declared once in `globals.css`, prefixed `--header-` so `check:tokens`
+refuses an undeclared one):
+
+| Token                    | Job                                                     |
+| ------------------------ | ------------------------------------------------------- |
+| `--header-gap`           | the 12px the capsule floats in                          |
+| `--header-capsule`       | 52px / 60px (>= 1024px)                                 |
+| `--header-offset`        | gap + capsule — what every page pads its top by         |
+| `--header-surface`       | the glass fill (tone-dependent)                         |
+| `--header-fg` / `-muted` | text colours for the active tone                        |
+| `--header-accent`        | the nav's active underline (tone's accent, never gold)  |
+| `--header-field` / `-strong` / `-border` | the search pill on glass                  |
+| `--header-hover` / `--header-ring`      | icon-button hover and focus ring          |
+
+**Two tones**, switched by `data-tone` on `<header>`:
+
+| Tone      | Where                                          | Look                                        |
+| --------- | ---------------------------------------------- | ------------------------------------------- |
+| `dark`    | `/` while the hero is behind the capsule       | white 8% glass + blur, white text           |
+| `light`   | every other route, and `/` once the hero left  | ivory 88% glass + blur, `--color-text` text |
+
+The server renders the tone for the route, so the first paint is already
+correct. A tiny client island flips it (dark → light) with an
+`IntersectionObserver` on the hero's `data-hero-sentinel`; it writes the
+attribute onto the element, so scrolling never re-renders the bar.
+
+Fallbacks: `@supports not (backdrop-filter…)` and
+`@media (prefers-reduced-transparency: reduce)` both replace the glass with a
+solid surface of the same tone, so text contrast never depends on an unknown
+backdrop. Contrast pairs for both tones are asserted in
+`src/lib/design-tokens.test.ts`.
+
+Hard rules:
+
+- **No imagery.** The brand mark is `/logos/logo.svg` painted as a CSS
+  background (an emblem on an ivory seat), so no `<img>` — and therefore no
+  product thumbnail — exists anywhere in the header, its menus, its search
+  suggestions or the mobile sheet.
+- **Gold only as the hairline** (`--ui-gold-hairline` on the capsule edge, plus
+the mobile sheet's item hairlines). No gold text, no gold fill.
+- **Search is text-only.** Suggestions are name + public meta; the index is
+  fetched lazily on first focus and never enters a client bundle.
+- **Smart hide** lives in `data-hidden` (rAF-throttled scroll listener); it
+  never hides at the top, while search/dropdown/sheet is open, while focus is
+  inside, or under reduced motion.
+
+**Page offsets.** `main` carries `pt-[var(--header-offset)]`; the homepage hero
+cancels it with `-mt-[var(--header-offset)]` so it runs under the capsule, and
+adds the offset back as top padding so the headline and CTAs are never covered.
+`html { scroll-padding-top }` keeps anchors below the capsule.
+
+### Stacking order
+
+One ladder, referenced by every component that floats:
+
+| z     | Layer                                                              |
+| ----- | ------------------------------------------------------------------ |
+| 10–20 | decoration inside a component (hero plates, card stage, quick add) |
+| 30    | the floating header; checkout's mobile sticky submit bar           |
+| 40    | PDP sticky buy bar, the advisor bubble                             |
+| 50    | every modal: cart drawer, zoom dialog, filter sheet, size chooser, houses popover, search list, toasts |
+| 9999  | the skip link (must beat everything while focused)                 |
+
+The header is therefore **below** every modal, the PDP buy bar and the
+advisor bubble; nothing may be added between 30 and 40 that a modal would have
+to fight.
+
 ## Catalogue
 
 ### Product card (`src/features/products/components/product-card.tsx`)
