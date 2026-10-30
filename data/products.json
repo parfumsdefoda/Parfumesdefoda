@@ -4314,5 +4314,65 @@
       "title": "ناين بى ام | Parfums De Foda",
       "description": ""
     }
+  },
+  {
+    "id": "PF241",
+    "sku": "PF241",
+    "slug": "pf241",
+    "name": "تيروني",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF241.png",
+    "gallery": [
+      "/products/PF241.png"
+    ],
+    "gender": "رجالي",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 74,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 950,
+        "inStock": false,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 700,
+        "inStock": false,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 500,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 220,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "تيروني | Parfums De Foda",
+      "description": ""
+    }
   }
 ]
