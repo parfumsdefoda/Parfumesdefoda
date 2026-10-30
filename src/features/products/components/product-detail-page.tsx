@@ -9,12 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { ProductCard, type ProductCardLabels } from "./product-card";
 import { ProductGallery, type ProductGalleryLabels } from "./product-gallery";
-import {
-  ProductPurchase,
-  type ProductPurchaseLabels,
-} from "./product-purchase";
+import { ProductPurchase, type ProductPurchaseLabels } from "./product-purchase";
 import { Breadcrumbs } from "@/features/layout";
-import { cardMetaParts } from "@/lib/card-presentation";
+import { cardMetaParts, isPremiumProduct } from "@/lib/card-presentation";
+import { ProductMetaLine } from "./product-meta";
 import { imageSlug } from "@/lib/product-image";
 import { isComingSoon } from "@/lib/product-availability";
 import { categoryHref, CATEGORY_ROUTES } from "@/lib/site-nav";
@@ -89,14 +87,12 @@ export function ProductDetailPage({
   siteUrl,
 }: ProductDetailPageProps) {
   const comingSoon = isComingSoon(product);
-  const metaParts = cardMetaParts(product);
+  const premium = isPremiumProduct(product);
+  const metaParts = cardMetaParts(product, { premium });
   const notes = product.notes;
-  const hasNotes =
-    notes.top.length > 0 || notes.middle.length > 0 || notes.base.length > 0;
+  const hasNotes = notes.top.length > 0 || notes.middle.length > 0 || notes.base.length > 0;
 
-  const category = CATEGORY_ROUTES.find(
-    (route) => route.gender === product.gender,
-  );
+  const category = CATEGORY_ROUTES.find((route) => route.gender === product.gender);
 
   const images = [
     product.image,
@@ -104,14 +100,10 @@ export function ProductDetailPage({
   ].map((src) => ({ slug: imageSlug(src), src }));
 
   const inquiry = whatsapp
-    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-        `${labels.askAbout}: ${product.name}`,
-      )}`
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(`${labels.askAbout}: ${product.name}`)}`
     : null;
   const notify = whatsapp
-    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-        `${labels.notifyMe}: ${product.name}`,
-      )}`
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(`${labels.notifyMe}: ${product.name}`)}`
     : null;
 
   return (
@@ -141,19 +133,14 @@ export function ProductDetailPage({
             name={product.name}
             labels={labels.gallery}
             comingSoon={comingSoon}
+            premium={premium}
           />
         </div>
 
         <div className="flex flex-col gap-5">
-          {metaParts.length > 0 && (
-            <p className="text-caption text-[var(--color-text-muted)]">
-              {metaParts.join(" · ")}
-            </p>
-          )}
+          <ProductMetaLine parts={metaParts} premium={premium} />
 
-          <h1 className="text-title-1 font-bold text-[var(--color-text)]">
-            {product.name}
-          </h1>
+          <h1 className="text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
 
           {comingSoon ? (
             <div className="rounded-card border border-dashed border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
@@ -163,11 +150,7 @@ export function ProductDetailPage({
               <p className="mt-1 text-caption text-[var(--color-text-muted)]">
                 {labels.comingSoonBody}
               </p>
-              <Button
-                render={<Link href="/shop" />}
-                variant="secondary"
-                className="mt-4 font-bold"
-              >
+              <Button render={<Link href="/shop" />} variant="secondary" className="mt-4 font-bold">
                 {labels.backToShop}
               </Button>
             </div>
@@ -247,9 +230,7 @@ export function ProductDetailPage({
                 <AccordionContent className="flex flex-col gap-2 pb-4 text-caption text-[var(--color-text-muted)]">
                   {notes.top.length > 0 && (
                     <p>
-                      <span className="font-bold text-[var(--color-text)]">
-                        {labels.notesTop}
-                      </span>{" "}
+                      <span className="font-bold text-[var(--color-text)]">{labels.notesTop}</span>{" "}
                       {notes.top.join("، ")}
                     </p>
                   )}
@@ -263,9 +244,7 @@ export function ProductDetailPage({
                   )}
                   {notes.base.length > 0 && (
                     <p>
-                      <span className="font-bold text-[var(--color-text)]">
-                        {labels.notesBase}
-                      </span>{" "}
+                      <span className="font-bold text-[var(--color-text)]">{labels.notesBase}</span>{" "}
                       {notes.base.join("، ")}
                     </p>
                   )}
@@ -301,21 +280,13 @@ export function ProductDetailPage({
       </div>
 
       {related.length >= 2 && (
-        <section
-          aria-labelledby="related-heading"
-          className="mt-[var(--space-section)]"
-        >
+        <section aria-labelledby="related-heading" className="mt-[var(--space-section)]">
           <h2 id="related-heading" className="mb-6 text-title-2 font-bold">
             {relatedIsAlternatives ? labels.alternatives : labels.related}
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             {related.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-                labels={cardLabels}
-                suppressFeatured
-              />
+              <ProductCard key={item.id} product={item} labels={cardLabels} />
             ))}
           </div>
         </section>

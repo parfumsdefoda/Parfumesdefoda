@@ -6,6 +6,7 @@ import {
   cardPrice,
   hasPremiumInName,
   hasProductImage,
+  isPremiumProduct,
   lowestInStockPrice,
   quickAddMode,
   sizeMlFromLabel,
@@ -17,15 +18,7 @@ import type { Product } from "@/types";
 
 type CardProduct = Pick<
   Product,
-  | "name"
-  | "image"
-  | "inStock"
-  | "status"
-  | "featured"
-  | "sizes"
-  | "house"
-  | "type"
-  | "oily"
+  "name" | "image" | "inStock" | "status" | "featured" | "sizes" | "house" | "type" | "oily"
 > &
   Partial<Pick<Product, "concentration">>;
 
@@ -57,14 +50,12 @@ describe("cardBadge", () => {
     expect(cardBadge(product())).toBeNull();
   });
 
-  it("shows the featured badge on an in-stock featured product", () => {
-    expect(cardBadge(product({ featured: true }))).toBe("featured");
+  it("never shows a premium badge — premium is the frame now", () => {
+    expect(cardBadge(product({ featured: true }))).toBeNull();
   });
 
-  it("shows out-of-stock ahead of featured", () => {
-    expect(cardBadge(product({ featured: true, inStock: false }))).toBe(
-      "out-of-stock",
-    );
+  it("shows out-of-stock on a premium product that cannot be bought", () => {
+    expect(cardBadge(product({ featured: true, inStock: false }))).toBe("out-of-stock");
   });
 
   it("treats a product with no purchasable size as out of stock", () => {
@@ -85,19 +76,30 @@ describe("cardBadge", () => {
   });
 
   it("puts the coming-soon placeholder above everything else", () => {
-    expect(
-      cardBadge(product({ image: PLACEHOLDER, featured: true, inStock: false })),
-    ).toBe("coming-soon");
+    expect(cardBadge(product({ image: PLACEHOLDER, featured: true, inStock: false }))).toBe(
+      "coming-soon",
+    );
   });
 
-  it("never doubles فاخر on a premium variant already named فاخر", () => {
-    const variant = product({ featured: true, name: "تيروني (فاخر)" });
+  it("keeps the name suffix independent of the frame", () => {
+    // The suffix is only a word in the name: it neither adds a badge nor
+    // decides the premium frame (that is `featured`, and nothing else).
+    const variant = product({ featured: false, name: "تيروني (فاخر)" });
     expect(hasPremiumInName(variant.name)).toBe(true);
+    expect(isPremiumProduct(variant)).toBe(false);
     expect(cardBadge(variant)).toBeNull();
-    // Its base product still gets the badge.
-    expect(cardBadge(product({ featured: true, name: "تيروني" }))).toBe(
-      "featured",
-    );
+
+    const base = product({ featured: true, name: "تيروني" });
+    expect(hasPremiumInName(base.name)).toBe(false);
+    expect(isPremiumProduct(base)).toBe(true);
+    expect(cardBadge(base)).toBeNull();
+  });
+});
+
+describe("isPremiumProduct", () => {
+  it("reads the owner's featured flag and nothing else", () => {
+    expect(isPremiumProduct({ featured: true })).toBe(true);
+    expect(isPremiumProduct({ featured: false })).toBe(false);
   });
 });
 
@@ -120,9 +122,7 @@ describe("lowestInStockPrice", () => {
 
   it("falls back to the listed prices when nothing is in stock", () => {
     expect(
-      lowestInStockPrice(
-        product({ sizes: [{ label: "50 مل", price: 480, inStock: false }] }),
-      ),
+      lowestInStockPrice(product({ sizes: [{ label: "50 مل", price: 480, inStock: false }] })),
     ).toBe(480);
   });
 
@@ -137,11 +137,10 @@ describe("cardPrice", () => {
   });
 
   it("drops the prefix for a single-size product", () => {
-    expect(
-      cardPrice(
-        product({ sizes: [{ label: "50 مل", price: 500, inStock: true }] }),
-      ),
-    ).toEqual({ prefix: null, amount: 500 });
+    expect(cardPrice(product({ sizes: [{ label: "50 مل", price: 500, inStock: true }] }))).toEqual({
+      prefix: null,
+      amount: 500,
+    });
   });
 
   it("returns null when there is no price to show", () => {
@@ -184,9 +183,7 @@ describe("cardMetaParts", () => {
       "زيت عطري",
     ]);
     // The concentration alone is still enough to recognise an oil.
-    expect(cardMetaLine(product({ concentration: "oil" }))).toBe(
-      "نيش · شرقي · زيت عطري",
-    );
+    expect(cardMetaLine(product({ concentration: "oil" }))).toBe("نيش · شرقي · زيت عطري");
   });
 
   it("joins with a middle dot", () => {
@@ -202,6 +199,29 @@ describe("cardMetaParts", () => {
         oily: false,
       }),
     ).toBeNull();
+  });
+
+  it("leads a premium product with فاخر and keeps three parts", () => {
+    expect(cardMetaParts(product({ concentration: "edp" }), { premium: true })).toEqual([
+      "فاخر",
+      "نيش",
+      "شرقي",
+    ]);
+    expect(cardMetaLine(product({ concentration: "edp" }), { premium: true })).toBe(
+      "فاخر · نيش · شرقي",
+    );
+  });
+
+  it("keeps a premium dupe card at two parts", () => {
+    expect(cardMetaParts(product({ house: "دووب" }), { premium: true })).toEqual(["فاخر", "شرقي"]);
+  });
+
+  it("leaves a normal card's format part untouched", () => {
+    expect(cardMetaParts(product({ concentration: "edp" }))).toEqual([
+      "نيش",
+      "شرقي",
+      "أو دو بارفان",
+    ]);
   });
 
   it("exposes a public label for every tier except دووب", () => {

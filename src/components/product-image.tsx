@@ -23,6 +23,11 @@ export interface ProductImageProps {
    * `thumb` = fill the caller's sized box (cart row, gallery thumb, chat card).
    */
   frame?: ProductImageFrame;
+  /**
+   * Stage backdrop: `light` is the ivory stage every card uses; `dark` is the
+   * premium (فاخر) stage and is only passed when the photo is a real cut-out.
+   */
+  tone?: "light" | "dark";
   /** `sizes` attribute — required, because a wrong value downloads the wrong tier. */
   sizes: string;
   /** Above-the-fold image: eager + high fetch priority. */
@@ -53,6 +58,7 @@ export function ProductImage({
   name,
   tier = "card",
   frame = "thumb",
+  tone = "light",
   sizes,
   priority = false,
   loading = "lazy",
@@ -84,7 +90,8 @@ export function ProductImage({
   return (
     <span
       className={cn(
-        "relative block overflow-hidden bg-[var(--ui-surface-muted)]",
+        "relative block overflow-hidden",
+        tone === "dark" ? "premium-stage" : "bg-[var(--ui-surface-muted)]",
         frame === "stage" ? "aspect-[4/5] w-full" : "h-full w-full",
         frameClassName,
       )}
@@ -92,15 +99,19 @@ export function ProductImage({
       {frame === "stage" && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-[26%] bottom-[11%] h-[3%] rounded-full bg-[var(--neutral-300)] opacity-50 blur-md"
+          data-ground=""
+          className={cn(
+            "pointer-events-none absolute inset-x-[26%] bottom-[11%] h-[3%] rounded-full blur-md",
+            tone === "dark"
+              ? "bg-[var(--ui-stage-shadow-dark)] opacity-90"
+              : "bg-[var(--neutral-300)] opacity-50",
+          )}
         />
       )}
 
       {sources ? (
         <picture>
-          {sources.avif && (
-            <source type="image/avif" srcSet={sources.avif} sizes={sizes} />
-          )}
+          {sources.avif && <source type="image/avif" srcSet={sources.avif} sizes={sizes} />}
           <source type="image/webp" srcSet={sources.webp} sizes={sizes} />
           <img
             src={sources.src}
@@ -115,11 +126,7 @@ export function ProductImage({
             // Read by <DerivedImageFallback> when a derived file 404s.
             data-original={src}
             className={imgClassName}
-            style={
-              sources.blend === "multiply"
-                ? { mixBlendMode: "multiply" }
-                : undefined
-            }
+            style={sources.blend === "multiply" ? { mixBlendMode: "multiply" } : undefined}
           />
         </picture>
       ) : (

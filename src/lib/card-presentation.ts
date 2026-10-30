@@ -12,21 +12,34 @@ import type { ProductForm } from "./product-vocabulary";
 import { concentrationLabel, publicTierLabel } from "./product-labels";
 import { isComingSoon, isUnavailableProduct } from "./product-availability";
 
-/** The single badge a card may show. Priority: coming-soon > out-of-stock > featured. */
-export type CardBadge = "coming-soon" | "out-of-stock" | "featured";
+/** The single badge a card may show. Priority: coming-soon > out-of-stock. */
+export type CardBadge = "coming-soon" | "out-of-stock";
 
 /** The word a premium variant carries in its own name. */
 export const PREMIUM_NAME_MARK = "فاخر";
 
+/** The word the premium frame adds to the meta line. */
+export const PREMIUM_META_LABEL = "فاخر";
+
 /**
  * True when the product name already says "فاخر".
  *
- * Premium variants are separate products named `تيروني (فاخر)`; the gold badge
- * is only for the other products, so a variant never reads
- * `تيروني (فاخر) ★ فاخر`.
+ * Premium variants are separate products named `تيروني (فاخر)`. The suffix is
+ * INDEPENDENT of the frame: `isPremiumProduct` reads the owner's `is_featured`
+ * flag, never the name, so renaming a product can never add or remove the ring.
  */
 export function hasPremiumInName(name: string): boolean {
   return name.includes(PREMIUM_NAME_MARK);
+}
+
+/**
+ * Premium (فاخر) — the owner's `is_featured` flag, and the only source of it.
+ *
+ * Premium is a FRAME, not a badge: the gold ring replaces the old gold pill, so
+ * the same flag can style a card, a PDP stage and (later) any other surface.
+ */
+export function isPremiumProduct(product: Pick<Product, "featured">): boolean {
+  return product.featured === true;
 }
 
 /** Separator used between the meta parts ("نيش · شرقي"). */
@@ -52,24 +65,14 @@ export function hasProductImage(product: Pick<Product, "image">): boolean {
  *
  * Normal in-stock products carry no badge at all — the restraint is the point.
  * A photo-less product outranks everything (it is not for sale), then an
- * unavailable product, then the gold فاخر label.
+ * unavailable product. Premium is not a badge any more — it is the gold frame,
+ * so it never competes for this slot.
  */
 export function cardBadge(
-  product: Pick<
-    Product,
-    "image" | "inStock" | "status" | "featured" | "sizes" | "name"
-  >,
-  options: { suppressFeatured?: boolean } = {},
+  product: Pick<Product, "image" | "inStock" | "status" | "sizes" | "name">,
 ): CardBadge | null {
   if (isComingSoon(product)) return "coming-soon";
   if (isUnavailableProduct(product) || !hasAnyStock(product)) return "out-of-stock";
-  if (
-    product.featured &&
-    !options.suppressFeatured &&
-    !hasPremiumInName(product.name)
-  ) {
-    return "featured";
-  }
   return null;
 }
 
@@ -79,9 +82,7 @@ export function cardBadge(
  * Null when nothing is on sale. This is the number price filters and sorts
  * use: a sold-out product has no "starting price" to rank by.
  */
-export function lowestBuyablePrice(
-  product: Pick<Product, "sizes">,
-): number | null {
+export function lowestBuyablePrice(product: Pick<Product, "sizes">): number | null {
   const inStock = product.sizes.filter((size) => size.inStock);
   if (inStock.length === 0) return null;
   return Math.min(...inStock.map((size) => size.price));
@@ -109,10 +110,7 @@ export interface CardPrice {
  * The price line: "من ١٢٠ ج.م" when the product has several sizes (the number
  * is the cheapest one on sale), "١٢٠ ج.م" when it has exactly one.
  */
-export function cardPrice(
-  product: Pick<Product, "sizes">,
-  fromLabel = "من",
-): CardPrice | null {
+export function cardPrice(product: Pick<Product, "sizes">, fromLabel = "من"): CardPrice | null {
   const amount = lowestInStockPrice(product);
   if (amount === null) return null;
   return {
@@ -127,9 +125,7 @@ export function cardPrice(
  * `is_oil` in the owner's master is the source of truth; the concentration is
  * only a fallback for an oil whose flag was never set.
  */
-export function productForm(
-  product: Pick<Product, "oily" | "concentration">,
-): ProductForm {
+export function productForm(product: Pick<Product, "oily" | "concentration">): ProductForm {
   return product.oily || product.concentration === "oil" ? "زيت عطري" : "عطر";
 }
 
@@ -140,23 +136,31 @@ export function productForm(
  * has no public label, so a dupe card simply starts with its scent style. An
  * oil shows "زيت عطري" instead of a concentration code, because the format is
  * the fact a shopper needs there.
+ *
+ * A premium product leads with the frame's word — "فاخر · نيش · شرقي" — and
+ * drops the format, so the line stays at three parts.
  */
 export function cardMetaParts(
   product: Pick<Product, "house" | "type" | "concentration" | "oily">,
+  options: { premium?: boolean } = {},
 ): string[] {
   const parts: string[] = [];
+
+  if (options.premium) parts.push(PREMIUM_META_LABEL);
 
   const tier = publicTierLabel(product.house);
   if (tier) parts.push(tier);
 
   if (product.type) parts.push(product.type);
 
-  const format = productForm(product);
-  if (format === "زيت عطري") {
-    parts.push(format);
-  } else {
-    const concentration = concentrationLabel(product.concentration);
-    if (concentration) parts.push(concentration);
+  if (!options.premium) {
+    const format = productForm(product);
+    if (format === "زيت عطري") {
+      parts.push(format);
+    } else {
+      const concentration = concentrationLabel(product.concentration);
+      if (concentration) parts.push(concentration);
+    }
   }
 
   return parts.slice(0, 3);
@@ -165,8 +169,9 @@ export function cardMetaParts(
 /** The meta line as one string, or null when there is nothing honest to say. */
 export function cardMetaLine(
   product: Pick<Product, "house" | "type" | "concentration" | "oily">,
+  options: { premium?: boolean } = {},
 ): string | null {
-  const parts = cardMetaParts(product);
+  const parts = cardMetaParts(product, options);
   return parts.length > 0 ? parts.join(` ${CARD_META_SEPARATOR} `) : null;
 }
 
@@ -177,9 +182,7 @@ export type QuickAddMode = "hidden" | "direct" | "chooser";
  * One in-stock size → add it straight away; several → ask which one; none →
  * there is nothing to add, so the control does not render.
  */
-export function quickAddMode(
-  sizes: Pick<Product["sizes"][number], "inStock">[],
-): QuickAddMode {
+export function quickAddMode(sizes: Pick<Product["sizes"][number], "inStock">[]): QuickAddMode {
   const available = sizes.filter((size) => size.inStock).length;
   if (available === 0) return "hidden";
   return available === 1 ? "direct" : "chooser";

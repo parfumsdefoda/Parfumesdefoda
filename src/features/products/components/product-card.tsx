@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/product-image";
 import { Badge } from "@/components/ui/badge";
-import { FeaturedBadge } from "./featured-badge";
 import { QuickAdd } from "./quick-add";
+import { ProductMetaLine } from "./product-meta";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import {
   cardBadge,
-  cardMetaLine,
+  cardMetaParts,
   cardPrice,
   hasAnyStock,
   hasProductImage,
+  isPremiumProduct,
 } from "@/lib/card-presentation";
+import { hasTransparentCutout } from "@/lib/product-image";
 import type { Product } from "@/types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -50,8 +52,6 @@ export interface ProductCardProps {
   loading?: "eager" | "lazy";
   /** Below-the-fold cards skip off-screen layout/paint work. */
   deferred?: boolean;
-  /** Related shelves avoid a second gold accent beside the PDP. */
-  suppressFeatured?: boolean;
   labels?: Partial<ProductCardLabels>;
   className?: string;
 }
@@ -63,8 +63,7 @@ export interface ProductCardProps {
  * card on the page: half the viewport on phones, a third on tablets, a quarter
  * on wide screens.
  */
-export const CARD_IMAGE_SIZES =
-  "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
+export const CARD_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -76,8 +75,8 @@ export const CARD_IMAGE_SIZES =
  * grid of 40 products no longer hydrates 40 stateful cards.
  *
  * Anatomy (RTL):
- *   image stage (4:5, muted surface, one optional badge)
- *   meta line  → tier · style · concentration
+ *   image stage (4:5, muted surface, one optional badge, premium gold ring)
+ *   meta line  → ◆ فاخر · tier · style  (or tier · style · format)
  *   name       → the card's real link
  *   price      → brand purple, "من" when several sizes exist
  *
@@ -89,30 +88,40 @@ export function ProductCard({
   priority = false,
   loading = "lazy",
   deferred = false,
-  suppressFeatured = false,
   labels,
   className,
 }: ProductCardProps) {
   const copy = { ...DEFAULT_CARD_LABELS, ...labels };
-  const badge = cardBadge(product, { suppressFeatured });
+  const badge = cardBadge(product);
   const comingSoon = badge === "coming-soon";
   const outOfStock = badge === "out-of-stock";
   const hasImage = hasProductImage(product);
+  const premium = isPremiumProduct(product);
+  // A premium product that cannot be bought keeps the ring but nothing moves.
+  const premiumMuted = premium && (comingSoon || outOfStock);
+  // The dark stage is only honest behind a real cut-out; a framed or coloured
+  // photo keeps the light stage and shows the ring alone.
+  const darkStage = premium && !premiumMuted && hasImage && hasTransparentCutout(product.slug);
   const price = comingSoon ? null : cardPrice(product, copy.from);
-  const meta = cardMetaLine(product);
+  const meta = cardMetaParts(product, { premium });
   const href = product.slug ? `/product/${product.slug}` : null;
 
   return (
     <article
       className={cn(
         "group relative flex flex-col",
+        premium && "premium-card",
         deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_32rem]",
         className,
       )}
     >
       {/* ─── Stage ─── */}
       <div className="relative">
-        <div className="relative overflow-hidden rounded-card">
+        <div
+          className={cn("relative overflow-hidden rounded-card", premium && "premium-frame")}
+          data-premium={premium ? (premiumMuted ? "muted" : "true") : undefined}
+          data-stage={darkStage ? "dark" : "light"}
+        >
           {comingSoon ? (
             <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--color-surface-muted)]">
               <span className="rounded-pill border border-dashed border-[var(--color-border)] px-4 py-1.5 text-caption font-medium text-[var(--color-text-muted)]">
@@ -132,6 +141,7 @@ export function ProductCard({
               name={product.name}
               tier="card"
               frame="stage"
+              tone={darkStage ? "dark" : "light"}
               sizes={CARD_IMAGE_SIZES}
               priority={priority}
               loading={loading}
@@ -140,10 +150,23 @@ export function ProductCard({
                 outOfStock && "opacity-60",
               )}
               className={cn(
-                "transition-transform duration-[var(--duration-slow)] ease-[var(--ease-apple)]",
-                "group-hover:scale-[1.03] motion-reduce:transform-none",
+                premium
+                  ? "premium-bottle"
+                  : cn(
+                      "transition-transform duration-[var(--duration-slow)] ease-[var(--ease-apple)]",
+                      "group-hover:scale-[1.03] motion-reduce:transform-none",
+                    ),
               )}
             />
+          )}
+
+          {/* Premium motion: one shine band, two glints. Decoration only. */}
+          {premium && !premiumMuted && (
+            <>
+              <span aria-hidden="true" className="premium-shine" />
+              <span aria-hidden="true" className="premium-glint" data-glint="a" />
+              <span aria-hidden="true" className="premium-glint" data-glint="b" />
+            </>
           )}
 
           {href && !comingSoon && (
@@ -153,12 +176,6 @@ export function ProductCard({
               aria-hidden="true"
               className="absolute inset-0 z-10 rounded-card focus-visible:outline-none"
             />
-          )}
-
-          {badge === "featured" && (
-            <div className="absolute top-3 end-3 z-10">
-              <FeaturedBadge />
-            </div>
           )}
 
           {/* Coming soon speaks once, from the stage itself. */}
@@ -193,9 +210,7 @@ export function ProductCard({
 
       {/* ─── Text ─── */}
       <div className="flex flex-1 flex-col gap-1 pt-3">
-        {meta && (
-          <p className="text-caption text-[var(--color-text-muted)]">{meta}</p>
-        )}
+        {meta.length > 0 && <ProductMetaLine parts={meta} premium={premium} />}
 
         <h3
           className={cn(
@@ -224,9 +239,7 @@ export function ProductCard({
                 {price.prefix}
               </span>
             )}
-            <span className="whitespace-nowrap tabular-nums">
-              {formatPrice(price.amount)}
-            </span>
+            <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
           </p>
         )}
       </div>

@@ -73,6 +73,20 @@ export function getProductImageEntry(slug?: string | null): ManifestEntry | null
   return MANIFEST.products[slug] ?? null;
 }
 
+/**
+ * True when the derived photo is a real cut-out (a transparent background).
+ *
+ * The premium dark stage is only allowed behind a transparent subject. A framed
+ * or coloured photo (the products in `.audit/needs-retouch.txt`) keeps the light
+ * stage and shows the gold ring alone, because a white rectangle on dark purple
+ * would read as a mistake.
+ */
+export function hasTransparentCutout(slug?: string | null): boolean {
+  const entry = getProductImageEntry(slug);
+  if (!entry) return false;
+  return entry.background === "transparent" && (entry.mode ?? "cutout") === "cutout";
+}
+
 export interface ProductImageSources {
   /** AVIF `<source srcset>` — empty string when no AVIF tier exists. */
   avif: string;

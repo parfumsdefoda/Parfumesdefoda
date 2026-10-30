@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { buildProductImageSources, getProductImageEntry, imageSlug } from "./product-image";
+import {
+  buildProductImageSources,
+  getProductImageEntry,
+  hasTransparentCutout,
+  imageSlug,
+} from "./product-image";
 
 describe("imageSlug", () => {
   it("maps an original product path to its manifest key", () => {
@@ -25,5 +30,25 @@ describe("derived gallery assets", () => {
 
   it("still falls back to the original for an unknown image", () => {
     expect(buildProductImageSources("pf-unknown", "card")).toBeNull();
+  });
+});
+
+describe("hasTransparentCutout", () => {
+  it("is true for a transparent cut-out", () => {
+    // pf240 is the catalogue's premium (فاخر) cut-out — the dark stage case.
+    expect(hasTransparentCutout("pf240")).toBe(true);
+  });
+
+  it("is false for a framed photo that still carries its background", () => {
+    // pf091 is listed in .audit/needs-retouch.txt: a coloured background
+    // served as a framed resize, so it keeps the light stage.
+    const entry = getProductImageEntry("pf091");
+    expect(entry?.background).not.toBe("transparent");
+    expect(hasTransparentCutout("pf091")).toBe(false);
+  });
+
+  it("is false when there is no derived entry at all", () => {
+    expect(hasTransparentCutout("pf-unknown")).toBe(false);
+    expect(hasTransparentCutout(null)).toBe(false);
   });
 });

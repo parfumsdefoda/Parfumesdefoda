@@ -51,8 +51,48 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({ id: "normal", name: "منتج عادي" }),
   },
   {
-    label: "فاخر",
-    product: fixture({ id: "featured", name: "منتج فاخر", featured: true }),
+    label: "فاخر · صورة بقناة ألفا (مرحلة داكنة)",
+    product: fixture({
+      id: "premium-alpha",
+      slug: "pf240",
+      image: "/products/PF240.png",
+      name: "تيروني (فاخر)",
+      featured: true,
+    }),
+  },
+  {
+    label: "فاخر · صورة بلا ألفا (إطار ذهبي فقط)",
+    product: fixture({
+      id: "premium-framed",
+      slug: "pf091",
+      image: "/products/PF091.png",
+      name: "أمواج انترلود (فاخر)",
+      featured: true,
+    }),
+  },
+  {
+    label: "فاخر · غير متوفر (إطار باهت ساكن)",
+    product: fixture({
+      id: "premium-sold-out",
+      slug: "pf240",
+      image: "/products/PF240.png",
+      name: "فاخر غير متوفر",
+      featured: true,
+      inStock: false,
+      sizes: [size("50 مل", 500, false)],
+    }),
+  },
+  {
+    label: "فاخر · زيت",
+    product: fixture({
+      id: "premium-oil",
+      slug: "pf240",
+      image: "/products/PF240.png",
+      name: "زيت فاخر",
+      featured: true,
+      oily: true,
+      sizes: [size("12 مل", 300), size("6 مل", 180), size("3 مل", 120)],
+    }),
   },
   {
     label: "حجم واحد",
@@ -115,9 +155,7 @@ export default function DevProductCardPage() {
 
   return (
     <main className="container mx-auto px-4 py-16">
-      <h1 className="text-title-2 font-bold text-[var(--color-text)]">
-        بطاقة المنتج — كل الحالات
-      </h1>
+      <h1 className="text-title-2 font-bold text-[var(--color-text)]">بطاقة المنتج — كل الحالات</h1>
       <p className="mt-2 mb-10 text-body text-[var(--color-text-muted)]">
         صفحة تطوير فقط. الشبكة هي نفسها المستخدمة في الكتالوج (٢ / ٣ / ٤).
       </p>

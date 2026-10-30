@@ -61,11 +61,7 @@ function channelLuminance(value: number): number {
 
 export function relativeLuminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex);
-  return (
-    0.2126 * channelLuminance(r) +
-    0.7152 * channelLuminance(g) +
-    0.0722 * channelLuminance(b)
-  );
+  return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 }
 
 /** WCAG 2.1 contrast ratio, rounded to two decimals. */
@@ -184,8 +180,11 @@ export function buildContrastPairs(palette: Palette = PALETTE): ContrastPair[] {
     ["danger text on surface", palette.danger, palette.surface],
     ["danger text on danger-10", palette.danger, mix(palette.danger, palette.surface, 10)],
     ["white on danger (destructive button)", palette["brand-white"], palette.danger],
-    ["gold text on gold-50 (featured badge)", palette["gold-text"], palette["gold-50"]],
+    ["gold text on gold-50 (soft gold tint)", palette["gold-text"], palette["gold-50"]],
     ["gold text on surface", palette["gold-text"], palette.surface],
+    // The premium (فاخر) meta line sits on the page and on card surfaces.
+    ["premium gold text on page (ivory)", palette["gold-text"], palette.bg],
+    ["premium gold text on muted surface", palette["gold-text"], palette["surface-muted"]],
     ["positive text on green-50 (status chip)", palette.positive, palette["green-50"]],
     ["positive text on surface", palette.positive, palette.surface],
     ["white on positive (success state)", palette["brand-white"], palette.positive],
@@ -205,11 +204,46 @@ export const CONTRAST_PAIRS = buildContrastPairs();
 
 /** Type scale utilities, in the order they appear on the page. */
 export const TYPE_SCALE = [
-  { name: "display", className: "text-display", sample: "عطر فاخر", note: "clamp(40 → 64px) / 1.15" },
-  { name: "title-1", className: "text-title-1", sample: "عنوان أول", note: "clamp(32 → 48px) / 1.25" },
-  { name: "title-2", className: "text-title-2", sample: "عنوان ثانٍ", note: "clamp(26 → 32px) / 1.25" },
-  { name: "title-3", className: "text-title-3", sample: "عنوان ثالث", note: "clamp(20 → 24px) / 1.25" },
-  { name: "headline", className: "text-headline", sample: "اسم المنتج", note: "clamp(18 → 20px) / 1.4" },
-  { name: "body", className: "text-body", sample: "نص أساسي للقراءة الطويلة.", note: "clamp(16 → 17px) / 1.7" },
-  { name: "caption", className: "text-caption", sample: "تسمية صغيرة أو رقم", note: "14px / 1.6 — the floor" },
+  {
+    name: "display",
+    className: "text-display",
+    sample: "عطر فاخر",
+    note: "clamp(40 → 64px) / 1.15",
+  },
+  {
+    name: "title-1",
+    className: "text-title-1",
+    sample: "عنوان أول",
+    note: "clamp(32 → 48px) / 1.25",
+  },
+  {
+    name: "title-2",
+    className: "text-title-2",
+    sample: "عنوان ثانٍ",
+    note: "clamp(26 → 32px) / 1.25",
+  },
+  {
+    name: "title-3",
+    className: "text-title-3",
+    sample: "عنوان ثالث",
+    note: "clamp(20 → 24px) / 1.25",
+  },
+  {
+    name: "headline",
+    className: "text-headline",
+    sample: "اسم المنتج",
+    note: "clamp(18 → 20px) / 1.4",
+  },
+  {
+    name: "body",
+    className: "text-body",
+    sample: "نص أساسي للقراءة الطويلة.",
+    note: "clamp(16 → 17px) / 1.7",
+  },
+  {
+    name: "caption",
+    className: "text-caption",
+    sample: "تسمية صغيرة أو رقم",
+    note: "14px / 1.6 — the floor",
+  },
 ] as const;

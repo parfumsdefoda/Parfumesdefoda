@@ -95,16 +95,8 @@
   /* On the dark surfaces (footer, hero): white text and hairlines that read
      against --purple-950 without inventing a second palette. */
   --color-on-dark: var(--brand-white);
-  --color-on-dark-muted: color-mix(
-    in srgb,
-    var(--brand-white) 76%,
-    var(--purple-950)
-  );
-  --color-on-dark-border: color-mix(
-    in srgb,
-    var(--brand-white) 18%,
-    var(--purple-950)
-  );
+  --color-on-dark-muted: color-mix(in srgb, var(--brand-white) 76%, var(--purple-950));
+  --color-on-dark-border: color-mix(in srgb, var(--brand-white) 18%, var(--purple-950));
 
   /* ── Legacy names kept because existing components read them ─ */
   --color-primary: var(--brand-white);
@@ -139,6 +131,16 @@
     var(--brand-gold) 75%,
     color-mix(in srgb, var(--brand-gold) 82%, #5c4708) 100%
   );
+
+  /* The premium (فاخر) stage: brand purple pulled toward the hero's darkest
+     purple, so a cut-out bottle reads on a lit stage rather than on lavender. */
+  --gradient-stage-dark: radial-gradient(
+    118% 86% at 50% 20%,
+    color-mix(in srgb, var(--brand-purple) 44%, var(--purple-950)) 0%,
+    var(--purple-950) 76%
+  );
+  /* Ground shadow under a bottle on the dark stage — darker than the stage. */
+  --ui-stage-shadow-dark: color-mix(in srgb, var(--purple-950) 55%, #000000);
 
   /* ── Motion ────────────────────────────────────────────────── */
   --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
@@ -189,10 +191,8 @@
   --radius-4xl: 9999px;
 
   /* Exactly two shadows. */
-  --shadow-soft:
-    0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px -14px rgb(58 26 79 / 0.14);
-  --shadow-lifted:
-    0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
+  --shadow-soft: 0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px -14px rgb(58 26 79 / 0.14);
+  --shadow-lifted: 0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
 
   /* The stock shadow scale is remapped onto those two, so shadow-sm and
      shadow-xl can never introduce a fifth elevation. */
@@ -353,6 +353,219 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   pointer-events: none;
 }
 
+/* ─── Premium (فاخر) product ───
+   The metallic frame REPLACES the old gold badge. It is a 2px ring drawn as
+   an overlay with mask-composite, so the card keeps exactly the same box,
+   height and radius as a normal card. Pure CSS: no JavaScript, no infinite
+   animation, and nothing that can intercept a click (`pointer-events: none`). */
+@property --premium-sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.premium-frame {
+  position: relative;
+}
+
+.premium-frame::before,
+.premium-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
+}
+
+/* The metal itself: light highlight → base gold → deep shade → base → light. */
+.premium-frame::before {
+  z-index: 20;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-gold) 88%, var(--brand-white)) 0%,
+    var(--brand-gold) 26%,
+    color-mix(in srgb, var(--brand-gold) 52%, #3d2d06) 50%,
+    var(--brand-gold) 76%,
+    color-mix(in srgb, var(--brand-gold) 88%, var(--brand-white)) 100%
+  );
+}
+
+/* The travelling highlight (only visible while it animates). */
+.premium-frame::after {
+  z-index: 21;
+  opacity: 0;
+  background: conic-gradient(
+    from var(--premium-sweep),
+    transparent 0deg 292deg,
+    color-mix(in srgb, var(--brand-white) 88%, var(--brand-gold)) 336deg,
+    transparent 360deg
+  );
+}
+
+/* A premium product nobody can buy yet keeps a muted, still frame. */
+.premium-frame[data-premium="muted"]::before {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-gold) 30%, var(--neutral-300)) 0%,
+    color-mix(in srgb, var(--brand-gold) 16%, var(--neutral-400)) 50%,
+    color-mix(in srgb, var(--brand-gold) 30%, var(--neutral-300)) 100%
+  );
+}
+
+.premium-frame[data-premium="muted"]::after {
+  content: none;
+}
+
+@keyframes premium-sweep {
+  from {
+    --premium-sweep: 0deg;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  72% {
+    opacity: 0.9;
+  }
+  to {
+    --premium-sweep: 360deg;
+    opacity: 0;
+  }
+}
+
+/* Entry sweep, once, as the card enters the viewport. The timeline is the
+   scroll position (entry range), so it cannot loop; a browser without
+   scroll-driven animations keeps the static frame and only hover/focus moves. */
+@supports (animation-timeline: view()) {
+  .premium-frame::after {
+    animation: premium-sweep linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+}
+
+/* The dark stage — only ever used when the photo is a real cut-out. */
+.premium-stage {
+  background: var(--gradient-stage-dark);
+}
+
+/* Shine band and glints live inside the stage's overflow-hidden box. */
+.premium-shine,
+.premium-glint {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.premium-shine {
+  inset: 0;
+  z-index: 15;
+  background: linear-gradient(
+    112deg,
+    transparent 32%,
+    color-mix(in srgb, var(--brand-white) 46%, transparent) 50%,
+    transparent 68%
+  );
+  transform: translateX(-110%);
+}
+
+.premium-glint {
+  z-index: 16;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--brand-white) 82%, var(--brand-gold));
+}
+
+.premium-glint[data-glint="a"] {
+  top: 16%;
+  inset-inline-end: 18%;
+}
+
+.premium-glint[data-glint="b"] {
+  top: 44%;
+  inset-inline-start: 22%;
+}
+
+/* The bottle lifts off its shadow; transform and opacity only. */
+.premium-bottle {
+  transform-origin: 50% 100%;
+  transition: transform var(--duration-slow) var(--ease-apple);
+}
+
+[data-ground] {
+  transition:
+    opacity var(--duration-slow) var(--ease-apple),
+    transform var(--duration-slow) var(--ease-apple);
+}
+
+@keyframes premium-shine-once {
+  from {
+    opacity: 0.85;
+    transform: translateX(-110%);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+}
+
+@keyframes premium-glint-twice {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  14%,
+  32% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0;
+  }
+  64%,
+  82% {
+    opacity: 0.72;
+  }
+}
+
+/* Hover/focus motion is for devices with a real pointer only. */
+@media (hover: hover) and (pointer: fine) {
+  .premium-card:hover .premium-shine,
+  .premium-card:focus-within .premium-shine {
+    animation: premium-shine-once var(--duration-slow) var(--ease-apple) both;
+  }
+
+  .premium-card:hover .premium-glint,
+  .premium-card:focus-within .premium-glint {
+    animation: premium-glint-twice 1.1s var(--ease-apple) both;
+  }
+
+  .premium-card:hover .premium-glint[data-glint="b"],
+  .premium-card:focus-within .premium-glint[data-glint="b"] {
+    animation-delay: 140ms;
+  }
+
+  .premium-card:hover .premium-bottle,
+  .premium-card:focus-within .premium-bottle {
+    transform: translateY(-4px) scale(1.04);
+  }
+
+  .premium-card:hover [data-ground],
+  .premium-card:focus-within [data-ground] {
+    opacity: 0.7;
+    transform: scaleX(0.9);
+  }
+}
+
 /* Global reduced-motion contract: no decorative motion, ever. */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -370,5 +583,28 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
 
   .skeleton-pulse {
     animation: none !important;
+  }
+
+  /* A premium card is completely still: static ring, no sweep, no lift. */
+  .premium-frame::after,
+  .premium-card .premium-shine,
+  .premium-card .premium-glint {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .premium-bottle,
+  [data-ground] {
+    transition: none !important;
+  }
+
+  .premium-card:hover .premium-bottle,
+  .premium-card:focus-within .premium-bottle {
+    transform: none !important;
+  }
+
+  .premium-card:hover [data-ground],
+  .premium-card:focus-within [data-ground] {
+    transform: none !important;
   }
 }

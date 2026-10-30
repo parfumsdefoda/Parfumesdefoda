@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Maximize2 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { hasTransparentCutout } from "@/lib/product-image";
 import { cn } from "@/lib/utils";
 
 export interface GalleryImage {
@@ -32,6 +33,11 @@ export interface ProductGalleryProps {
   labels: ProductGalleryLabels;
   /** Coming-soon products keep the muted stage — there is no photo yet. */
   comingSoon?: boolean;
+  /**
+   * Premium (فاخر): the stage wears the gold ring, and — only when the photo is
+   * a real cut-out — the dark stage. Thumbnails and the zoom dialog never change.
+   */
+  premium?: boolean;
 }
 
 /**
@@ -50,6 +56,7 @@ export function ProductGallery({
   name,
   labels,
   comingSoon = false,
+  premium = false,
 }: ProductGalleryProps) {
   const [selected, setSelected] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -118,7 +125,10 @@ export function ProductGallery({
                   setZoomOpen(true);
                 }}
                 aria-label={`${labels.zoom} — ${name} (${labels.thumbnail.replace("{n}", String(index + 1))})`}
-                className="block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                className={cn(
+                  "block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+                  premium && "premium-frame",
+                )}
               >
                 <ProductImage
                   slug={image.slug}
@@ -126,6 +136,7 @@ export function ProductGallery({
                   name={name}
                   tier="pdp"
                   frame="stage"
+                  tone={premium && hasTransparentCutout(image.slug) ? "dark" : "light"}
                   sizes="100vw"
                   priority={index === 0}
                   loading={index === 0 ? "eager" : "lazy"}
@@ -169,7 +180,10 @@ export function ProductGallery({
           type="button"
           onClick={() => setZoomOpen(true)}
           aria-label={labels.zoom}
-          className="group relative block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+          className={cn(
+            "group relative block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+            premium && "premium-frame",
+          )}
         >
           <ProductImage
             slug={current.slug}
@@ -177,6 +191,7 @@ export function ProductGallery({
             name={name}
             tier="pdp"
             frame="stage"
+            tone={premium && hasTransparentCutout(current.slug) ? "dark" : "light"}
             sizes="(max-width: 1280px) 50vw, 600px"
             priority
             decorative
