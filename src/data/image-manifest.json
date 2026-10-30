@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-29T22:13:53.334Z",
+  "generatedAt": "2026-10-30T08:27:03.730Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -727,6 +727,35 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf240/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf241": {
+      "source": "/products/PF241.png",
+      "sourceHash": "176c7253b111213fe99a22dc6b1133c847ed3c66ea3f1579fd26600a56746d2b",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 2369,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf241/card-400.avif",
+          "webp": "/products/derived/pf241/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf241/card-800.avif",
+          "webp": "/products/derived/pf241/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf241/pdp-1200.avif",
+          "webp": "/products/derived/pf241/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf241/pdp-2000.webp"
         }
       ]
     },

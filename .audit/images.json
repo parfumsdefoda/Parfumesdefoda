@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T22:12:16.503Z",
+  "generatedAt": "2026-10-30T08:26:56.396Z",
   "totals": {
     "products": 73,
     "referencedImages": 73,
@@ -17,7 +17,7 @@
     "withRealTransparency": 59,
     "needsRetouch": 11,
     "unreferencedByClass": {
-      "transparent": 2,
+      "transparent": 3,
       "pure-white": 0,
       "off-white": 0,
       "coloured": 0
@@ -36,10 +36,17 @@
     "photoPending": [],
     "multiImage": [],
     "unreferenced": [
+      "/products/PF241.png",
       "/products/PF690.png",
       "/products/PF710.png"
     ],
     "unreferencedDetails": [
+      {
+        "path": "/products/PF241.png",
+        "background": "transparent",
+        "bytes": 488322,
+        "square": true
+      },
       {
         "path": "/products/PF690.png",
         "background": "transparent",
@@ -55,6 +62,13 @@
     ]
   },
   "duplicates": [
+    {
+      "hash": "176c7253b111213fe99a22dc6b1133c847ed3c66ea3f1579fd26600a56746d2b",
+      "paths": [
+        "/products/PF240.png",
+        "/products/PF241.png"
+      ]
+    },
     {
       "hash": "7c464950ef2bb035dbdf623291c7a69909c72910afaaa7c0061d9a2bd3c2c317",
       "paths": [
