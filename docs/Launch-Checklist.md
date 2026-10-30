@@ -23,6 +23,9 @@
   يجب إعداد قناة واحدة كاملة على الأقل في الإنتاج (البريد أو واتساب). لا تشاركوا قيمة أي سر في البريد أو التذكرة.
 - [ ] اضبطوا إصدار Node.js على `24.16.0` حسب `.nvmrc` و`package.json`، وشغّلوا `npm ci`.
 - [ ] شغّلوا `npm run validate-json`, `npm run check:tokens`, `npm run check:derived`, `npm run typecheck`, `npm run lint`, `npm test`, ثم `npm run build`.
+- [ ] شغّلوا `npm run perf:budget` مع `PERF_BASE_URL` للخادم الجاري، و`npm run e2e -- --project=chromium-desktop --project=chromium-mobile` بوضع `ORDER_CHANNELS_MODE=log` وقنوات فارغة.
+- [ ] فعّلوا Brotli على الوكيل العام: ميزانية 240 KiB محسوبة على Brotli، و`next start` وحده يقدّم gzip.
+- [ ] اتبعوا ترتيب النشر والتراجع في `docs/Release-Plan.md`.
 - [ ] انشروا إلى بيئة معاينة/preview أولاً، ثم اختبروا الهواتف والكمبيوتر والروابط والصور.
 - [ ] شغّلوا `npm run preflight -- --url=https://اسم-النطاق`؛ لا تطلقوا إذا كانت النتيجة فاشلة.
 
@@ -60,7 +63,8 @@
 
 - Configure the final hostname, DNS, and HTTPS. Set Node.js to `24.16.0` and configure `NEXT_PUBLIC_SITE_URL` to the canonical origin.
 - Set secrets in the hosting platform, never in Git. Production requires at least one complete order channel: `RESEND_API_KEY` + `OWNER_EMAIL` + `RESEND_FROM_EMAIL`, or `CALLMEBOT_PHONE_1` + `CALLMEBOT_API_KEY_1`. Redis (`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`, or `KV_REST_API_URL`/`KV_REST_API_TOKEN`) and `OPENAI_API_KEY` are optional.
-- Install with `npm ci`; run JSON validation, token checks, derived-image checks, typecheck, lint, unit tests, and production build. Deploy to preview, then run `npm run preflight -- --url=https://your-domain`.
+- Install with `npm ci`; run JSON validation, token checks, derived-image checks, typecheck, lint, unit tests, production build, `npm run perf:budget` and the Playwright suite (log mode with blank channel keys). Enable Brotli at the public proxy: the 240 KiB budget is measured on Brotli, while `next start` alone sends gzip. Deploy to preview, then run `npm run preflight -- --url=https://your-domain`.
+- Follow `docs/Release-Plan.md` for the landing order (merge commit, tag, preview → production) and the rollback procedure.
 - Make one approved test order and verify its exact total, current flat shipping amount, owner notification, success screen, and retry behavior. Avoid using real customer details.
 - Submit `/sitemap.xml` to Search Console, verify `/robots.txt`, canonicals and `/og-image.png` previews.
 - During week one, monitor 4xx/5xx, API latency, order-channel delivery, Redis (if configured), and Core Web Vitals without logging PII.
