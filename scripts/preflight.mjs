@@ -52,20 +52,54 @@ if (settings.shipping?.cost !== 100) failures.push(`settings.shipping.cost must 
 if (!contact.whatsapp && !contact.email) failures.push("data/contact.json must contain customer contact details");
 if (contact.whatsapp && !/^20\d{10}$/.test(contact.whatsapp)) failures.push("data/contact.json whatsapp must be Egyptian country code 20 followed by 10 digits");
 if (!Array.isArray(products) || products.length === 0) failures.push("data/products.json must be a non-empty array");
+// Derivatives, checked against the pipeline's real contract:
+//   • a hidden product is never served, so it needs no assets (same rule as
+//     scripts/check-derived-images.mjs);
+//   • every file the manifest declares must exist on disk;
+//   • a `cutout` entry carries the AVIF+WebP ladder through 1200 plus the
+//     2000 WebP;
+//   • a `framed` entry is a resize-only copy of a photo that cannot be cut out
+//     (coloured background): it stops at 1200 and may stop earlier when the
+//     source itself is smaller, so requiring a 2000 WebP for it only produced
+//     false failures on every retouch-pending photo.
+const checkedDerivatives = new Set();
 for (const product of products) {
+  if (product.hidden === true) continue;
   if (product.image?.includes("placeholder")) continue;
-  for (const src of [product.image, ...(product.gallery ?? [])]) {
+  // Cover and first gallery image are usually the same file: check it once.
+  for (const src of new Set([product.image, ...(product.gallery ?? [])].filter(Boolean))) {
     const slug = path.basename(src).replace(/\.[^.]+$/, "").toLowerCase();
+    if (checkedDerivatives.has(slug)) continue;
+    checkedDerivatives.add(slug);
+
     const entry = manifest.products?.[slug];
-    if (!entry) failures.push(`${product.slug}: no derived image entry for ${slug}`);
-    else for (const width of [400, 800, 1200, 2000]) {
-      const derivative = entry.files.find((file) => file.w === width);
-      const formats = width === 2000 ? ["webp"] : ["avif", "webp"];
-      for (const format of formats) {
-        const asset = derivative?.[format];
-        if (!asset || !fs.existsSync(path.join(root, "public", asset.replace(/^\//, "")))) {
-          failures.push(`${product.slug}: missing ${width}px ${format} derivative for ${slug}`);
+    if (!entry) {
+      failures.push(`${product.slug}: no derived image entry for ${slug}`);
+      continue;
+    }
+
+    let declared = 0;
+    for (const file of entry.files ?? []) {
+      for (const format of ["avif", "webp"]) {
+        const asset = file[format];
+        if (!asset) continue;
+        declared += 1;
+        if (!fs.existsSync(path.join(root, "public", asset.replace(/^\//, "")))) {
+          failures.push(`${product.slug}: ${file.w}px ${format} derivative is declared but missing on disk for ${slug}`);
         }
+      }
+    }
+    if (declared === 0) failures.push(`${product.slug}: derived entry for ${slug} declares no files`);
+
+    if ((entry.mode ?? "cutout") === "cutout") {
+      for (const width of [400, 800, 1200]) {
+        const derivative = entry.files.find((file) => file.w === width);
+        for (const format of ["avif", "webp"]) {
+          if (!derivative?.[format]) failures.push(`${product.slug}: cut-out ${slug} is missing its ${width}px ${format}`);
+        }
+      }
+      if (!entry.files.find((file) => file.w === 2000)?.webp) {
+        failures.push(`${product.slug}: cut-out ${slug} is missing its 2000px webp`);
       }
     }
   }
