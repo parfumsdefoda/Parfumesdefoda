@@ -86,19 +86,30 @@ test.describe("premium card", () => {
       rows.set(bucket, [...(rows.get(bucket) ?? []), card]);
     }
 
-    let sawMixedRow = false;
+    let premiumRows = 0;
+    let mixedRows = 0;
+    let columns = 0;
     for (const row of rows.values()) {
       if (row.length < 2) continue;
+      columns = Math.max(columns, row.length);
       const heights = row.map((card) => card.height);
       expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(1);
-      if (
-        row.some((card) => card.premium === "true") &&
-        row.some((card) => card.premium === null)
-      ) {
-        sawMixedRow = true;
-      }
+      const hasPremium = row.some((card) => card.premium === "true");
+      const hasNormal = row.some((card) => card.premium === null);
+      if (hasPremium) premiumRows += 1;
+      if (hasPremium && hasNormal) mixedRows += 1;
     }
-    expect(sawMixedRow, "a row should mix premium and normal cards").toBe(true);
+
+    // Every row that holds a premium card was measured above.
+    expect(premiumRows, "a row should contain a premium card").toBeGreaterThan(0);
+
+    // The two premium products sort to the front, so on a two-column phone the
+    // first row is premium + premium and NO row can mix the two kinds. The
+    // mixed-row case only exists once the grid fits three or more cards; where
+    // it exists, the frame must not disturb it either.
+    if (columns >= 3) {
+      expect(mixedRows, "a wide row should mix premium and normal cards").toBeGreaterThan(0);
+    }
   });
 
   test("reduced motion leaves the frame completely still", async ({ page }) => {

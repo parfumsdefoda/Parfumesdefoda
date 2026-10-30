@@ -130,9 +130,14 @@ Focus ring: 2px purple with a 2px offset on every variant.
 
 ### Badge (`src/components/ui/badge.tsx`)
 
-`neutral` (facts, categories), `gold` (the فاخر label), `positive`
-(availability), `primary` (purple fill), `destructive`. Badges use
-`text-caption` and a pill radius; `gold`/`positive` never use white text.
+`neutral` (facts, categories), `gold` (catalogue ornament — no longer used by
+cards), `positive` (availability), `primary` (purple fill), `destructive`.
+Badges use `text-caption` and a pill radius; `gold`/`positive` never use white
+text.
+
+A premium product is **not** a badge any more: the gold frame replaces the gold
+pill (see the product card below), and the metal only appears inside
+`/dev/design-system` as a swatch.
 
 ### Header (`src/features/layout/components/header-bar.tsx`)
 
@@ -237,8 +242,12 @@ loaded the first time a shopper opens it.
 
 Rules:
 
-- **One badge, by priority:** coming soon > out of stock > فاخر (gold) > none.
-  A normal, in-stock product carries no badge at all.
+- **One badge, by priority:** coming soon > out of stock > none. A normal,
+  in-stock product carries no badge at all, and `فاخر` is never a badge.
+- **Premium (فاخر) is a frame.** `isPremiumProduct(product)` (the master's
+  `is_featured`) draws a 2px gold metal ring and, when the photo allows it, a
+  dark stage. It is independent of the `(فاخر)` name suffix: renaming a product
+  never adds or removes the ring.
 - **Price** is the cheapest buyable size, prefixed with «من» only when the
   product has more than one size. A sold-out product still states its cheapest
   listed price (no pressure, nothing to add).
@@ -259,6 +268,53 @@ Rules:
   The global `prefers-reduced-motion` rule disables it.
 - Cards after the first row carry `content-visibility: auto` with
   `contain-intrinsic-size`, so off-screen cards cost no layout work.
+
+#### Premium (فاخر) card anatomy
+
+```
+┌───────────────────────────────────┐  ::before — 2px gold ring,
+│  ░░░░░ stage ░░░░░░░░░░░░░░░░░░░  │  mask-composite ring, inset:0,
+│            image                  │  pointer-events:none
+│                          (shine)  │  ::after — animated highlight,
+└───────────────────────────────────┘  opacity 0 unless it sweeps
+  ◆ فاخر · نيش · شرقي                meta: gold TEXT token + tier + style
+  تيروني (فاخر)                      name (unchanged)
+  من ٢٢٠ ج.م                        price (unchanged)
+```
+
+| Piece | Token / technique |
+| ----- | ----------------- |
+| Ring | `.premium-frame::before`, `padding: 2px` + `mask-composite: exclude`, `border-radius: inherit` — the card's box, height and radius never change |
+| Metal | `linear-gradient` built from `color-mix()` on `--brand-gold`: light highlight → base → `#3d2d06` shade → base → light |
+| Stage | `--gradient-stage-dark` (brand purple mixed toward `--purple-950`) instead of the lavender `--ui-surface-muted` |
+| Ground shadow | `--ui-stage-shadow-dark`, tighter than the light stage's |
+| Meta line | `◆ فاخر · <tier> · <style>`, max 3 parts, diamond is `aria-hidden`, text uses `--color-gold-text` (4.7:1) |
+| Sold out | `data-premium="muted"`: desaturated metal, `::after` removed — still framed, deliberately quiet |
+
+**The dark stage is alpha-gated.** It is only applied when the product's
+derived image really has transparency (the `background` field in
+`src/data/image-manifest.json`). A white-background or collage photo keeps the
+light stage and shows the ring alone, because a dark panel behind a rectangle of
+white photo looks like a broken image. The current catalogue: `pf240` gets the
+dark stage; `pf091` (a framed/marketing collage) falls back to the light one.
+
+**Motion — three moments, no loops:**
+
+1. **Entry sweep** — one highlight travels the ring (~1.4 s) while the card is
+   in view, driven by an animated `@property --premium-sweep` angle and
+   `animation-timeline: view()` inside `@supports`. Scroll-driven, so it cannot
+   repeat; without support the frame is static.
+2. **Hover / focus-within** — one diagonal shine band across the stage (~700 ms),
+   two small glints fading twice, the bottle rising `translateY(-4px)` with a
+   `scale(1.04)` over 500 ms `--ease-apple`, and a tighter ground shadow. All
+   transform/opacity.
+3. **`prefers-reduced-motion: reduce`** — nothing at all: static ring, no
+   shine, no glint, no lift.
+
+The ring is `pointer-events: none`, so the overlay link, the quick add and the
+focus ring keep working. `/dev/product-card` renders every premium state next to
+the normal ones (premium with alpha, premium without, premium sold out, premium
+oil).
 
 ### Filters, sort and search (`src/features/catalog`, `src/lib/catalog-*.ts`)
 

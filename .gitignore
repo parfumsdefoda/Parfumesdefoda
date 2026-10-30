@@ -55,6 +55,9 @@ next-env.d.ts
 /.audit/*.jpg
 /.audit/v2/
 /.audit/v3/
+# screenshot evidence from a UI pass (same rule, one level deeper)
+/.audit/*/
+!/.audit/images.json
 
 # order-notification previews written by ORDER_CHANNELS_MODE=log
 /.tmp/

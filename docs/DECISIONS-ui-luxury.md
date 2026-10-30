@@ -69,3 +69,27 @@ during the run so a later reader never has to reverse-engineer a judgement call.
 - **The nav's oils link now filters `?form=زيوت عطرية`** (the value the parser
   understands) instead of `?form=oil`, which the parser dropped — so the item
   used to open the unfiltered catalogue.
+- **After Escape the search list reopens on the next keystroke or ArrowDown.**
+  The field keeps focus, so a dismissed list that stayed dead was a real dead
+  end. Rejected: blurring the field on Escape (drops a keyboard user's focus to
+  `<body>`).
+
+## U4 — catalogue toolbar search
+
+- **44px, `--color-surface-muted` fill, `--color-border-strong` edge, brand
+  focus ring — the header's panel field, not the header's 36px pill.** The
+  toolbar is a form row, not a floating capsule, and 44px keeps the touch
+  target rule. Rejected: copying the pill verbatim (a 36px input beside 44px
+  buttons looks like a mistake).
+
+## U5 — measurement
+
+- **Baseline is the recorded harness runs on the parent branch, not a fresh
+  rebuild of `launch-ready`.** A second worktree plus a second production build
+  was rejected: the tree carries owner image swaps (`PF090`/`PF091`) that a
+  checkout must not disturb, and the phase-6/QA numbers come from the same
+  machine, profile and throttling.
+- **Screenshots are ignored by git** (`/.audit/*/`), matching the existing
+  `/.audit/*.png` rule: they are evidence for the report, not repository content.
+- **`docs/Testing.md` created** — the launch checklist and the QA report both
+  pointed at a document that did not exist (OPEN-9).
