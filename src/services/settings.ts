@@ -47,13 +47,8 @@ export async function loadFullSettings(): Promise<FullSettings> {
     return {
       store: (settings.store as FullSettings["store"]) ?? defaults.store,
       grid: (settings.grid as FullSettings["grid"]) ?? defaults.grid,
-      // Owner-picked hero slugs; anything that is not a string is dropped,
-      // and an absent list simply means the hero chooses for itself.
-      heroProducts: Array.isArray(settings.heroProducts)
-        ? (settings.heroProducts as unknown[]).filter(
-            (slug): slug is string => typeof slug === "string" && slug !== "",
-          )
-        : [],
+      // `heroProducts` is deliberately not read: the hero is product-free.
+      // The key stays tolerated by the schema so old settings files validate.
       // Shipping is a flat fee only — any legacy free-shipping key is dropped.
       shipping: { cost: shippingCost },
       contact: {

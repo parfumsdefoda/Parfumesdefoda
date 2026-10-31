@@ -240,6 +240,148 @@ html {
   scroll-padding-top: calc(var(--header-offset) + var(--space-4));
 }
 
+/* ── Hero (type only, no product imagery) ────────────────────────
+   The owner does not want product photography in the top area, so the hero
+   is type plus CSS decoration: a soft gold glow, a diamond lattice that
+   fades out radially, and two rotated-square outlines echoing the logo's
+   diamond. Decoration is `aria-hidden` in the markup and inert here. */
+.hero {
+  /* The rings are rotated far past the section's box; clipping them keeps
+     the page's scrollWidth exactly the viewport's. */
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    44% 40% at 50% 34%,
+    color-mix(in srgb, var(--brand-gold) 42%, transparent) 0%,
+    transparent 72%
+  );
+  opacity: 0.34;
+}
+
+.hero-lattice {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.075;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      var(--brand-gold) 0 1px,
+      transparent 1px 72px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      var(--brand-gold) 0 1px,
+      transparent 1px 72px
+    );
+  -webkit-mask-image: radial-gradient(62% 58% at 50% 40%, black 0%, transparent 78%);
+  mask-image: radial-gradient(62% 58% at 50% 40%, black 0%, transparent 78%);
+}
+
+.hero-rings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.hero-ring {
+  grid-area: 1 / 1;
+  width: min(46vw, 380px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--brand-gold) 20%, transparent);
+  transform: rotate(45deg);
+}
+
+.hero-ring + .hero-ring {
+  width: min(64vw, 540px);
+  border-color: color-mix(in srgb, var(--brand-gold) 12%, transparent);
+}
+
+/* The ornament: a hairline that draws out from the centre, with the logo's
+   diamond seated on it. Pure CSS — no image, no icon font. */
+.hero-ornament {
+  position: relative;
+  display: block;
+  width: min(280px, 68%);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--brand-gold) 72%, transparent) 50%,
+    transparent 100%
+  );
+  transform-origin: center;
+}
+
+.hero-ornament::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--brand-gold);
+}
+
+/* One-time entrance: the line draws, the copy rises. Nothing loops, and
+   nothing here waits for a resource. */
+@keyframes hero-draw {
+  from {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-ornament {
+  animation: hero-draw 520ms var(--ease-apple) both;
+}
+
+.hero-heading {
+  text-wrap: balance;
+  animation: hero-rise 520ms var(--ease-apple) 60ms both;
+}
+
+.hero-lead {
+  text-wrap: pretty;
+  animation: hero-rise 520ms var(--ease-apple) 140ms both;
+}
+
+.hero-cta {
+  animation: hero-rise 520ms var(--ease-apple) 220ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ornament,
+  .hero-heading,
+  .hero-lead,
+  .hero-cta {
+    animation: none !important;
+  }
+}
+
 /* ── Tailwind theme bridge ─────────────────────────────────────
    Utilities (bg-background, text-muted-foreground, border-border…)
    and the three radii / two shadows live here. */

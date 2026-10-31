@@ -100,12 +100,11 @@ PF740, PF560
 
 **`is_similar` ليس من هذه الأعلام**: هو قائمة منتجات (اقرأ القسم أعلاه).
 
-## تثبيت زجاجات الواجهة الرئيسية
+## الواجهة الرئيسية بدون صور منتجات
 
-في `data/settings.json` عدّل `heroProducts` كقائمة slugs مثل
-`["pf080", "pf150", "pf240"]`. اختر فقط منتجات ظاهرة، متوفرة، وصورتها شفافة.
-عند تركها فارغة يختار الموقع المنتجات «فاخر» أولاً ثم يكمل الثلاثة بالأكثر
-مبيعاً، ولا يعرض زجاجة واحدة إلا إذا لم يوجد ثلاثة منتجات صالحة.
+الواجهة الرئيسية لم تعد تعرض أي صورة منتج: العنوان والشعار والنص فقط. لذلك
+`heroProducts` في `data/settings.json` **مهجور**: يمكنك حذفه أو تركه فارغًا،
+ولن يتغيّر شيء في الصفحة (يبقى الملف صالحًا في الحالتين).
 
 ## تغيير الشحن
 
@@ -174,9 +173,9 @@ the exception: `نعم` means on, while `لا` **and a blank cell** mean off, an
 flip is printed before anything is written. A new product needs its photo at
 `public/products/PFxxx.png`; a new oil needs `is_oil=نعم`, `concentration=oil` and
 its `price_12` / `price_6` / `price_3` cells. A premium variant is a separate row
-whose name contains "(فاخر)". Hide a product with `on_site=لا`. Pin hero bottles
-with the optional `heroProducts` setting; otherwise the hero shows featured
-products first and fills the trio with the best sellers. Flat shipping is
+whose name contains "(فاخر)". Hide a product with `on_site=لا`. The hero is product-free,
+so `heroProducts` is deprecated: leave it out or empty and nothing changes. Flat
+shipping is
 `shipping.cost` in `data/settings.json` (100 EGP, no free-shipping threshold).
 Photos with a non-transparent background are listed in `.audit/needs-retouch.txt`
 and never auto-cut. Before launch run `npm run preflight -- --url=https://your-domain`.

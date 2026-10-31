@@ -40,16 +40,18 @@ async function completeCheckout(page: Page) {
 }
 
 test.describe("production storefront and checkout", () => {
-  test("home has a single heading, three hero bottles, shop CTA, category and best sellers", async ({ page }) => {
-    // networkidle: the hero plates are laid out with their derived images; measuring
-    // scrollWidth during that first layout pass reports a phantom horizontal overflow.
+  test("home has a single heading, a product-free hero, shop CTA, category and best sellers", async ({ page }) => {
+    // networkidle: the catalogue's first row is laid out with its derived images;
+    // measuring scrollWidth during that first layout pass reports a phantom
+    // horizontal overflow.
     await page.goto("/", { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("h1")).toHaveCount(1);
     // Base-UI renders the CTA as <a href="/shop" role="button">, so it is a
     // button in the accessibility tree, not a link.
     await expect(page.getByRole("button", { name: "تسوّق الآن" })).toHaveAttribute("href", "/shop");
-    await expect(page.locator("section[aria-labelledby='hero-heading'] img")).toHaveCount(3);
+    // The hero is type and CSS only — its full contract lives in e2e/hero.spec.ts.
+    await expect(page.locator("section[aria-labelledby='hero-heading'] img")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);

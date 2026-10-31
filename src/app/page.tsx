@@ -5,7 +5,6 @@ import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
 import { readProductSalesCounts } from "@/lib/sales-tracking";
 import { selectBestSellers } from "@/lib/best-sellers";
-import { selectHeroProducts } from "@/lib/hero-products";
 import { genderCounts, CATEGORY_ROUTES, categoryHref, genderPublicLabel } from "@/lib/site-nav";
 import { getShippingFee } from "@/lib/shipping";
 import { formatPrice } from "@/lib/currency";
@@ -65,11 +64,6 @@ export default async function HomePage() {
   ]);
 
   const bestSellers = selectBestSellers(products, salesCounts);
-  const heroBottles = selectHeroProducts(
-    products,
-    salesCounts,
-    settings.heroProducts ?? [],
-  );
   const counts = genderCounts(products);
   const shippingFee = formatPrice(getShippingFee(settings));
 
@@ -90,7 +84,6 @@ export default async function HomePage() {
         )}
         shopCta={t(locale, "home.shopNow", "تسوّق الآن")}
         advisorCta={t(locale, "home.chooseWithAdvisor", "اختر عطرك بالمساعد")}
-        bottles={heroBottles}
       />
 
       <BestSellersSection

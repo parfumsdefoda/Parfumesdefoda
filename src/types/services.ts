@@ -75,11 +75,6 @@ export interface FullSettings {
   social: SocialLinks;
   navigation: NavItem[];
   footer: FooterData;
-  /**
-   * Slugs the owner wants in the homepage hero, in order.
-   * Empty means "choose for me" — see src/lib/hero-products.ts.
-   */
-  heroProducts?: string[];
 }
 
 // ─── Filters ───

@@ -38,10 +38,13 @@ export const settingsSchema = z.object({
   grid: gridConfigSchema,
   shipping: shippingConfigSchema,
   /**
-   * Optional: product slugs for the homepage hero, in order. Omitted or empty
-   * means the hero picks its own three (see src/lib/hero-products.ts).
+   * DEPRECATED — tolerated, ignored.
+   *
+   * The homepage hero no longer shows product photography, so this list has
+   * no consumer. It stays in the schema so an existing `data/settings.json`
+   * keeps validating; deleting the key from the file is also fine.
    */
-  heroProducts: z.array(z.string().min(1)).optional(),
+  heroProducts: z.array(z.string().min(1)).optional()
 });
 
 export type ShippingConfig = z.infer<typeof shippingConfigSchema>;
