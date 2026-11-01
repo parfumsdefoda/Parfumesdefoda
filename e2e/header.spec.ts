@@ -87,8 +87,20 @@ test.describe("floating header", () => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/shop", { waitUntil: "networkidle" });
 
-    await page.evaluate(() => window.scrollTo(0, 900));
-    await expect.poll(async () => hidden(page), { timeout: 5000 }).toBe("true");
+    // The direction is a two-sample reading: one jump that lands before the
+    // header's scroll listener is attached has no previous position and cannot
+    // read as "down" (WebKit under load hydrates after the jump). Alternate
+    // top/bottom until the handler answers; the assertion itself is unchanged.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.evaluate(() => window.scrollTo(0, 900));
+          return hidden(page);
+        },
+        { timeout: 5000 },
+      )
+      .toBe("true");
 
     await page.evaluate(() => window.scrollTo(0, 500));
     await expect.poll(async () => hidden(page), { timeout: 5000 }).toBe("false");

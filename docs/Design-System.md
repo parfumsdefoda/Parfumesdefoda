@@ -220,6 +220,33 @@ The header is therefore **below** every modal, the PDP buy bar and the
 advisor bubble; nothing may be added between 30 and 40 that a modal would have
 to fight.
 
+## Hero (`src/features/home/components/hero-section.tsx`)
+
+The homepage banner is **product-free**: no `<img>`, no `<picture>`, no
+background image, no preload. The owner does not want photography in the top
+area, so the composition is type plus CSS and the largest paint on `/` is the
+headline text.
+
+```
+            ─────────◆─────────      ornament: 1px hairline + the logo's diamond
+         عطر يترك أثرًا قبل أن تتكلم   h1, text-display, balance, 22rem → 28rem measure
+      تشكيلة مختارة من العطور …         lead, text-body, max 560px, text-wrap: pretty
+         [تسوّق الآن]  ✦ اختر عطرك    white pill + tertiary advisor link, centred
+```
+
+| Layer | Technique |
+| ----- | --------- |
+| Section | `--purple-950`, 2px gold hairline at the bottom, `data-hero-sentinel` for the header's tone |
+| Glow | `.hero-glow`, radial `color-mix(--brand-gold, transparent)` at 34% |
+| Lattice | `.hero-lattice`, two 45° `repeating-linear-gradient`s at 0.075 opacity, `mask-image` radial fade |
+| Rings | `.hero-rings` / `.hero-ring`, two rotated squares (1px, gold 20% / 12%) echoing the logo |
+| Frame | inner column `min-height: calc(100svh - var(--header-offset))`, centred, so the CTA is above the fold at 375×667 |
+| Measure | the `<h1>` is `w-full max-w-[22rem] sm:max-w-[28rem]` — a fixed measure, never `ch` (a `ch` cap is measured from the fallback font, so the centred box jumped 20px when Cairo loaded: CLS 0.0016) |
+| Motion | one-time `hero-draw` (ornament) and `hero-rise` (lead 140 ms, CTA 220 ms, both from `opacity: 0`); the `<h1>` is deliberately still — it is the LCP paint, and any transform on it is a layout shift. `prefers-reduced-motion` removes the rest |
+
+No new tokens were introduced by this pass: every colour is a `color-mix()` of
+an existing brand token inside `globals.css`.
+
 ## Catalogue
 
 ### Product card (`src/features/products/components/product-card.tsx`)
@@ -264,8 +291,16 @@ Rules:
   placeholder → a quiet «قريبًا» stage, no price, no controls), sold out
   (image at 60%, muted name, no quick add), missing image (the stage stays, the
   broken icon goes), long names (2-line clamp).
-- **Motion** is transform-only: a 1.03 image scale over 500ms `--ease-apple`.
-  The global `prefers-reduced-motion` rule disables it.
+- **Motion** is the hover system below: transform/opacity only, 420–500 ms
+  `--ease-apple`, and nothing at all under `prefers-reduced-motion`.
+- **Hover** (pointer devices only, mirrored on `:focus-within`): the card lifts
+  4px, a `--shadow-lifted` pseudo fades in, the stage gets a pointer spotlight
+  plus a 1px brand-purple edge, the bottle rises 6px at `scale(1.04)` while its
+  ground shadow contracts to `scaleX(0.85)`, the name turns brand purple, and
+  the 44px quick-add circle grows into a pill reading «إضافة سريعة». A
+  `فاخر` card adds the gold glow, a 1.2 s conic ring sweep, the shine band and
+  two glints. Unavailable cards (`data-card-state="static"`) never lift.
+- **Card hover anatomy** — see [Card hover](#card-hover).
 - Cards after the first row carry `content-visibility: auto` with
   `contain-intrinsic-size`, so off-screen cards cost no layout work.
 
@@ -315,6 +350,34 @@ The ring is `pointer-events: none`, so the overlay link, the quick add and the
 focus ring keep working. `/dev/product-card` renders every premium state next to
 the normal ones (premium with alpha, premium without, premium sold out, premium
 oil).
+
+### Card hover
+
+One system for every card, richer for premium. It applies to every `ProductCard`
+use (grid, best sellers, related, category pages, the dev page).
+
+```
+article.card-shell            transform -4px, ::after = --shadow-lifted (opacity)
+ └ [data-stage]              --card-mx / --card-my written by the island
+    ├ .card-spot             radial spotlight, opacity 0 → 1
+    ├ .card-edge             inset 1px ring (box-shadow, only opacity moves)
+    └ img.card-bottle        translateY(-6px) scale(1.04), [data-ground] scaleX(.85)
+```
+
+| Rule | Why |
+| ---- | --- |
+| `contain: layout style` (not `paint`) | the lifted shadow is painted **outside** the card box; `paint` would clip it away |
+| Shadow and glow on `::after` / `::before` | animating `box-shadow` on 40 cards repaints the whole grid on every pointer move |
+| `will-change` only under `:hover` | no permanent compositor layers |
+| One delegated `pointermove` (`.card-spotlight` island, ~1 KB) | rAF-throttled, writes `--card-mx/--card-my` on the stage; zero React renders. Mounted by every grid, reference-counted to a single listener for the page |
+| Quick-add pill | `inline-size` on an absolutely positioned button + `max-inline-size`/opacity of the label; no sibling reflow |
+| Touch (`hover: none`) | no hover state at all; `:active` gives a single 120 ms `scale(.985)` |
+| `prefers-reduced-motion: reduce` | no lift, no bottle move, no sweep; opacity only, ≤ 80 ms |
+
+Measured with 20 quick hovers at 4× CPU throttling on `/shop`: **0 long tasks**,
+84 events, p95 56 ms, max 56 ms (`.qa/hover-perf.mjs`). The island costs
++1 KiB of first-load JS on `/` (212 → 213 KiB Brotli) and nothing measurable
+elsewhere.
 
 ### Filters, sort and search (`src/features/catalog`, `src/lib/catalog-*.ts`)
 

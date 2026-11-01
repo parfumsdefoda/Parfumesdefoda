@@ -58,9 +58,12 @@ Covered areas:
 
 The suite runs against a **production build** on `127.0.0.1:3227`; the config
 starts it (`webServer`) unless one is already listening and `CI` is unset.
-Projects: `chromium-desktop` (1440×900) and `chromium-mobile` (375×812, Pixel 7
-device profile). `reducedMotion: "reduce"` is global — tests that are *about*
-motion opt back in with `page.emulateMedia`.
+Projects: `chromium-desktop` (1440×900), `chromium-mobile` (375×812, Pixel 7
+device profile) and `webkit-mobile` (iPhone 13 profile). 192 tests: 167 run, 25
+skip by design (desktop-only or phone-only states). `reducedMotion: "reduce"`
+is global — tests that are *about* motion opt back in with `page.emulateMedia`.
+The ui-polish pass ran the whole suite three times in a row at 4 workers: 167
+passed, 0 failed, each time.
 
 | Spec | Proves |
 | ---- | ------ |
@@ -68,6 +71,8 @@ motion opt back in with `page.emulateMedia`.
 | `e2e/header.spec.ts` | the floating capsule: both tones (server HTML and after scrolling past the hero), smart hide, search combobox keyboard flow, mobile sheet focus trap + Escape + focus return, no `<img>` in the header, no horizontal overflow at 375/768/1024/1440, CLS ≤ 0.01, reduced-transparency fallback |
 | `e2e/premium-card.spec.ts` | the premium frame: helper, badge priority, meta line, alpha-gated dark stage, equal card height in a row, reduced motion, gold-on-ivory contrast |
 | `e2e/ui-luxury-a11y.spec.ts` | axe over the new states: dark and light header, premium PDP stage, mobile sheet, open search suggestions, mobile toolbar |
+| `e2e/hero.spec.ts` | the product-free hero: no `img`/`picture`/`svg image`/product `background-image` in the hero, the header, its search panel or the mobile menu; one `<h1>`; no widow in the headline (measured with Range rects); the CTA inside the first screen at 375×667 and 1440×900; overflow 0 at 375/768/1024/1440; the capsule still flips tone |
+| `e2e/card-hover.spec.ts` | the hover system: the lift matrix, the spotlight writing `--card-mx`, the edge and shadow pseudos going 0 → > 0, the bottle matrix, the quick-add pill, neighbours never moving, the premium glow and ring sweep, focus-within parity, reduced motion, unavailable cards staying still, equal row heights, axe in the hovered state, and a `hasTouch` context with no hover at all |
 
 ```bash
 # everything, once
@@ -103,6 +108,7 @@ npx next start --hostname 127.0.0.1 --port 3227
 npx next dev --hostname 127.0.0.1 --port 3230
 
 node .measure/ui-luxury-shots.mjs all      # or: u4 | u5
+node .qa/ui-polish-shots.mjs hero          # or: hover | dev
 ```
 
 Widths used: 375, 768, 1024, 1440. Every state that can shift on a breakpoint
@@ -133,6 +139,13 @@ done
 `.qa/lcp.mjs` reports the LCP candidate, its element and the paint sub-parts
 under DevTools-style throttling (slow 4G + 4× CPU), which is what explains a
 score rather than restating it.
+
+Interaction cost of the card hover (long tasks and event-timing durations for
+20 quick hovers at 4× CPU throttling):
+
+```bash
+node .qa/hover-perf.mjs
+```
 
 ## Not covered locally
 

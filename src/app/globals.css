@@ -355,13 +355,18 @@ html {
   }
 }
 
+/* The headline is deliberately still: it is the LCP paint, so it must not
+   start transparent (an opacity-0 <h1> is not an LCP candidate until the
+   animation paints it — simulated LCP went 1.2 s → 4.2 s) and it must not
+   move (a transform animation is a layout shift like any other — the rise
+   cost CLS 0.0016). The entrance lives in the ornament drawing and in the
+   lead/CTA rising from opacity 0, which is invisible and therefore free. */
 .hero-ornament {
   animation: hero-draw 520ms var(--ease-apple) both;
 }
 
 .hero-heading {
   text-wrap: balance;
-  animation: hero-rise 520ms var(--ease-apple) 60ms both;
 }
 
 .hero-lead {

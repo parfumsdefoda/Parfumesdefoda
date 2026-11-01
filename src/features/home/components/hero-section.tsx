@@ -47,9 +47,13 @@ export function HeroSection({ heading, lead, shopCta, advisorCta }: HeroSectionP
       <div className="relative mx-auto flex min-h-[calc(100svh-var(--header-offset))] w-full max-w-[960px] flex-col items-center justify-center gap-5 px-4 pb-[var(--space-12)] pt-[calc(var(--header-offset)+var(--space-12))] text-center md:gap-6 md:pb-[var(--space-16)] md:pt-[calc(var(--header-offset)+var(--space-16))]">
         <span aria-hidden="true" className="hero-ornament" />
 
+        {/* A fixed measure in `rem`, not `ch`: `ch` is measured from the
+            fallback font before Cairo arrives, so the box (and the centred
+            text) jumped 20px sideways at first paint — CLS 0.0016. `w-full`
+            keeps the box identical for both fonts. */}
         <h1
           id="hero-heading"
-          className="hero-heading text-display max-w-[18ch] font-bold text-[var(--color-on-dark)]"
+          className="hero-heading text-display w-full max-w-[22rem] font-bold text-[var(--color-on-dark)] sm:max-w-[28rem]"
         >
           {heading}
         </h1>
