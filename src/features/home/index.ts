@@ -8,7 +8,3 @@ export { AdvisorBand } from "./components/advisor-band";
 export type { AdvisorBandProps } from "./components/advisor-band";
 export { AdvisorLink } from "./components/advisor-link";
 export type { AdvisorLinkProps } from "./components/advisor-link";
-export { TrustBand } from "./components/trust-band";
-export type { TrustBandProps, TrustItem } from "./components/trust-band";
-export { HomeFaq } from "./components/home-faq";
-export type { HomeFaqProps } from "./components/home-faq";

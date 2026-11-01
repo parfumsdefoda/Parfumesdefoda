@@ -37,15 +37,7 @@
     "viewAll": "عرض الكل",
     "shopByCategory": "تسوّق حسب القسم",
     "advisorTitle": "محتار في الاختيار؟",
-    "advisorBody": "جاوب على سؤالين والمساعد يرشّح لك عطورًا من التشكيلة نفسها.",
-    "trustTitle": "كيف يصل طلبك",
-    "trustCod": "الدفع عند الاستلام",
-    "trustCodDetail": "تدفع لشركة الشحن عند وصول الطلب.",
-    "trustShipping": "شحن ثابت",
-    "trustShippingDetail": "{fee} لكل الطلبات.",
-    "trustConfirm": "تأكيد عبر واتساب",
-    "trustConfirmDetail": "نتواصل معك على واتساب لتأكيد الطلب.",
-    "faqAll": "كل الأسئلة"
+    "advisorBody": "جاوب على سؤالين والمساعد يرشّح لك عطورًا من التشكيلة نفسها."
   },
   "product": {
     "selectSize": "اختر الحجم",

@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import { loadVisibleProducts } from "@/services/products";
-import { loadFullSettings } from "@/services/settings";
-import { loadContent } from "@/services/content";
 import { loadLocale } from "@/services/localization";
 import { readProductSalesCounts } from "@/lib/sales-tracking";
 import { selectBestSellers } from "@/lib/best-sellers";
 import { genderCounts, CATEGORY_ROUTES, categoryHref, genderPublicLabel } from "@/lib/site-nav";
-import { getShippingFee } from "@/lib/shipping";
-import { formatPrice } from "@/lib/currency";
 import { t } from "@/lib/locale";
 import { buildCardLabels } from "@/features/catalog/catalog-props";
 import {
@@ -15,8 +11,6 @@ import {
   BestSellersSection,
   CategoryTiles,
   HeroSection,
-  HomeFaq,
-  TrustBand,
 } from "@/features/home";
 
 /**
@@ -47,25 +41,25 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Homepage — hero, best sellers, categories, the advisor invitation, the three
- * facts the store can stand behind, and five questions.
+ * Homepage — hero, best sellers, categories and the advisor invitation.
+ *
+ * The trust facts and the questions used to live here too; the owner asked for
+ * a shorter home, so they moved to their own pages (/shipping-returns, /faq)
+ * and the button band now sits directly above the footer.
  *
  * Every section is a Server Component. The only client code on the page is the
- * advisor links, the FAQ accordion and the quick-add islands on the eight
- * cards — no marquee, no framer-motion, no grid of forty hydrated cards.
+ * advisor links and the quick-add islands on the eight cards — no marquee, no
+ * framer-motion, no grid of forty hydrated cards.
  */
 export default async function HomePage() {
-  const [products, settings, content, locale, salesCounts] = await Promise.all([
+  const [products, locale, salesCounts] = await Promise.all([
     loadVisibleProducts(),
-    loadFullSettings(),
-    loadContent(),
     loadLocale(),
     readProductSalesCounts(),
   ]);
 
   const bestSellers = selectBestSellers(products, salesCounts);
   const counts = genderCounts(products);
-  const shippingFee = formatPrice(getShippingFee(settings));
 
   const categoryLabels: Record<(typeof CATEGORY_ROUTES)[number]["slug"], string> = {
     men: t(locale, "nav.men", "رجالي"),
@@ -115,44 +109,13 @@ export default async function HomePage() {
         cta={t(locale, "home.advisorCta", "اختر عطرك")}
       />
 
-      <TrustBand
-        title={t(locale, "home.trustTitle", "كيف يصل طلبك")}
-        items={[
-          {
-            icon: "payment",
-            title: t(locale, "home.trustCod", "الدفع عند الاستلام"),
-            detail: t(
-              locale,
-              "home.trustCodDetail",
-              "تدفع لشركة الشحن عند وصول الطلب.",
-            ),
-          },
-          {
-            icon: "shipping",
-            title: t(locale, "home.trustShipping", "شحن ثابت"),
-            detail: t(
-              locale,
-              "home.trustShippingDetail",
-              "{fee} لكل الطلبات.",
-            ).replace("{fee}", shippingFee),
-          },
-          {
-            icon: "confirmation",
-            title: t(locale, "home.trustConfirm", "تأكيد عبر واتساب"),
-            detail: t(
-              locale,
-              "home.trustConfirmDetail",
-              "نتواصل معك على واتساب لتأكيد الطلب.",
-            ),
-          },
-        ]}
-      />
-
-      <HomeFaq
-        title={t(locale, "faq.title", "الأسئلة الشائعة")}
-        items={content.faq}
-        allLabel={t(locale, "home.faqAll", "كل الأسئلة")}
-      />
+      {/*
+       * The advisor band and the footer are both --purple-950, and the band is
+       * now the last section: without this seam the page ends in one tall dark
+       * block. A narrow strip of the page background (plus the footer's gold
+       * hairline) makes them read as two surfaces. Decoration only.
+       */}
+      <div aria-hidden="true" className="h-6 bg-[var(--color-bg)]" />
     </>
   );
 }

@@ -27,7 +27,7 @@ npm run build           # production build (Turbopack)
 
 ## Architecture
 
-- **Homepage** (`/`) is the main storefront: search, filters, product grid, FAQ, policies, contact, cart drawer. Cart is a Shadcn Sheet drawer (right side).
+- **Homepage** (`/`) is a short marketing page: hero, best sellers, categories, the advisor band. Search/filters/grid live on `/shop`; the questions, the delivery facts and the policies have their own routes (`/faq`, `/shipping-returns`). The cart is a Shadcn Sheet drawer (right side) available from the header on every route.
 - **Catalogue state lives in the URL** (`/shop?gender=…&size=…&sort=…&q=…`). `src/app/shop/page.tsx` parses it, `src/lib/catalog-query.ts` filters and counts on the server, and `src/features/catalog` is the only client island. Cards are Server Components; the quick-add island is the only client code in a card. `/` is the homepage and redirects any filter params to `/shop`.
 - **Checkout** is a separate route: `/checkout` (two-column: form + order summary) → `/checkout/success` (order confirmation).
 - **API Route** `/api/orders` — receives order objects (in-memory storage, prepare for future DB).

@@ -57,6 +57,23 @@ test.describe("production storefront and checkout", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   });
 
+  test("the homepage carries no trust band and no FAQ block; /faq does", async ({ page }) => {
+    await page.goto("/", { waitUntil: "networkidle" });
+    // The owner asked for a shorter home: the three delivery facts and the five
+    // questions live on their own pages now. Nothing may reintroduce them here.
+    await expect(page.getByRole("heading", { name: "كيف يصل طلبك" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "الأسئلة الشائعة" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "كل الأسئلة" })).toHaveCount(0);
+    await expect(page.locator('[aria-labelledby="faq-heading"]')).toHaveCount(0);
+    await expect(page.locator('[aria-labelledby="trust-heading"]')).toHaveCount(0);
+
+    // The full page still exists and is linked from the footer.
+    await page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }).click();
+    await expect(page).toHaveURL(/\/faq$/);
+    await expect(page.getByRole("heading", { name: "الأسئلة الشائعة" })).toBeVisible();
+    await expect(page.locator('[aria-labelledby="faq-heading"]').first()).toBeVisible();
+  });
+
   test("desktop navigation, skip link, and footer links are reachable", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop navigation layout");
     await page.goto("/");
