@@ -11,6 +11,9 @@ import products from "../data/products.json";
 const single = products.find(
   (item) => !item.hidden && item.sizes.length === 1 && item.inStock,
 );
+/** The size label as the UI prints it: "١٠٠ مل", not "100 مل". */
+const arabicLabel = (label: string) =>
+  label.replace(/[0-9]/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[Number(digit)]);
 const multi = products.find(
   (item) => !item.hidden && item.sizes.filter((size) => size.inStock).length > 1,
 );
@@ -37,7 +40,7 @@ test.describe("single-size products", () => {
     const drawer = page.getByRole("dialog");
     await expect(drawer).toBeVisible();
     await expect(drawer.getByText(single!.name).first()).toBeVisible();
-    await expect(drawer).toContainText(single!.sizes[0].label);
+    await expect(drawer).toContainText(arabicLabel(single!.sizes[0].label));
   });
 
   test("the PDP shows the one size as a sensible option, not a stretched row", async ({
@@ -59,7 +62,7 @@ test.describe("single-size products", () => {
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.keyboard.press("Escape");
     await page.goto("/cart", { waitUntil: "networkidle" });
-    await expect(page.locator("main")).toContainText(single!.sizes[0].label);
+    await expect(page.locator("main")).toContainText(arabicLabel(single!.sizes[0].label));
   });
 
   test("a multi-size product still asks which size and keeps من", async ({ page, isMobile }) => {

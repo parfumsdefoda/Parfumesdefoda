@@ -1,5 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import products from "../data/products.json";
+import manifest from "../src/data/image-manifest.json";
+
+/** Visible premium products, split by whether their photo really has alpha. */
+const premiumProducts = products.filter((product) => product.featured && !product.hidden);
+const backgroundOf = (slug: string) =>
+  (manifest.products as Record<string, { background?: string } | undefined>)[slug]?.background;
+const alphaPremium = premiumProducts.find((product) => backgroundOf(product.slug) === "transparent");
+const framedPremium = premiumProducts.find(
+  (product) => backgroundOf(product.slug) && backgroundOf(product.slug) !== "transparent",
+);
 
 /**
  * The premium (فاخر) card — the gold frame that replaced the gold badge.
@@ -56,23 +67,27 @@ test.describe("premium card", () => {
   });
 
   test("only a real cut-out gets the dark stage", async ({ page }) => {
+    // Which premium product is a cut-out is a fact of the manifest, not of the
+    // spec: the products are found by their flag and their background. When the
+    // catalogue has no framed premium product, that half is skipped (not faked).
+    test.skip(!alphaPremium, "no premium product with a transparent cut-out");
     await page.goto("/shop", { waitUntil: "networkidle" });
 
-    // pf240 is a transparent cut-out; pf091 is a framed photo (needs-retouch).
     const alpha = page
       .locator('article[class*="premium-card"]')
-      .filter({ hasText: "تيروني" })
+      .filter({ hasText: alphaPremium!.name })
       .first();
-    const framed = page
-      .locator('article[class*="premium-card"]')
-      .filter({ hasText: "أمواج انترلود" })
-      .first();
-
     await expect(alpha.locator("[data-stage]")).toHaveAttribute("data-stage", "dark");
-    await expect(framed.locator("[data-stage]")).toHaveAttribute("data-stage", "light");
-    // Both still wear the ring.
     await expect(alpha.locator(".premium-frame")).toHaveCount(1);
-    await expect(framed.locator(".premium-frame")).toHaveCount(1);
+
+    if (framedPremium) {
+      const framed = page
+        .locator('article[class*="premium-card"]')
+        .filter({ hasText: framedPremium.name })
+        .first();
+      await expect(framed.locator("[data-stage]")).toHaveAttribute("data-stage", "light");
+      await expect(framed.locator(".premium-frame")).toHaveCount(1);
+    }
   });
 
   test("a premium card is exactly as tall as a normal card in its row", async ({ page }) => {
