@@ -192,9 +192,14 @@ export function ProductPurchase({
           aria-label={labels.chooseSize}
           onKeyDown={handleKeyDown}
           // One row, one column per real size (max four): a 3-size oil gets
-          // three equal columns instead of a 3+1 wrap.
+          // three equal columns instead of a 3+1 wrap. A single-size product
+          // does not get a button stretched across the whole form: one option
+          // reads as a choice at a sensible width, not as a broken row.
           style={{
-            gridTemplateColumns: `repeat(${Math.min(sizes.length, 4)}, minmax(0, 1fr))`,
+            gridTemplateColumns:
+              sizes.length === 1
+                ? "minmax(0, 132px)"
+                : `repeat(${Math.min(sizes.length, 4)}, minmax(0, 1fr))`,
           }}
           className="grid gap-2"
         >

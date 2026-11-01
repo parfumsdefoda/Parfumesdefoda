@@ -48,7 +48,8 @@ Covered areas:
 - catalogue query parsing/serialising and facet counting (`catalog-*.test.ts`)
 - card presentation: badge priority, premium frame, meta line, price
   (`card-presentation.test.ts`)
-- product data: enrichment, master import/export, schema (`product-*.test.ts`)
+- product data: enrichment, master import/export, schema, and the photo gate
+  (missing / wrong-case / unreadable / too-small / photo gone) (`product-*.test.ts`)
 - pricing, shipping (flat 100 EGP), order numbers, order payloads
   (`order-*.test.ts`, `shipping.test.ts`)
 - design tokens: the full contrast table (`design-tokens.test.ts`)
@@ -72,6 +73,7 @@ passed, 0 failed, each time.
 | `e2e/premium-card.spec.ts` | the premium frame: helper, badge priority, meta line, alpha-gated dark stage, equal card height in a row, reduced motion, gold-on-ivory contrast |
 | `e2e/ui-luxury-a11y.spec.ts` | axe over the new states: dark and light header, premium PDP stage, mobile sheet, open search suggestions, mobile toolbar |
 | `e2e/hero.spec.ts` | the product-free hero: no `img`/`picture`/`svg image`/product `background-image` in the hero, the header, its search panel or the mobile menu; one `<h1>`; no widow in the headline (measured with Range rects); the CTA inside the first screen at 375×667 and 1440×900; overflow 0 at 375/768/1024/1440; the capsule still flips tone |
+| `e2e/single-size.spec.ts` | the first real single-size products (found by "exactly one size", never by slug): the card prices without "من", quick add goes straight to the drawer, the PDP renders one option at a sensible width (< 90 %) and the cart keeps the same size; a multi-size product still says "من" |
 | `e2e/card-hover.spec.ts` | the hover system: the lift matrix, the spotlight writing `--card-mx`, the edge and shadow pseudos going 0 → > 0, the bottle matrix, the quick-add pill, neighbours never moving, the premium glow and ring sweep, focus-within parity, reduced motion, unavailable cards staying still, equal row heights, axe in the hovered state, and a `hasTouch` context with no hover at all |
 
 ```bash

@@ -103,6 +103,17 @@ const STATES: { label: string; product: Product }[] = [
     }),
   },
   {
+    // The real catalogue cannot show this yet: several sizes, one buyable.
+    // The card keeps "من" (it has more than one size) while quick add still
+    // adds directly instead of opening a chooser.
+    label: "حجم واحد متاح من عدة أحجام",
+    product: fixture({
+      id: "one-available",
+      name: "حجم واحد متاح",
+      sizes: [size("100 مل", 700), size("50 مل", 500, false), size("10 مل", 150, false)],
+    }),
+  },
+  {
     label: "غير متوفر",
     product: fixture({
       id: "sold-out",
