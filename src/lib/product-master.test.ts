@@ -1120,3 +1120,176 @@ describe("is_similar — references to a row being created", () => {
     expect(plan.rejections[0].reason).toContain("unknown SKU");
   });
 });
+
+// ─── Photo gate ─────────────────────────────────────────────────────────────
+
+describe("planMasterImport — the photo gate", () => {
+  /** A fake gate: file name → short side (null = unreadable). */
+  function gate(
+    files: Record<string, number | null>,
+    caseVariants: Record<string, string> = {},
+  ) {
+    return {
+      exists: (name: string) => Object.hasOwn(files, name),
+      caseVariant: (name: string) => caseVariants[name] ?? null,
+      shortSide: (name: string) => (Object.hasOwn(files, name) ? files[name] : null),
+      minShortSide: 400,
+    };
+  }
+
+  const priceCsv = csv(["slug,price_50", "pf001,700"]);
+
+  it("imports a row whose photo is usable", () => {
+    const plan = planMasterImport([makeProduct()], priceCsv, {
+      mode: "sync-commerce",
+      photos: gate({ "PF001.png": 1200 }),
+    });
+
+    expect(plan.photoSkips).toEqual([]);
+    expect(plan.changes).toHaveLength(1);
+    expect(plan.products[0].sizes[1]).toMatchObject({ label: "50 مل", price: 700 });
+  });
+
+  it("skips the row ENTIRELY when the photo is missing — no price, no flags", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,price_50,is_featured", "pf001,700,نعم"]), {
+      mode: "sync-commerce",
+      photos: gate({}),
+    });
+
+    expect(plan.changes).toEqual([]);
+    expect(plan.flagToggles).toEqual([]);
+    expect(plan.photoSkips).toEqual([
+      {
+        slug: "pf001",
+        name: "عطر تجريبي",
+        file: "PF001.png",
+        status: "missing",
+        detail: expect.stringContaining("public/products/PF001.png"),
+      },
+    ]);
+    expect(plan.warnings.some((warning) => warning.message.includes("waiting for photo"))).toBe(true);
+    expect(plan.products[0].featured).toBe(false);
+    expect(plan.products[0].sizes[1].price).toBe(500);
+  });
+
+  it("reports a file whose name differs only in case instead of accepting it", () => {
+    const plan = planMasterImport([makeProduct()], priceCsv, {
+      mode: "sync-commerce",
+      photos: gate({ "pf001.png": 1200 }, { "PF001.png": "pf001.png" }),
+    });
+
+    expect(plan.photoSkips[0]).toMatchObject({ status: "wrong-case", file: "PF001.png" });
+    expect(plan.photoSkips[0].detail).toContain("pf001.png");
+    expect(plan.changes).toEqual([]);
+  });
+
+  it("skips a row whose photo cannot be read", () => {
+    const unreadable = planMasterImport([makeProduct()], priceCsv, {
+      photos: gate({ "PF001.png": null }),
+    });
+    expect(unreadable.photoSkips[0].status).toBe("unreadable");
+  });
+
+  it("refuses a too-small photo for a NEW product", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv([
+        "slug,sku,name_ar,gender,scent_style,tier,performance,price_50,avail_50",
+        "pf999,PF999,عطر جديد,رجالي,شرقي,نيش,أداء قوي,600,نعم",
+      ]),
+      { mode: "apply", createMissing: true, photos: gate({ "PF999.png": 320 }) },
+    );
+
+    expect(plan.creations).toEqual([]);
+    expect(plan.photoSkips[0]).toMatchObject({ status: "too-small", file: "PF999.png" });
+    expect(plan.photoSkips[0].detail).toContain("320px");
+  });
+
+  it("still imports an EXISTING product whose photo is too small, with a warning", () => {
+    // The floor is a bar for entering the catalogue: a product that is already
+    // here must keep syncing, or a small photo would silently freeze its data.
+    const plan = planMasterImport([makeProduct()], priceCsv, {
+      mode: "sync-commerce",
+      photos: gate({ "PF001.png": 375 }),
+    });
+
+    expect(plan.photoSkips).toEqual([]);
+    expect(plan.changes).toHaveLength(1);
+    expect(plan.products[0].sizes[1].price).toBe(700);
+    expect(plan.warnings.some((warning) => warning.message.includes("photo is small"))).toBe(true);
+  });
+
+  it("never creates a product from a photo-less row", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv([
+        "slug,sku,name_ar,gender,scent_style,tier,performance,price_50,avail_50",
+        "pf999,PF999,عطر جديد,رجالي,شرقي,نيش,أداء قوي,600,نعم",
+      ]),
+      { mode: "apply", createMissing: true, photos: gate({}) },
+    );
+
+    expect(plan.creations).toEqual([]);
+    expect(plan.refusals).toEqual([]);
+    expect(plan.photoSkips[0]).toMatchObject({ slug: "pf999", file: "PF999.png" });
+    expect(plan.products).toHaveLength(1);
+  });
+
+  it("hides a visible product whose own photo vanished (data kept)", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+      photos: gate({}),
+    });
+
+    expect(plan.hiddenByMissingPhoto).toEqual(["pf001"]);
+    expect(plan.products[0]).toMatchObject({ slug: "pf001", hidden: true, image: "/products/PF001.png" });
+    expect(plan.products[0].sizes).toHaveLength(2);
+  });
+
+  it("leaves a hidden product alone and never hides a coming-soon placeholder", () => {
+    const alreadyHidden = planMasterImport(
+      [makeProduct({ hidden: true })],
+      csv(["slug,on_site", "pf001,نعم"]),
+      { mode: "apply", photos: gate({}) },
+    );
+    expect(alreadyHidden.hiddenByMissingPhoto).toEqual([]);
+
+    const comingSoon = planMasterImport(
+      [makeProduct({ image: "/products/placeholder-unavailable.webp" })],
+      csv(["slug,on_site", "pf001,نعم"]),
+      { mode: "apply", photos: gate({}) },
+    );
+    expect(comingSoon.hiddenByMissingPhoto).toEqual([]);
+    expect(comingSoon.products[0].hidden).toBeUndefined();
+  });
+
+  it("still applies on_site and flags when the photo is fine", () => {
+    const plan = planMasterImport(
+      [makeProduct()],
+      csv(["slug,on_site,is_featured", "pf001,لا,نعم"]),
+      { mode: "apply", photos: gate({ "PF001.png": 900 }) },
+    );
+
+    expect(plan.photoSkips).toEqual([]);
+    expect(plan.hiddenByMissingPhoto).toEqual([]);
+    expect(plan.products[0]).toMatchObject({ hidden: true, featured: true });
+  });
+
+  it("does not treat a skipped row as absent from the master file", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,on_site", "pf001,نعم"]), {
+      mode: "apply",
+      hideAbsent: true,
+      photos: gate({}),
+    });
+
+    expect(plan.absentFromMaster).toEqual([]);
+    expect(plan.hiddenByAbsence).toEqual([]);
+  });
+
+  it("keeps the pre-gate behaviour when no gate is passed", () => {
+    const plan = planMasterImport([makeProduct()], priceCsv, { mode: "sync-commerce" });
+    expect(plan.photoSkips).toEqual([]);
+    expect(plan.hiddenByMissingPhoto).toEqual([]);
+    expect(plan.products[0].sizes[1].price).toBe(700);
+  });
+});

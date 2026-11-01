@@ -21,12 +21,12 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { planMasterImport } from "../src/lib/product-master.ts";
 import { productArraySchema } from "../src/schemas/product-schema.ts";
+import { createPhotoGate } from "./lib/product-photos.mjs";
 
 const ROOT = process.cwd();
 const PRODUCTS_PATH = path.join(ROOT, "data", "products.json");
@@ -123,12 +123,15 @@ async function main() {
     process.exit(1);
   }
 
+  // Rows without a usable original photo are skipped entirely (see C3 in
+  // docs/Product-Data.md): a missing photo must never half-apply a row.
+  const photos = createPhotoGate(ROOT);
   const plan = planMasterImport(parsed.data, csv, {
     mode: apply ? "sync-commerce" : "dry-run",
     createMissing: true,
     hideAbsent,
-    imageExists: (imagePath) =>
-      existsSync(path.join(ROOT, "public", imagePath.replace(/^\//, ""))),
+    photos,
+    imageExists: photos.imageExists,
   });
 
   if (plan.rejections.length > 0) {
@@ -214,6 +217,14 @@ async function main() {
     count(plan.changes, /\.inStock$/) +
     plan.changes.filter((change) => change.field === "inStock").length;
   const flagsOff = plan.flagToggles.filter((toggle) => !toggle.to).length;
+
+  console.log(`  في انتظار الصورة / waiting for photo ${plan.photoSkips.length}`);
+  for (const skip of plan.photoSkips) {
+    console.log(`    ${skip.slug}  ${skip.name}  [${skip.status}]  ${skip.detail}`);
+  }
+  console.log(
+    `  ${apply ? "أُخفي" : "سيُخفى"} لصورة مفقودة / hidden, photo gone  ${plan.hiddenByMissingPhoto.join(", ") || "none"}`,
+  );
 
   console.log("\n═══ الملخص / summary ═══");
   console.log(`  منتجات جديدة / new products        ${plan.creations.length}`);

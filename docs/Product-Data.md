@@ -83,6 +83,7 @@ A bare `master:import` is a dry run and writes nothing.
 | `--apply --sync-commerce`    | كل شيء                                                       | —                                  |
 | `--create-missing`           | يسمح بإنشاء منتجات جديدة (راجع §7)                           | —                                  |
 | `--file=<path>`              | يقرأ ملفاً آخر غير `data/product-master.csv`                 | —                                  |
+| `--hide-absent`              | يخفي المنتجات الغائبة عن الملف (`hidden: true`، لا حذف)      | —                                  |
 
 **لماذا الفصل؟** غلطة إملائية في خانة السعر لا يجب أن تغيّر أسعار المتجر أثناء
 تعبئة الملاحظات العطرية.
@@ -392,6 +393,40 @@ The photo name IS the key. A product still on the shared placeholder is pointed 
 its real photo by `--apply` when that file exists. A non-transparent background is
 never auto-cut: it is listed for a manual retouch. Identical files under different
 names are reported by the audit.
+
+### بوابة الصورة / The photo gate
+
+الصف يُستورد **فقط** إذا كانت صورته الأصلية موجودة على القرص باسم مطابق تماماً،
+وقابلة للقراءة كـ PNG، ولا يقل ضلعها الأقصر عن ٤٠٠ بكسل. غير ذلك يُتخطّى الصف
+**بالكامل** (لا إنشاء، لا تحديث، لا أسعار ولا مخزون ولا أعلام) ويُطبع تحت
+«في انتظار الصورة» كملاحظة، لا كخطأ — بقية الملف تُطبَّق عاديًا.
+
+A row is imported ONLY when its original photo is on disk, readable as PNG and at
+least 400 px on its short side. Otherwise the row is skipped ENTIRELY (no create,
+no update, no prices, no stock, no flags) and listed under "waiting for photo" as
+a warning — never an error that blocks the rest of the file.
+
+| الحالة / status | متى / when                                                        | النتيجة / result                                        |
+| --------------- | ----------------------------------------------------------------- | ------------------------------------------------------- |
+| `missing`       | `public/products/PFxxx.png` غير موجود                              | الصف يُتخطّى                                            |
+| `wrong-case`    | الملف موجود باسم مختلف في حالة الأحرف (`pfxxx.png`, `PFXXX.PNG`)   | يُتخطّى ويُطبع الاسم الصحيح — لينكس (CI والنشر) يفرّق بينها |
+| `unreadable`    | الملف ليس PNG سليمًا (تالف أو بامتداد خاطئ)                       | يُتخطّى                                                |
+| `too-small`     | الضلع الأقصر < ٤٠٠ بكسل لمنتج **جديد**                            | يُتخطّى                                                |
+| `too-small`     | نفس الحالة لمنتج **موجود**: يُستورد مع تحذير لتستبدل الصورة       | لا يتوقف تحديث أسعاره ومخزونه                            |
+
+استثناء المنتج الموجود مقصود: الصورة الصغيرة عيب جودة، لكن إيقاف مزامنة منتج
+معروض بسببها عطل في البيانات. الحد الأدنى يحمي **دخول** الصور إلى الكتالوج.
+
+A small photo on an EXISTING product is a quality issue, not a data freeze: the
+row still syncs and the warning asks for a better file. The 400 px floor guards
+ENTRY to the catalogue (new products).
+
+- اسم الملف يطابق الـ SKU: `PF760.png` (حروف كبيرة، امتداد صغير).
+- `--hide-absent` يخفي المنتجات الغائبة عن الملف، وبوابة الصورة تُخفي أيضًا أي
+  منتج **موجود** اختفت صورته من القرص (`hidden: true`، والبيانات تبقى).
+
+`--hide-absent` hides products absent from the file, and the gate also hides (never
+deletes) any existing product whose own photo file disappeared from disk.
 
 **A framed (uncut) photo never upscales**: a 774px-wide source stops at 774px,
 so `check:derived` expects the 400 tier and the source's own width, not a fake

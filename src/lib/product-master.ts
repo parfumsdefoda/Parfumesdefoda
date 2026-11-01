@@ -626,11 +626,52 @@ export interface MasterCreation {
 
 export type MasterMode = "dry-run" | "apply" | "sync-commerce";
 
+/** Why a row's photo is unusable, so the file is skipped until it is fixed. */
+export type MasterPhotoStatus = "missing" | "wrong-case" | "unreadable" | "too-small";
+
+/** A row that was skipped entirely because its photo is not usable yet. */
+export interface MasterPhotoSkip {
+  slug: string;
+  /** The public name, so the report reads without opening the CSV. */
+  name: string;
+  /** The file the importer expects: `{SKU}.png`, exactly. */
+  file: string;
+  status: MasterPhotoStatus;
+  /** One sentence the owner can act on. */
+  detail: string;
+}
+
+/**
+ * The photo gate.
+ *
+ * ONLY a master row whose original photo is on disk, readable and at least
+ * `minShortSide` px on its short side is imported. The file name is matched
+ * EXACTLY (`PF760.png`, upper-case SKU, lower-case extension): this repo is
+ * edited on Windows and built on Linux, and a file called `pf760.png` works in
+ * one and 404s in the other. Everything about the gate is injected, so the
+ * module stays pure and testable.
+ */
+export interface MasterPhotoGate {
+  /** Exact, case-sensitive membership of `public/products`. */
+  exists: (fileName: string) => boolean;
+  /** The name that differs only in case, when one exists. */
+  caseVariant?: (fileName: string) => string | null;
+  /** Short-side pixels of an existing file, or null when it cannot be read. */
+  shortSide?: (fileName: string) => number | null;
+  /** Smallest short side accepted as a real photo. Default 400. */
+  minShortSide?: number;
+}
+
 export interface MasterPlanOptions {
   mode?: MasterMode;
   createMissing?: boolean;
   /** Disk check for `/products/{SKU}.png`; the script passes fs.existsSync. */
   imageExists?: (imagePath: string) => boolean;
+  /**
+   * The photo gate (see {@link MasterPhotoGate}). Without it the importer keeps
+   * its old behaviour and every row is processed.
+   */
+  photos?: MasterPhotoGate;
   /**
    * Hide products that exist in the catalogue but not in the master.
    *
@@ -690,6 +731,10 @@ export interface MasterPlan {
   duplicates: string[];
   refusals: MasterRefusal[];
   creations: MasterCreation[];
+  /** Rows skipped entirely: their photo is missing, mis-named or unusable. */
+  photoSkips: MasterPhotoSkip[];
+  /** Visible products hidden because their own photo file vanished. */
+  hiddenByMissingPhoto: string[];
   skipped: number;
   rows: number;
 }
@@ -703,6 +748,8 @@ const ALL_GROUPS: ReadonlySet<ChangeGroup> = new Set<ChangeGroup>([
 interface PassContext {
   createMissing: boolean;
   imageExists?: (imagePath: string) => boolean;
+  /** Absent = no gate: every row is processed (the pre-gate behaviour). */
+  photos?: MasterPhotoGate;
   includeCreates: boolean;
   /** Volumes declared by the header: the only sizes a price may create. */
   sizes: number[];
@@ -719,6 +766,7 @@ interface PassResult {
   duplicates: string[];
   refusals: MasterRefusal[];
   creations: MasterCreation[];
+  photoSkips: MasterPhotoSkip[];
 }
 
 /**
@@ -763,6 +811,8 @@ export function planMasterImport(
       duplicates: [],
       refusals: [],
       creations: [],
+      photoSkips: [],
+      hiddenByMissingPhoto: [],
       skipped: file.skipped,
       rows: file.entries.length,
     };
@@ -771,6 +821,7 @@ export function planMasterImport(
   const report = mergePass(products, file.entries, ALL_GROUPS, {
     createMissing,
     imageExists: options.imageExists,
+    photos: options.photos,
     includeCreates: false,
     sizes: header.sizes,
   });
@@ -788,6 +839,7 @@ export function planMasterImport(
       : mergePass(products, file.entries, allowed, {
           createMissing,
           imageExists: options.imageExists,
+          photos: options.photos,
           includeCreates: true,
           sizes: header.sizes,
         });
@@ -809,11 +861,23 @@ export function planMasterImport(
         : [];
   const hiddenByAbsence = [...new Set(requested)];
   const hiddenSet = new Set(hiddenByAbsence);
+  // A product whose own photo file is gone cannot be sold or shown truthfully:
+  // it is hidden (never deleted) and reported, so the owner either restores the
+  // file or clears `on_site` deliberately.
+  const photos = options.photos;
+  const hiddenByMissingPhoto = photos
+    ? afterImport
+        .filter((product) => !product.hidden && !hasPhotoFile(product.image, photos))
+        .map((product) => product.slug)
+    : [];
+  const photoHiddenSet = new Set(hiddenByMissingPhoto);
   const finalProducts =
     mode === "dry-run"
       ? afterImport
       : afterImport.map((product) =>
-          hiddenSet.has(product.slug) ? { ...product, hidden: true } : product,
+          hiddenSet.has(product.slug) || photoHiddenSet.has(product.slug)
+            ? { ...product, hidden: true }
+            : product,
         );
 
   const byName = new Map<string, string[]>();
@@ -848,9 +912,62 @@ export function planMasterImport(
     duplicates: report.duplicates,
     refusals: report.refusals,
     creations: report.creations,
+    photoSkips: report.photoSkips,
+    hiddenByMissingPhoto,
     skipped: file.skipped,
     rows: file.entries.length,
   };
+}
+
+/**
+ * Is a product's own photo file still on disk, matched exactly?
+ *
+ * The shared placeholder is not a photo — `isComingSoon` already covers those
+ * products and they must not be hidden by this check.
+ */
+function hasPhotoFile(image: string | undefined, gate: MasterPhotoGate): boolean {
+  if (!image || isPlaceholderImage(image)) return true;
+  const fileName = image.split("?")[0].split("/").pop() ?? "";
+  return fileName !== "" && gate.exists(fileName);
+}
+
+/** Classify one row's photo against the gate. */
+function photoStatusFor(
+  fileName: string,
+  gate: MasterPhotoGate,
+): { status: MasterPhotoStatus; detail: string } | null {
+  if (!gate.exists(fileName)) {
+    const variant = gate.caseVariant?.(fileName) ?? null;
+    if (variant) {
+      return {
+        status: "wrong-case",
+        detail: `public/products/${variant} exists — the file must be named ${fileName} exactly (Linux/CI is case-sensitive)`,
+      };
+    }
+    return {
+      status: "missing",
+      detail: `public/products/${fileName} is not on disk — add the photo, then run the refresh again`,
+    };
+  }
+
+  if (gate.shortSide) {
+    const shortSide = gate.shortSide(fileName);
+    if (shortSide === null) {
+      return {
+        status: "unreadable",
+        detail: `public/products/${fileName} could not be read as a PNG`,
+      };
+    }
+    const min = gate.minShortSide ?? 400;
+    if (shortSide < min) {
+      return {
+        status: "too-small",
+        detail: `public/products/${fileName} is only ${shortSide}px on its short side (minimum ${min}px)`,
+      };
+    }
+  }
+
+  return null;
 }
 
 function describe(value: unknown): string {
@@ -905,6 +1022,7 @@ function mergePass(
   const duplicates: string[] = [];
   const refusals: MasterRefusal[] = [];
   const creations: MasterCreation[] = [];
+  const photoSkips: MasterPhotoSkip[] = [];
   const created: Product[] = [];
 
   const seen = new Map<string, number>();
@@ -1115,6 +1233,44 @@ function mergePass(
     seen.set(slug, line);
 
     const original = bySlug.get(slug);
+
+    // ── The photo gate ──
+    // A row whose original photo is missing, mis-named, unreadable or too
+    // small is skipped ENTIRELY: no creation, no update, no price or
+    // availability sync, no flags. It is a warning the owner can act on, never
+    // an error that blocks the rest of the file.
+    if (ctx.photos) {
+      const sku = row.sku.trim() || original?.sku || "";
+      const ownImage = original?.image?.split("?")[0] ?? "";
+      const fileName =
+        original && !isPlaceholderImage(ownImage) && ownImage.startsWith("/products/")
+          ? (ownImage.split("/").pop() ?? `${sku}.png`)
+          : `${sku}.png`;
+      const blocked = photoStatusFor(fileName, ctx.photos);
+      if (blocked) {
+        // The size floor is a bar for ENTERING the catalogue. A product that is
+        // already here keeps syncing its prices and stock on the photo it has:
+        // refusing that would silently freeze its data. Its photo is reported
+        // instead, so the owner can replace the file.
+        if (original && blocked.status === "too-small") {
+          warn(
+            slug,
+            "sku",
+            sku,
+            `photo is small — ${blocked.detail}; the row is still imported, replace the file when you can`,
+          );
+        } else {
+          photoSkips.push({
+            slug,
+            name: row.name_ar || original?.name || slug,
+            file: fileName,
+            ...blocked,
+          });
+          warn(slug, "sku", sku, `skipped, waiting for photo — ${blocked.detail}`);
+          continue;
+        }
+      }
+    }
 
     // ── A slug the catalogue does not have ──
     if (!original) {
@@ -1483,6 +1639,7 @@ function mergePass(
     duplicates: [...new Set(duplicates)],
     refusals,
     creations,
+    photoSkips,
   };
 }
 

@@ -20,7 +20,6 @@
  *   npm run master:import -- --apply --sync-commerce
  */
 
-import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -30,6 +29,7 @@ import {
   summariseMasterStatus,
 } from "../src/lib/product-master.ts";
 import { productArraySchema } from "../src/schemas/product-schema.ts";
+import { createPhotoGate } from "./lib/product-photos.mjs";
 
 const ROOT = process.cwd();
 const PRODUCTS_PATH = path.join(ROOT, "data", "products.json");
@@ -58,6 +58,9 @@ const fileArg = args.find((arg) => arg.startsWith("--file="));
 const csvPath = path.resolve(ROOT, fileArg ? fileArg.slice("--file=".length) : DEFAULT_CSV);
 
 const mode = syncCommerce ? "sync-commerce" : apply ? "apply" : "dry-run";
+
+/** The gate every row goes through before it may touch the catalogue. */
+const photos = createPhotoGate(ROOT);
 
 const GROUP_LABELS = {
   classification: "التصنيف / classification",
@@ -126,8 +129,8 @@ async function main() {
     mode,
     createMissing,
     hideAbsent,
-    imageExists: (imagePath) =>
-      existsSync(path.join(ROOT, "public", imagePath.replace(/^\//, ""))),
+    photos,
+    imageExists: photos.imageExists,
   });
 
   console.log(`\n═══ product-master → products.json (${mode}) ═══`);
@@ -152,6 +155,22 @@ async function main() {
   if (plan.imageFixes.length > 0) {
     console.log(`\n── صور تُربط / placeholder → real photo (${plan.imageFixes.length})`);
     for (const fix of plan.imageFixes) console.log(`   ${fix.slug}  ${fix.from} → ${fix.to}`);
+  }
+
+  if (plan.photoSkips.length > 0) {
+    console.log(
+      `\n── في انتظار الصورة / waiting for photo (${plan.photoSkips.length} — skipped entirely)`,
+    );
+    for (const skip of plan.photoSkips) {
+      console.log(`   ${skip.slug}  ${skip.name}  [${skip.status}]  ${skip.detail}`);
+    }
+  }
+
+  if (plan.hiddenByMissingPhoto.length > 0) {
+    console.log(
+      `\n── صورة مفقودة / photo gone, ${mode === "dry-run" ? "would hide" : "hidden"} (${plan.hiddenByMissingPhoto.length})`,
+    );
+    for (const slug of plan.hiddenByMissingPhoto) console.log(`   ${slug}`);
   }
 
   if (plan.warnings.length > 0) {
