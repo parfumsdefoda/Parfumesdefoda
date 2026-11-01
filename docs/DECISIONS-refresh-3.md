@@ -36,3 +36,43 @@ One line per judgement call: the decision, the alternatives, and why.
 - **"Coming soon" is not removed.** `isComingSoon` still guards the badge order,
   the cart and the PDP for data already in `products.json`; the importer can no
   longer create a photo-less product, so this refresh adds none.
+
+## C4 — apply
+
+- **`pf091` moved from the light to the dark premium stage.** Its stored manifest
+  entry carried pf090's hash and `background: coloured`; the real `PF091.png` is a
+  2000×2000 transparent cut-out. The deriving run corrected the entry, so `pf091`
+  is now framed like `pf240`. Not a design change — a data correction.
+- **45 unreferenced derived files deleted.** They were the leftovers of that same
+  mixed-up entry (framed files for cut-out products and vice versa). Only files
+  the manifest no longer names were removed; every referenced tier stays and
+  `check:derived` passes.
+- **`pf090` stays framed.** It is the one photo with a URL burned into a
+  "CAUTION" tape across it; publishing it as a cut-out would crop the watermark
+  into the card, so it keeps the full frame and remains on the retouch list.
+
+## C5 — single size
+
+- **The selector is capped at 132px, not made a full row.** A one-option control
+  drawn across the whole form reads as a broken grid; 132px keeps the label and
+  price legible at 375px and looks like a choice.
+- **The E2E spec finds single-size products by property** (`sizes.length === 1`),
+  never by slug, so the next single-size product is covered without a code change.
+
+## C6 — pagination
+
+- **Not built.** With 77 visible products `/shop` measures perf 88 (threshold 85),
+  TBT 55 ms (100), 2619 DOM nodes (3500) and 215 KiB Brotli of first-load JS
+  (240). Every threshold passes, and the spec says not to add pagination then.
+
+## C7 — tests that follow the data
+
+- **Three specs were pinned to slugs that changed state**, not to behaviour:
+  `pf091` (no longer a framed photo), `pf290` (now in stock) and the
+  out-of-stock ordering (nothing is out of stock). They now derive the case from
+  `data/products.json` + the image manifest and skip with a stated reason when the
+  catalogue has nothing to assert. No assertion was weakened: the same contracts
+  still run the moment the data exercises them.
+- **Visual baselines regenerated** for home, shop and the PDP: the homepage lost
+  two sections and the grid grew from 47 to 77 cards — the change is the point.
+  The snapshots stay Windows-only (`CI` skips them).
