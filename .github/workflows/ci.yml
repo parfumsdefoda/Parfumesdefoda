@@ -58,6 +58,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      # The server has to be the process whose PID we record. Started through
+      # `npx`, the real `next start` is a child of the wrapper, so the kill below
+      # left 3227 occupied and Playwright refused to boot its own server with
+      # "http://127.0.0.1:3227 is already used".
       # Log mode writes the exact email/WhatsApp payload to .tmp/order-previews
       # and contacts nobody; the channel keys are blanked so a stray runtime
       # path could not send anything even if the mode were ignored.
@@ -69,13 +73,37 @@ jobs:
           RESEND_FROM_EMAIL: ""
           OPENAI_API_KEY: ""
         run: |
-          npx next start --hostname 127.0.0.1 --port 3227 &
+          node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3227 &
           SERVER_PID=$!
-          for i in $(seq 1 60); do curl -sf -o /dev/null http://127.0.0.1:3227/ && break; sleep 2; done
-          npm run perf:budget
-          STATUS=$?
+
+          READY=0
+          for i in $(seq 1 60); do
+            if curl -sf -o /dev/null http://127.0.0.1:3227/; then READY=1; break; fi
+            sleep 2
+          done
+          if [ "$READY" -ne 1 ]; then
+            echo "::error::The production server never answered on 127.0.0.1:3227"
+            kill "$SERVER_PID" 2>/dev/null || true
+            exit 1
+          fi
+
+          STATUS=0
+          npm run perf:budget || STATUS=$?
+
+          # Stop it and wait until the socket is really closed: the next step's
+          # webServer starts its own production server on the same port.
           kill "$SERVER_PID" 2>/dev/null || true
-          exit $STATUS
+          wait "$SERVER_PID" 2>/dev/null || true
+          for i in $(seq 1 30); do
+            if ! curl -sf -o /dev/null http://127.0.0.1:3227/; then break; fi
+            sleep 1
+          done
+          if curl -sf -o /dev/null http://127.0.0.1:3227/; then
+            echo "::error::Port 3227 is still serving after the budget step"
+            exit 1
+          fi
+
+          exit "$STATUS"
 
       - name: Run Playwright against production build
         run: npm run e2e -- --project=chromium-desktop --project=chromium-mobile
