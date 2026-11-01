@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-30T08:55:34.129Z",
+  "generatedAt": "2026-11-01T21:33:04.550Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -211,35 +211,6 @@
     },
     "pf090": {
       "source": "/products/PF090.png",
-      "sourceHash": "2fb108cf8911912e79ebd291c3db71167dcf33a1f9089141a8033eb782c2a3b6",
-      "background": "transparent",
-      "mode": "cutout",
-      "blend": "normal",
-      "canvas": 2343,
-      "files": [
-        {
-          "w": 400,
-          "avif": "/products/derived/pf090/card-400.avif",
-          "webp": "/products/derived/pf090/card-400.webp"
-        },
-        {
-          "w": 800,
-          "avif": "/products/derived/pf090/card-800.avif",
-          "webp": "/products/derived/pf090/card-800.webp"
-        },
-        {
-          "w": 1200,
-          "avif": "/products/derived/pf090/pdp-1200.avif",
-          "webp": "/products/derived/pf090/pdp-1200.webp"
-        },
-        {
-          "w": 2000,
-          "webp": "/products/derived/pf090/pdp-2000.webp"
-        }
-      ]
-    },
-    "pf091": {
-      "source": "/products/PF091.png",
       "sourceHash": "c17caf280301c70afa7d7e18d705b4e6aa0ef7d1504010c823b4abf89283b5d3",
       "background": "coloured",
       "mode": "framed",
@@ -248,21 +219,50 @@
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf091/framed-400.avif",
+          "avif": "/products/derived/pf090/framed-400.avif",
           "h": 225,
-          "webp": "/products/derived/pf091/framed-400.webp"
+          "webp": "/products/derived/pf090/framed-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf091/framed-800.avif",
+          "avif": "/products/derived/pf090/framed-800.avif",
           "h": 450,
-          "webp": "/products/derived/pf091/framed-800.webp"
+          "webp": "/products/derived/pf090/framed-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf091/framed-1200.avif",
+          "avif": "/products/derived/pf090/framed-1200.avif",
           "h": 675,
-          "webp": "/products/derived/pf091/framed-1200.webp"
+          "webp": "/products/derived/pf090/framed-1200.webp"
+        }
+      ]
+    },
+    "pf091": {
+      "source": "/products/PF091.png",
+      "sourceHash": "2fb108cf8911912e79ebd291c3db71167dcf33a1f9089141a8033eb782c2a3b6",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 2343,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf091/card-400.avif",
+          "webp": "/products/derived/pf091/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf091/card-800.avif",
+          "webp": "/products/derived/pf091/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf091/pdp-1200.avif",
+          "webp": "/products/derived/pf091/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf091/pdp-2000.webp"
         }
       ]
     },
@@ -669,35 +669,6 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf230/pdp-2000.webp"
-        }
-      ]
-    },
-    "pf231": {
-      "source": "/products/PF231.png",
-      "sourceHash": "01812ea53225502c4b17c5ad535eceb12f7463c1ff20fe66f75f6586bb55779c",
-      "background": "transparent",
-      "mode": "cutout",
-      "blend": "normal",
-      "canvas": 2490,
-      "files": [
-        {
-          "w": 400,
-          "avif": "/products/derived/pf231/card-400.avif",
-          "webp": "/products/derived/pf231/card-400.webp"
-        },
-        {
-          "w": 800,
-          "avif": "/products/derived/pf231/card-800.avif",
-          "webp": "/products/derived/pf231/card-800.webp"
-        },
-        {
-          "w": 1200,
-          "avif": "/products/derived/pf231/pdp-1200.avif",
-          "webp": "/products/derived/pf231/pdp-1200.webp"
-        },
-        {
-          "w": 2000,
-          "webp": "/products/derived/pf231/pdp-2000.webp"
         }
       ]
     },
@@ -1598,35 +1569,6 @@
         }
       ]
     },
-    "pf540": {
-      "source": "/products/PF540.png",
-      "sourceHash": "2252b6375a3f83b9c06cad19a8576853d0dbe7e4f4de8f874ed6a78a3cda8ff8",
-      "background": "transparent",
-      "mode": "cutout",
-      "blend": "normal",
-      "canvas": 651,
-      "files": [
-        {
-          "w": 400,
-          "avif": "/products/derived/pf540/card-400.avif",
-          "webp": "/products/derived/pf540/card-400.webp"
-        },
-        {
-          "w": 800,
-          "avif": "/products/derived/pf540/card-800.avif",
-          "webp": "/products/derived/pf540/card-800.webp"
-        },
-        {
-          "w": 1200,
-          "avif": "/products/derived/pf540/pdp-1200.avif",
-          "webp": "/products/derived/pf540/pdp-1200.webp"
-        },
-        {
-          "w": 2000,
-          "webp": "/products/derived/pf540/pdp-2000.webp"
-        }
-      ]
-    },
     "pf550": {
       "source": "/products/PF550.png",
       "sourceHash": "87f73db3f53bea01638b7e629466aa44192238d94d95380bb12f81ba85471db2",
@@ -2097,6 +2039,180 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf740/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf760": {
+      "source": "/products/PF760.png",
+      "sourceHash": "777fd87783eb6b86d0317c34a6d4ec0cd7458df40bd24b7b4c0aad2f44bdbbbe",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 754,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf760/card-400.avif",
+          "webp": "/products/derived/pf760/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf760/card-800.avif",
+          "webp": "/products/derived/pf760/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf760/pdp-1200.avif",
+          "webp": "/products/derived/pf760/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf760/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf780": {
+      "source": "/products/PF780.png",
+      "sourceHash": "ad338e85742413045fbfe7175433e8f6b3129b07ccc4c4f64844a75498974781",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 854,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf780/card-400.avif",
+          "webp": "/products/derived/pf780/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf780/card-800.avif",
+          "webp": "/products/derived/pf780/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf780/pdp-1200.avif",
+          "webp": "/products/derived/pf780/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf780/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf800": {
+      "source": "/products/PF800.png",
+      "sourceHash": "bf62b2ce972a4d1c823393aedca8d9e9f544a664b910893056ce6f254f4c3bc1",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 1433,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf800/card-400.avif",
+          "webp": "/products/derived/pf800/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf800/card-800.avif",
+          "webp": "/products/derived/pf800/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf800/pdp-1200.avif",
+          "webp": "/products/derived/pf800/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf800/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf820": {
+      "source": "/products/PF820.png",
+      "sourceHash": "0aed176041c4abe762466c7aea4ee3889af8b3f4627f1bf9a136757802609250",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 992,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf820/card-400.avif",
+          "webp": "/products/derived/pf820/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf820/card-800.avif",
+          "webp": "/products/derived/pf820/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf820/pdp-1200.avif",
+          "webp": "/products/derived/pf820/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf820/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf840": {
+      "source": "/products/PF840.png",
+      "sourceHash": "9c3c968a23dc530b64742ff6c457f8af0d24e45d37ed584e6f20bdb33f02b853",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 781,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf840/card-400.avif",
+          "webp": "/products/derived/pf840/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf840/card-800.avif",
+          "webp": "/products/derived/pf840/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf840/pdp-1200.avif",
+          "webp": "/products/derived/pf840/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf840/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf860": {
+      "source": "/products/PF860.png",
+      "sourceHash": "8f570829f83f4f050d613ae735ccbf265e3760dd3a7aee942d95b1c1d2f0712e",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 656,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf860/card-400.avif",
+          "webp": "/products/derived/pf860/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf860/card-800.avif",
+          "webp": "/products/derived/pf860/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf860/pdp-1200.avif",
+          "webp": "/products/derived/pf860/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf860/pdp-2000.webp"
         }
       ]
     }
