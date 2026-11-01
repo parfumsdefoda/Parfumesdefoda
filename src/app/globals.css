@@ -767,8 +767,207 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   }
 }
 
+/* ─── Card hover system ───
+   EVERY card lifts and gets a pointer spotlight, a 1px stage edge, a
+   contracting ground shadow and a quick-add pill; a premium card adds the
+   gold layer on top. Only transform/opacity animate, plus the inline size of
+   one absolutely positioned button — never a shadow on the card itself, and
+   nothing here loops. */
+.card-shell {
+  /* `layout`, not `paint`: the lifted shadow is painted OUTSIDE the card box,
+     so `contain: paint` would clip away the very effect it belongs to. */
+  contain: layout style;
+  isolation: isolate;
+  transition: transform 420ms var(--ease-apple);
+}
+
+/* The lifted shadow lives on a pseudo whose opacity animates. */
+.card-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lifted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-apple);
+}
+
+/* The premium card's outer gold glow, for the same reason. */
+.premium-card::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  border-radius: calc(var(--radius-card) + 6px);
+  box-shadow: 0 0 36px color-mix(in srgb, var(--brand-gold) 30%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-apple);
+}
+
+/* The pointer spotlight. `--card-mx` / `--card-my` are written by the one
+   delegated pointermove island; without it the light sits at the centre. */
+.card-spot {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-apple);
+  background: radial-gradient(
+    240px circle at var(--card-mx, 50%) var(--card-my, 36%),
+    color-mix(in srgb, var(--brand-purple) 16%, transparent) 0%,
+    transparent 72%
+  );
+}
+
+.premium-card .card-spot {
+  background: radial-gradient(
+    260px circle at var(--card-mx, 50%) var(--card-my, 36%),
+    color-mix(
+        in srgb,
+        color-mix(in srgb, var(--brand-white) 84%, var(--brand-gold)) 24%,
+        transparent
+      )
+      0%,
+    transparent 74%
+  );
+}
+
+/* The stage's edge light: an inset ring, so the stage's box never moves. */
+.card-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-purple) 35%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms var(--ease-apple);
+}
+
+.card-bottle {
+  transform-origin: 50% 100%;
+  transition: transform 500ms var(--ease-apple);
+}
+
+/* Quick add: a 44px circle that grows into a pill, absolutely positioned so
+   no sibling reflows while it does. */
+.quick-add-btn {
+  inline-size: 44px;
+  padding-inline: 0;
+  overflow: hidden;
+  justify-content: center;
+  transition: inline-size 320ms var(--ease-apple);
+}
+
+.quick-add-label {
+  max-inline-size: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transform: translateX(6px);
+  transition:
+    max-inline-size 320ms var(--ease-apple),
+    opacity 220ms var(--ease-apple),
+    transform 320ms var(--ease-apple);
+}
+
+@keyframes premium-ring-sweep {
+  from {
+    --premium-sweep: 0deg;
+    opacity: 0.95;
+  }
+  to {
+    --premium-sweep: 360deg;
+    opacity: 0;
+  }
+}
+
 /* Hover/focus motion is for devices with a real pointer only. */
 @media (hover: hover) and (pointer: fine) {
+  .card-shell[data-card-state="live"]:hover {
+    transform: translateY(-4px);
+    will-change: transform;
+  }
+
+  .card-shell[data-card-state="live"]:hover::after {
+    opacity: 1;
+  }
+
+  .card-shell[data-card-state="live"]:hover .card-spot,
+  .card-shell[data-card-state="live"]:hover .card-edge {
+    opacity: 1;
+  }
+
+  .card-shell[data-card-state="live"]:hover .card-bottle {
+    transform: translateY(-6px) scale(1.04);
+  }
+
+  .card-shell[data-card-state="live"]:hover [data-ground] {
+    opacity: 0.72;
+    transform: scaleX(0.85);
+  }
+
+  .card-shell[data-card-state="live"]:hover .card-name {
+    color: var(--color-brand);
+  }
+
+  .card-shell[data-card-state="live"]:hover .quick-add-btn {
+    inline-size: 8.25rem;
+    padding-inline-start: 14px;
+    justify-content: flex-start;
+  }
+
+  .card-shell[data-card-state="live"]:hover .quick-add-label {
+    max-inline-size: 8rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Keyboard gets the same state — minus the pointer's spotlight. */
+  .card-shell[data-card-state="live"]:focus-within {
+    transform: translateY(-4px);
+  }
+
+  .card-shell[data-card-state="live"]:focus-within::after,
+  .card-shell[data-card-state="live"]:focus-within .card-edge {
+    opacity: 1;
+  }
+
+  .card-shell[data-card-state="live"]:focus-within .card-bottle {
+    transform: translateY(-6px) scale(1.04);
+  }
+
+  .card-shell[data-card-state="live"]:focus-within [data-ground] {
+    opacity: 0.72;
+    transform: scaleX(0.85);
+  }
+
+  .card-shell[data-card-state="live"]:focus-within .card-name {
+    color: var(--color-brand);
+  }
+
+  .card-shell[data-card-state="live"]:focus-within .quick-add-btn {
+    inline-size: 8.25rem;
+    padding-inline-start: 14px;
+    justify-content: flex-start;
+  }
+
+  .card-shell[data-card-state="live"]:focus-within .quick-add-label {
+    max-inline-size: 8rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The premium layer, on top of everything above. */
+  .premium-card:hover::before,
+  .premium-card:focus-within::before {
+    opacity: 1;
+  }
+
   .premium-card:hover .premium-shine,
   .premium-card:focus-within .premium-shine {
     animation: premium-shine-once var(--duration-slow) var(--ease-apple) both;
@@ -784,15 +983,25 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
     animation-delay: 140ms;
   }
 
-  .premium-card:hover .premium-bottle,
-  .premium-card:focus-within .premium-bottle {
-    transform: translateY(-4px) scale(1.04);
+  /* One conic pass along the ring. `animation-timeline: auto` is what lets
+     this override the scroll-driven entry sweep above. */
+  .premium-card:hover .premium-frame::after,
+  .premium-card:focus-within .premium-frame::after {
+    animation: premium-ring-sweep 1.2s var(--ease-apple) both;
+    animation-timeline: auto;
   }
 
-  .premium-card:hover [data-ground],
-  .premium-card:focus-within [data-ground] {
-    opacity: 0.7;
-    transform: scaleX(0.9);
+  .premium-card:hover .premium-bottle,
+  .premium-card:focus-within .premium-bottle {
+    transform: translateY(-6px) scale(1.04);
+  }
+}
+
+/* Touch: no hover state at all, but a press still answers. */
+@media (hover: none) {
+  .card-shell[data-card-state="live"]:active {
+    transform: scale(0.985);
+    transition-duration: 120ms;
   }
 }
 
@@ -824,8 +1033,26 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   }
 
   .premium-bottle,
+  .card-bottle,
   [data-ground] {
     transition: none !important;
+  }
+
+  /* No lift, no bottle move, no spotlight drift: the ring and the edge may
+     still change opacity, instantly. */
+  .card-shell,
+  .card-shell:hover,
+  .card-shell:focus-within,
+  .card-shell:active {
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  .card-shell:hover .card-bottle,
+  .card-shell:focus-within .card-bottle,
+  .card-shell:hover [data-ground],
+  .card-shell:focus-within [data-ground] {
+    transform: none !important;
   }
 
   .premium-card:hover .premium-bottle,
@@ -833,8 +1060,8 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
     transform: none !important;
   }
 
-  .premium-card:hover [data-ground],
-  .premium-card:focus-within [data-ground] {
-    transform: none !important;
+  .quick-add-btn,
+  .quick-add-label {
+    transition-duration: 80ms !important;
   }
 }

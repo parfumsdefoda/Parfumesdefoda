@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ProductCard, type ProductCardLabels } from "./product-card";
+import { CardSpotlight } from "./card-spotlight";
 import { ProductGallery, type ProductGalleryLabels } from "./product-gallery";
 import { ProductPurchase, type ProductPurchaseLabels } from "./product-purchase";
 import { Breadcrumbs } from "@/features/layout";
@@ -285,6 +286,7 @@ export function ProductDetailPage({
             {relatedIsAlternatives ? labels.alternatives : labels.related}
           </h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
+            <CardSpotlight />
             {related.map((item) => (
               <ProductCard key={item.id} product={item} labels={cardLabels} />
             ))}

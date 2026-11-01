@@ -33,6 +33,8 @@ export interface ProductCardLabels {
   addToCart: string;
   /** Heading of the size chooser. */
   chooseSize: string;
+  /** The word the quick-add circle grows into on hover ("إضافة سريعة"). */
+  quickAdd: string;
 }
 
 export const DEFAULT_CARD_LABELS: ProductCardLabels = {
@@ -43,6 +45,7 @@ export const DEFAULT_CARD_LABELS: ProductCardLabels = {
   addedToast: "تمت إضافة {name} إلى السلة",
   addToCart: "أضف إلى السلة",
   chooseSize: "اختر الحجم",
+  quickAdd: "إضافة سريعة",
 };
 
 export interface ProductCardProps {
@@ -108,8 +111,11 @@ export function ProductCard({
 
   return (
     <article
+      data-card=""
+      // A card nobody can buy keeps its geometry but never lifts or grows.
+      data-card-state={comingSoon || outOfStock ? "static" : "live"}
       className={cn(
-        "group relative flex flex-col",
+        "card-shell group relative flex flex-col",
         premium && "premium-card",
         deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_32rem]",
         className,
@@ -149,16 +155,14 @@ export function ProductCard({
                 "transition-opacity duration-[var(--duration-base)]",
                 outOfStock && "opacity-60",
               )}
-              className={cn(
-                premium
-                  ? "premium-bottle"
-                  : cn(
-                      "transition-transform duration-[var(--duration-slow)] ease-[var(--ease-apple)]",
-                      "group-hover:scale-[1.03] motion-reduce:transform-none",
-                    ),
-              )}
+              className={premium ? "premium-bottle card-bottle" : "card-bottle"}
             />
           )}
+
+          {/* Hover decoration: a pointer spotlight and a 1px stage edge. Both
+              are inert (`pointer-events: none`) and above the photo. */}
+          <span aria-hidden="true" data-card-spot="" className="card-spot" />
+          <span aria-hidden="true" className="card-edge" />
 
           {/* Premium motion: one shine band, two glints. Decoration only. */}
           {premium && !premiumMuted && (
@@ -203,6 +207,7 @@ export function ProductCard({
               addedToast: copy.addedToast,
               addToCart: copy.addToCart,
               chooseSize: copy.chooseSize,
+              quickAdd: copy.quickAdd,
             }}
           />
         )}
@@ -223,7 +228,7 @@ export function ProductCard({
           {href ? (
             <Link
               href={href}
-              className="line-clamp-2 rounded-control transition-colors duration-[var(--duration-fast)] hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="card-name line-clamp-2 rounded-control transition-colors duration-[var(--duration-fast)] hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
             >
               {product.name}
             </Link>

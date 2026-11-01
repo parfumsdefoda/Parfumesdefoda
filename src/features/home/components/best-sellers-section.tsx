@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProductCard, type ProductCardLabels } from "@/features/products";
+import { CardSpotlight, ProductCard, type ProductCardLabels } from "@/features/products";
 import type { Product } from "@/types";
 
 export interface BestSellersSectionProps {
@@ -52,6 +52,9 @@ export function BestSellersSection({
         className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-6 md:overflow-visible md:px-0 md:pb-0"
         aria-label={labels.title}
       >
+        {/* The island renders no DOM; it wires this rail's pointer spotlight. */}
+        <CardSpotlight />
+
         {products.map((product, index) => (
           <li
             key={product.id}

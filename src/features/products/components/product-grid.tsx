@@ -1,4 +1,5 @@
 import { CARD_IMAGE_SIZES, ProductCard, type ProductCardLabels } from "./product-card";
+import { CardSpotlight } from "./card-spotlight";
 import { buildProductImageSources } from "@/lib/product-image";
 import { hasProductImage } from "@/lib/card-presentation";
 import { orderForCatalog } from "@/lib/catalog-order";
@@ -72,6 +73,9 @@ export function ProductGrid({
         className ?? "",
       ].join(" ")}
     >
+      {/* One delegated pointer listener for the grid's stages. */}
+      <CardSpotlight />
+
       {firstSources?.avif && (
         <link
           rel="preload"

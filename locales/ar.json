@@ -49,6 +49,7 @@
   },
   "product": {
     "selectSize": "اختر الحجم",
+    "quickAddShort": "إضافة سريعة",
     "comingSoon": "قريبًا",
     "addToCart": "أضف إلى السلة",
     "addedToCart": "تمت إضافة {name} إلى السلة",

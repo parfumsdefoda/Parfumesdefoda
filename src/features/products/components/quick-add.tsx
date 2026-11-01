@@ -26,6 +26,11 @@ export interface QuickAddLabels {
   add: string;
   addToCart: string;
   chooseSize: string;
+  /**
+   * The word the button grows into a pill on card hover. Decorative next to the
+   * button's accessible name, which is always the full "add — product".
+   */
+  quickAdd: string;
   /** Toast template — `{name}` is replaced with the product name. */
   addedToast: string;
 }
@@ -117,18 +122,20 @@ export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
         ref={buttonRef}
         type="button"
         variant="primary"
-        size="icon"
+        size="md"
         onClick={handleClick}
         aria-label={label}
         aria-haspopup={mode === "chooser" ? "dialog" : undefined}
         aria-expanded={mode === "chooser" ? chooserOpen : undefined}
-        className="rounded-pill shadow-soft"
+        className="quick-add-btn rounded-pill shadow-soft"
       >
-        {justAdded ? (
-          <Check aria-hidden="true" />
-        ) : (
-          <Plus aria-hidden="true" />
-        )}
+        <span aria-hidden="true" className="quick-add-icon">
+          {justAdded ? <Check /> : <Plus />}
+        </span>
+        {/* Decoration on hover: the button is already named by aria-label. */}
+        <span aria-hidden="true" className="quick-add-label">
+          {labels.quickAdd}
+        </span>
       </Button>
 
       {chooserOpen && (
