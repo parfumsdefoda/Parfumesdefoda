@@ -1,6 +1,8 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import products from "../data/products.json";
+import settings from "../data/settings.json";
+import { formatPrice } from "../src/lib/currency";
 
 const product = products.find((item) => item.id === "PF020")!;
 const line = {
@@ -462,6 +464,77 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     const checkout = page.getByRole("button", { name: "إتمام الطلب" });
     await expect(checkout).toBeVisible();
     await expect(checkout).toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("a cart line for a product the owner hid is flagged, blocks checkout, and can be removed", async ({ page }) => {
+    // Follow the DATA, never a slug: the owner hides rows with on_site=لا. The
+    // name must be unique to the hidden row, because two hidden products share
+    // their Arabic name with a visible one and the assertion is text-based.
+    const hiddenProducts = products.filter((item) => (item as { hidden?: boolean }).hidden === true);
+    const stale = hiddenProducts.find(
+      (item) =>
+        !products.some((other) => !(other as { hidden?: boolean }).hidden && other.name === item.name),
+    );
+    test.skip(!stale, "the catalogue has no hidden product right now");
+    const staleSize = stale!.sizes[0];
+    const staleLine = {
+      productId: stale!.id,
+      slug: stale!.slug,
+      sizeLabel: staleSize.label,
+      price: staleSize.price,
+      quantity: 2,
+      name: stale!.name,
+      image: stale!.image,
+    };
+    const shipping = (settings as { shipping: { cost: number } }).shipping.cost;
+    const validTotal = line.price * line.quantity;
+    const combinedSubtotal = validTotal + staleLine.price * staleLine.quantity;
+
+    await seedCart(page, [line, staleLine]);
+    await page.goto("/cart");
+    // The stale line explains itself with the wording the cart already shipped.
+    const staleAlert = page.getByRole("alert").filter({ hasText: "هذا المنتج لم يعد متاحًا" });
+    await expect(staleAlert).toHaveCount(1);
+    await expect(page.getByRole("alert").filter({ hasText: "احذف أو صحح الأسطر" })).toBeVisible();
+    // The valid line is untouched, and the totals still account for both lines.
+    await expect(page.getByText(product.name).first()).toBeVisible();
+    await expect(page.getByText(stale!.name).first()).toBeVisible();
+    const summary = page.locator("aside");
+    await expect(summary.getByText(formatPrice(combinedSubtotal))).toBeVisible();
+    await expect(summary.getByText(formatPrice(combinedSubtotal + shipping))).toBeVisible();
+    // Base-UI renders the disabled anchor as a button with aria-disabled.
+    const checkout = page.getByRole("button", { name: "إتمام الطلب" });
+    await expect(checkout).toHaveAttribute("aria-disabled", "true");
+
+    // The drawer reports the same stale line before the shopper reaches /cart.
+    await page.getByRole("button", { name: /سلة/ }).first().click();
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toBeVisible();
+    await expect(drawer.getByRole("alert").filter({ hasText: "هذا المنتج لم يعد متاحًا" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+
+    // /checkout carries the same message, so the shopper is never sent to a form
+    // that would reject the order on the server.
+    await page.goto("/checkout");
+    await expect(page.getByRole("alert").filter({ hasText: "هذا المنتج لم يعد متاحًا" })).toBeVisible();
+
+    // Removing the stale line keeps the valid one and unblocks checkout.
+    await page.goto("/cart");
+    await page.getByRole("button", { name: "إزالة المنتج" }).last().click();
+    await expect(staleAlert).toHaveCount(0);
+    await expect(page.getByText(stale!.name)).toHaveCount(0);
+    await expect(page.getByText(product.name).first()).toBeVisible();
+    await expect(summary.getByText(formatPrice(validTotal + shipping))).toBeVisible();
+    await expect(checkout).not.toHaveAttribute("aria-disabled", "true");
+
+    // Alone, the stale line still explains itself and removal returns the empty state.
+    await seedCart(page, [staleLine]);
+    await page.goto("/cart");
+    await expect(staleAlert).toHaveCount(1);
+    await expect(checkout).toHaveAttribute("aria-disabled", "true");
+    await page.getByRole("button", { name: "إزالة المنتج" }).click();
+    await expect(page.getByText("سلة التسوق فارغة")).toBeVisible();
   });
 
   test("an unknown product slug renders the Arabic 404 and is absent from the sitemap", async ({ page, request }) => {
