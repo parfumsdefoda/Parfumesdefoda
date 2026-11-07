@@ -374,6 +374,38 @@ describe("planMasterImport — --create-missing", () => {
     expect(created?.oily).toBe(true);
   });
 
+  it("refuses a new row marked on_site=لا even with --create-missing", () => {
+    const plan = planMasterImport([makeProduct()], csv([
+      "slug,sku,name_ar,on_site,gender,scent_style,tier,season,performance,price_50,avail_50",
+      "pf999,PF999,منتج مخفي,لا,رجالي,شرقي,نيش,شتوي,أداء قوي,600,نعم",
+    ]), {
+      mode: "apply",
+      createMissing: true,
+      imageExists: () => true,
+    });
+
+    expect(plan.creations).toEqual([]);
+    expect(plan.refusals).toHaveLength(1);
+    expect(plan.refusals[0].slug).toBe("pf999");
+    expect(plan.refusals[0].reason).toContain("on_site");
+    expect(plan.refusals[0].reason).toContain("لا");
+    expect(plan.products).toHaveLength(1);
+  });
+
+  it("dry run with --create-missing and on_site=لا prints zero changes", () => {
+    const plan = planMasterImport([makeProduct()], csv([
+      "slug,sku,name_ar,on_site,gender,scent_style,tier,season,performance,price_50,avail_50",
+      "pf999,PF999,منتج مخفي,لا,رجالي,شرقي,نيش,شتوي,أداء قوي,600,نعم",
+    ]), {
+      createMissing: true,
+      imageExists: () => true,
+    });
+
+    expect(plan.products).toHaveLength(1);
+    expect(plan.changes).toHaveLength(0);
+    expect(plan.creations).toEqual([]);
+  });
+
   it("refuses when the image is not on disk", () => {
     const plan = planMasterImport([makeProduct()], creationCsv, {
       mode: "apply",

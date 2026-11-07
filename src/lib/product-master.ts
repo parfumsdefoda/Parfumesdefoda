@@ -1283,6 +1283,18 @@ function mergePass(
         continue;
       }
 
+      // A `لا` row must NOT be created: it represents a product the owner
+      // deliberately removed from the store even though the row exists in the
+      // master file (data is kept offline). Re-run without `--create-missing`
+      // only if you actually want the photos re-imported later.
+      if (readBool(row.on_site) === false) {
+        refusals.push({
+          slug,
+          reason: `cannot create: on_site is "لا" — row is deliberately hidden from the catalogue (data + photos kept, not deleted)`,
+        });
+        continue;
+      }
+
       const built = buildNewProduct(row, slug, nextSortOrder, ctx, reject, warn);
       if ("reason" in built) {
         refusals.push({ slug, reason: built.reason });
