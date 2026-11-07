@@ -1,11 +1,11 @@
 # حالة ملف المنتجات الرئيسي / Product master status
 
-آخر تحديث / generated: 2026-11-01
+آخر تحديث / generated: 2026-11-07
 
 | الحقل / field | مكتمل / filled | الإجمالي / total | النسبة / share |
 | --- | ---: | ---: | ---: |
-| on_site (visible) | 77 | 80 | 96% |
-| on_site (hidden) | 3 | 80 | 4% |
+| on_site (visible) | 58 | 80 | 73% |
+| on_site (hidden) | 22 | 80 | 28% |
 | gender | 80 | 80 | 100% |
 | scent_style | 80 | 80 | 100% |
 | tier | 80 | 80 | 100% |
