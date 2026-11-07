@@ -344,13 +344,44 @@ blank, because "unknown" is not "available".
 
 - المنتج يبقى في `data/products.json` بكل بياناته وصوره.
 - يختفي من: قائمة المنتجات، البحث، التصفية، الهيرو، خريطة الموقع (sitemap)،
-  واقتراحات المساعد الذكي.
-- رابطه المباشر `/product/{slug}` يرجع **404**.
+  واقتراحات المساعد الذكي، والمنتجات المشابهة، والأكثر مبيعًا.
+- رابطه المباشر `/product/{slug}` يرجع **404** (صفحة عربية + `noindex`).
+- السلة القديمة التي تحتوي سطرًا له تُعلَّم كسطر قديم وتُمنع حتى يُحذف.
 - `on_site=نعم` يعيده كما كان.
 
 `on_site=لا` sets `hidden: true`. The product keeps its data and photos but is
 excluded from every list, search, the sitemap and the AI suggestions, and its own
 URL returns 404. The internal `دووب` tier never appears in any public surface.
+
+### صف جديد بـ `on_site=لا` / A new row marked `لا`
+
+`لا` على صف **غير موجود** في `data/products.json` يعني «هذا المنتج أُخرج من
+المتجر عن قصد»: المستورد **لا ينشئه** أبداً، ولا حتى مع `--create-missing`، بل
+يطبعه تحت «لم يُنشأ» مع السبب. البيانات والصور تبقى في الملف وعلى القرص؛ غيّر
+الخلية إلى `نعم` ثم `npm run data:refresh -- --apply` لإنشائه.
+
+A new row marked `لا` is never created — not even with `--create-missing`. The
+importer reports `cannot create: on_site is "لا"` under the refusals. Flip the
+cell to `نعم` when the product should actually go on the site.
+
+### أولوية `لا` / `لا` wins over the rest of the row
+
+`hidden` تُحسب بعد بقية الأعمدة، فتعديل السعر أو الوسم أو `is_similar` في صف
+مخفي لا يعيده إلى أي واجهة: صفحته 404، ووسومه وروابطه لا تُرسم. تغيير `نعم`
+هو الطريق الوحيد لإعادته، ويبقى فحص الصورة ساريًا عند الإعادة.
+
+`لا` wins over every other column: prices, flags and `is_similar` are still synced
+into the hidden row, but none of them is rendered while the row stays hidden, and
+the photo gate applies again when you flip it back to `نعم`.
+
+### دورة كاملة / The round trip
+
+`on_site=لا` ثم `نعم` يعيدان المنتج كما كان (بلا `hidden`)، و`npm run master:export`
+ثم `npm run master:import -- --dry-run` يبقيان عند **صفر تغييرات**. هذا مُختبَر
+في `src/lib/product-master.test.ts`.
+
+Hiding then restoring is a no-op apart from `hidden`, and export → import `--dry-run`
+reports zero changes.
 
 ### منتج أزلت صفه من الملف / A row you removed from the file
 
