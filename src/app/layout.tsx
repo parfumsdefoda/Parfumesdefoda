@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
 import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
+import { themeAttributes } from "@/lib/theme-runtime";
 import { SiteShell } from "@/features/layout";
 import { DerivedImageFallback } from "@/components/derived-image-fallback";
 import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
@@ -178,6 +179,14 @@ export default async function RootLayout({
     loadVisibleProducts(),
   ]);
 
+  /* ─── Palette preset + motion intensity ───
+     data/theme.json picks one preset from data/theme.json's `palette` and one
+     `motion` level; both are written onto <html> in this same server render,
+     so the first paint already carries them (no flash of the default theme).
+     Anything undeclared falls back to the shipped look — see
+     src/lib/theme-runtime.ts, which the layout and the types share. */
+  const { palette, motion } = themeAttributes(theme);
+
   /* ─── Shell data ───
      The header and footer live here now, so the links they show are resolved
      once per request rather than by each page. A category with no visible
@@ -313,13 +322,24 @@ export default async function RootLayout({
   };
 
   /* Brand inputs from data/theme.json, applied on the server render so the
-     derived token scales are correct before the first paint (no flash). */
-  const brandStyle = {
-    ...(theme.colors.accent ? { "--brand-purple": theme.colors.accent } : {}),
-    ...(theme.colors.gold ? { "--brand-gold": theme.colors.gold } : {}),
-    ...(theme.colors.secondary ? { "--brand-green": theme.colors.secondary } : {}),
-    ...(theme.colors.primary ? { "--brand-white": theme.colors.primary } : {}),
-  } as React.CSSProperties;
+     derived token scales are correct before the first paint (no flash).
+
+     Only for the `brand` palette: a preset re-declares the same four inputs in
+     globals.css, and an inline custom property beats every selector — writing
+     the hexes here would silently pin the light palette over a dark preset
+     (white header capsule on a black page). A preset is a complete palette, so
+     while one is active the owner's four hexes are deliberately not layered on
+     top; setting `"palette": "brand"` brings them back. */
+  const brandStyle = (
+    palette === "brand"
+      ? {
+          ...(theme.colors.accent ? { "--brand-purple": theme.colors.accent } : {}),
+          ...(theme.colors.gold ? { "--brand-gold": theme.colors.gold } : {}),
+          ...(theme.colors.secondary ? { "--brand-green": theme.colors.secondary } : {}),
+          ...(theme.colors.primary ? { "--brand-white": theme.colors.primary } : {}),
+        }
+      : {}
+  ) as React.CSSProperties;
 
   return (
     <html
@@ -327,6 +347,8 @@ export default async function RootLayout({
       dir="rtl"
       className={`${cairo.variable} h-full`}
       style={brandStyle}
+      data-palette={palette}
+      data-motion={motion}
       suppressHydrationWarning
     >
       <head>

@@ -49,6 +49,7 @@ const OWNED_PREFIXES = [
   "--shadow-",
   "--ease-",
   "--duration-",
+  "--motion-",
   "--gradient-",
 ];
 

@@ -153,7 +153,11 @@
   /* Ground shadow under a bottle on the dark stage — darker than the stage. */
   --ui-stage-shadow-dark: color-mix(in srgb, var(--purple-950) 55%, #000000);
 
-  /* ── Motion ────────────────────────────────────────────────── */
+  /* ── Motion ──────────────────────────────────────────────────
+     Components never type a duration: they read these (Tailwind arbitrary
+     values such as duration-[var(--duration-fast)] pick them up for free).
+     `<html data-motion>` rewrites the whole set below, so one attribute —
+     set from data/theme.json during the server render — re-paces the store. */
   --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
   --duration-fast: 150ms;
   --duration-base: 300ms;
@@ -161,6 +165,193 @@
   --animation-fast: var(--duration-fast) var(--ease-apple);
   --animation-default: var(--duration-base) var(--ease-apple);
   --animation-slow: var(--duration-slow) var(--ease-apple);
+
+  /* The travel/shape half of the system: duration alone cannot make a hover
+     feel calm — the distance and the scale have to move with it. */
+  --motion-duration-image: 400ms;
+  --motion-hover-scale: 1.02;
+  --motion-press-scale: 0.98;
+  --motion-reveal-y: 16px;
+  --motion-stagger: 70ms;
+  --motion-draw: 520ms;
+}
+
+/* ── Motion intensity ────────────────────────────────────────────
+   data-motion on <html>. `moderate` reproduces the previous timings exactly,
+   so shipping this changes nothing on its own. prefers-reduced-motion still
+   wins: the global contract later in this file neutralises everything. */
+[data-motion="moderate"] {
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --motion-duration-image: 400ms;
+  --motion-hover-scale: 1.02;
+  --motion-press-scale: 0.98;
+  --motion-reveal-y: 16px;
+  --motion-stagger: 70ms;
+  --motion-draw: 520ms;
+}
+
+/* Calmer: slightly longer easing and roughly half the travel. */
+[data-motion="subtle"] {
+  --duration-fast: 200ms;
+  --duration-base: 340ms;
+  --duration-slow: 600ms;
+  --motion-duration-image: 480ms;
+  --motion-hover-scale: 1.012;
+  --motion-press-scale: 0.99;
+  --motion-reveal-y: 10px;
+  --motion-stagger: 40ms;
+  --motion-draw: 600ms;
+}
+
+/* Still: durations collapse, scales become 1, nothing travels. State changes
+   still land — instantly, without an animation. */
+[data-motion="none"] {
+  --duration-fast: 0ms;
+  --duration-base: 0ms;
+  --duration-slow: 0ms;
+  --motion-duration-image: 0ms;
+  --motion-hover-scale: 1;
+  --motion-press-scale: 1;
+  --motion-reveal-y: 0px;
+  --motion-stagger: 0ms;
+  --motion-draw: 0ms;
+}
+
+/* Hover-lift for new components: scale and press read the motion tokens, so
+   the intensity switch retunes them without touching the component. */
+.motion-lift {
+  transition: transform var(--duration-base) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-lift:hover {
+    transform: scale(var(--motion-hover-scale));
+  }
+
+  .motion-lift:active {
+    transform: scale(var(--motion-press-scale));
+  }
+}
+
+/* ── Palette presets ─────────────────────────────────────────────
+   data-palette on <html>. The default (`brand`) needs no block: it IS the
+   :root palette above — light paper, brand purple, gold detail.
+
+   Each preset re-declares the four brand inputs plus the neutral ramp; every
+   --purple-*, --gold-* and --green-* step is a color-mix of an input, so the
+   whole system re-derives from ~20 lines instead of a second stylesheet.
+
+   ROLE DISCIPLINE IS UNCHANGED: one hue for action (--brand-purple), one for
+   signature detail (--brand-gold), one for status (--brand-green). In the
+   dark presets the action hue becomes a metal, which is why --color-on-dark
+   has to be restated — the hero and footer are dark surfaces already.
+
+   RTL: presets only move colour. Every layout rule uses logical properties,
+   so no preset needs a direction-specific variant. */
+[data-palette="noir-or"] {
+  color-scheme: dark;
+  --brand-white: #0b0b0c;
+  --brand-purple: #c9a96e;
+  --brand-gold: #e6cf9c;
+  /* The hero and the premium stage mix toward --purple-950; at 46% of a metal
+     that reads as brown, so the dark presets pin it near-black instead. */
+  --purple-950: color-mix(in srgb, var(--brand-purple) 14%, #050505);
+  --neutral-50: #08080a;
+  --neutral-100: #121215;
+  --neutral-200: #26262c;
+  --neutral-300: #3b3b44;
+  --neutral-400: #a9a5b3;
+  --neutral-500: #bcb8c4;
+  --neutral-600: #d0ccd6;
+  --neutral-700: #e2dee7;
+  --neutral-800: #f1eef4;
+  --neutral-900: #faf8fb;
+  --ui-border-strong: #8c8499;
+  --ui-danger: #e08d84;
+  --ui-gold-text: var(--brand-gold);
+  --color-on-dark: #f4f0e8;
+  --color-on-dark-muted: #cfc8bb;
+  --color-on-dark-border: #4a4438;
+}
+
+/* Ivory paper with a gold action hue — the daylight counterpart. */
+[data-palette="ivoire-or"] {
+  color-scheme: light;
+  --brand-white: #fffdf8;
+  --brand-purple: #9a7b3f;
+  --brand-gold: #b8955a;
+  --neutral-50: #f8f4ec;
+  --neutral-100: #f1eadf;
+  --neutral-200: #e4dacb;
+  --neutral-300: #cfc2ad;
+  --neutral-400: #6f6553;
+  --neutral-500: #5c5343;
+  --neutral-600: #4a4335;
+  --neutral-700: #37322a;
+  --neutral-800: #221f19;
+  --neutral-900: #14120e;
+  --ui-border-strong: #857a66;
+}
+
+/* Ink blue with a pale silver action hue — the cool counterpart. */
+[data-palette="bleu-froid"] {
+  color-scheme: dark;
+  --brand-white: #0b1220;
+  --brand-purple: #9fc0e0;
+  --brand-gold: #c3d8ee;
+  --purple-950: color-mix(in srgb, var(--brand-purple) 14%, #05070c);
+  --neutral-50: #080e19;
+  --neutral-100: #0f1829;
+  --neutral-200: #1c2740;
+  --neutral-300: #2c3a58;
+  --neutral-400: #93a3ba;
+  --neutral-500: #b3c1d4;
+  --neutral-600: #cbd6e4;
+  --neutral-700: #dde5ef;
+  --neutral-800: #edf2f9;
+  --neutral-900: #f7fafd;
+  --ui-border-strong: #7d8ba2;
+  --ui-danger: #d98d84;
+  --ui-gold-text: var(--brand-gold);
+  --color-on-dark: #eaf1fa;
+  --color-on-dark-muted: #bcccdf;
+  --color-on-dark-border: #2f425f;
+}
+
+/* Graphite with bone — no colour at all, for photography-led pages. */
+[data-palette="monochrome"] {
+  color-scheme: dark;
+  --brand-white: #121212;
+  --brand-purple: #d7d2c8;
+  --brand-gold: #efeae0;
+  --purple-950: color-mix(in srgb, var(--brand-purple) 10%, #070707);
+  --neutral-50: #0e0e0e;
+  --neutral-100: #171717;
+  --neutral-200: #262626;
+  --neutral-300: #3a3a3a;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #bcbcbc;
+  --neutral-600: #d2d2d2;
+  --neutral-700: #e3e3e3;
+  --neutral-800: #f0f0f0;
+  --neutral-900: #fafafa;
+  --ui-border-strong: #8f8f8f;
+  --ui-danger: #d09090;
+  --ui-gold-text: var(--brand-gold);
+  --color-on-dark: #f4f4f4;
+  --color-on-dark-muted: #c8c8c8;
+  --color-on-dark-border: #3f3f3f;
+}
+
+/* In the dark presets the hero's gold glow is a wide warm wash over black and
+   reads bronze rather than noir; halve it so the page stays black with a gold
+   accent instead of a gold field. */
+[data-palette="noir-or"] .hero-glow,
+[data-palette="bleu-froid"] .hero-glow,
+[data-palette="monochrome"] .hero-glow {
+  opacity: 0.16;
 }
 
 @media (min-width: 1024px) {
@@ -362,7 +553,7 @@ html {
    cost CLS 0.0016). The entrance lives in the ornament drawing and in the
    lead/CTA rising from opacity 0, which is invisible and therefore free. */
 .hero-ornament {
-  animation: hero-draw 520ms var(--ease-apple) both;
+  animation: hero-draw var(--motion-draw) var(--ease-apple) both;
 }
 
 .hero-heading {
@@ -371,11 +562,11 @@ html {
 
 .hero-lead {
   text-wrap: pretty;
-  animation: hero-rise 520ms var(--ease-apple) 140ms both;
+  animation: hero-rise var(--motion-draw) var(--ease-apple) 140ms both;
 }
 
 .hero-cta {
-  animation: hero-rise 520ms var(--ease-apple) 220ms both;
+  animation: hero-rise var(--motion-draw) var(--ease-apple) 220ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {

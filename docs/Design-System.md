@@ -429,3 +429,56 @@ generated link.
 all buttons and badges, form controls, radii and shadows. It returns
 `notFound()` when `NODE_ENV === "production"`, so it exists only during
 development.
+
+## Palettes and motion intensity
+
+Two attributes on `<html>` — written by `src/app/layout.tsx` during the server
+render, so the first paint already carries them — switch the system without
+touching a component:
+
+| Attribute | Values | Default |
+| --- | --- | --- |
+| `data-palette` | `brand`, `noir-or`, `ivoire-or`, `bleu-froid`, `monochrome` | `brand` |
+| `data-motion` | `none`, `subtle`, `moderate` | `moderate` |
+
+Both are read from `data/theme.json`:
+
+```json
+{ "palette": "brand", "motion": "moderate" }
+```
+
+`src/lib/theme-runtime.ts` validates them: an unknown value falls back to the
+default, so an owner typo can never leave `<html>` with a preset the CSS does
+not declare (an undeclared preset would resolve every `var(--…)` to nothing and
+the page would paint with inherited colours).
+
+**Palettes.** Each preset re-declares the four brand inputs plus the neutral
+ramp; every `--purple-*`, `--gold-*` and `--green-*` step is a `color-mix` of an
+input, so the whole system re-derives and a preset is ~20 lines in
+`globals.css` rather than a second stylesheet. Role discipline does not change —
+one hue for action (`--brand-purple`), one for signature detail
+(`--brand-gold`), one for status (`--brand-green`). In the dark presets the
+action hue becomes a metal, which is why `--color-on-dark`, `--color-on-dark-muted`
+and `--ui-gold-text` are restated there: the hero and footer are dark surfaces
+already.
+
+Adding a preset: copy a block in `globals.css`, keep the same variable names,
+then add its id to `THEME_PALETTES` in `src/lib/theme-runtime.ts` — the unit test
+enumerates that list, so a preset the CSS forgot (or an id that no block
+declares) fails the suite rather than shipping.
+
+**Motion intensity.** `globals.css` carries two layers:
+
+- `--duration-fast | base | slow` — what components already read through
+  `duration-[var(--duration-fast)]`. The intensity blocks rewrite these, so
+  every existing transition follows the switch with no component change.
+- `--motion-hover-scale | press-scale | reveal-y | stagger | draw |
+  duration-image` — the travel half. `.motion-lift` is the helper that reads
+  them; `none` collapses every duration to `0ms` and every scale to `1`.
+
+`prefers-reduced-motion: reduce` still wins over all three levels: the global
+contract at the end of `globals.css` neutralises animations and transitions
+whatever `data-motion` says.
+
+RTL is unaffected: presets only move colour, and every layout rule uses logical
+properties, so no preset needs a direction-specific variant.

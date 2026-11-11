@@ -9,11 +9,25 @@
 import type { FilterOption } from "./filter";
 import type { FaqItem } from "@/features/faq";
 import type { PolicySection } from "@/features/policies";
+import type { MotionIntensity, ThemePalette } from "@/lib/theme-runtime";
 
 // ─── Theme ───
 
 export interface Theme {
   colors: Record<string, string>;
+  /**
+   * Token preset written onto `<html data-palette>` by layout.tsx.
+   * `brand` is the store's light purple/paper look; `noir-or`, `ivoire-or`,
+   * `bleu-froid` and `monochrome` are the ported lab presets. A value the CSS
+   * does not declare falls back to `brand` (see src/lib/theme-runtime.ts).
+   */
+  palette?: ThemePalette;
+  /**
+   * Motion intensity written onto `<html data-motion>`: `none` | `subtle` |
+   * `moderate` (default). Drives --duration-* and --motion-* across the store;
+   * prefers-reduced-motion still takes precedence for the visitor.
+   */
+  motion?: MotionIntensity;
   [key: string]: unknown;
 }
 
