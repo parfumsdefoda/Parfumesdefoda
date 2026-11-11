@@ -21,7 +21,7 @@ import "./globals.css";
  *
  * Architecture decisions:
  * - Arabic-first RTL layout using dir="rtl"
- * - Cairo font loaded via next/font for optimal performance
+ * - Cairo is self-hosted (public/fonts/cairo) and declared in globals.css
  * - Metadata and viewport are static (JSON-driven metadata is set server-side)
  * - Theme data loaded server-side via loadTheme() and passed to Providers
  * - Providers wrap children for cart state, theme, and translations
