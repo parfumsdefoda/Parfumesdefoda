@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-palette="noir-or" data-serif="playfair" data-motion="moderate">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Perfumes — Parfums De Foda Atelier</title>
+    <meta
+      name="description"
+      content="A twelve-composition collection of oud, leather, iris and amber. Browse the atelier catalogue."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <!--
+      Fonts are requested with display=swap so first paint never waits for them.
+      The stacks in tokens.css degrade to Didot / Times + Helvetica / Arial, so
+      the page still reads as a luxury serif offline.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Cormorant+Garamond:wght@400;500&family=Bodoni+Moda:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+    />
+
+    <link rel="stylesheet" href="assets/css/tokens.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/catalog.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Perfumes",
+        "description": "The atelier catalogue: oud, leather, iris and amber compositions.",
+        "isPartOf": { "@type": "WebSite", "name": "Parfums De Foda Atelier" }
+      }
+    </script>
+  </head>
+
+  <!-- is-booting → is-ready (added by shell.js) gives the page its fade-in. -->
+  <body class="is-booting">
+    <a class="skip-link" href="#main">Skip to the collection</a>
+
+    <!-- ==================================================================
+         ANNOUNCEMENT — one line, gold, never a carousel
+         ================================================================== -->
+    <p class="announce">Complimentary engraving on every 100&nbsp;ml · Worldwide delivery</p>
+
+    <!-- ==================================================================
+         HEADER — transparent over the hero, solid after 40 px of scroll
+         ================================================================== -->
+    <header class="site-header" data-state="transparent" data-hidden="false">
+      <div class="container header-inner">
+        <div class="header-start">
+          <button class="icon-btn hamburger" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+          </button>
+
+          <nav aria-label="Primary">
+            <ul class="nav-list nav-list--primary">
+              <li>
+                <button type="button" data-mega-trigger aria-expanded="false" aria-controls="mega-perfumes">
+                  Perfumes
+                  <svg viewBox="0 0 12 12" aria-hidden="true" style="width: 9px; height: 9px; stroke: currentColor; fill: none"><path d="M2 4.5 6 8.5l4-4" /></svg>
+                </button>
+              </li>
+              <li><a href="index.html">Library</a></li>
+              <li><a href="index.html">Attars</a></li>
+              <li><a href="product.html">Discovery</a></li>
+              <li><a href="#footer">The House</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <a class="wordmark" href="index.html" aria-label="Parfums De Foda, home">Parfums De Foda</a>
+
+        <div class="header-end">
+          <button class="icon-btn" type="button" data-search-open aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></svg>
+          </button>
+          <a class="icon-btn icon-btn--account" href="#footer" aria-label="Account">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4.5 20c1.6-3.6 4.2-5.4 7.5-5.4s5.9 1.8 7.5 5.4" /></svg>
+          </a>
+          <button class="icon-btn" type="button" data-cart-open aria-label="Open your selection">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>
+            <span class="bag-count" data-cart-count hidden>0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mega menu: four link columns + one editorial card -->
+      <div class="mega" id="mega-perfumes" data-mega data-open="false" aria-hidden="true">
+        <div class="container mega-grid">
+          <div class="mega-col">
+            <h3>Collections</h3>
+            <ul>
+              <li><a href="index.html">Guidance</a></li>
+              <li><a href="index.html">Odyssey</a></li>
+              <li><a href="index.html">Main Collection</a></li>
+              <li><a href="index.html">Library</a></li>
+              <li><a href="index.html">Attars</a></li>
+              <li><a href="index.html">Cuir</a></li>
+            </ul>
+          </div>
+          <div class="mega-col">
+            <h3>Olfactive families</h3>
+            <ul>
+              <li><a href="index.html?family=Oriental">Oriental</a></li>
+              <li><a href="index.html?family=Woody">Woody</a></li>
+              <li><a href="index.html?family=Floral">Floral</a></li>
+              <li><a href="index.html?family=Aquatic">Aquatic</a></li>
+              <li><a href="index.html?family=Amber">Amber</a></li>
+            </ul>
+          </div>
+          <div class="mega-col">
+            <h3>Discovery</h3>
+            <ul>
+              <li><a href="index.html">Discovery sets</a></li>
+              <li><a href="index.html">Samples</a></li>
+              <li><a href="index.html">Gift cards</a></li>
+              <li><a href="product.html">Gift personalisation</a></li>
+            </ul>
+          </div>
+          <div class="mega-col">
+            <h3>The House</h3>
+            <ul>
+              <li><a href="#footer">Our story</a></li>
+              <li><a href="#footer">Ingredients</a></li>
+              <li><a href="#footer">Sustainability</a></li>
+              <li><a href="#footer">Boutiques</a></li>
+            </ul>
+          </div>
+          <a class="mega-card" href="product.html">
+            <img src="/public/products/derived/pf150/card-400.webp" alt="" width="220" height="275" loading="lazy" />
+            <p>Rouge Atelier<br /><span class="eyebrow">New · Amber Floral</span></p>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Secondary navigation: the sub-categories of the current section -->
+    <nav class="subnav" aria-label="Perfume categories" data-hidden="false">
+      <div class="container subnav-inner">
+        <a href="index.html" aria-current="page">All perfumes</a>
+        <a href="index.html?gender=For+All">For all</a>
+        <a href="index.html?gender=Her">For her</a>
+        <a href="index.html?gender=Him">For him</a>
+        <a href="index.html">Attars</a>
+        <a href="index.html?sort=new">New arrivals</a>
+        <a href="index.html">Best sellers</a>
+        <a href="product.html">Gift personalisation</a>
+      </div>
+    </nav>
+
+    <main id="main" class="container page-offset">
+      <!-- ================================================================
+           COLLECTION MASTHEAD — centred serif title, breadcrumbs above
+           ================================================================ -->
+      <header class="collection-head">
+        <nav aria-label="Breadcrumb">
+          <ol class="breadcrumbs">
+            <li><a href="#">Home</a></li>
+            <li aria-current="page">Perfumes</li>
+          </ol>
+        </nav>
+        <h1 class="collection-title reveal">Perfumes</h1>
+        <p class="collection-intro reveal">
+          Twelve compositions, each built around a single material. Restraint first: the bottle
+          is the subject, the gold is earned.
+        </p>
+      </header>
+
+      <div class="shelf">
+        <!-- ==============================================================
+             FILTER RAIL — accordions, gold checks, scent pills
+             ============================================================== -->
+        <form class="filters" data-filters aria-label="Filter the collection">
+          <div class="filters__head">
+            <span>Filter</span>
+            <button type="reset" class="filters__reset" data-reset>Clear all</button>
+          </div>
+
+          <div class="facet">
+            <button class="facet__trigger" type="button" aria-expanded="true" aria-controls="facet-gender">
+              For
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5l4-4" /></svg>
+            </button>
+            <div class="facet__panel" id="facet-gender" data-facet="gender">
+              <label class="check"><input type="checkbox" value="Her" /> For her <span class="check__count" data-count="gender:Her"></span></label>
+              <label class="check"><input type="checkbox" value="Him" /> For him <span class="check__count" data-count="gender:Him"></span></label>
+              <label class="check"><input type="checkbox" value="For All" /> Universal <span class="check__count" data-count="gender:For All"></span></label>
+            </div>
+          </div>
+
+          <div class="facet">
+            <button class="facet__trigger" type="button" aria-expanded="true" aria-controls="facet-family">
+              Olfactive family
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5l4-4" /></svg>
+            </button>
+            <div class="facet__panel" id="facet-family" data-facet="family">
+              <!-- Options are rendered by catalog.js from the data so the counts can never drift. -->
+            </div>
+          </div>
+
+          <div class="facet">
+            <button class="facet__trigger" type="button" aria-expanded="true" aria-controls="facet-price">
+              Price
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5l4-4" /></svg>
+            </button>
+            <div class="facet__panel" id="facet-price">
+              <div class="price-inputs">
+                <input type="number" name="min" min="0" max="400" step="10" placeholder="Min" aria-label="Minimum price" />
+                <span>—</span>
+                <input type="number" name="max" min="0" max="400" step="10" placeholder="Max" aria-label="Maximum price" />
+              </div>
+            </div>
+          </div>
+
+          <div class="facet">
+            <button class="facet__trigger" type="button" aria-expanded="true" aria-controls="facet-scent">
+              Shop by scent
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5l4-4" /></svg>
+            </button>
+            <div class="facet__panel" id="facet-scent">
+              <div class="scent-pills" data-scent-pills>
+                <!-- Pills rendered by catalog.js (oud, rose, leather, vanilla…) -->
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn--primary filters-toggle" type="submit" data-close-filters>Show results</button>
+        </form>
+
+        <!-- ==============================================================
+             TOOLBAR + GRID
+             ============================================================== -->
+        <section aria-labelledby="grid-heading">
+          <h2 id="grid-heading" class="u-visually-hidden">Product results</h2>
+
+          <div class="toolbar">
+            <p class="toolbar__count" data-result-count aria-live="polite">Loading the collection…</p>
+            <div class="toolbar__right">
+              <button class="btn btn--secondary btn--sm filters-toggle" type="button" data-open-filters aria-controls="filters">
+                Filter
+                <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.4"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+              </button>
+              <label class="select">
+                <span class="u-visually-hidden">Sort by</span>
+                <select data-sort>
+                  <option value="featured">Featured</option>
+                  <option value="new">Newest</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                  <option value="name">Name</option>
+                </select>
+                <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5l4-4" /></svg>
+              </label>
+            </div>
+          </div>
+
+          <!-- Skeleton placeholders: same grid, same card size, aria-busy until data lands. -->
+          <div class="grid" data-grid aria-busy="true">
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+            <article class="card card--skeleton" aria-hidden="true">
+              <div class="card__stage skeleton"></div>
+              <div class="skeleton sk-line sk-line--short"></div>
+              <div class="skeleton sk-line"></div>
+            </article>
+          </div>
+
+          <div class="empty-state" data-empty hidden>
+            <p class="serif" style="font-size: var(--fs-lg)">Nothing matches those filters</p>
+            <p>Loosen the price range or clear a family to see the rest of the collection.</p>
+            <button class="btn btn--secondary btn--sm" type="button" data-reset>Clear all filters</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ==================================================================
+         FOOTER — five link columns, newsletter, payments, socials
+         ================================================================== -->
+    <footer class="site-footer" id="footer">
+      <div class="container footer-grid">
+        <div class="footer-col">
+          <p class="wordmark" style="font-size: 1rem">Parfums De Foda</p>
+          <p class="newsletter">
+            <span class="eyebrow" style="margin-block: var(--sp-4) var(--sp-2); display: block">Letters from the atelier</span>
+            <span>New compositions, private previews, and the occasional note on materials.</span>
+          </p>
+          <form class="newsletter-form" data-newsletter>
+            <label class="u-visually-hidden" for="newsletter-email">Email address</label>
+            <input id="newsletter-email" type="email" placeholder="Email address" autocomplete="email" required />
+            <button type="submit" aria-label="Subscribe">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.4"><path d="M4 12h15M13 6l6 6-6 6" /></svg>
+            </button>
+          </form>
+        </div>
+
+        <div class="footer-col">
+          <h3>Shop</h3>
+          <ul>
+            <li><a href="index.html">All perfumes</a></li>
+            <li><a href="index.html">Attars</a></li>
+            <li><a href="index.html">Discovery sets</a></li>
+            <li><a href="product.html">Gift personalisation</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>Discovery</h3>
+          <ul>
+            <li><a href="index.html">Olfactive families</a></li>
+            <li><a href="index.html">The notes pyramid</a></li>
+            <li><a href="index.html">Samples</a></li>
+            <li><a href="index.html">Gift cards</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>The House</h3>
+          <ul>
+            <li><a href="index.html">Our story</a></li>
+            <li><a href="index.html">Sustainability</a></li>
+            <li><a href="index.html">Boutiques</a></li>
+            <li><a href="index.html">Careers</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3>Client care</h3>
+          <ul>
+            <li><a href="index.html">Shipping</a></li>
+            <li><a href="index.html">Returns</a></li>
+            <li><a href="index.html">Contact</a></li>
+            <li><a href="index.html">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="container footer-base">
+        <p>© 2026 Parfums De Foda · Design study</p>
+        <div class="payments" aria-label="Accepted payment methods">
+          <!-- Payment marks are neutral placeholders: swap for your provider's assets. -->
+          <svg viewBox="0 0 40 24" role="img" aria-label="Visa"><rect x=".5" y=".5" width="39" height="23" rx="2" fill="none" stroke="currentColor" /><text x="20" y="16" text-anchor="middle" font-size="8" fill="currentColor" font-family="Inter, sans-serif" letter-spacing="1">VISA</text></svg>
+          <svg viewBox="0 0 40 24" role="img" aria-label="Mastercard"><rect x=".5" y=".5" width="39" height="23" rx="2" fill="none" stroke="currentColor" /><circle cx="16" cy="12" r="6" fill="none" stroke="currentColor" /><circle cx="24" cy="12" r="6" fill="none" stroke="currentColor" /></svg>
+          <svg viewBox="0 0 40 24" role="img" aria-label="American Express"><rect x=".5" y=".5" width="39" height="23" rx="2" fill="none" stroke="currentColor" /><text x="20" y="16" text-anchor="middle" font-size="7" fill="currentColor" font-family="Inter, sans-serif" letter-spacing=".5">AMEX</text></svg>
+          <svg viewBox="0 0 40 24" role="img" aria-label="Apple Pay"><rect x=".5" y=".5" width="39" height="23" rx="2" fill="none" stroke="currentColor" /><text x="20" y="16" text-anchor="middle" font-size="7" fill="currentColor" font-family="Inter, sans-serif">Pay</text></svg>
+          <svg viewBox="0 0 40 24" role="img" aria-label="PayPal"><rect x=".5" y=".5" width="39" height="23" rx="2" fill="none" stroke="currentColor" /><text x="20" y="16" text-anchor="middle" font-size="7" fill="currentColor" font-family="Inter, sans-serif">PayPal</text></svg>
+        </div>
+        <div class="socials">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" /><circle cx="12" cy="12" r="3.5" /><circle cx="17" cy="7" r=".8" fill="currentColor" stroke="none" /></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 8.5H17V5h-2.5A3.5 3.5 0 0 0 11 8.5V11H9v3.5h2V21h3.5v-6.5H17L17.5 11H14.5V9.2c0-.4.2-.7.7-.7Z" /></svg></a>
+        </div>
+        <p>Crafted in the atelier · Powered by static HTML</p>
+      </div>
+    </footer>
+
+    <!-- ==================================================================
+         CART DRAWER + OVERLAY
+         ================================================================== -->
+    <div class="overlay" data-overlay data-open="false" aria-hidden="true"></div>
+    <aside class="cart-drawer" data-cart-drawer data-open="false" aria-label="Your selection" aria-hidden="true" role="dialog" aria-modal="true">
+      <header class="drawer-head">
+        <h2>Your selection</h2>
+        <button class="icon-btn" type="button" data-cart-close aria-label="Close your selection">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </header>
+      <div class="drawer-body" data-cart-body></div>
+      <footer class="drawer-foot">
+        <p class="cart-total"><span>Subtotal</span> <strong data-cart-total>$0</strong></p>
+        <p style="font-size: var(--fs-3xs); color: var(--c-ink-muted); letter-spacing: var(--ls-label); text-transform: uppercase">
+          Shipping and engraving calculated at checkout
+        </p>
+        <button class="btn btn--primary btn--block" type="button">Proceed to checkout</button>
+      </footer>
+    </aside>
+
+    <!-- ==================================================================
+         SEARCH PANEL
+         ================================================================== -->
+    <div class="search-panel" data-search-panel data-open="false" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Search">
+      <form class="search-form" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px; stroke: var(--c-accent); fill: none; stroke-width: 1.4"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></svg>
+        <label class="u-visually-hidden" for="lab-search">Search the collection</label>
+        <input id="lab-search" type="search" placeholder="Oud, iris, leather…" autocomplete="off" />
+        <button class="icon-btn" type="button" data-search-close aria-label="Close search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </form>
+      <div class="search-hint">
+        <p class="eyebrow">Suggested</p>
+        <div class="search-suggestions">
+          <button class="pill" type="button" data-search-suggestion="oud">Oud</button>
+          <button class="pill" type="button" data-search-suggestion="iris">Iris</button>
+          <button class="pill" type="button" data-search-suggestion="leather">Leather</button>
+          <button class="pill" type="button" data-search-suggestion="amber">Amber</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================
+         MOBILE MENU — full screen, slide-in from the top
+         ================================================================== -->
+    <div class="mobile-menu" data-mobile-menu data-open="false" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Menu">
+      <header class="mobile-menu__head">
+        <span class="wordmark" style="font-size: 0.875rem">Parfums De Foda</span>
+        <button class="icon-btn" type="button" data-menu-close aria-label="Close menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </header>
+      <div class="mobile-menu__body">
+        <ul>
+          <li>
+            <button type="button" data-mobile-group aria-expanded="false" aria-controls="m-perfumes">
+              Perfumes
+              <svg viewBox="0 0 12 12" aria-hidden="true" style="width: 12px; height: 12px; stroke: currentColor; fill: none"><path d="M2 4.5 6 8.5l4-4" /></svg>
+            </button>
+            <div class="mobile-sub" id="m-perfumes" data-open="false">
+              <a href="index.html?family=Oriental">Oriental</a>
+              <a href="index.html?family=Woody">Woody</a>
+              <a href="index.html?family=Floral">Floral</a>
+              <a href="index.html?family=Aquatic">Aquatic</a>
+            </div>
+          </li>
+          <li><a href="index.html">Library</a></li>
+          <li><a href="index.html">Attars</a></li>
+          <li><a href="product.html">Discovery</a></li>
+          <li><a href="#footer">The House</a></li>
+        </ul>
+        <div class="mobile-menu__foot">
+          <a href="#" class="link-underline">Instagram</a>
+          <a href="#" class="link-underline">Facebook</a>
+          <a href="#" class="link-underline">Client care</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================
+         ATELIER PANEL — palette / type / motion preview (not for production)
+         ================================================================== -->
+    <div class="atelier" data-atelier>
+      <div class="atelier__panel" id="atelier-panel" data-atelier-panel data-open="false" role="group" aria-label="Theme controls">
+        <div class="atelier__group">
+          <p>Palette</p>
+          <div class="swatches">
+            <button class="swatch" type="button" data-set-palette="noir-or" aria-label="Noir and gold" aria-pressed="true" style="background: linear-gradient(135deg, #0a0a0a 50%, #c9a96e 50%)"></button>
+            <button class="swatch" type="button" data-set-palette="ivoire-or" aria-label="Ivory and gold" aria-pressed="false" style="background: linear-gradient(135deg, #f7f4ee 50%, #9a7b3f 50%)"></button>
+            <button class="swatch" type="button" data-set-palette="bleu-froid" aria-label="Cool blue" aria-pressed="false" style="background: linear-gradient(135deg, #0b1220 50%, #9fc0e0 50%)"></button>
+            <button class="swatch" type="button" data-set-palette="monochrome" aria-label="Monochrome" aria-pressed="false" style="background: linear-gradient(135deg, #121212 50%, #ececec 50%)"></button>
+          </div>
+        </div>
+        <div class="atelier__group">
+          <p>Display serif</p>
+          <div class="segmented">
+            <button type="button" data-set-serif="playfair" aria-pressed="true">Playfair</button>
+            <button type="button" data-set-serif="cormorant" aria-pressed="false">Cormorant</button>
+            <button type="button" data-set-serif="bodoni" aria-pressed="false">Bodoni</button>
+          </div>
+        </div>
+        <div class="atelier__group">
+          <p>Motion</p>
+          <div class="segmented">
+            <button type="button" data-set-motion="none" aria-pressed="false">None</button>
+            <button type="button" data-set-motion="subtle" aria-pressed="false">Subtle</button>
+            <button type="button" data-set-motion="moderate" aria-pressed="true">Moderate</button>
+          </div>
+        </div>
+      </div>
+      <button class="atelier__toggle" type="button" data-atelier-toggle aria-expanded="false" aria-controls="atelier-panel">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.4"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /><circle cx="12" cy="12" r="3.4" /></svg>
+        Atelier
+      </button>
+    </div>
+
+    <script src="assets/js/catalog-data.js" defer></script>
+    <script src="assets/js/shell.js" defer></script>
+    <script src="assets/js/catalog.js" defer></script>
+  </body>
+</html>
