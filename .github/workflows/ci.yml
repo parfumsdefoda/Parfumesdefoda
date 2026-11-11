@@ -56,7 +56,20 @@ jobs:
         run: npm test
 
       - name: Build
-        run: npm run build
+        shell: bash
+        # A failed build must be diagnosable without log access (the logs
+        # endpoint is restricted): the failing lines are re-emitted as
+        # annotations, which the Checks UI and the REST API both expose.
+        run: |
+          set +e
+          npm run build 2>&1 | tee /tmp/build.log
+          STATUS=${PIPESTATUS[0]}
+          if [ "$STATUS" -ne 0 ]; then
+            grep -inE '(error|failed|⨯)' /tmp/build.log | head -n 15 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit "$STATUS"
+          fi
 
       # The server has to be the process whose PID we record. Started through
       # `npx`, the real `next start` is a child of the wrapper, so the kill below
