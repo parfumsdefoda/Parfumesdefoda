@@ -34,7 +34,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={reset}
-            className="min-h-11 rounded-pill bg-[var(--color-brand)] px-6 font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            className="min-h-11 rounded-pill bg-[var(--color-brand)] px-6 font-bold text-[var(--color-on-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
           >
             إعادة المحاولة
           </button>

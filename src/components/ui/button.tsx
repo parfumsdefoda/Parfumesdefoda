@@ -35,17 +35,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-[var(--color-brand)] text-white hover:bg-[var(--purple-700)] active:bg-[var(--purple-700)]",
+          "bg-[var(--color-brand)] text-[var(--color-on-brand)] hover:bg-[var(--purple-700)] active:bg-[var(--purple-700)]",
         secondary:
           "border-[var(--color-brand)] bg-transparent text-[var(--color-brand)] hover:bg-[var(--purple-50)]",
         tertiary:
           "px-0 text-[var(--color-brand)] underline-offset-4 hover:underline",
         destructive:
-          "bg-[var(--color-danger)] text-white hover:opacity-90",
+          "bg-[var(--color-danger)] text-[var(--color-on-danger)] hover:opacity-90",
 
         /* ── legacy aliases ── */
         default:
-          "bg-[var(--color-brand)] text-white hover:bg-[var(--purple-700)]",
+          "bg-[var(--color-brand)] text-[var(--color-on-brand)] hover:bg-[var(--purple-700)]",
         outline:
           "border-[var(--ui-border-strong)] bg-transparent text-[var(--ui-text)] hover:bg-[var(--ui-surface-muted)]",
         ghost:

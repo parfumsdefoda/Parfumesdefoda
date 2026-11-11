@@ -241,7 +241,7 @@ export function CatalogControls({
             <SlidersHorizontal aria-hidden="true" />
             <span>{labels.filters}</span>
             {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1.5 text-caption font-bold text-white">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1.5 text-caption font-bold text-[var(--color-on-brand)]">
                 {formatNumber(activeCount)}
               </span>
             )}

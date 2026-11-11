@@ -92,7 +92,7 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-pill px-2 py-1 text-caption font-medium",
-              "bg-[var(--color-brand)] text-white",
+              "bg-[var(--color-brand)] text-[var(--color-on-brand)]",
               "transition-colors duration-200",
               "group-hover:bg-[var(--purple-700)]",
             )}

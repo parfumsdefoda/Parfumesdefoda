@@ -24,9 +24,9 @@ const badgeVariants = cva(
         gold: "bg-[var(--gold-50)] text-[var(--color-gold-text)] ring-1 ring-[var(--brand-gold)]/25",
         positive:
           "bg-[var(--green-50)] text-[var(--color-positive)]",
-        primary: "bg-[var(--color-brand)] text-white",
+        primary: "bg-[var(--color-brand)] text-[var(--color-on-brand)]",
         /* ── legacy aliases ── */
-        default: "bg-[var(--color-brand)] text-white",
+        default: "bg-[var(--color-brand)] text-[var(--color-on-brand)]",
         secondary: "bg-[var(--ui-surface-muted)] text-[var(--ui-text-muted)]",
         destructive: "bg-[var(--color-danger)]/10 text-[var(--color-danger)]",
         outline:

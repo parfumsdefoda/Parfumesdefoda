@@ -120,7 +120,7 @@ export function AdvisorLauncher({ labels, onIntent }: AdvisorLauncherProps) {
           dismissGreeting();
           openAdvisor();
         }}
-        className="relative inline-flex size-14 items-center justify-center rounded-full bg-[var(--color-brand)] text-white shadow-lifted transition-transform duration-[var(--duration-fast)] ease-[var(--ease-apple)] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:scale-100"
+        className="relative inline-flex size-14 items-center justify-center rounded-full bg-[var(--color-brand)] text-[var(--color-on-brand)] shadow-lifted transition-transform duration-[var(--duration-fast)] ease-[var(--ease-apple)] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:scale-100"
       >
         <Sparkles aria-hidden="true" className="size-6" />
       </button>
