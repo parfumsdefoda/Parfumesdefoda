@@ -1,0 +1,3 @@
+Cairo — Copyright 2017 The Cairo Project Authors (https://github.com/googlefonts/cairo)
+Licensed under the SIL Open Font License, Version 1.1 — https://scripts.sil.org/OFL
+Served to this repository by Google Fonts (fonts.gstatic.com/s/cairo/v31).

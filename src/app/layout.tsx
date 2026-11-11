@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { cairo } from "./fonts";
 import { Providers } from "./providers";
 import { loadTheme } from "@/services/theme";
 import { loadFullSettings } from "@/services/settings";
@@ -345,7 +344,7 @@ export default async function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${cairo.variable} h-full`}
+      className="h-full"
       style={brandStyle}
       data-palette={palette}
       data-motion={motion}

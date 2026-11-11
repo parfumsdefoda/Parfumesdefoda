@@ -1,16 +1,10 @@
-import { Cairo } from "next/font/google";
-
 /**
- * Cairo font configuration for Arabic text.
+ * Cairo is self-hosted at public/fonts/cairo and declared with @font-face in
+ * src/app/globals.css; the body rule reads --font-cairo.
  *
- * Only the three weights the type scale uses are loaded (400 regular,
- * 500 medium, 700 bold) so the browser never downloads or synthesises
- * the other faces (300/600/800) that the old design relied on.
+ * It used to come from next/font/google, which fetches the family during
+ * `next build`. That made the build depend on the network, and a CI run failed
+ * with "Failed to fetch Cairo from Google Fonts". Self-hosting the same woff2
+ * subsets renders identically and lets the build run offline.
  */
-export const cairo = Cairo({
-  variable: "--font-cairo",
-  subsets: ["arabic"],
-  display: "swap",
-  adjustFontFallback: true,
-  weight: ["400", "500", "700"],
-});
+export const cairo = { variable: "font-cairo" } as const;
