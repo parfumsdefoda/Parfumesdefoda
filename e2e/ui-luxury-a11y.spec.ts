@@ -56,6 +56,8 @@ test.describe("ui-luxury accessibility", () => {
   test("open search suggestions", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "بحث" }).first().click();
+
     const input = page.getByRole("combobox").first();
     await input.click();
     await input.fill("عود");

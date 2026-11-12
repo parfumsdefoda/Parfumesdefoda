@@ -45,6 +45,9 @@ test.describe("flat header", () => {
   });
 
   test("hides on the way down and returns on the way up", async ({ page }) => {
+    // The bar only retracts while motion is allowed; the suite defaults to
+    // reduced motion, where staying put is the correct behaviour.
+    await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/shop");
     const header = page.locator(HEADER);
     await expect(header).toHaveAttribute("data-hidden", "false");
@@ -56,6 +59,15 @@ test.describe("flat header", () => {
     await page.evaluate(() => window.scrollTo(0, 200));
     await page.waitForTimeout(200);
     await expect(header).toHaveAttribute("data-hidden", "false");
+  });
+
+  test("stays visible under reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/shop");
+
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    await page.waitForTimeout(200);
+    await expect(page.locator(HEADER)).toHaveAttribute("data-hidden", "false");
   });
 
   test("opens the search panel, focuses the field, and closes on Escape", async ({ page }) => {

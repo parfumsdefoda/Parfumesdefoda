@@ -333,7 +333,7 @@ test.describe("production storefront and checkout", () => {
     ] as const) {
       // networkidle keeps the capture out of the first-layout pass, when the
       // derived images and the CSS are still settling.
-      await page.goto(path, { waitUntil: "networkidle" });
+      await page.goto(path, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
       // `networkidle` can fire while images are still decoding; a full-page
       // capture then catches half-painted cards (the PDP flaked this way).
@@ -377,15 +377,27 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await expect(drawer).toBeHidden();
     const after = (await count.textContent()) ?? "";
     expect(after).not.toBe(before);
-    await page.getByRole("button", { name: /^إزالة / }).first().click();
+    // The chips are client components: a click before hydration is swallowed,
+    // so retry until the chip is actually gone, then check the URL.
+    const chip = page.getByRole("button", { name: /^إزالة / }).first();
+    await expect(chip).toBeVisible();
+    await expect(async () => {
+      if (await chip.count()) await chip.click();
+      await expect(chip).toHaveCount(0);
+    }).toPass({ timeout: 20_000 });
     await expect(page).not.toHaveURL(/gender=/);
   });;
 
     test("an active filter survives as a chip and removing it clears the URL", async ({ page }) => {
     await page.goto("/shop?gender=%D8%B1%D8%AC%D8%A7%D9%84%D9%8A");
+    // The chips are client components: a click before hydration is swallowed,
+    // so retry until the chip is actually gone, then check the URL.
     const chip = page.getByRole("button", { name: /^إزالة / }).first();
     await expect(chip).toBeVisible();
-    await chip.click();
+    await expect(async () => {
+      if (await chip.count()) await chip.click();
+      await expect(chip).toHaveCount(0);
+    }).toPass({ timeout: 20_000 });
     await expect(page).not.toHaveURL(/gender=/);
   });;
 

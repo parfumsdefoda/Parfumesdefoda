@@ -90,6 +90,8 @@ test.describe("product-free hero", () => {
 
     // Open the search and type: the suggestions must not grow a thumbnail.
     await page.setViewportSize({ width: 1440, height: 900 });
+    await page.getByRole("button", { name: "بحث" }).first().click();
+
     const combobox = page.getByRole("combobox").first();
     await combobox.click();
     await combobox.fill("عطر");

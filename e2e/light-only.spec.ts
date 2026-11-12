@@ -35,7 +35,7 @@ test.describe("light-only surfaces", () => {
           meta: document.querySelector('meta[name="color-scheme"]')?.getAttribute("content"),
         };
       });
-      expect(probe.scheme.replace(/\s+/g, " ").trim(), `${path}: color-scheme`).toBe("only light");
+      expect(probe.scheme.replace(/\s+/g, " ").trim(), `${path}: color-scheme`).toBe("light only");
       expect(probe.meta, `${path}: meta color-scheme`).toBe("light only");
       expect(luminance(probe.background), `${path}: paper luminance`).toBeGreaterThan(0.6);
     }
