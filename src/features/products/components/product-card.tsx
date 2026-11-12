@@ -1,19 +1,15 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/product-image";
-import { Badge } from "@/components/ui/badge";
 import { QuickAdd } from "./quick-add";
-import { ProductMetaLine } from "./product-meta";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import {
   cardBadge,
-  cardMetaParts,
   cardPrice,
   hasAnyStock,
   hasProductImage,
   isPremiumProduct,
 } from "@/lib/card-presentation";
-import { hasTransparentCutout } from "@/lib/product-image";
 import type { Product } from "@/types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -23,9 +19,11 @@ export interface ProductCardLabels {
   comingSoon: string;
   /** Ink for a sold-out product. */
   outOfStock: string;
-  /** Prefix for a multi-size price ("من ١٢٠ ج.م"). */
+  /** Prefix for a multi-size price (\"من ١٢٠ ج.م\"). */
   from: string;
-  /** Accessible name of the round quick-add control. */
+  /** Small premium label above the name. */
+  premium?: string;
+  /** Accessible name of the quick-add control. */
   add: string;
   /** Toast text after a successful add. `{name}` is replaced. */
   addedToast: string;
@@ -33,7 +31,7 @@ export interface ProductCardLabels {
   addToCart: string;
   /** Heading of the size chooser. */
   chooseSize: string;
-  /** The word the quick-add circle grows into on hover ("إضافة سريعة"). */
+  /** The word the quick-add control carries (\"إضافة سريعة\"). */
   quickAdd: string;
 }
 
@@ -41,6 +39,7 @@ export const DEFAULT_CARD_LABELS: ProductCardLabels = {
   comingSoon: "قريبًا",
   outOfStock: "غير متوفر",
   from: "من",
+  premium: "فاخر",
   add: "أضف إلى السلة",
   addedToast: "تمت إضافة {name} إلى السلة",
   addToCart: "أضف إلى السلة",
@@ -66,7 +65,7 @@ export interface ProductCardProps {
  * card on the page: half the viewport on phones, a third on tablets, a quarter
  * on wide screens.
  */
-export const CARD_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
+export const CARD_IMAGE_SIZES = "(max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -77,14 +76,17 @@ export const CARD_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1279px) 33
  * its own. The one interactive part (quick add) is a small client island, so a
  * grid of 40 products no longer hydrates 40 stateful cards.
  *
- * Anatomy (RTL):
- *   image stage (4:5, muted surface, one optional badge, premium gold ring)
- *   meta line  → ◆ فاخر · tier · style  (or tier · style · format)
- *   name       → the card's real link
- *   price      → brand purple, "من" when several sizes exist
+ * Anatomy, in the editorial language:
+ *   cell       → the grid draws the hairline; the card itself has no frame,
+ *                no radius and no shadow
+ *   stage      → the product stands on the same paper as the page with a soft
+ *                cast shadow; nothing else is visible
+ *   text       → the NAME (15px/600) and the PRICE (14px/500, ink) only. The
+ *                tier/style meta line lives on the PDP, not here.
+ *   premium    → a 1px gold inset frame and a small diamond label, nothing more
  *
- * The image itself is covered by an absolutely positioned link so the whole
- * stage is clickable; quick add is a *sibling* of that link, never nested in it.
+ * The image is covered by an absolutely positioned link so the whole stage is
+ * clickable; quick add is a *sibling* of that link, never nested in it.
  */
 export function ProductCard({
   product,
@@ -100,46 +102,32 @@ export function ProductCard({
   const outOfStock = badge === "out-of-stock";
   const hasImage = hasProductImage(product);
   const premium = isPremiumProduct(product);
-  // A premium product that cannot be bought keeps the ring but nothing moves.
   const premiumMuted = premium && (comingSoon || outOfStock);
-  // The dark stage is only honest behind a real cut-out; a framed or coloured
-  // photo keeps the light stage and shows the ring alone.
-  const darkStage = premium && !premiumMuted && hasImage && hasTransparentCutout(product.slug);
   const price = comingSoon ? null : cardPrice(product, copy.from);
-  const meta = cardMetaParts(product, { premium });
   const href = product.slug ? `/product/${product.slug}` : null;
 
   return (
     <article
       data-card=""
-      // A card nobody can buy keeps its geometry but never lifts or grows.
       data-card-state={comingSoon || outOfStock ? "static" : "live"}
       className={cn(
-        "card-shell group relative flex flex-col",
-        premium && "premium-card",
-        deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_32rem]",
+        "card-shell group relative flex flex-col bg-[var(--paper)] p-4 pb-6 md:p-6",
+        deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_34rem]",
         className,
       )}
     >
       {/* ─── Stage ─── */}
       <div className="relative">
         <div
-          className={cn("relative overflow-hidden rounded-card", premium && "premium-frame")}
+          className="relative flex aspect-[4/5] items-center justify-center overflow-hidden lg:aspect-[1/1.05]"
           data-premium={premium ? (premiumMuted ? "muted" : "true") : undefined}
-          data-stage={darkStage ? "dark" : "light"}
         >
           {comingSoon ? (
-            <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--color-surface-muted)]">
-              <span className="rounded-pill border border-dashed border-[var(--color-border)] px-4 py-1.5 text-caption font-medium text-[var(--color-text-muted)]">
-                {copy.comingSoon}
-              </span>
-            </div>
+            <span className="border border-dashed border-[var(--line)] px-4 py-1.5 text-[14px] font-medium text-[var(--ink-muted)]">
+              {copy.comingSoon}
+            </span>
           ) : !hasImage ? (
-            // No file to point at: keep the geometry, drop the broken icon.
-            <div
-              aria-hidden="true"
-              className="aspect-[4/5] w-full bg-[var(--color-surface-muted)]"
-            />
+            <div aria-hidden="true" className="size-full" />
           ) : (
             <ProductImage
               slug={product.slug}
@@ -147,30 +135,27 @@ export function ProductCard({
               name={product.name}
               tier="card"
               frame="stage"
-              tone={darkStage ? "dark" : "light"}
+              tone="light"
               sizes={CARD_IMAGE_SIZES}
               priority={priority}
               loading={loading}
-              frameClassName={cn(
-                "transition-opacity duration-[var(--duration-base)]",
+              frameClassName="flex h-[62%] w-full items-center justify-center transition-transform duration-[500ms] ease-[var(--ease-apple)] group-hover:scale-[1.03] group-focus-within:scale-[1.03] motion-reduce:transform-none"
+              className={cn(
+                "cast-shadow max-h-full w-auto object-contain",
                 outOfStock && "opacity-60",
               )}
-              className={premium ? "premium-bottle card-bottle" : "card-bottle"}
             />
           )}
 
-          {/* Hover decoration: a pointer spotlight and a 1px stage edge. Both
-              are inert (`pointer-events: none`) and above the photo. */}
-          <span aria-hidden="true" data-card-spot="" className="card-spot" />
-          <span aria-hidden="true" className="card-edge" />
-
-          {/* Premium motion: one shine band, two glints. Decoration only. */}
-          {premium && !premiumMuted && (
-            <>
-              <span aria-hidden="true" className="premium-shine" />
-              <span aria-hidden="true" className="premium-glint" data-glint="a" />
-              <span aria-hidden="true" className="premium-glint" data-glint="b" />
-            </>
+          {/* Premium: a hairline frame, inset, sharp corners. Nothing else. */}
+          {premium && (
+            <span
+              aria-hidden="true"
+              className={cn(
+                "pointer-events-none absolute inset-[10px] border border-[var(--brand-gold)]",
+                premiumMuted && "opacity-40",
+              )}
+            />
           )}
 
           {href && !comingSoon && (
@@ -178,17 +163,8 @@ export function ProductCard({
               href={href}
               tabIndex={-1}
               aria-hidden="true"
-              className="absolute inset-0 z-10 rounded-card focus-visible:outline-none"
+              className="absolute inset-0 z-10 focus-visible:outline-none"
             />
-          )}
-
-          {/* Coming soon speaks once, from the stage itself. */}
-          {badge === "out-of-stock" && (
-            <div className="absolute top-3 end-3 z-10">
-              <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
-                {copy.outOfStock}
-              </Badge>
-            </div>
           )}
         </div>
 
@@ -213,22 +189,24 @@ export function ProductCard({
         )}
       </div>
 
-      {/* ─── Text ─── */}
-      <div className="flex flex-1 flex-col gap-1 pt-3">
-        {meta.length > 0 && <ProductMetaLine parts={meta} premium={premium} />}
+      {/* ─── Text: the name and the price, centred, nothing else ─── */}
+      <div className="flex flex-1 flex-col items-center gap-1 pt-5 text-center">
+        {premium && !premiumMuted && (
+          <span className="text-[14px] font-medium text-[var(--color-gold-text)]">
+            ◆ {copy.premium}
+          </span>
+        )}
 
         <h3
           className={cn(
-            "text-headline font-bold",
-            outOfStock || comingSoon
-              ? "text-[var(--color-text-muted)]"
-              : "text-[var(--color-text)]",
+            "text-[15px] font-semibold leading-snug",
+            outOfStock || comingSoon ? "text-[var(--ink-muted)]" : "text-[var(--ink)]",
           )}
         >
           {href ? (
             <Link
               href={href}
-              className="card-name line-clamp-2 rounded-control transition-colors duration-[var(--duration-fast)] hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="card-name line-clamp-2 hover:underline hover:decoration-[var(--color-brand)] hover:decoration-1 hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
             >
               {product.name}
             </Link>
@@ -237,15 +215,13 @@ export function ProductCard({
           )}
         </h3>
 
-        {price && (
-          <p className="mt-auto text-body font-bold text-[var(--color-brand)]">
-            {price.prefix && (
-              <span className="me-1 font-medium text-[var(--color-text-muted)]">
-                {price.prefix}
-              </span>
-            )}
+        {price ? (
+          <p className="text-[14px] font-medium text-[var(--ink)]">
+            {price.prefix && <span className="me-1 text-[var(--ink-muted)]">{price.prefix}</span>}
             <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
           </p>
+        ) : (
+          outOfStock && <p className="text-[14px] font-medium text-[var(--ink-muted)]">{copy.outOfStock}</p>
         )}
       </div>
     </article>

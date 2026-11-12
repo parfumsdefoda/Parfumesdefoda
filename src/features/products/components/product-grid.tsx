@@ -1,5 +1,4 @@
 import { CARD_IMAGE_SIZES, ProductCard, type ProductCardLabels } from "./product-card";
-import { CardSpotlight } from "./card-spotlight";
 import { buildProductImageSources } from "@/lib/product-image";
 import { hasProductImage } from "@/lib/card-presentation";
 import { orderForCatalog } from "@/lib/catalog-order";
@@ -28,16 +27,16 @@ const MOBILE_COLS: Record<GridColumns["mobile"], string> = {
 };
 
 const TABLET_COLS: Record<GridColumns["tablet"], string> = {
-  1: "sm:grid-cols-1",
-  2: "sm:grid-cols-2",
-  3: "sm:grid-cols-3",
+  1: "md:grid-cols-1",
+  2: "md:grid-cols-2",
+  3: "md:grid-cols-3",
 };
 
 const DESKTOP_COLS: Record<GridColumns["desktop"], string> = {
-  1: "xl:grid-cols-1",
-  2: "xl:grid-cols-2",
-  3: "xl:grid-cols-3",
-  4: "xl:grid-cols-4",
+  1: "min-[1100px]:grid-cols-1",
+  2: "min-[1100px]:grid-cols-2",
+  3: "min-[1100px]:grid-cols-3",
+  4: "min-[1100px]:grid-cols-4",
 };
 
 const DEFAULT_COLUMNS: GridColumns = { mobile: 2, tablet: 3, desktop: 4 };
@@ -66,16 +65,13 @@ export function ProductGrid({
   return (
     <div
       className={[
-        "grid gap-[var(--space-3)] sm:gap-[var(--space-6)]",
+        "grid grid-cols-2 gap-0 border-t border-s border-[var(--line)] md:grid-cols-3 min-[1100px]:grid-cols-4",
         MOBILE_COLS[columns.mobile] ?? MOBILE_COLS[2],
         TABLET_COLS[columns.tablet] ?? TABLET_COLS[3],
         DESKTOP_COLS[columns.desktop] ?? DESKTOP_COLS[4],
         className ?? "",
       ].join(" ")}
     >
-      {/* One delegated pointer listener for the grid's stages. */}
-      <CardSpotlight />
-
       {firstSources?.avif && (
         <link
           rel="preload"
@@ -99,6 +95,9 @@ export function ProductGrid({
           loading={index < 4 ? "eager" : "lazy"}
           // Off-screen cards skip layout and paint until scrolled to.
           deferred={index >= 4}
+          // The grid is drawn by the cells: 1px inline-end and block-end,
+          // so an incomplete last row ends on paper, never on a dark gap.
+          className="border-b border-e border-[var(--line)]"
         />
       ))}
     </div>
