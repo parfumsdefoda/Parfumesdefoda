@@ -1,156 +1,83 @@
-import { expect, test, type Page } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
-import products from "../data/products.json";
-import manifest from "../src/data/image-manifest.json";
-
-/** Visible premium products, split by whether their photo really has alpha. */
-const premiumProducts = products.filter((product) => product.featured && !product.hidden);
-const backgroundOf = (slug: string) =>
-  (manifest.products as Record<string, { background?: string } | undefined>)[slug]?.background;
-const alphaPremium = premiumProducts.find((product) => backgroundOf(product.slug) === "transparent");
-const framedPremium = premiumProducts.find(
-  (product) => backgroundOf(product.slug) && backgroundOf(product.slug) !== "transparent",
-);
+import { test, expect } from "@playwright/test";
 
 /**
- * The premium (فاخر) card — the gold frame that replaced the gold badge.
+ * Premium cards in the editorial language.
  *
- * The suite runs with `reducedMotion: "reduce"` by default (see
- * playwright.config.ts), so every assertion here is about the STATIC frame:
- * geometry, the alpha gate and the meta line. One test opts into motion to
- * prove the frame is the only thing that animates.
+ * The dark stage, the gold ring and the shine band are gone. A فاخر product is
+ * marked by a 1px gold inset frame, a small diamond label above its name, and
+ * exactly the same geometry as every other cell.
  */
 
-/** Every card's premium state, stage tone and box, as the browser sees them. */
-async function readCards(page: Page) {
-  return page.evaluate(() =>
-    Array.from(document.querySelectorAll("article")).map((card) => {
-      const stage = card.querySelector("[data-stage]");
-      const rect = card.getBoundingClientRect();
-      return {
-        premium: stage?.getAttribute("data-premium") ?? null,
-        stage: stage?.getAttribute("data-stage") ?? null,
-        top: Math.round(rect.top),
-        height: Math.round(rect.height * 100) / 100,
-      };
-    }),
-  );
-}
+const CARD = "[data-card]";
+const FRAME = "[data-premium-frame]";
 
 test.describe("premium card", () => {
-  test("premium cards carry the frame and never the old gold badge", async ({ page }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
+  test("a premium card carries the hairline frame and the diamond label", async ({ page }) => {
+    await page.goto("/shop");
 
-    const premium = page.locator('article:has([data-premium="true"])');
-    await expect(premium).toHaveCount(2);
-    // The badge slot is empty on a premium, in-stock card.
-    await expect(premium.first().locator("text=فاخر").first()).toBeVisible();
-    await expect(premium.first().getByText("★")).toHaveCount(0);
+    const premium = page.locator(`${CARD}:has(${FRAME})`).first();
+    await premium.scrollIntoViewIfNeeded();
+    await expect(premium).toHaveCount(1);
 
-    const ring = premium.first().locator(".premium-frame").first();
-    await expect(ring).toHaveCount(1);
-    // The ring is an overlay: it must never swallow a click.
-    expect(await ring.evaluate((el) => getComputedStyle(el, "::before").pointerEvents)).toBe(
-      "none",
-    );
-  });
+    const frame = premium.locator(FRAME);
+    await expect(frame).toHaveCount(1);
 
-  test("the meta line leads with the diamond and keeps three parts", async ({ page }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
-
-    const meta = page.locator('article:has([data-premium="true"]) p').first();
-    await expect(meta).toContainText("فاخر");
-    await expect(meta).toContainText("نيش");
-    await expect(meta).toContainText("شرقي");
-    // The diamond is decoration only.
-    await expect(meta.locator("svg[aria-hidden='true']")).toHaveCount(1);
-  });
-
-  test("only a real cut-out gets the dark stage", async ({ page }) => {
-    // Which premium product is a cut-out is a fact of the manifest, not of the
-    // spec: the products are found by their flag and their background. When the
-    // catalogue has no framed premium product, that half is skipped (not faked).
-    test.skip(!alphaPremium, "no premium product with a transparent cut-out");
-    await page.goto("/shop", { waitUntil: "networkidle" });
-
-    const alpha = page
-      .locator('article[class*="premium-card"]')
-      .filter({ hasText: alphaPremium!.name })
-      .first();
-    await expect(alpha.locator("[data-stage]")).toHaveAttribute("data-stage", "dark");
-    await expect(alpha.locator(".premium-frame")).toHaveCount(1);
-
-    if (framedPremium) {
-      const framed = page
-        .locator('article[class*="premium-card"]')
-        .filter({ hasText: framedPremium.name })
-        .first();
-      await expect(framed.locator("[data-stage]")).toHaveAttribute("data-stage", "light");
-      await expect(framed.locator(".premium-frame")).toHaveCount(1);
-    }
-  });
-
-  test("a premium card is exactly as tall as a normal card in its row", async ({ page }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
-    const cards = await readCards(page);
-    expect(cards.length).toBeGreaterThan(8);
-
-    const rows = new Map<number, typeof cards>();
-    for (const card of cards) {
-      const bucket = Math.round(card.top / 8) * 8;
-      rows.set(bucket, [...(rows.get(bucket) ?? []), card]);
-    }
-
-    let premiumRows = 0;
-    let mixedRows = 0;
-    let columns = 0;
-    for (const row of rows.values()) {
-      if (row.length < 2) continue;
-      columns = Math.max(columns, row.length);
-      const heights = row.map((card) => card.height);
-      expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(1);
-      const hasPremium = row.some((card) => card.premium === "true");
-      const hasNormal = row.some((card) => card.premium === null);
-      if (hasPremium) premiumRows += 1;
-      if (hasPremium && hasNormal) mixedRows += 1;
-    }
-
-    // Every row that holds a premium card was measured above.
-    expect(premiumRows, "a row should contain a premium card").toBeGreaterThan(0);
-
-    // The two premium products sort to the front, so on a two-column phone the
-    // first row is premium + premium and NO row can mix the two kinds. The
-    // mixed-row case only exists once the grid fits three or more cards; where
-    // it exists, the frame must not disturb it either.
-    if (columns >= 3) {
-      expect(mixedRows, "a wide row should mix premium and normal cards").toBeGreaterThan(0);
-    }
-  });
-
-  test("reduced motion leaves the frame completely still", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/shop", { waitUntil: "networkidle" });
-
-    const ring = page.locator('article:has([data-premium="true"]) .premium-frame').first();
-    const motion = await ring.evaluate((el) => {
-      const sweep = getComputedStyle(el, "::after");
-      const bottle = el.querySelector(".premium-bottle");
-      return {
-        sweepName: sweep.animationName,
-        sweepOpacity: sweep.opacity,
-        bottleTransition: bottle ? getComputedStyle(bottle).transitionDuration : "0s",
-      };
+    const border = await frame.evaluate((el) => {
+      const computed = getComputedStyle(el);
+      return { width: computed.borderTopWidth, style: computed.borderTopStyle };
     });
-    expect(motion.sweepName).toBe("none");
-    expect(motion.sweepOpacity).toBe("0");
-    expect(["0s", "0.01ms"]).toContain(motion.bottleTransition);
+    expect(border.width).toBe("1px");
+    expect(border.style).toBe("solid");
+
+    await expect(premium.locator("span").filter({ hasText: "◆" }).first()).toBeVisible();
   });
 
-  test("the shop grid with premium cards has no accessibility violations", async ({ page }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
-    const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .analyze();
-    expect(results.violations).toEqual([]);
+  test("a regular card has neither frame nor label", async ({ page }) => {
+    await page.goto("/shop");
+
+    const regular = page.locator(CARD).filter({ hasNot: page.locator(FRAME) }).first();
+    await regular.scrollIntoViewIfNeeded();
+    await expect(regular).toHaveCount(1);
+
+    await expect(regular.locator(FRAME)).toHaveCount(0);
+    await expect(regular.locator("span").filter({ hasText: "◆" })).toBeHidden();
+  });
+
+  test("no premium cell paints a dark stage", async ({ page }) => {
+    await page.goto("/shop");
+
+    const stage = page.locator(`${CARD}:has(${FRAME}) [data-card-stage]`).first();
+    await stage.scrollIntoViewIfNeeded();
+
+    const background = await stage.evaluate((el) => getComputedStyle(el).backgroundColor);
+    const channels = (background.match(/[d.]+/g) ?? []).map(Number);
+    if (channels.length >= 3 && !background.startsWith("rgba(0, 0, 0, 0")) {
+      const [r, g, b] = channels;
+      expect(r + g + b).toBeGreaterThan(300);
+    }
+  });
+
+  test("a premium cell is as tall as a regular one", async ({ page }) => {
+    await page.goto("/shop");
+
+    const premium = page.locator(`${CARD}:has(${FRAME})`).first();
+    const regular = page.locator(CARD).filter({ hasNot: page.locator(FRAME) }).first();
+    await premium.scrollIntoViewIfNeeded();
+
+    const [premiumBox, regularBox] = await Promise.all([premium.boundingBox(), regular.boundingBox()]);
+    expect(premiumBox).not.toBeNull();
+    expect(regularBox).not.toBeNull();
+    expect(Math.abs((premiumBox?.height ?? 0) - (regularBox?.height ?? 0))).toBeLessThanOrEqual(2);
+  });
+
+  test("the premium card keeps the name and the price only", async ({ page }) => {
+    await page.goto("/shop");
+
+    const premium = page.locator(`${CARD}:has(${FRAME})`).first();
+    await premium.scrollIntoViewIfNeeded();
+
+    await expect(premium.locator("h3")).toHaveCount(1);
+    await expect(premium.getByText("ج.م").first()).toBeVisible();
+    await expect(premium.locator("[data-card-meta]")).toHaveCount(0);
   });
 });

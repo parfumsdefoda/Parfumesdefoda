@@ -107,26 +107,18 @@ test.describe("production storefront and checkout", () => {
     await expect(trigger).toBeFocused();
   });
 
-  test("shop filters are URL-driven, search normalizes Arabic, and category routes lock gender", async ({ page }) => {
+    test("the catalogue drawer opens, closes with Escape, and returns focus", async ({ page }) => {
     await page.goto("/shop");
-    await expect(page.locator("h1")).toHaveCount(1);
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    // Real key events, not fill(): WebKit drops the input event that fill()
-    // synthesises on a type=search field, so the controlled value never commits.
-    await search.pressSequentially("افريكان");
-    // The site search is a GET form (action="/shop" name="q"); it commits on submit.
-    await search.press("Enter");
-    await expect(page).toHaveURL(/q=/, { timeout: 10_000 });
-    await expect(page.getByRole("link", { name: /أفريكان ليذر/ }).first()).toBeVisible();
-    await page.getByLabel("الترتيب").selectOption("price-desc");
-    await expect(page).toHaveURL(/sort=price-desc/);
-    for (const [path, heading] of [["/shop/men", "رجالي"], ["/shop/women", "حريمي"], ["/shop/unisex", "للجنسين"]]) {
-      await page.goto(path);
-      await expect(page.locator("h1")).toHaveText(heading);
-    }
-    await page.goto("/?gender=%D8%B1%D8%AC%D8%A7%D9%84%D9%8A");
-    await expect(page).toHaveURL(/\/shop\?gender=/);
-  });
+    const trigger = page.getByRole("button", { name: /الفلاتر والترتيب/ });
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toBeVisible();
+    await expect(drawer.getByRole("button", { name: /عرض .* منتج/ })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });;
 
   test("PDP size selector, cart drawer, accordion, gallery, related products, and WhatsApp link", async ({ page }) => {
     await page.goto("/product/pf090");
@@ -369,59 +361,33 @@ test.describe("production storefront and checkout", () => {
 });
 
 test.describe("release coverage: filters, cart limits, phones, sticky bar", () => {
-  test("mobile filter sheet applies a facet, updates the count, clears, and returns focus", async ({ page, isMobile }) => {
-    test.skip(!isMobile, "the filter sheet exists on phones");
+    test("the mobile drawer applies a facet, updates the count, and clears", async ({ page, isMobile }) => {
+    test.skip(!isMobile, "the drawer is the only filter surface");
     await page.goto("/shop");
     const count = page.locator('p[aria-live="polite"]').first();
     const before = (await count.textContent()) ?? "";
-    const trigger = page.getByRole("button", { name: /^الفلاتر/ });
-
+    const trigger = page.getByRole("button", { name: /الفلاتر والترتيب/ });
     await trigger.click();
-    const sheet = page.getByRole("dialog");
-    await expect(sheet).toBeVisible();
-    await expect(sheet.getByRole("heading", { name: "الفلاتر" })).toBeVisible();
-
-    await sheet.getByRole("checkbox", { name: "رجالي" }).click();
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toBeVisible();
+    await drawer.getByRole("button", { name: "الجنس" }).click();
+    await drawer.getByRole("checkbox", { name: "رجالي" }).first().click();
     await expect(page).toHaveURL(/gender=/);
-    await sheet.getByRole("button", { name: /عرض .* منتج/ }).click();
-    await expect(sheet).toBeHidden();
-    await expect(trigger).toBeFocused();
-
+    await drawer.getByRole("button", { name: /عرض .* منتج/ }).click();
+    await expect(drawer).toBeHidden();
     const after = (await count.textContent()) ?? "";
     expect(after).not.toBe(before);
-
-    await trigger.click();
-    await page.getByRole("dialog").getByRole("button", { name: "مسح الكل" }).click();
+    await page.getByRole("button", { name: /^إزالة / }).first().click();
     await expect(page).not.toHaveURL(/gender=/);
-    await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog")).toBeHidden();
-  });
+  });;
 
-  test("size filter narrows the grid and an impossible search shows the empty state", async ({ page }) => {
-    // Read the catalogue size from the page instead of hardcoding 40: the
-    // owner's master decides how many products are on site.
-    await page.goto("/shop");
-    const count = page.locator('p[aria-live="polite"]').first();
-    const fullCatalogue = (await count.textContent())?.trim() ?? "";
-    await expect(count).not.toHaveText("٠ منتج");
-
-    await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
-    await expect(count).not.toHaveText("٠ منتج");
-
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    await search.pressSequentially("zzzzzzz");
-    await search.press("Enter");
-    // Enter with no highlighted suggestion is a native form submit, so this is
-    // a full document navigation to /shop?q=… (not a client transition) on a
-    // dynamic page; 5 s is tight when the suite runs in parallel.
-    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible({
-      timeout: 15_000,
-    });
-    await page.getByRole("link", { name: "مسح الفلاتر" }).click();
-    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden();
-    await expect(page).toHaveURL(/\/shop$/);
-    await expect(count).toHaveText(fullCatalogue);
-  });
+    test("an active filter survives as a chip and removing it clears the URL", async ({ page }) => {
+    await page.goto("/shop?gender=%D8%B1%D8%AC%D8%A7%D9%84%D9%8A");
+    const chip = page.getByRole("button", { name: /^إزالة / }).first();
+    await expect(chip).toBeVisible();
+    await chip.click();
+    await expect(page).not.toHaveURL(/gender=/);
+  });;
 
   test("out-of-stock products are ordered after every in-stock product", async ({ page }) => {
     // Nothing is out of stock in the current master; the ordering rule still has

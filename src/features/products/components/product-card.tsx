@@ -119,6 +119,7 @@ export function ProductCard({
       {/* ─── Stage ─── */}
       <div className="relative">
         <div
+          data-card-stage=""
           className="relative flex aspect-[4/5] items-center justify-center overflow-hidden lg:aspect-[1/1.05]"
           data-premium={premium ? (premiumMuted ? "muted" : "true") : undefined}
         >
@@ -151,6 +152,7 @@ export function ProductCard({
           {premium && (
             <span
               aria-hidden="true"
+              data-premium-frame=""
               className={cn(
                 "pointer-events-none absolute inset-[10px] border border-[var(--brand-gold)]",
                 premiumMuted && "opacity-40",
@@ -191,11 +193,17 @@ export function ProductCard({
 
       {/* ─── Text: the name and the price, centred, nothing else ─── */}
       <div className="flex flex-1 flex-col items-center gap-1 pt-5 text-center">
-        {premium && !premiumMuted && (
-          <span className="text-[14px] font-medium text-[var(--color-gold-text)]">
-            ◆ {copy.premium}
-          </span>
-        )}
+        {/* The label row is reserved on every card, so a premium cell is
+            exactly as tall as its neighbours in the row. */}
+        <span
+          aria-hidden={premium && !premiumMuted ? undefined : true}
+          className={cn(
+            "text-[14px] font-medium leading-5 text-[var(--color-gold-text)]",
+            !premium || premiumMuted ? "invisible" : "",
+          )}
+        >
+          ◆ {copy.premium}
+        </span>
 
         <h3
           className={cn(
@@ -206,7 +214,7 @@ export function ProductCard({
           {href ? (
             <Link
               href={href}
-              className="card-name line-clamp-2 hover:underline hover:decoration-[var(--color-brand)] hover:decoration-1 hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
+              className="card-name line-clamp-2 group-hover:underline group-hover:decoration-[var(--color-brand)] group-hover:decoration-1 group-hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
             >
               {product.name}
             </Link>

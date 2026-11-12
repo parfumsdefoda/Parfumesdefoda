@@ -27,12 +27,8 @@ test.describe("light-only surfaces", () => {
     for (const path of ["/", "/shop"]) {
       await page.goto(path);
       const probe = await page.evaluate(() => {
-        const element = document.createElement("div");
-        // Resolves the token the page actually paints with.
-        element.style.background = "var(--ui-bg)";
-        document.body.appendChild(element);
-        const background = getComputedStyle(element).backgroundColor;
-        element.remove();
+        // The body paints the paper itself (globals.css), so read that.
+        const background = getComputedStyle(document.body).backgroundColor;
         return {
           background,
           scheme: getComputedStyle(document.documentElement).colorScheme,
