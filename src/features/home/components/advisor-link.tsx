@@ -26,7 +26,7 @@ export function AdvisorLink({
       type="button"
       onClick={openAdvisor}
       className={cn(
-        "inline-flex h-11 items-center gap-2 rounded-pill px-5 text-caption font-bold",
+        "inline-flex h-11 items-center gap-2 px-1 text-[14px] font-semibold",
         "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         variant === "tertiary" &&

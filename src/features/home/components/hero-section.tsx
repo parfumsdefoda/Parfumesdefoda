@@ -12,61 +12,57 @@ export interface HeroSectionProps {
 }
 
 /**
- * HeroSection — the first thing on the homepage, and deliberately product-free.
+ * HeroSection — a full-bleed editorial banner, directly under the header.
  *
- * The owner does not want product photography in the top area, so the
- * composition is type and CSS only: no <img>, no <picture>, no background image
- * and no preload. The depth comes from a soft gold glow, a diamond lattice that
- * fades out radially and two concentric rotated-square outlines that echo the
- * logo's diamond — all `aria-hidden` decoration, all tokens.
+ * It is a letterbox on desktop (16/5, at least 300px) and a tall portrait plate
+ * on phones (4/5, capped at 70svh): the proportion does the work, so the artwork
+ * can be a single wide photograph and the type still has room on a phone.
  *
- * The section still carries `data-hero-sentinel`: the header capsule watches it
- * to flip from the dark tone to the light one once the hero scrolled behind it.
- * It eats the page's header offset with a negative margin, so the hero runs
- * under the floating capsule while its content keeps its own top padding.
+ * Product photography is never pulled in here — the banner renders only from
+ * tokens (deep purple to brand purple, a soft radial light, a diamond lattice
+ * under 8% opacity, one gold hairline at the bottom), so no file from /products/
+ * can leak into the first screen.
  *
- * With no image to wait for, the largest paint on this page is the headline
- * text itself. The one-time entrance is pure CSS, never loops, and is switched
- * off entirely under `prefers-reduced-motion`.
+ * The scrim is part of the design, not an afterthought: the overlay always sits
+ * on a dark gradient of its own, which is what keeps the kicker, headline and
+ * copy above 4.5:1 whatever is behind them.
+ *
+ * No sentinel, no header offset: the bar is in the flow now, so the banner is
+ * simply the first block on the page and nothing overlaps it.
  */
 export function HeroSection({ heading, lead, shopCta, advisorCta }: HeroSectionProps) {
   return (
     <section
       aria-labelledby="hero-heading"
-      data-hero-sentinel=""
-      className="hero relative isolate -mt-[var(--header-offset)] border-b-2 border-[var(--brand-gold)] bg-[var(--purple-950)]"
+      className="hero relative isolate w-full overflow-hidden border-b border-[var(--brand-gold)] bg-[var(--purple-950)] aspect-[4/5] max-h-[70svh] md:aspect-[16/5] md:min-h-[300px] md:max-h-none"
     >
       {/* Decoration only — nothing here is content or a link target. */}
       <span aria-hidden="true" className="hero-glow" />
       <span aria-hidden="true" className="hero-lattice" />
-      <span aria-hidden="true" className="hero-rings">
-        <span className="hero-ring" />
-        <span className="hero-ring" />
-      </span>
+      <span aria-hidden="true" className="hero-ring" />
+      <span aria-hidden="true" className="hero-scrim" />
 
-      <div className="relative mx-auto flex min-h-[calc(100svh-var(--header-offset))] w-full max-w-[960px] flex-col items-center justify-center gap-5 px-4 pb-[var(--space-12)] pt-[calc(var(--header-offset)+var(--space-12))] text-center md:gap-6 md:pb-[var(--space-16)] md:pt-[calc(var(--header-offset)+var(--space-16))]">
-        <span aria-hidden="true" className="hero-ornament" />
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1600px] flex-col items-start justify-end gap-3 p-6 md:gap-4 md:p-12 lg:p-16">
+        <span className="text-[14px] font-medium uppercase tracking-[0.2em] text-[var(--gold-300)]">
+          بارفان دي فودا
+        </span>
 
-        {/* A fixed measure in `rem`, not `ch`: `ch` is measured from the
-            fallback font before Cairo arrives, so the box (and the centred
-            text) jumped 20px sideways at first paint — CLS 0.0016. `w-full`
-            keeps the box identical for both fonts. */}
         <h1
           id="hero-heading"
-          className="hero-heading text-display w-full max-w-[22rem] font-bold text-[var(--color-on-dark)] sm:max-w-[28rem]"
+          className="hero-heading max-w-[24ch] text-[34px] font-semibold leading-[1.15] text-[var(--color-on-dark)] md:text-[56px] [text-wrap:balance]"
         >
           {heading}
         </h1>
 
-        <p className="hero-lead text-body max-w-[560px] text-[var(--color-on-dark-muted)]">
+        <p className="max-w-[46ch] text-[15px] leading-relaxed text-[var(--color-on-dark-muted)] [text-wrap:pretty]">
           {lead}
         </p>
 
-        <div className="hero-cta mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+        <div className="hero-cta mt-2 flex flex-wrap items-center gap-4">
           <Button
             render={<Link href="/shop" />}
             size="lg"
-            className="bg-[var(--color-on-dark)] font-bold text-[var(--purple-950)] hover:bg-[var(--purple-100)] focus-visible:ring-offset-[var(--purple-950)]"
+            className="h-12 bg-[var(--color-brand)] px-6 font-semibold text-[var(--color-on-brand)] hover:bg-[var(--purple-700)] focus-visible:ring-offset-[var(--purple-950)]"
           >
             {shopCta}
           </Button>
