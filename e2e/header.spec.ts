@@ -52,13 +52,27 @@ test.describe("flat header", () => {
     const header = page.locator(HEADER);
     await expect(header).toHaveAttribute("data-hidden", "false");
 
-    await page.evaluate(() => window.scrollTo(0, 1200));
-    await page.waitForTimeout(200);
-    await expect(header).toHaveAttribute("data-hidden", "true");
+    // WebKit can fire the first scroll event before it commits `scrollY`, so
+    // walk the page down in steps the way a reader would.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.scrollBy(0, 500));
+          return header.getAttribute("data-hidden");
+        },
+        { timeout: 15_000 },
+      )
+      .toBe("true");
 
-    await page.evaluate(() => window.scrollTo(0, 200));
-    await page.waitForTimeout(200);
-    await expect(header).toHaveAttribute("data-hidden", "false");
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.scrollBy(0, -500));
+          return header.getAttribute("data-hidden");
+        },
+        { timeout: 15_000 },
+      )
+      .toBe("false");
   });
 
   test("stays visible under reduced motion", async ({ page }) => {
