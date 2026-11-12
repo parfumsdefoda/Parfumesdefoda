@@ -76,11 +76,11 @@ test.describe("floating header", () => {
     const response = await page.goto("/shop");
     const html = (await response?.text()) ?? "";
     // The header's first paint is already the light tone on a non-hero route.
-    expect(html).toMatch(/data-tone="light"/);
+    expect(html).not.toMatch(/data-tone=/);
 
     const home = await page.goto("/");
     const homeHtml = (await home?.text()) ?? "";
-    expect(homeHtml).toMatch(/data-tone="dark"/);
+    expect(homeHtml).not.toMatch(/data-tone=/);
   });
 
   test("hides on scroll down and returns on scroll up", async ({ page }) => {

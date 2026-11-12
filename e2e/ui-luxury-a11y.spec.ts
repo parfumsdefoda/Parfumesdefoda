@@ -28,14 +28,14 @@ test.describe("ui-luxury accessibility", () => {
   test("homepage with the dark header over the hero", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "networkidle" });
-    await expect(page.locator("header.site-header")).toHaveAttribute("data-tone", "dark");
+    await expect(page.locator("header.site-header")).toHaveAttribute("data-hidden", "false");
     await expectNoViolations(page, "homepage (dark header)");
   });
 
   test("catalogue with the light header and the card grid", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
-    await expect(page.locator("header.site-header")).toHaveAttribute("data-tone", "light");
+    await expect(page.locator("header.site-header")).toHaveAttribute("data-hidden", "false");
     await expectNoViolations(page, "catalogue (light header)");
   });
 

@@ -431,85 +431,42 @@
   }
 }
 
-/* ── Header tones ────────────────────────────────────────────────
-   The capsule is one component with two palettes. `data-tone` is written
-   during the server render (dark on the homepage while the hero is behind
-   it, light everywhere else) and flipped by a client island once the hero
-   has scrolled away — so there is never a flash of the wrong tone. */
+/* ── Flat header ─────────────────────────────────────────────────
+   Two tiers on desktop, one row on phones, solid paper, one hairline. There
+   is no tone switching and no transparency: the bar is always the ivory the
+   page is printed on, so nothing has to observe the hero behind it. */
 .site-header {
-  --header-fg: var(--color-text);
-  --header-fg-muted: var(--color-text-muted);
+  position: sticky;
+  top: 0;
+  /* The search field and its panel read the bar's own surface, so they stay
+     part of the masthead instead of floating above it. */
+  --header-fg: var(--ink);
+  --header-fg-muted: var(--ink-muted);
   --header-accent: var(--color-brand);
-  --header-surface: color-mix(in srgb, var(--brand-white) 88%, transparent);
-  --header-field: color-mix(in srgb, var(--ui-surface-muted) 92%, transparent);
-  --header-field-strong: var(--color-surface);
-  --header-field-border: var(--ui-border-strong);
-  --header-hover: color-mix(in srgb, var(--brand-purple) 7%, transparent);
+  --header-surface: var(--paper);
+  --header-field: var(--paper);
+  --header-field-strong: var(--paper);
+  --header-field-border: var(--line);
+  --header-hover: var(--paper-deep);
   --header-ring: var(--color-focus);
 }
 
-.site-header[data-tone="dark"] {
-  --header-fg: var(--color-on-dark);
-  --header-fg-muted: var(--color-on-dark-muted);
-  --header-accent: var(--color-on-dark);
-  --header-surface: color-mix(in srgb, var(--brand-white) 8%, transparent);
-  --header-field: color-mix(in srgb, var(--brand-white) 12%, transparent);
-  --header-field-strong: color-mix(in srgb, var(--brand-white) 18%, transparent);
-  --header-field-border: color-mix(in srgb, var(--brand-white) 55%, var(--purple-950));
-  --header-hover: color-mix(in srgb, var(--brand-white) 12%, transparent);
-  --header-ring: var(--color-on-dark);
-}
-
-/* No blur support, or the visitor asked for less transparency: the capsule
-   becomes a solid surface in the same tone, with the same text contrast. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-header {
-    --header-surface: var(--color-surface);
-    --header-field: var(--ui-surface-muted);
-  }
-
-  .site-header[data-tone="dark"] {
-    --header-surface: var(--purple-950);
-    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .site-header {
-    --header-surface: var(--color-surface);
-    --header-field: var(--ui-surface-muted);
-  }
-
-  .site-header[data-tone="dark"] {
-    --header-surface: var(--purple-950);
-    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
-  }
-}
-
-/* The cart count: ivory on the dark tone, brand purple on the light tone. */
-.header-cart-badge {
-  background: var(--color-brand);
-  color: var(--brand-white);
-}
-
-.site-header[data-tone="dark"] .header-cart-badge {
-  background: var(--color-on-dark);
-  color: var(--purple-950);
-}
-
-/* Anchors land below the floating capsule instead of behind it. */
 html {
-  scroll-padding-top: calc(var(--header-offset) + var(--space-4));
+  /* Anchors land below the sticky bar instead of behind it. */
+  scroll-padding-top: calc(56px + var(--space-4));
 }
 
-/* ── Hero (type only, no product imagery) ────────────────────────
-   The owner does not want product photography in the top area, so the hero
-   is type plus CSS decoration: a soft gold glow, a diamond lattice that
-   fades out radially, and two rotated-square outlines echoing the logo's
-   diamond. Decoration is `aria-hidden` in the markup and inert here. */
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-top: calc(96px + var(--space-4));
+  }
+}
+
+/* ── Banner (full bleed, editorial) ──────────────────────────────
+   The proportion does the work here: a letterbox on desktop, a tall portrait
+   plate on phones. Everything below is decoration drawn from tokens, so the
+   banner never needs a photograph and never borrows one from the catalogue. */
 .hero {
-  /* The rings are rotated far past the section's box; clipping them keeps
-     the page's scrollWidth exactly the viewport's. */
   overflow: hidden;
 }
 
@@ -518,11 +475,11 @@ html {
   inset: 0;
   pointer-events: none;
   background: radial-gradient(
-    44% 40% at 50% 34%,
-    color-mix(in srgb, var(--brand-gold) 42%, transparent) 0%,
+    72% 96% at 50% 0%,
+    color-mix(in srgb, var(--brand-purple) 58%, transparent) 0%,
     transparent 72%
   );
-  opacity: 0.34;
+  opacity: 0.5;
 }
 
 .hero-lattice {
@@ -531,85 +488,44 @@ html {
   pointer-events: none;
   opacity: 0.075;
   background-image:
-    repeating-linear-gradient(
-      45deg,
-      var(--brand-gold) 0 1px,
-      transparent 1px 72px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      var(--brand-gold) 0 1px,
-      transparent 1px 72px
-    );
-  -webkit-mask-image: radial-gradient(62% 58% at 50% 40%, black 0%, transparent 78%);
-  mask-image: radial-gradient(62% 58% at 50% 40%, black 0%, transparent 78%);
+    repeating-linear-gradient(45deg, var(--brand-gold) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(-45deg, var(--brand-gold) 0 1px, transparent 1px 72px);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 30%, black 0%, transparent 80%);
+  mask-image: radial-gradient(70% 70% at 50% 30%, black 0%, transparent 80%);
 }
 
-.hero-rings {
+/* One diamond outline, far off the corner: the logo echoed once, not a
+   constellation of rings. */
+.hero-ring {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
+  inset-inline-end: -8%;
+  top: -38%;
+  width: min(48vw, 460px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--brand-gold) 18%, transparent);
+  transform: rotate(45deg);
   pointer-events: none;
 }
 
-.hero-ring {
-  grid-area: 1 / 1;
-  width: min(46vw, 380px);
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--brand-gold) 20%, transparent);
-  transform: rotate(45deg);
-}
-
-.hero-ring + .hero-ring {
-  width: min(64vw, 540px);
-  border-color: color-mix(in srgb, var(--brand-gold) 12%, transparent);
-}
-
-/* The ornament: a hairline that draws out from the centre, with the logo's
-   diamond seated on it. Pure CSS — no image, no icon font. */
-.hero-ornament {
-  position: relative;
-  display: block;
-  width: min(280px, 68%);
-  height: 1px;
+/* The scrim is structure, not polish: the copy sits on its own dark gradient,
+   which is what keeps it above 4.5:1 whatever the artwork does. */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in srgb, var(--brand-gold) 72%, transparent) 50%,
+    to top,
+    color-mix(in srgb, var(--purple-950) 90%, transparent) 0%,
+    color-mix(in srgb, var(--purple-950) 64%, transparent) 44%,
+    color-mix(in srgb, var(--purple-950) 16%, transparent) 82%,
     transparent 100%
   );
-  transform-origin: center;
-}
-
-.hero-ornament::after {
-  content: "";
-  position: absolute;
-  inset-inline-start: 50%;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  transform: translate(-50%, -50%) rotate(45deg);
-  background: var(--brand-gold);
-}
-
-/* One-time entrance: the line draws, the copy rises. Nothing loops, and
-   nothing here waits for a resource. */
-@keyframes hero-draw {
-  from {
-    opacity: 0;
-    transform: scaleX(0.2);
-  }
-  to {
-    opacity: 1;
-    transform: scaleX(1);
-  }
 }
 
 @keyframes hero-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -617,33 +533,13 @@ html {
   }
 }
 
-/* The headline is deliberately still: it is the LCP paint, so it must not
-   start transparent (an opacity-0 <h1> is not an LCP candidate until the
-   animation paints it — simulated LCP went 1.2 s → 4.2 s) and it must not
-   move (a transform animation is a layout shift like any other — the rise
-   cost CLS 0.0016). The entrance lives in the ornament drawing and in the
-   lead/CTA rising from opacity 0, which is invisible and therefore free. */
-.hero-ornament {
-  animation: hero-draw var(--motion-draw) var(--ease-apple) both;
-}
-
-.hero-heading {
-  text-wrap: balance;
-}
-
-.hero-lead {
-  text-wrap: pretty;
-  animation: hero-rise var(--motion-draw) var(--ease-apple) 140ms both;
-}
-
+/* The headline is the LCP paint: it stays opaque and still. Only the lead and
+   the call to action rise, once. */
 .hero-cta {
-  animation: hero-rise var(--motion-draw) var(--ease-apple) 220ms both;
+  animation: hero-rise var(--motion-draw) var(--ease-apple) 120ms both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-ornament,
-  .hero-heading,
-  .hero-lead,
   .hero-cta {
     animation: none !important;
   }
@@ -1334,4 +1230,11 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   .quick-add-label {
     transition-duration: 80ms !important;
   }
+}
+
+/* ── Product cast shadow ──────────────────────────────────────────
+   The bottle stands on the paper: one soft shadow offset toward the
+   inline-end and the bottom, never a stage colour behind it. */
+.cast-shadow {
+  filter: drop-shadow(var(--shadow-cast));
 }

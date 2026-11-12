@@ -160,10 +160,10 @@ test.describe("product-free hero", () => {
   test("the hero still flips the capsule tone when it scrolls away", async ({ page }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     const header = page.locator("header.site-header");
-    await expect(header).toHaveAttribute("data-tone", "dark");
+    await expect(header).toHaveAttribute("data-hidden", "false");
     await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
     await expect
-      .poll(async () => header.getAttribute("data-tone"), { timeout: 5000 })
-      .toBe("light");
+      .poll(async () => header.getAttribute("data-hidden"), { timeout: 5000 })
+      .toBe("false");
   });
 });
