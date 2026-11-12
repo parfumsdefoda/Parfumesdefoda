@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: 2,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   outputDir: "playwright-results",
   // The suite runs against a production build on one machine (and 2 workers on
