@@ -55,6 +55,21 @@
    ══════════════════════════════════════════════════════════════════ */
 
 :root {
+  /* Light only: the store has no dark theme, and a browser or extension that
+     force-inverts the page must not be able to repaint the ivory paper. */
+  color-scheme: only light;
+
+  /* ── Paper layer — the editorial surface ──────────────────────
+     Warm ivory instead of white, near-black ink with a hint of the brand
+     purple, and two hairlines. Everything below derives from these four
+     values, so the whole look moves together. */
+  --paper: #f3eee8;
+  --paper-deep: #ebe4db;
+  --ink: #1b1620;
+  --ink-muted: color-mix(in srgb, var(--ink) 68%, var(--paper));
+  --line: color-mix(in srgb, var(--ink) 85%, var(--paper));
+  --line-soft: color-mix(in srgb, var(--ink) 18%, var(--paper));
+
   /* ── Brand inputs (overridden by theme.json) ───────────────── */
   --font-cairo: "Cairo", system-ui, sans-serif;
   --brand-purple: #632989;
@@ -98,13 +113,13 @@
   --neutral-900: #111113;
 
   /* ── Semantic tokens (never referenced by Tailwind's names) ── */
-  --ui-bg: var(--neutral-50);
-  --ui-surface: var(--brand-white);
-  --ui-surface-muted: var(--neutral-100);
-  --ui-border: var(--neutral-200);
+  --ui-bg: var(--paper);
+  --ui-surface: var(--paper);
+  --ui-surface-muted: var(--paper-deep);
+  --ui-border: var(--line-soft);
   --ui-border-strong: #8c8499; /* 3.7:1 on white — form controls */
-  --ui-text: var(--neutral-800);
-  --ui-text-muted: var(--neutral-500);
+  --ui-text: var(--ink);
+  --ui-text-muted: var(--ink-muted);
 
   /* Published semantic names (documented in docs/Design-System.md).
      They alias the --ui-* layer so a component can say what it means. */
@@ -152,7 +167,7 @@
   --header-offset: calc(var(--header-capsule) + var(--header-gap));
   /* The capsule's 1px hairline is the only gold in the header. */
   --ui-gold-hairline: color-mix(in srgb, var(--brand-gold) 58%, transparent);
-  --ui-hairline-soft: color-mix(in srgb, var(--ui-border-strong) 26%, transparent);
+  --ui-hairline-soft: var(--line-soft);
 
   /* ── Legacy names kept because existing components read them ─ */
   --color-primary: var(--brand-white);
@@ -660,20 +675,23 @@ html {
 @theme {
   /* Exactly three radii. The stock Tailwind scale is remapped onto
      them so no component can introduce a fourth value. */
-  --radius-control: 12px;
-  --radius-card: 20px;
+  --radius-control: 0px;
+  --radius-card: 0px;
   --radius-pill: 9999px;
-  --radius-xs: 12px;
-  --radius-sm: 12px;
-  --radius-md: 12px;
-  --radius-lg: 12px;
-  --radius-xl: 20px;
-  --radius-2xl: 20px;
-  --radius-3xl: 20px;
-  --radius-4xl: 9999px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 
   /* Exactly two shadows. */
-  --shadow-soft: 0 1px 2px rgb(29 29 31 / 0.04), 0 8px 24px -14px rgb(58 26 79 / 0.14);
+  --shadow-soft: 0 10px 26px -18px color-mix(in srgb, var(--ink) 55%, transparent);
+  /* The product's cast shadow: offset toward the inline-end/bottom, as a
+     bottle standing on paper. */
+  --shadow-cast: 14px 18px 26px -18px color-mix(in srgb, var(--ink) 42%, transparent);
   --shadow-lifted: 0 18px 48px -18px rgb(58 26 79 / 0.26), 0 2px 8px rgb(29 29 31 / 0.05);
 
   /* The stock shadow scale is remapped onto those two, so shadow-sm and

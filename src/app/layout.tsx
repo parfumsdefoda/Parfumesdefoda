@@ -351,6 +351,10 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Light only: no dark scheme exists, so the platform must not invert
+            the page on its own. */}
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light" />
         <JsonLd />
         {theme.colors.primary && (
           <meta name="theme-color" content={theme.colors.primary} />
