@@ -141,7 +141,7 @@ export function ProductCard({
               loading={loading}
               frameClassName="flex h-[62%] w-full items-center justify-center transition-transform duration-[500ms] ease-[var(--ease-apple)] group-hover:scale-[1.03] group-focus-within:scale-[1.03] motion-reduce:transform-none"
               className={cn(
-                "cast-shadow max-h-full w-auto object-contain",
+                "cast-shadow max-h-full w-auto object-contain mix-blend-multiply",
                 outOfStock && "opacity-60",
               )}
             />

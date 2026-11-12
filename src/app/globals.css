@@ -1238,3 +1238,12 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
 .cast-shadow {
   filter: drop-shadow(var(--shadow-cast));
 }
+
+/* ── Page surface ─────────────────────────────────────────────────
+   The body paints the paper itself: an unstyled body falls back to the
+   browser white, which reads as a different (colder) paper beside the
+   ivory cells and header. */
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+}
