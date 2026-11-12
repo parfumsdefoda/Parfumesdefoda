@@ -1,12 +1,18 @@
 "use client";
 
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
-import { SearchBar } from "@/features/search";
+import { SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/currency";
@@ -16,7 +22,6 @@ import {
   countActiveFilters,
   facetValueLabel,
   removeFacetValue,
-  parseCatalogState,
   serializeCatalogState,
   setAvailable,
   setQuery,
@@ -40,9 +45,7 @@ export interface CatalogGroupLabels {
 }
 
 export interface CatalogControlsLabels {
-  searchPlaceholder: string;
-  search: string;
-  clearSearch: string;
+  /** One button opens the drawer: "الفلاتر والترتيب". */
   filters: string;
   clearAll: string;
   availableOnly: string;
@@ -57,14 +60,13 @@ export interface CatalogControlsLabels {
   showResults: string;
   /** Accessible prefix of a chip's remove button. */
   remove: string;
+  /** Accessible name of the drawer. */
+  drawerTitle: string;
   groups: CatalogGroupLabels;
 }
 
 export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
-  searchPlaceholder: "ابحث عن عطرك...",
-  search: "بحث",
-  clearSearch: "مسح البحث",
-  filters: "الفلاتر",
+  filters: "الفلاتر والترتيب",
   clearAll: "مسح الكل",
   availableOnly: "المتوفر فقط",
   resultUnit: "منتج",
@@ -75,6 +77,7 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   sortName: "الاسم (أ-ي)",
   showResults: "عرض {count} منتج",
   remove: "إزالة",
+  drawerTitle: "الفلاتر والترتيب",
   groups: {
     gender: "الجنس",
     style: "النوع",
@@ -85,10 +88,10 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   },
 };
 
-/** The desktop checkbox panel is fetched on the first pill click. */
-const FilterPopover = lazy(() => import("./filter-popover"));
-
-const SEARCH_DEBOUNCE_MS = 250;
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -97,23 +100,26 @@ export interface CatalogControlsProps {
   facets: FacetGroup[];
   total: number;
   labels?: Partial<CatalogControlsLabels>;
-  /**
-   * Groups the route has locked (a category page pins gender). They are not
-   * offered as chips and never written back into the URL, because the route
-   * already says it.
-   */
+  /** Groups the route has locked (a category page pins gender). */
   lockedKeys?: readonly FilterKey[];
+  /** Crumbs shown at the inline-start end of the bar. */
+  breadcrumb?: BreadcrumbItem[];
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * CatalogControls — filters, sort and search, driven by the URL.
+ * CatalogControls — one bar and one drawer.
+ *
+ * The bar holds the breadcrumb, the live result count and a single
+ * "الفلاتر والترتيب" button; there are no facet pills, no popovers and no
+ * search field (the header owns search). The drawer groups every facet as an
+ * accordion with live counts, offers the sort as radios, and closes on
+ * "عرض N منتج".
  *
  * Every change rewrites the query string (`router.replace`, no scroll) and the
  * server renders the new grid, so a view is shareable, reloadable and
- * back-button friendly. Nothing is filtered in the browser: the controls only
- * describe the state they were given.
+ * back-button friendly. Nothing is filtered in the browser.
  */
 export function CatalogControls({
   state,
@@ -121,27 +127,14 @@ export function CatalogControls({
   total,
   labels: labelOverrides,
   lockedKeys = [],
+  breadcrumb = [],
 }: CatalogControlsProps) {
   const labels = { ...DEFAULT_CONTROLS_LABELS, ...labelOverrides };
   const router = useRouter();
   const pathname = usePathname() || "/";
 
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const sheetTriggerRef = useRef<HTMLButtonElement>(null);
-  const [openGroup, setOpenGroup] = useState<{
-    key: FilterKey;
-    anchor: HTMLButtonElement;
-  } | null>(null);
-
-  // Search is the one field that needs a local value while typing. The URL
-  // stays authoritative: when the query string changes underneath (back,
-  // a link), the field follows it during render — not in an effect.
-  const [query, setQueryValue] = useState(state.q);
-  const [seenQuery, setSeenQuery] = useState(state.q);
-  if (state.q !== seenQuery) {
-    setSeenQuery(state.q);
-    setQueryValue(state.q);
-  }
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const commit = useCallback(
     (next: CatalogState) => {
@@ -153,204 +146,94 @@ export function CatalogControls({
     [lockedKeys, pathname, router],
   );
 
-  // Debounce the search into the URL. The timer reads the *live* query string
-  // when it fires, so a filter toggled while the shopper is still typing is
-  // never dropped by a stale closure.
-  useEffect(() => {
-    if (query === state.q) return;
-    const timer = setTimeout(() => {
-      const current = parseCatalogState(
-        Object.fromEntries(new URLSearchParams(window.location.search)),
-      );
-      if (current.q === query.trim()) return;
-      commit(setQuery(current, query));
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [query, state.q, commit]);
-
   const activeCount = countActiveFilters(state, lockedKeys);
-  const openFacet = openGroup ? facets.find((group) => group.key === openGroup.key) : undefined;
   const activeValues = FILTER_KEYS.filter((key) => !lockedKeys.includes(key)).flatMap((key) =>
     state[key].map((value) => ({ key, value })),
   );
   const showResults = labels.showResults.replace("{count}", formatNumber(total));
+  const visibleFacets = facets.filter((group) => !lockedKeys.includes(group.key));
 
   const toggle = (key: FilterKey, value: string) => commit(toggleFacetValue(state, key, value));
-
   const clearAll = () => commit(clearCatalogFilters(state));
 
-  // ─── Pieces ───
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "featured", label: labels.sortFeatured },
+    { value: "price-asc", label: labels.sortPriceAsc },
+    { value: "price-desc", label: labels.sortPriceDesc },
+    { value: "alphabetical", label: labels.sortName },
+  ];
 
-  const availableToggle = (
-    <div className="flex items-center gap-2.5">
-      <Checkbox
-        id="catalog-available"
-        checked={state.available}
-        onCheckedChange={() => commit(setAvailable(state, !state.available))}
-        aria-label={labels.availableOnly}
-      />
-      <Label
-        htmlFor="catalog-available"
-        className="cursor-pointer text-caption font-normal text-[var(--color-text)]"
-      >
-        {labels.availableOnly}
-      </Label>
-    </div>
-  );
-
-  const optionsFor = (group: FacetGroup, variant: "popover" | "sheet") => (
-    <div
-      role="group"
-      aria-label={labels.groups[group.key]}
-      className={cn("flex flex-col gap-1", variant === "sheet" && "gap-3")}
-    >
-      {group.options.map((option, index) => (
-        <FacetRow
-          key={option.value}
-          id={`catalog-${group.key}-${variant}-${index}`}
-          group={group.key}
-          option={option}
-          checked={state[group.key].includes(option.value)}
-          onToggle={() => toggle(group.key, option.value)}
-        />
-      ))}
-    </div>
-  );
+  const chipClass =
+    "inline-flex items-center gap-1.5 border-b border-[var(--color-brand)] pb-0.5 text-[14px] text-[var(--ink)] transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]";
 
   return (
-    <div className="mb-8 flex flex-col gap-4">
-      {/* Search · count · sort */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
-          <SearchBar
-            value={query}
-            onChange={setQueryValue}
-            placeholder={labels.searchPlaceholder}
-            label={labels.search}
-            clearLabel={labels.clearSearch}
-            className="w-full md:w-72"
-          />
-          <Button
-            ref={sheetTriggerRef}
-            variant="secondary"
-            className="shrink-0 lg:hidden"
-            onClick={() => setSheetOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={sheetOpen}
-          >
-            <SlidersHorizontal aria-hidden="true" />
-            <span>{labels.filters}</span>
-            {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1.5 text-caption font-bold text-[var(--color-on-brand)]">
-                {formatNumber(activeCount)}
-              </span>
-            )}
-          </Button>
-        </div>
+    <div>
+      {/* ─── The bar ─── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[var(--line)] py-3">
+        <nav aria-label="breadcrumb" className="min-w-0">
+          <ol className="flex flex-wrap items-center gap-1.5 text-[14px] text-[var(--ink-muted)]">
+            {breadcrumb.map((crumb, index) => (
+              <li key={`${crumb.label}-${index}`} className="flex items-center gap-1.5">
+                {crumb.href ? (
+                  <Link
+                    href={crumb.href}
+                    className="transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
+                  >
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span aria-current="page" className="text-[var(--ink)]">
+                    {crumb.label}
+                  </span>
+                )}
+                {index < breadcrumb.length - 1 && (
+                  <span aria-hidden="true" className="text-[var(--line)]">
+                    /
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-        <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p aria-live="polite" className="text-caption text-[var(--color-text-muted)]">
-            {formatNumber(total)} {labels.resultUnit}
-          </p>
-          <div className="relative">
-            <label htmlFor="catalog-sort" className="sr-only">
-              {labels.sort}
-            </label>
-            <select
-              id="catalog-sort"
-              value={state.sort}
-              onChange={(event) => commit(setSort(state, event.target.value as SortOption))}
-              className={cn(
-                "h-11 appearance-none rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)]",
-                "ps-4 pe-9 text-caption font-medium text-[var(--color-text)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-              )}
-            >
-              <option value="featured">{labels.sortFeatured}</option>
-              <option value="price-asc">{labels.sortPriceAsc}</option>
-              <option value="price-desc">{labels.sortPriceDesc}</option>
-              <option value="alphabetical">{labels.sortName}</option>
-            </select>
-            <ChevronDown
-              aria-hidden="true"
-              className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]"
-            />
-          </div>
-        </div>
+        <p
+          aria-live="polite"
+          className="order-last w-full text-[14px] text-[var(--ink-muted)] sm:order-none sm:w-auto"
+        >
+          {formatNumber(total)} {labels.resultUnit}
+        </p>
+
+        <Button
+          ref={triggerRef}
+          variant="outline"
+          onClick={() => setDrawerOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={drawerOpen}
+          className="gap-2 border-[var(--line)] bg-transparent text-[14px] font-medium text-[var(--ink)] hover:bg-[var(--paper-deep)]"
+        >
+          <SlidersHorizontal aria-hidden="true" className="size-4" />
+          {labels.filters}
+          {activeCount > 0 && (
+            <span className="ms-1 bg-[var(--color-brand)] px-1.5 py-0.5 text-[14px] font-bold leading-none text-[var(--color-on-brand)]">
+              {formatNumber(activeCount)}
+            </span>
+          )}
+        </Button>
       </div>
 
-      {/* Desktop filter bar */}
-      <div className="hidden flex-wrap items-center gap-2 lg:flex">
-        {facets.map((group) => {
-          const active = state[group.key].length;
-          const expanded = openGroup?.key === group.key;
-          return (
-            <button
-              key={group.key}
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={expanded}
-              onClick={(event) => {
-                const anchor = event.currentTarget;
-                setOpenGroup((current) =>
-                  current?.key === group.key ? null : { key: group.key, anchor },
-                );
-              }}
-              className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-pill border px-4 text-caption font-medium",
-                "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                active > 0
-                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-brand)]"
-                  : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
-              )}
-            >
-              <span>{labels.groups[group.key]}</span>
-              {active > 0 && (
-                <span className="text-caption font-bold tabular-nums">{formatNumber(active)}</span>
-              )}
-              <ChevronDown aria-hidden="true" className="h-4 w-4" />
-            </button>
-          );
-        })}
-
-        {openGroup && openFacet && (
-          <Suspense fallback={null}>
-            <FilterPopover
-              anchor={openGroup.anchor}
-              group={openFacet}
-              title={labels.groups[openFacet.key]}
-              active={state[openFacet.key]}
-              onToggle={(value) => commit(toggleFacetValue(state, openFacet.key, value))}
-              onClose={() => setOpenGroup(null)}
-            />
-          </Suspense>
-        )}
-
-        <div className="inline-flex h-10 items-center rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-4">
-          {availableToggle}
-        </div>
-
-        {activeCount > 0 && (
-          <Button variant="tertiary" onClick={clearAll}>
-            {labels.clearAll}
-          </Button>
-        )}
-      </div>
-
-      {/* Active chips */}
+      {/* ─── Active filters, as small removable text chips ─── */}
       {(activeValues.length > 0 || state.available || state.q) && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-[var(--line-soft)] py-3">
           {activeValues.map(({ key, value }) => (
             <button
               key={`${key}-${value}`}
               type="button"
               onClick={() => commit(removeFacetValue(state, key, value))}
               aria-label={`${labels.remove} ${facetValueLabel(key, value)}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className={chipClass}
             >
               {facetValueLabel(key, value)}
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
+              <X aria-hidden="true" className="size-3.5" />
             </button>
           ))}
           {state.available && (
@@ -358,79 +241,156 @@ export function CatalogControls({
               type="button"
               onClick={() => commit(setAvailable(state, false))}
               aria-label={`${labels.remove} ${labels.availableOnly}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className={chipClass}
             >
               {labels.availableOnly}
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
+              <X aria-hidden="true" className="size-3.5" />
             </button>
           )}
           {state.q && (
             <button
               type="button"
-              onClick={() => {
-                setQueryValue("");
-                commit(setQuery(state, ""));
-              }}
+              onClick={() => commit(setQuery(state, ""))}
               aria-label={`${labels.remove} ${state.q}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className={chipClass}
             >
               «{state.q}»
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
+              <X aria-hidden="true" className="size-3.5" />
+            </button>
+          )}
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="ms-auto text-[14px] font-medium text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
+            >
+              {labels.clearAll}
             </button>
           )}
         </div>
       )}
 
-      {/* Mobile / tablet filter sheet */}
-      {/* Closing returns focus to the button that opened the sheet. */}
+      {/* ─── The one drawer ─── */}
       <Sheet
-        open={sheetOpen}
+        open={drawerOpen}
         onOpenChange={(open) => {
-          setSheetOpen(open);
-          if (!open) sheetTriggerRef.current?.focus();
+          setDrawerOpen(open);
+          if (!open) triggerRef.current?.focus();
         }}
       >
         <SheetContent
-          side="bottom"
-          // The bottom side sets h-auto, so a fixed h-[88vh] never applies and the
-          // sheet grew to its full content height: on a 375x812 phone the facets
-          // started ~470px above the viewport with no scroll container, making
-          // them unreachable. max-h caps the sheet and lets the middle pane scroll.
-          className="max-h-[88svh] gap-0 rounded-t-card p-0"
+          // The inline-end edge in an RTL document is the physical left.
+          side="left"
+          className="w-full gap-0 border-[var(--line)] bg-[var(--paper)] p-0 text-[var(--ink)] sm:max-w-md"
         >
-          <SheetHeader className="border-b border-[var(--color-border)] px-4 py-3">
-            <SheetTitle className="text-body font-bold">{labels.filters}</SheetTitle>
+          <SheetHeader className="border-b border-[var(--line)] px-4 py-4">
+            <SheetTitle className="text-[16px] font-semibold text-[var(--ink)]">
+              {labels.drawerTitle}
+            </SheetTitle>
           </SheetHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4">
-            {facets.map((group) => (
-              <section
-                key={group.key}
-                className="border-b border-[var(--color-border)] py-4 last:border-b-0"
-              >
-                <h3 className="mb-3 text-caption font-bold text-[var(--color-text)]">
-                  {labels.groups[group.key]}
-                </h3>
-                {optionsFor(group, "sheet")}
-              </section>
-            ))}
-            <section className="py-4">{availableToggle}</section>
+            <Accordion>
+              {visibleFacets.map((group) => (
+                <AccordionItem key={group.key} value={group.key}>
+                  <AccordionTrigger className="py-4 text-[14px] font-medium text-[var(--ink)] hover:no-underline">
+                    <span className="flex w-full items-center justify-between gap-2">
+                      <span>{labels.groups[group.key]}</span>
+                      {state[group.key].length > 0 && (
+                        <span className="text-[var(--color-brand)]">
+                          {formatNumber(state[group.key].length)}
+                        </span>
+                      )}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-3">
+                    <div
+                      role="group"
+                      aria-label={labels.groups[group.key]}
+                      className="flex flex-col"
+                    >
+                      {group.options.map((option, index) => (
+                        <FacetRow
+                          key={option.value}
+                          id={`catalog-${group.key}-${index}`}
+                          group={group.key}
+                          option={option}
+                          checked={state[group.key].includes(option.value)}
+                          onToggle={() => toggle(group.key, option.value)}
+                        />
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+
+              <AccordionItem value="available">
+                <AccordionTrigger className="py-4 text-[14px] font-medium text-[var(--ink)] hover:no-underline">
+                  {labels.availableOnly}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <Checkbox
+                      id="catalog-available"
+                      checked={state.available}
+                      onCheckedChange={() => commit(setAvailable(state, !state.available))}
+                      aria-label={labels.availableOnly}
+                    />
+                    <Label
+                      htmlFor="catalog-available"
+                      className="cursor-pointer text-[14px] font-normal text-[var(--ink)]"
+                    >
+                      {labels.availableOnly}
+                    </Label>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="sort">
+                <AccordionTrigger className="py-4 text-[14px] font-medium text-[var(--ink)] hover:no-underline">
+                  {labels.sort}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  <fieldset className="flex flex-col gap-1">
+                    <legend className="sr-only">{labels.sort}</legend>
+                    {sortOptions.map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex cursor-pointer items-center gap-2.5 py-2 text-[14px] text-[var(--ink)]"
+                      >
+                        <input
+                          type="radio"
+                          name="catalog-sort"
+                          value={option.value}
+                          checked={state.sort === option.value}
+                          onChange={() => commit(setSort(state, option.value))}
+                          className="size-4 accent-[var(--color-brand)]"
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </fieldset>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
 
-          <SheetFooter className="border-t border-[var(--color-border)] px-4 py-3">
+          <SheetFooter className="border-t border-[var(--line)] px-4 py-4">
             <Button
               variant="primary"
-              className="w-full font-bold"
+              className="h-12 w-full text-[14px] font-semibold"
               onClick={() => {
-                setSheetOpen(false);
-                sheetTriggerRef.current?.focus();
+                setDrawerOpen(false);
+                triggerRef.current?.focus();
               }}
             >
               {showResults}
             </Button>
-            <Button variant="tertiary" onClick={clearAll}>
-              {labels.clearAll}
-            </Button>
+            {activeCount > 0 && (
+              <Button variant="tertiary" onClick={clearAll} className="text-[14px]">
+                {labels.clearAll}
+              </Button>
+            )}
           </SheetFooter>
         </SheetContent>
       </Sheet>
@@ -457,11 +417,7 @@ function FacetRow({
 
   return (
     <div
-      className={cn(
-        "flex items-center gap-2.5 rounded-control px-1.5 py-1.5",
-        "hover:bg-[var(--ui-surface-muted)]",
-        empty && "opacity-50",
-      )}
+      className={cn("flex items-center gap-2.5 py-2", empty && "opacity-50")}
       data-filter-group={group}
     >
       <Checkbox
@@ -474,13 +430,13 @@ function FacetRow({
       <Label
         htmlFor={id}
         className={cn(
-          "flex-1 text-caption font-normal text-[var(--color-text)]",
+          "flex-1 text-[14px] font-normal text-[var(--ink)]",
           empty ? "cursor-not-allowed" : "cursor-pointer",
         )}
       >
         {option.label}
       </Label>
-      <span className="text-caption tabular-nums text-[var(--color-text-muted)]">
+      <span className="text-[14px] tabular-nums text-[var(--ink-muted)]">
         {formatNumber(option.count)}
       </span>
     </div>

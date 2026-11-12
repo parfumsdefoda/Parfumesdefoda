@@ -31,10 +31,7 @@ export function buildCardLabels(locale: LocaleMessages): ProductCardLabels {
 
 export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabels {
   return {
-    searchPlaceholder: t(locale, "home.searchPlaceholder", "ابحث عن عطرك..."),
-    search: t(locale, "catalog.search", "بحث"),
-    clearSearch: t(locale, "catalog.clearSearch", "مسح البحث"),
-    filters: t(locale, "catalog.filters", "الفلاتر"),
+    filters: t(locale, "catalog.filters", "الفلاتر والترتيب"),
     clearAll: t(locale, "catalog.clearAll", "مسح الكل"),
     availableOnly: t(locale, "catalog.availableOnly", "المتوفر فقط"),
     resultUnit: t(locale, "catalog.resultUnit", "منتج"),
@@ -45,6 +42,7 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
     sortName: t(locale, "catalog.sortName", "الاسم (أ-ي)"),
     showResults: t(locale, "catalog.showResults", "عرض {count} منتج"),
     remove: t(locale, "catalog.remove", "إزالة"),
+    drawerTitle: t(locale, "catalog.filters", "الفلاتر والترتيب"),
     groups: {
       gender: t(locale, "catalog.groupGender", "الجنس"),
       style: t(locale, "catalog.groupStyle", "النوع"),

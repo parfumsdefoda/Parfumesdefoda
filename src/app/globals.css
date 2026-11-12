@@ -92,7 +92,7 @@
   --gold-300: color-mix(in srgb, var(--brand-gold) 60%, var(--brand-white));
   --gold-500: var(--brand-gold);
   /* 5.1:1 on white — the only gold allowed as text */
-  --gold-700: color-mix(in srgb, var(--brand-gold) 62%, #000000);
+  --gold-700: color-mix(in srgb, var(--brand-gold) 54%, #000000);
 
   /* ── Green scale — status & freshness only ─────────────────── */
   --green-50: color-mix(in srgb, var(--brand-green) 14%, var(--brand-white));

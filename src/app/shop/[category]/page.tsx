@@ -5,7 +5,6 @@ import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { t } from "@/lib/locale";
 import { formatNumber } from "@/lib/currency";
-import { getSiteUrl } from "@/lib/seo";
 import { parseCatalogState } from "@/lib/catalog-filters";
 import { buildCatalogView } from "@/lib/catalog-query";
 import {
@@ -14,14 +13,13 @@ import {
   categoryHref,
   genderPublicLabel,
 } from "@/lib/site-nav";
-import { CatalogSection } from "@/features/catalog";
+import { CatalogBanner, CatalogSection } from "@/features/catalog";
 import {
   buildCardLabels,
   buildControlsLabels,
   buildSectionLabels,
   columnsFor,
 } from "@/features/catalog/catalog-props";
-import { Breadcrumbs } from "@/features/layout";
 
 /**
  * /shop/men · /shop/women · /shop/unisex — the catalogue with one gender pinned.
@@ -98,35 +96,30 @@ export default async function CategoryPage({
   const homeLabel = t(locale, "nav.home", "الرئيسية");
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-4 pb-[var(--space-section)] pt-6">
-      <Breadcrumbs
-        className="mb-5"
-        siteUrl={getSiteUrl()}
-        items={[
-          { label: homeLabel, href: "/" },
-          { label: shopLabel, href: "/shop" },
-          { label },
-        ]}
+    <div className="pb-[var(--space-section)]">
+      <CatalogBanner
+        title={label}
+        lead={t(locale, "shop.categoryCount", "{count} عطر").replace(
+          "{count}",
+          formatNumber(categorySize),
+        )}
       />
 
-      <header className="mb-6 flex flex-col gap-2">
-        <h1 className="text-title-3 font-bold text-[var(--color-text)]">{label}</h1>
-        <p className="text-caption text-[var(--color-text-muted)]">
-          {t(locale, "shop.categoryCount", "{count} عطر").replace(
-            "{count}",
-            formatNumber(categorySize),
-          )}
-        </p>
-      </header>
-
-      <CatalogSection
-        view={view}
-        columns={columnsFor(settings)}
-        cardLabels={buildCardLabels(locale)}
-        controlsLabels={buildControlsLabels(locale)}
-        labels={buildSectionLabels(locale)}
-        lockedKeys={["gender"]}
-      />
+      <div className="mx-auto w-full max-w-[1600px] px-4 lg:px-6">
+        <CatalogSection
+          view={view}
+          columns={columnsFor(settings)}
+          cardLabels={buildCardLabels(locale)}
+          controlsLabels={buildControlsLabels(locale)}
+          labels={buildSectionLabels(locale)}
+          lockedKeys={["gender"]}
+          breadcrumb={[
+            { label: homeLabel, href: "/" },
+            { label: shopLabel, href: "/shop" },
+            { label },
+          ]}
+        />
+      </div>
     </div>
   );
 }

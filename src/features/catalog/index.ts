@@ -6,3 +6,5 @@ export type {
 } from "./components/catalog-controls";
 export { CatalogSection } from "./components/catalog-section";
 export type { CatalogSectionLabels, CatalogSectionProps } from "./components/catalog-section";
+
+export { CatalogBanner } from "./components/catalog-banner";

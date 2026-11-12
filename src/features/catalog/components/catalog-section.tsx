@@ -7,6 +7,7 @@ import {
 import type { CatalogView } from "@/lib/catalog-query";
 import {
   CatalogControls,
+  type BreadcrumbItem,
   type CatalogControlsLabels,
 } from "./catalog-controls";
 import type { FilterKey } from "@/lib/catalog-filters";
@@ -27,6 +28,8 @@ export interface CatalogSectionProps {
   labels: CatalogSectionLabels;
   /** Filter groups the route owns (a category page pins gender). */
   lockedKeys?: readonly FilterKey[];
+  /** Crumbs for the bar above the grid. */
+  breadcrumb?: BreadcrumbItem[];
 }
 
 /**
@@ -43,9 +46,10 @@ export function CatalogSection({
   controlsLabels,
   labels,
   lockedKeys,
+  breadcrumb,
 }: CatalogSectionProps) {
   return (
-    <section className="container mx-auto px-4 py-[var(--space-section)]">
+    <section>
       <h2 className="sr-only">{labels.title}</h2>
 
       <CatalogControls
@@ -54,29 +58,22 @@ export function CatalogSection({
         total={view.total}
         labels={controlsLabels}
         lockedKeys={lockedKeys}
+        breadcrumb={breadcrumb}
       />
 
       {view.total === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <p className="text-body font-bold text-[var(--color-text)]">
-            {labels.emptyTitle}
-          </p>
-          <p className="text-caption text-[var(--color-text-muted)]">
-            {labels.emptyHint}
-          </p>
+          <p className="text-[16px] font-semibold text-[var(--ink)]">{labels.emptyTitle}</p>
+          <p className="text-[14px] text-[var(--ink-muted)]">{labels.emptyHint}</p>
           <Link
             href="/shop"
-            className="mt-2 inline-flex h-11 items-center rounded-pill border border-[var(--color-brand)] px-5 text-caption font-bold text-[var(--color-brand)] transition-colors hover:bg-[var(--purple-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            className="mt-2 inline-flex h-11 items-center border border-[var(--color-brand)] px-5 text-[14px] font-semibold text-[var(--color-brand)] transition-colors hover:bg-[var(--purple-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
           >
             {labels.clearFilters}
           </Link>
         </div>
       ) : (
-        <ProductGrid
-          products={view.products}
-          columns={columns}
-          labels={cardLabels}
-        />
+        <ProductGrid products={view.products} columns={columns} labels={cardLabels} />
       )}
     </section>
   );
