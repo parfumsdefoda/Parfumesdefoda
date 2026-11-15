@@ -13,7 +13,7 @@ migrated yet, not that the design is wrong.
 | 2 | Catalogue grid: 2/3/4 columns, edge-to-edge inside 1920px, hairlines only, paper cells | **Yes** | `.qa/ui2final/shop-1440.png`; card spec asserts `border-inline-end`/`border-block-end` 1px, radius 0, no shadow |
 | 3 | Card anatomy: square image box, name 15/600, price 14/500 muted, nothing else | **Yes** | `.qa/ui2final/shop-1440.png`; `card-contract.spec.ts` measures centring, 15px/600 and the square box |
 | 4 | Photo classes from the manifest (transparent / white backdrop / scene) | **Yes** | grid mixes all three; `data-photo` on each cell, treatments asserted through `buildProductImageSources` |
-| 5 | Premium cells: one gold hairline inset 10px, no dark stage | **Yes** | `.qa/ui2final/shop-1440.png`; frame measured at 10px in `card-contract.spec.ts` |
+| 5 | Premium cells: one gold hairline inset 10px, no dark stage | **Yes** | `.qa/ui2final/shop-1440.png`; frame measured at 10px in `card-contract.spec.ts` and again on the PDP stage in `pdp-contract.spec.ts`. Unaffected by RUN 3: no photo was rewritten (0 eligible), so premium and regular cells look exactly as in R2 |
 | 6 | Hover/focus: image 1.03, purple name underline, reserved 44px slot, no lift | **Yes** | `.qa/ui2-pdp-*.png` set + `card-contract.spec.ts` (positions do not move; slot ≥43px) |
 | 7 | Shop bar: breadcrumb, count, "الفلاتر والترتيب" opening ONE drawer, removable chips | **No** | `.qa/ui2final/shop-1440.png` still shows the old rounded filter pills and the toolbar search field. R1-4 is not built |
 | 8 | Home: intro bar `<h1>` + "عرض الكل", best-sellers, category cells, advisor band, no hero | **No** | `.qa/ui2final/home-1440.png` is still the dark purple hero. R1-4 is not built |
@@ -40,6 +40,16 @@ migrated yet, not that the design is wrong.
   (drawer, search panel, mobile menu, size chooser, checkout errors, 404).
 - `check:links`: 70 internal paths and 66 sitemap URLs healthy.
 - Hidden-product leakage: clean on every surface (`Leak check clean on every surface`).
+
+## RUN 3 — photo backdrops
+
+No derivative was regenerated: the 6px-ring rule found **0 eligible** photos among
+77 derived files. 66 carry real alpha; the 11 without it are scenes or coloured
+still-lifes (`pf090 pf290 pf480 pf570 pf571 pf572 pf600 pf630 pf680 pf700 pf720`)
+and stay `cover`, listed in `.audit/needs-retouch.txt`. The before/after frames of
+`/` and `/shop` at 375 and 1440 (`.qa/r3-before/`, `.qa/r3-after/`) are identical,
+as expected when no pixels change; the 11-candidate sheet is
+`.qa/backdrop-sheet.png`. Details: `docs/Backdrop-Audit.md`.
 
 ## Not fixed / not done
 
