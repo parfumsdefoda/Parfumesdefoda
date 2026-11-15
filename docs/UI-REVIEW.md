@@ -1,9 +1,9 @@
 # UI Review — gallery redesign
 
-Answered on the current `ui-gallery` build (HEAD `bf1bb95` + the R2-3 tests),
-from the screenshots in `.qa/ui2final/` (375/768/1024/1440 of every surface) and
-the measured values recorded below. A "No" means the surface has not been
-migrated yet, not that the design is wrong.
+Answered on the current `ui-gallery` build (HEAD `4ce0c1d` + the R1-4 rebuild),
+from `.qa/ui3final/` (home, shop and the one drawer at 375/1440) plus the earlier
+`.qa/ui2final/` set for the surfaces R1-4 did not touch, and the measured values
+recorded below. All sixteen rows are "Yes".
 
 ## The twelve items
 
@@ -15,8 +15,8 @@ migrated yet, not that the design is wrong.
 | 4 | Photo classes from the manifest (transparent / white backdrop / scene) | **Yes** | grid mixes all three; `data-photo` on each cell, treatments asserted through `buildProductImageSources` |
 | 5 | Premium cells: one gold hairline inset 10px, no dark stage | **Yes** | `.qa/ui2final/shop-1440.png`; frame measured at 10px in `card-contract.spec.ts` and again on the PDP stage in `pdp-contract.spec.ts`. Unaffected by RUN 3: no photo was rewritten (0 eligible), so premium and regular cells look exactly as in R2 |
 | 6 | Hover/focus: image 1.03, purple name underline, reserved 44px slot, no lift | **Yes** | `.qa/ui2-pdp-*.png` set + `card-contract.spec.ts` (positions do not move; slot ≥43px) |
-| 7 | Shop bar: breadcrumb, count, "الفلاتر والترتيب" opening ONE drawer, removable chips | **No** | `.qa/ui2final/shop-1440.png` still shows the old rounded filter pills and the toolbar search field. R1-4 is not built |
-| 8 | Home: intro bar `<h1>` + "عرض الكل", best-sellers, category cells, advisor band, no hero | **No** | `.qa/ui2final/home-1440.png` is still the dark purple hero. R1-4 is not built |
+| 7 | Shop bar: breadcrumb, count, "الفلاتر والترتيب" opening ONE drawer, removable chips | **Yes** | `.qa/ui3final/shop-1440.png` and `drawer-1440.png`: breadcrumb above the h1, one count + one trigger on a hairline, one left-edge drawer with accordions, sort radios, live counts, "مسح الكل" and the purple CTA. The toolbar search and the per-group popovers are deleted (`filter-popover.tsx` removed); chips are hairline rectangles |
+| 8 | Home: intro bar `<h1>` + "عرض الكل", best-sellers, category cells, advisor band, no hero | **Yes** | `.qa/ui3final/home-1440.png` and `home-375.png`: hero deleted (`hero-section.tsx` removed), one h1 intro bar, eight best sellers in the hairline 2/4 grid, three hairline category cells, advisor strip on paper with a purple button. `e2e/home-intro.spec.ts` asserts the bar and the grid adjacency |
 | 9 | Footer: purple-950, radius 0, one gold hairline on top | **Yes** | every `.qa/ui2final/*-1440.png`; `border-t border-[var(--brand-gold)] bg-[var(--purple-950)]` |
 | 10 | Typography: Cairo only, nothing below 14px | **Yes** | `check:tokens` passes (it fails on sub-14px text) |
 | 11 | Colour discipline: purple for links/nav/focus/primary/selected, gold only premium frame + footer hairline, green status only | **Yes** | shop/PDP/checkout frames; `--ink-muted` darkened to 78% so AA holds |
@@ -51,10 +51,21 @@ and stay `cover`, listed in `.audit/needs-retouch.txt`. The before/after frames 
 as expected when no pixels change; the 11-candidate sheet is
 `.qa/backdrop-sheet.png`. Details: `docs/Backdrop-Audit.md`.
 
-## Not fixed / not done
+## RUN 4 — home and shop rebuilt
 
-- **Items 7 and 8** need R1-4 (home rebuild, shop bar and single filter drawer).
-  They are the reason this review has "no" and the reason the branch is not pushed.
+R1-4 deletes the hero and the old shop controls. Evidence: `.qa/ui3final/`
+(home 375/1440, shop 375/1440, the one drawer at 375/1440), `e2e/home-intro.spec.ts`
+(new), `storefront.spec.ts` updated to drive sort through the drawer and drop the
+toolbar search. E2E three runs: **179 passed / 0 failed / 13 skipped**, then
+178/1 (a footer-link click that passed alone) then 179/0. `perf:budget` 207–257
+KiB vs 240/260. `check:derived` and 18 geometry spec cases green.
+
+**Measured regression to disclose:** Lighthouse (single run, mobile) on `/` is now
+**90 / LCP 3.6 s**, down from 100 / 0.91 s, because the LCP element changed from the
+hero headline to the first product photo. `/shop` is unchanged at 89 / 3.8 s. The
+budget gate is still green; trimming the card derivative sizes is the follow-up.
+
+## Not fixed / not done
 - `/dev/product-card` returns 404 under `next start` because `/dev/*` routes are
   production-disabled; the card states can only be captured from `next dev`.
 - The checkout order summary is a `<details open>`, so it starts expanded on a
