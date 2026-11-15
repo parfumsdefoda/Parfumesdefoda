@@ -95,7 +95,7 @@ export function AdvisorLauncher({ labels, onIntent }: AdvisorLauncherProps) {
       {greeting && (
         <div
           role="status"
-          className="relative w-60 rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] p-3 pe-12 text-caption leading-relaxed text-[var(--color-text)] shadow-lifted"
+          className="relative w-60 border border-[var(--line)] bg-[var(--paper)] p-3 pe-12 text-caption leading-relaxed text-[var(--ink)]"
         >
           {labels.greeting}
           {/* 44px target: the bubble is small, the tap area is not. */}
@@ -103,7 +103,7 @@ export function AdvisorLauncher({ labels, onIntent }: AdvisorLauncherProps) {
             type="button"
             onClick={dismissGreeting}
             aria-label={labels.dismiss}
-            className="absolute end-0 top-0 inline-flex size-11 items-center justify-center rounded-pill text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-inset"
+            className="absolute end-0 top-0 inline-flex size-11 items-center justify-center text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-inset"
           >
             <X aria-hidden="true" className="size-4" />
           </button>
@@ -120,7 +120,7 @@ export function AdvisorLauncher({ labels, onIntent }: AdvisorLauncherProps) {
           dismissGreeting();
           openAdvisor();
         }}
-        className="relative inline-flex size-14 items-center justify-center rounded-full bg-[var(--color-brand)] text-[var(--color-on-brand)] shadow-lifted transition-transform duration-[var(--duration-fast)] ease-[var(--ease-apple)] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:scale-100"
+        className="relative inline-flex size-14 items-center justify-center rounded-full bg-[var(--color-brand)] text-[var(--color-on-brand)] transition-transform duration-[var(--duration-fast)] ease-[var(--ease-apple)] hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:scale-100"
       >
         <Sparkles aria-hidden="true" className="size-6" />
       </button>

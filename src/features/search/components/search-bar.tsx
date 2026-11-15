@@ -41,7 +41,7 @@ export function SearchBar({
         {label}
       </label>
       <Search
-        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-[var(--color-text-muted)]"
+        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-muted)]"
         aria-hidden="true"
       />
       <Input
@@ -50,14 +50,14 @@ export function SearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-11 rounded-pill border border-[var(--color-border-strong)] bg-[var(--color-surface-muted)] ps-10 pe-11 text-caption text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] transition-colors focus-visible:border-[var(--color-brand)] focus-visible:bg-[var(--color-surface)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-0"
+        className="h-11 border border-[var(--ink)] bg-[var(--paper-deep)] ps-10 pe-11 text-caption text-[var(--ink)] placeholder:text-[var(--ink-muted)] transition-colors focus-visible:border-[var(--color-brand)] focus-visible:bg-[var(--paper)] focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-0"
       />
       {value && (
         <Button
           variant="ghost"
           size="icon-xs"
           onClick={() => onChange("")}
-          className="absolute end-2 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+          className="absolute end-2 top-1/2 -translate-y-1/2 text-[var(--ink-muted)] hover:text-[var(--ink)]"
           aria-label={clearLabel}
         >
           <X aria-hidden="true" />

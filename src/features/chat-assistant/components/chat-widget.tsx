@@ -144,7 +144,7 @@ export function ChatWidget({ labels }: ChatWidgetProps) {
   /* A side panel from the desktop breakpoint up, a bottom sheet below it. */
   const panelClass = isDesktop
     ? "w-[420px] max-w-[92vw] p-0"
-    : "min-h-[78dvh] rounded-t-card border-t border-[var(--color-border)] p-0";
+    : "min-h-[78dvh] border-t border-[var(--line)] p-0";
 
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>

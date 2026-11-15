@@ -194,7 +194,7 @@ export function CheckoutPageClient({
               </div>
             )}
             {cartBlocked && (
-              <p role="alert" className="mb-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
+              <p role="alert" className="mb-4 border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
                 احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.
               </p>
             )}
@@ -232,9 +232,9 @@ export function CheckoutPageClient({
                 accordion JavaScript in the checkout bundle. */}
             <details
               open
-              className="overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface-muted)] lg:sticky lg:top-24"
+              className="overflow-hidden border border-[var(--line)] bg-[var(--paper-deep)] lg:sticky lg:top-24"
             >
-              <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-3 p-4 text-start text-headline font-bold text-[var(--color-text)] [&::-webkit-details-marker]:hidden lg:cursor-default">
+              <summary className="flex w-full cursor-pointer list-none items-center justify-between gap-3 p-4 text-start text-headline font-bold text-[var(--ink)] [&::-webkit-details-marker]:hidden lg:cursor-default">
                 <span>ملخص الطلب</span>
                 <span className="text-title-3 text-[var(--color-brand)]">{formatPrice(total)}</span>
               </summary>
@@ -242,7 +242,7 @@ export function CheckoutPageClient({
                   <h2 className="sr-only">ملخص الطلب ({formatNumber(cart.totalItems)} منتج)</h2>
 
               {/* Items */}
-              <div className="mb-4 divide-y divide-[var(--color-border)]">
+              <div className="mb-4 divide-y divide-[var(--line)]">
                 {lines.map((line) => (
                   <CartLine
                     key={`${line.item.productId}-${line.item.sizeLabel}`}
@@ -263,7 +263,7 @@ export function CheckoutPageClient({
                 <span className="text-[var(--neutral-700)]">{PAYMENT_METHOD}</span>
               </div>
               {cartBlocked && (
-                <p role="alert" className="mt-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
+                <p role="alert" className="mt-4 border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
                   احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.
                 </p>
               )}

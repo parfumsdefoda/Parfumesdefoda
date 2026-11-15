@@ -44,7 +44,7 @@ export function Breadcrumbs({
 
   return (
     <nav aria-label={label} className={className}>
-      <ol className="flex flex-wrap items-center gap-1.5 text-caption text-[var(--color-text-muted)]">
+      <ol className="flex flex-wrap items-center gap-1.5 text-caption text-[var(--ink-muted)]">
         {items.map((item, index) => {
           const last = index === items.length - 1;
           return (
@@ -52,20 +52,20 @@ export function Breadcrumbs({
               {index > 0 && (
                 <ChevronLeft
                   aria-hidden="true"
-                  className="h-3.5 w-3.5 text-[var(--color-border-strong)]"
+                  className="h-3.5 w-3.5 text-[var(--ink-muted)]"
                 />
               )}
               {item.href && !last ? (
                 <Link
                   href={item.href}
-                  className="rounded-control transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                  className="transition-colors hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
                   {item.label}
                 </Link>
               ) : (
                 <span
                   aria-current={last ? "page" : undefined}
-                  className="font-medium text-[var(--color-text)]"
+                  className="font-medium text-[var(--ink)]"
                 >
                   {item.label}
                 </span>

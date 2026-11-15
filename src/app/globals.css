@@ -1328,7 +1328,7 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   --paper: #f3eee8;
   --paper-deep: #ebe4db;
   --ink: #1b1620;
-  --ink-muted: color-mix(in srgb, var(--ink) 62%, var(--paper));
+  --ink-muted: color-mix(in srgb, var(--ink) 78%, var(--paper));
   --line: color-mix(in srgb, var(--ink) 85%, var(--paper));
   --line-soft: color-mix(in srgb, var(--ink) 18%, var(--paper));
   --shadow-cast: 10px 14px 12px color-mix(in srgb, var(--ink) 28%, transparent);

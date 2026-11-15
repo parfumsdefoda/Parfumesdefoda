@@ -189,7 +189,7 @@ export function CheckoutForm({
 
       <form id="checkout-form" onSubmit={handleSubmit((data) => onSubmit?.(data), onInvalidSubmit)} noValidate>
         {errorEntries.length > 0 && (
-          <div id="checkout-error-summary" tabIndex={-1} role="alert" aria-labelledby="checkout-error-title" className="mb-4 rounded-control border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]">
+          <div id="checkout-error-summary" tabIndex={-1} role="alert" aria-labelledby="checkout-error-title" className="mb-4 border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]">
             <h4 id="checkout-error-title" className="font-bold">يرجى مراجعة البيانات التالية</h4>
             <ul className="mt-2 list-inside list-disc space-y-1">
               {errorEntries.map(([field, error]) => (
@@ -297,8 +297,8 @@ export function CheckoutForm({
               <Building2 className="h-3.5 w-3.5 text-[var(--neutral-400)]" />
               {governorateLabel}
             </Label>
-            <div className="mb-2 flex h-11 items-center gap-2 rounded-control border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3">
-              <Search aria-hidden="true" className="size-4 text-[var(--color-text-muted)]" />
+            <div className="mb-2 flex h-11 items-center gap-2 border border-[var(--ink)] bg-[var(--paper)] px-3">
+              <Search aria-hidden="true" className="size-4 text-[var(--ink-muted)]" />
               <input type="search" value={governorateQuery} onChange={(event) => setGovernorateQuery(event.target.value)} placeholder="ابحث عن المحافظة" aria-label="ابحث عن المحافظة" className="h-full min-w-0 flex-1 bg-transparent text-caption outline-none" />
             </div>
             <select
@@ -308,7 +308,7 @@ export function CheckoutForm({
               autoComplete="address-level1"
               aria-invalid={!!errors.governorate}
               aria-describedby={errors.governorate ? "governorate-error" : undefined}
-              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-caption text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+              className="flex h-11 w-full appearance-none items-center rounded-none border border-[var(--line)] bg-[var(--paper)] px-3 py-2 text-[14px] text-[var(--ink)] outline-none transition-colors focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)] disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                 backgroundPosition: "left 0.5rem center",
@@ -343,7 +343,7 @@ export function CheckoutForm({
               autoComplete="address-level2"
               aria-invalid={!!errors.city}
               aria-describedby={errors.city ? "city-error" : undefined}
-              className="flex h-11 w-full items-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] px-3 py-2 text-caption text-[var(--neutral-800)] outline-none transition-colors focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+              className="flex h-11 w-full appearance-none items-center rounded-none border border-[var(--line)] bg-[var(--paper)] px-3 py-2 text-[14px] text-[var(--ink)] outline-none transition-colors focus:border-[var(--color-brand)] focus:ring-1 focus:ring-[var(--color-brand)] disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                 backgroundPosition: "left 0.5rem center",
@@ -388,15 +388,15 @@ export function CheckoutForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="checkout-notes">ملاحظات (اختياري)</Label>
-            <textarea id="checkout-notes" {...register("notes")} rows={3} aria-invalid={!!errors.notes} aria-describedby={errors.notes ? "checkout-notes-error" : undefined} className="w-full rounded-control border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3 py-2 text-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]" placeholder="أي ملاحظات إضافية" />
+            <textarea id="checkout-notes" {...register("notes")} rows={3} aria-invalid={!!errors.notes} aria-describedby={errors.notes ? "checkout-notes-error" : undefined} className="w-full border border-[var(--ink)] bg-[var(--paper)] px-3 py-2 text-caption focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]" placeholder="أي ملاحظات إضافية" />
             <p id="checkout-notes-error" className="min-h-5 text-caption text-[var(--color-error)]" role={errors.notes ? "alert" : undefined}>{errors.notes?.message ?? " "}</p>
           </div>
 
           <Separator className="my-4" />
 
-          <div className="rounded-control border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+          <div className="border border-[var(--line)] bg-[var(--paper-deep)] p-4">
             <p className="font-bold">الدفع عند الاستلام</p>
-            <p className="mt-1 text-caption text-[var(--color-text-muted)]">تدفع عند وصول الطلب.</p>
+            <p className="mt-1 text-caption text-[var(--ink-muted)]">تدفع عند وصول الطلب.</p>
           </div>
 
           <Button
@@ -410,7 +410,7 @@ export function CheckoutForm({
           </Button>
         </div>
         {total !== undefined && (
-          <div className="sticky bottom-0 z-30 -mx-4 border-t border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-soft lg:hidden">
+          <div className="sticky bottom-0 z-30 -mx-4 border-t border-[var(--line)] bg-[var(--paper)] p-3 lg:hidden">
             <div className="mx-auto flex max-w-[1280px] items-center gap-3">
               <span className="flex-1 text-caption font-bold">الإجمالي: {formatPrice(total)}</span>
               <Button type="submit" size="lg" disabled={isSubmitting || disabled}>{submitLabel}</Button>

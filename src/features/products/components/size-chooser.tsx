@@ -90,7 +90,7 @@ export default function SizeChooser({
   const panel = (caption: boolean) => (
     <>
       {caption && (
-        <p className="mb-2 text-caption font-medium text-[var(--color-text-muted)]">
+        <p className="mb-2 text-caption font-medium text-[var(--ink-muted)]">
           {labels.chooseSize}
         </p>
       )}
@@ -118,12 +118,12 @@ export default function SizeChooser({
               tabIndex={checked ? 0 : -1}
               onClick={() => setSelected(size.label)}
               className={cn(
-                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-control border px-1 py-2 text-caption text-center",
+                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 border px-1 py-2 text-caption text-center",
                 "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
                 checked
-                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-text)]"
-                  : "border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
+                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--ink)]"
+                  : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ui-border-strong)]",
                 !size.inStock && "cursor-not-allowed opacity-50 line-through",
               )}
             >
@@ -162,7 +162,7 @@ export default function SizeChooser({
             sideOffset={8}
             className="z-50"
           >
-            <Popover.Popup className="w-64 rounded-card border border-[var(--color-border)] bg-[var(--bg-primary)] p-3 text-caption shadow-lifted">
+            <Popover.Popup className="w-64 border border-[var(--line)] bg-[var(--bg-primary)] p-3 text-caption">
               {panel(true)}
             </Popover.Popup>
           </Popover.Positioner>

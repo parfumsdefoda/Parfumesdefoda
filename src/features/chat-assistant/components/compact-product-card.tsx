@@ -40,10 +40,10 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
       className={cn(
         "group flex overflow-hidden rounded-xl border text-start",
         "border-[var(--neutral-100)] bg-[var(--bg-primary)]",
-        "shadow-soft",
+        
         "w-full max-w-[280px]",
         "transition-all duration-200",
-        "hover:border-[var(--color-accent)]/40 hover:shadow-lifted",
+        "hover:border-[var(--color-brand)]",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
       )}
       aria-label={`${product.name} — ${minPrice !== undefined ? formatPrice(minPrice) : ""} — عرض المنتج`}
@@ -91,7 +91,7 @@ export function CompactProductCard({ product, onClick }: CompactProductCardProps
 
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded-pill px-2 py-1 text-caption font-medium",
+              "inline-flex items-center gap-1 px-2 py-1 text-caption font-medium",
               "bg-[var(--color-brand)] text-[var(--color-on-brand)]",
               "transition-colors duration-200",
               "group-hover:bg-[var(--purple-700)]",
