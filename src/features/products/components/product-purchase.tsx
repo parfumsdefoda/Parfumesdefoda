@@ -170,21 +170,21 @@ export function ProductPurchase({
       {price && (
         <p
           aria-live="polite"
-          className="text-title-3 font-bold text-[var(--color-brand)] tabular-nums"
+          className="text-[20px] font-semibold text-[var(--ink)] tabular-nums"
         >
           {price}
         </p>
       )}
 
       {description && (
-        <p className="line-clamp-3 text-body text-[var(--color-text-muted)]">
+        <p className="line-clamp-3 text-[14px] leading-6 text-[var(--ink-muted)]">
           {description}
         </p>
       )}
 
       {/* Size selector */}
       <div>
-        <p className="mb-2 text-caption font-bold text-[var(--color-text)]">
+        <p className="mb-2 text-[14px] font-medium text-[var(--ink)]">
           {labels.chooseSize}
         </p>
         <div
@@ -236,8 +236,8 @@ export function ProductPurchase({
           <span
             className={
               canBuy
-                ? "font-medium text-[var(--color-text)]"
-                : "text-[var(--color-text-muted)]"
+                ? "font-medium text-[var(--ink)]"
+                : "text-[var(--ink-muted)]"
             }
           >
             {canBuy ? labels.inStock : labels.outOfStock}
@@ -265,7 +265,7 @@ export function ProductPurchase({
         data-sticky-bar
         data-visible={showBar ? "true" : "false"}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface)]/95 px-4 py-3 backdrop-blur md:hidden",
+          "fixed inset-x-0 bottom-0 z-40 border-t border-[var(--line)] bg-[var(--paper)] px-4 py-3 md:hidden",
           "transition-transform duration-[var(--duration-fast)] ease-[var(--ease-apple)] motion-reduce:transition-none",
           showBar ? "translate-y-0" : "pointer-events-none translate-y-full",
         )}
@@ -273,11 +273,11 @@ export function ProductPurchase({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-caption font-bold text-[var(--color-text)]">
+            <p className="truncate text-[14px] font-medium text-[var(--ink)]">
               {product.name}
             </p>
             {chosen && (
-              <p className="text-caption text-[var(--color-text-muted)] tabular-nums">
+              <p className="text-[14px] text-[var(--ink-muted)] tabular-nums">
                 {formatSizeLabel(chosen.label)} · {price}
               </p>
             )}
@@ -330,11 +330,11 @@ function SizeOption({
           : `${formatSizeLabel(size.label)} ${formatPrice(size.price)}`
       }
       className={cn(
-        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-control border px-1 text-caption text-center transition-colors",
+        "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 border px-1 text-[14px] leading-5 text-center transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
         checked
-          ? "border-[var(--color-brand)] bg-[var(--purple-50)] font-bold text-[var(--color-text)]"
-          : "border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-border-strong)]",
+          ? "border-[var(--color-brand)] bg-[var(--color-brand)] font-medium text-white"
+          : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]",
         out && "cursor-not-allowed opacity-50 line-through",
       )}
     >

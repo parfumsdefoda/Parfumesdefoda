@@ -144,7 +144,7 @@ export function ProductDetailPage({
           <h1 className="text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
 
           {comingSoon ? (
-            <div className="rounded-card border border-dashed border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+            <div className="border border-[var(--line-soft)] bg-[var(--paper)] p-4">
               <p className="text-body font-bold text-[var(--color-text)]">
                 {labels.comingSoonTitle}
               </p>

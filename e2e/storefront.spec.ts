@@ -361,7 +361,7 @@ test.describe("production storefront and checkout", () => {
         // Footer and the floating advisor are chrome, not page content: the
         // greeting bubble appears on a timer and would otherwise enter the
         // baseline at an arbitrary scroll position.
-        mask: [page.locator("footer"), page.locator('button[aria-label*="المساعد"]')],
+        mask: [page.locator("footer"), page.locator("[data-advisor-launcher]")],
         maxDiffPixelRatio: 0.015,
       });
     }
