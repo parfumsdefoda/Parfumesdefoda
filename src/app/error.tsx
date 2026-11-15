@@ -22,7 +22,7 @@ export default function Error({
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center" role="alert">
       <div className="max-w-md">
         {/* Error illustration */}
-        <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-neutral-100 flex items-center justify-center" aria-hidden="true">
+        <div className="w-32 h-32 mx-auto mb-6 rounded-none bg-neutral-100 flex items-center justify-center" aria-hidden="true">
           <span className="text-title-1">⚠️</span>
         </div>
 

@@ -198,7 +198,7 @@ export function ProductGallery({
           />
           <span
             aria-hidden="true"
-            className="absolute bottom-3 end-3 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-surface)]/90 text-[var(--color-text)] opacity-0 transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"
+            className="absolute bottom-3 end-3 flex h-9 w-9 items-center justify-center rounded-none bg-[var(--color-surface)]/90 text-[var(--color-text)] opacity-0 transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"
           >
             <Maximize2 className="h-4 w-4" aria-hidden="true" />
           </span>

@@ -149,7 +149,7 @@ export function CheckoutPageClient({
   if (cart.items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-[var(--space-section)] text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
+          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-none bg-[var(--bg-secondary)]">
             <ShoppingBag className="h-10 w-10 text-[var(--neutral-300)]" />
           </div>
           <h1 className="text-title-3 font-bold text-[var(--neutral-800)] mb-2">

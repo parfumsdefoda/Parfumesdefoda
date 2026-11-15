@@ -401,7 +401,7 @@ export function CheckoutForm({
 
           <Button
             type="submit"
-            className="w-full h-12 rounded-full text-caption font-bold"
+            className="w-full h-12 rounded-none text-caption font-bold"
             size="lg"
             disabled={isSubmitting || disabled}
           >

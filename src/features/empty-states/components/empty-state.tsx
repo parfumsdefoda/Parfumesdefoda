@@ -28,7 +28,7 @@ export function EmptyState({
     <div
       className={`reveal flex flex-col items-center justify-center py-16 px-4 text-center ${className ?? ""}`}
     >
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)] text-[var(--neutral-400)]">
+      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-none bg-[var(--bg-secondary)] text-[var(--neutral-400)]">
         {icon}
       </div>
       <h3 className="text-headline font-bold text-[var(--neutral-800)] mb-2">

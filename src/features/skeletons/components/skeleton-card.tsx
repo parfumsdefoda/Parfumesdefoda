@@ -24,7 +24,7 @@ export function SkeletonCard({
       <div className="relative aspect-square">
         <Skeleton className="absolute inset-0 rounded-none" />
         {showBadge && (
-          <Skeleton className="absolute top-2.5 right-2.5 h-5 w-16 rounded-full" />
+          <Skeleton className="absolute top-2.5 right-2.5 h-5 w-16 rounded-none" />
         )}
       </div>
 
@@ -37,7 +37,7 @@ export function SkeletonCard({
         {/* Size pills */}
         <div className="flex gap-2">
           {Array.from({ length: sizePills }).map((_, i) => (
-            <Skeleton key={i} className="h-8 w-16 rounded-full" />
+            <Skeleton key={i} className="h-8 w-16 rounded-none" />
           ))}
         </div>
 

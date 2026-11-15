@@ -35,7 +35,7 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
   return (
     <section className="container mx-auto px-4 py-[var(--space-section)]">
       <div className="reveal mx-auto max-w-2xl text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-success)]/10">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-none bg-[var(--color-success)]/10">
           <CheckCircle className="h-10 w-10 text-[var(--color-success)]" aria-hidden="true" />
         </div>
 

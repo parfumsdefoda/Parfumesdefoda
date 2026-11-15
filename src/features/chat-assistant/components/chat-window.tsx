@@ -117,7 +117,7 @@ export function ChatWindow({
                   type="button"
                   onClick={() => onSendMessage(suggestion)}
                   className={cn(
-                    "rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
+                    "rounded-none border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
                     "px-3 py-1.5 text-caption font-medium text-[var(--neutral-600)]",
                     "hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]",
                     "transition-colors",
@@ -200,7 +200,7 @@ export function ChatWindow({
             disabled={isLoading}
             aria-label="رسالتك"
             className={cn(
-              "flex-1 rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
+              "flex-1 rounded-none border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
               "px-4 py-2 text-caption text-[var(--neutral-700)]",
               "placeholder:text-[var(--neutral-400)]",
               "focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/30",
@@ -213,7 +213,7 @@ export function ChatWindow({
             size="icon"
             disabled={!input.trim() || isLoading}
             className={cn(
-              "h-9 w-9 rounded-full shrink-0",
+              "h-9 w-9 rounded-none shrink-0",
               "bg-[var(--color-accent)] text-white",
               "hover:bg-[var(--purple-700)]",
               "hover:shadow-soft",

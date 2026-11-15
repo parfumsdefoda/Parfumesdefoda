@@ -120,7 +120,7 @@ export function CartDrawer({
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 text-center">
-            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-none bg-[var(--bg-secondary)]">
               <span className="text-title-2">🛒</span>
             </div>
             <h3 className="text-body font-bold text-[var(--neutral-800)] mb-1">
