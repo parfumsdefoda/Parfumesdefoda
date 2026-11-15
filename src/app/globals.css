@@ -660,16 +660,16 @@ html {
 @theme {
   /* Exactly three radii. The stock Tailwind scale is remapped onto
      them so no component can introduce a fourth value. */
-  --radius-control: 12px;
-  --radius-card: 20px;
+  --radius-control: 0px;
+  --radius-card: 0px;
   --radius-pill: 9999px;
-  --radius-xs: 12px;
-  --radius-sm: 12px;
-  --radius-md: 12px;
-  --radius-lg: 12px;
-  --radius-xl: 20px;
-  --radius-2xl: 20px;
-  --radius-3xl: 20px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
   --radius-4xl: 9999px;
 
   /* Exactly two shadows. */
@@ -1316,4 +1316,25 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   .quick-add-label {
     transition-duration: 80ms !important;
   }
+}
+
+
+/* ─── Gallery foundation ───
+   Warm ivory paper, near-black ink with a hint of purple, hairlines drawn in
+   ink. Radii are already 0 through the tokens; the launcher keeps its pill. */
+/* Equal specificity to the palette blocks, and later in the file, so it wins. */
+:root[data-palette] {
+  color-scheme: only light;
+  --paper: #f3eee8;
+  --paper-deep: #ebe4db;
+  --ink: #1b1620;
+  --ink-muted: color-mix(in srgb, var(--ink) 62%, var(--paper));
+  --line: color-mix(in srgb, var(--ink) 85%, var(--paper));
+  --line-soft: color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --shadow-cast: 10px 14px 12px color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
 }

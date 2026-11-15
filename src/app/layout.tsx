@@ -352,6 +352,8 @@ export default async function RootLayout({
     >
       <head>
         <JsonLd />
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light" />
         {theme.colors.primary && (
           <meta name="theme-color" content={theme.colors.primary} />
         )}
