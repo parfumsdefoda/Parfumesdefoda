@@ -34,7 +34,7 @@ export function HeroSection({ heading, lead, shopCta, advisorCta }: HeroSectionP
     <section
       aria-labelledby="hero-heading"
       data-hero-sentinel=""
-      className="hero relative isolate -mt-[var(--header-offset)] border-b-2 border-[var(--brand-gold)] bg-[var(--purple-950)]"
+      className="hero relative isolate bg-[var(--purple-950)]"
     >
       {/* Decoration only — nothing here is content or a link target. */}
       <span aria-hidden="true" className="hero-glow" />
@@ -44,7 +44,7 @@ export function HeroSection({ heading, lead, shopCta, advisorCta }: HeroSectionP
         <span className="hero-ring" />
       </span>
 
-      <div className="relative mx-auto flex min-h-[calc(100svh-var(--header-offset))] w-full max-w-[960px] flex-col items-center justify-center gap-5 px-4 pb-[var(--space-12)] pt-[calc(var(--header-offset)+var(--space-12))] text-center md:gap-6 md:pb-[var(--space-16)] md:pt-[calc(var(--header-offset)+var(--space-16))]">
+      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[960px] flex-col items-center justify-center gap-5 px-4 pb-[var(--space-12)] pt-[var(--space-12)] text-center md:gap-6 md:pb-[var(--space-16)] md:pt-[var(--space-16)]">
         <span aria-hidden="true" className="hero-ornament" />
 
         {/* A fixed measure in `rem`, not `ch`: `ch` is measured from the

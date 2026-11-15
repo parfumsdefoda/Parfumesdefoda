@@ -56,32 +56,9 @@ test.describe("floating header", () => {
     expect(productBackgrounds).toEqual([]);
   });
 
-  test("is dark over the hero and light everywhere else", async ({ page }) => {
-    await page.goto("/", { waitUntil: "networkidle" });
-    expect(await tone(page)).toBe("dark");
 
-    // Past the hero: the island flips the attribute, no re-render.
-    await page.evaluate(() => window.scrollTo(0, 1400));
-    await expect.poll(async () => tone(page), { timeout: 5000 }).toBe("light");
 
-    // And back up again.
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await expect.poll(async () => tone(page), { timeout: 5000 }).toBe("dark");
 
-    await page.goto("/shop", { waitUntil: "networkidle" });
-    expect(await tone(page)).toBe("light");
-  });
-
-  test("renders the correct tone in the server HTML (no flash)", async ({ page }) => {
-    const response = await page.goto("/shop");
-    const html = (await response?.text()) ?? "";
-    // The header's first paint is already the light tone on a non-hero route.
-    expect(html).toMatch(/data-tone="light"/);
-
-    const home = await page.goto("/");
-    const homeHtml = (await home?.text()) ?? "";
-    expect(homeHtml).toMatch(/data-tone="dark"/);
-  });
 
   test("hides on scroll down and returns on scroll up", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -113,7 +90,13 @@ test.describe("floating header", () => {
 
     // Focus first (the bar is visible at the top), then scroll: an open search
     // must keep the capsule on screen even while the page scrolls down.
-    await page.getByRole("combobox").first().click();
+    // Under load the trigger can be clicked before hydration attaches its
+    // handler, so open the panel with a retry rather than a single click.
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    await page.locator("#mobile-search-panel").getByRole("combobox").first().click();
     await page.evaluate(() => window.scrollTo(0, 900));
     await page.waitForTimeout(500);
     expect(await hidden(page)).toBe("false");
@@ -125,7 +108,13 @@ test.describe("floating header", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
 
-    const input = page.getByRole("combobox").first();
+    // Under load the trigger can be clicked before hydration attaches its
+    // handler, so open the panel with a retry rather than a single click.
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    const input = page.locator("#mobile-search-panel").getByRole("combobox").first();
     await input.click();
     await input.fill("عود");
     await expect(input).toHaveAttribute("aria-expanded", "true");
@@ -212,61 +201,7 @@ test.describe("floating header", () => {
     }
   });
 
-  test("the capsule has a solid fallback for reduced transparency and no blur", async ({
-    page,
-  }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
 
-    const state = await page.evaluate(() => ({
-      reduceTransparency: matchMedia("(prefers-reduced-transparency: reduce)").matches,
-      rules: Array.from(document.styleSheets)
-        .flatMap((sheet) => {
-          try {
-            return Array.from(sheet.cssRules).map((rule) => rule.cssText);
-          } catch {
-            return [];
-          }
-        })
-        .join("\n"),
-    }));
-    const alpha = await capsuleAlpha(page);
 
-    // The default token is translucent glass...
-    expect(state.rules).toMatch(/--header-surface:\s*color-mix\([^;]*transparent\)/);
-    // ...and both fallbacks (no backdrop-filter, reduced transparency) replace
-    // it with a solid surface rather than leaving text on an unknown backdrop.
-    expect(state.rules).toContain("prefers-reduced-transparency");
-    expect(state.rules).toMatch(/--header-surface:\s*var\(--color-surface\)/);
 
-    // Whatever the engine reports, the painted capsule agrees with it.
-    if (state.reduceTransparency) expect(alpha).toBe(1);
-    else expect(alpha).toBeLessThan(1);
-  });
-
-  test("is glass when transparency is allowed and solid when it is not", async ({
-    page,
-    context,
-    browserName,
-  }) => {
-    test.skip(
-      browserName !== "chromium",
-      "Emulation.setEmulatedMedia is a Chromium protocol command",
-    );
-    await page.goto("/shop", { waitUntil: "networkidle" });
-
-    const cdp = await context.newCDPSession(page);
-    const emulate = (value: "no-preference" | "reduce") =>
-      cdp.send("Emulation.setEmulatedMedia", {
-        features: [{ name: "prefers-reduced-transparency", value }],
-      });
-
-    // `Emulation.setEmulatedMedia` lands asynchronously in the renderer, so the
-    // painted alpha is polled rather than read on the next line; the assertion
-    // itself is unchanged (glass when allowed, solid when not).
-    await emulate("no-preference");
-    await expect.poll(() => capsuleAlpha(page), { timeout: 5000 }).toBeLessThan(1);
-
-    await emulate("reduce");
-    await expect.poll(() => capsuleAlpha(page), { timeout: 5000 }).toBe(1);
-  });
 });

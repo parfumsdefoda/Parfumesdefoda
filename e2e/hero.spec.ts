@@ -90,7 +90,11 @@ test.describe("product-free hero", () => {
 
     // Open the search and type: the suggestions must not grow a thumbnail.
     await page.setViewportSize({ width: 1440, height: 900 });
-    const combobox = page.getByRole("combobox").first();
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    const combobox = page.locator("#mobile-search-panel").getByRole("combobox").first();
     await combobox.click();
     await combobox.fill("عطر");
     await expect(page.getByRole("listbox")).toBeVisible();
@@ -157,13 +161,12 @@ test.describe("product-free hero", () => {
     }
   });
 
-  test("the hero still flips the capsule tone when it scrolls away", async ({ page }) => {
+  test("the header stays one solid paper bar while the page scrolls", async ({ page }) => {
     await page.goto("/", { waitUntil: "networkidle" });
     const header = page.locator("header.site-header");
-    await expect(header).toHaveAttribute("data-tone", "dark");
+    const paper = await header.evaluate((el) => getComputedStyle(el).backgroundColor);
     await page.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
-    await expect
-      .poll(async () => header.getAttribute("data-tone"), { timeout: 5000 })
-      .toBe("light");
+    expect(await header.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(paper);
+    expect(paper).not.toBe("rgba(0, 0, 0, 0)");
   });
 });

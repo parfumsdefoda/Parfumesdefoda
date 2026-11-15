@@ -167,26 +167,7 @@ export function HeaderBar({
    * light. One observer, no scroll handler, no React state — the attribute is
    * written straight onto the element, which is what the CSS reads.
    */
-  useEffect(() => {
-    const header = headerRef.current;
-    if (!header || !isHome) return;
-    const hero = document.querySelector<HTMLElement>("[data-hero-sentinel]");
-    if (!hero || typeof IntersectionObserver === "undefined") return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          header.dataset.tone = entry.isIntersecting ? "dark" : "light";
-        }
-      },
-      // The root's top edge is the capsule's bottom edge, so the flip happens
-      // exactly when the hero stops being visible behind the glass.
-      { rootMargin: "-88px 0px 0px 0px", threshold: 0 },
-    );
-
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, [isHome]);
 
   const closeSearch = useCallback(() => {
     setSearchOpen(false);
@@ -276,28 +257,28 @@ export function HeaderBar({
   return (
     <header
       ref={headerRef}
-      data-tone={isHome ? "dark" : "light"}
+      
       data-locked={locked ? "true" : "false"}
       data-scrolled="false"
       data-hidden="false"
       className={cn(
         // `pointer-events-none` on the header itself: the page runs underneath
         // the capsule, so the transparent strip around it must not eat clicks.
-        "site-header pointer-events-none fixed inset-x-0 top-0 z-30",
+        "site-header sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--paper)]",
         // Tailwind v4 hides with the `translate` property, so that is the
         // property the slide transition must name.
         "transition-[translate] duration-[var(--duration-base)] ease-[var(--ease-apple)]",
-        "data-[hidden=true]:-translate-y-[140%]",
+        "data-[hidden=true]:-translate-y-full",
         "motion-reduce:transition-none motion-reduce:data-[hidden=true]:translate-y-0",
       )}
     >
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col px-3 pt-[var(--header-gap)] lg:px-6">
+      <div className="mx-auto flex w-full max-w-[1920px] flex-col">
         {/* ─── The capsule ─── */}
         <div
           className={cn(
-            "pointer-events-auto relative flex h-[var(--header-capsule)] items-center gap-1 rounded-pill",
-            "border border-[var(--ui-gold-hairline)] bg-[var(--header-surface)] px-2 shadow-soft",
-            "supports-[backdrop-filter]:backdrop-blur-md",
+            "relative flex min-h-[56px] flex-wrap items-center gap-x-3 px-4 lg:min-h-[52px] lg:px-6",
+            "",
+            "",
           )}
         >
           {!reduced && (
@@ -318,25 +299,38 @@ export function HeaderBar({
             </Button>
           )}
 
+          {/* ─── Row one: contact at the start, lockup centred, tools at the end ─── */}
+          {!reduced && whatsappHref && (
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden shrink-0 items-center gap-1.5 rounded-none px-3 text-[14px] font-medium text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] lg:inline-flex"
+            >
+              <MessageCircle aria-hidden="true" className="size-4" />
+              {labels.whatsapp}
+            </a>
+          )}
+
           {/* ─── Brand lockup (CSS background: no <img> in the header) ─── */}
           <Link
             href="/"
-            aria-label={storeName}
             // Physical `left` on purpose: centring is symmetric, while
             // `start-1/2` in RTL anchors the right edge and shifts the mark one
             // logo-width off centre.
-            className="flex shrink-0 items-center gap-2 rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--header-ring)] focus-visible:ring-offset-0 max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2"
+            aria-label={storeName}
+            className="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
           >
             {/* The emblem keeps its own colours; the ivory seat is what makes
                 it read on both tones. The asset is never recoloured. */}
-            <span className="grid size-9 shrink-0 place-items-center rounded-pill border border-[var(--ui-hairline-soft)] bg-[var(--brand-white)]">
+            <span className="grid size-9 shrink-0 place-items-center border border-[var(--line-soft)] bg-[var(--paper)]">
               <span
                 aria-hidden="true"
                 className="block size-6 bg-contain bg-center bg-no-repeat"
                 style={{ backgroundImage: "url(/logos/logo.svg)" }}
               />
             </span>
-            <span className="hidden items-baseline gap-1 text-caption font-bold uppercase tracking-[0.18em] text-[var(--header-fg)] sm:flex">
+            <span aria-hidden="true" className="hidden items-baseline gap-1 text-[14px] font-semibold uppercase tracking-[0.18em] text-[var(--ink)] sm:flex">
               <span className="hidden xl:inline">PARFUMS DE FODA</span>
               <span className="xl:hidden">FODA</span>
             </span>
@@ -354,7 +348,7 @@ export function HeaderBar({
               {/* ─── Desktop nav ─── */}
               <nav
                 aria-label={labels.nav}
-                className="hidden flex-1 items-center justify-center gap-0.5 lg:flex"
+                className="order-last hidden h-10 w-full items-center justify-center gap-0.5 border-t border-[var(--line-soft)] lg:flex"
               >
                 {nav.map((item) => {
                   const active = isActiveRoute(pathname, item.href);
@@ -364,7 +358,7 @@ export function HeaderBar({
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group/nav relative inline-flex h-10 items-center rounded-control px-3 text-caption font-medium transition-colors",
+                        "group/nav relative inline-flex h-10 items-center rounded-none px-3 text-[14px] font-medium transition-colors",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--header-ring)] focus-visible:ring-offset-0",
                         active
                           ? "text-[var(--header-fg)]"
@@ -375,7 +369,7 @@ export function HeaderBar({
                       <span
                         aria-hidden="true"
                         className={cn(
-                          "absolute inset-x-3 bottom-1.5 h-0.5 origin-center rounded-pill bg-[var(--header-accent)]",
+                          "absolute inset-x-3 bottom-1 h-0.5 origin-center rounded-none bg-[var(--color-brand)]",
                           "transition-transform duration-200 ease-[var(--ease-apple)]",
                           active ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100",
                         )}
@@ -393,13 +387,13 @@ export function HeaderBar({
                       reveal();
                       setHousesAnchor((current) => (current ? null : event.currentTarget));
                     }}
-                    className="group/nav relative inline-flex h-10 items-center gap-1 rounded-control px-3 text-caption font-medium text-[var(--header-fg-muted)] transition-colors hover:text-[var(--header-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--header-ring)] focus-visible:ring-offset-0"
+                    className="group/nav relative inline-flex h-10 items-center gap-1 rounded-none px-3 text-[14px] font-medium text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
                   >
                     {labels.houses}
                     <ChevronDown aria-hidden="true" className="size-4" />
                     <span
                       aria-hidden="true"
-                      className="absolute inset-x-3 bottom-1.5 h-0.5 origin-center scale-x-0 rounded-pill bg-[var(--header-accent)] transition-transform duration-200 ease-[var(--ease-apple)] group-hover/nav:scale-x-100"
+                      className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-0 rounded-none bg-[var(--color-brand)] transition-transform duration-200 ease-[var(--ease-apple)] group-hover/nav:scale-x-100"
                     />
                   </button>
                 )}
@@ -422,14 +416,14 @@ export function HeaderBar({
                         <Popover.Popup
                           initialFocus
                           finalFocus={() => housesAnchor}
-                          className="flex w-44 flex-col gap-1 rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-caption shadow-lifted"
+                          className="flex w-44 flex-col border border-[var(--line)] bg-[var(--paper)] p-2 text-[14px]"
                         >
                           {houses.map((house) => (
                             <Link
                               key={house.href}
                               href={house.href}
                               onClick={() => setHousesAnchor(null)}
-                              className="rounded-control px-2.5 py-2 text-caption text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                              className="px-2.5 py-2 text-[14px] text-[var(--ink)] transition-colors hover:bg-[var(--paper-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                             >
                               {house.label}
                             </Link>
@@ -443,7 +437,6 @@ export function HeaderBar({
 
               {/* ─── Tools ─── */}
               <div className="ms-auto flex shrink-0 items-center gap-1 lg:ms-2">
-                <HeaderSearch className="hidden xl:block" labels={searchLabels} />
 
                 <Button
                   ref={searchTriggerRef}
@@ -457,9 +450,10 @@ export function HeaderBar({
                   aria-label={labels.search}
                   aria-expanded={searchOpen}
                   aria-controls="mobile-search-panel"
-                  className="text-[var(--header-fg)] hover:bg-[var(--header-hover)] focus-visible:ring-offset-0 xl:hidden"
+                  className="gap-2 text-[var(--ink)] hover:bg-[var(--paper-deep)] focus-visible:ring-offset-0"
                 >
                   {searchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
+                  <span className="hidden text-[14px] font-medium lg:inline">{labels.search}</span>
                 </Button>
 
                 <Button
@@ -488,11 +482,11 @@ export function HeaderBar({
           )}
         </div>
 
-        {/* ─── Search panel (phones, and 1024–1279 where the pill is an icon) ─── */}
-        {searchOpen && !reduced && (
+        {/* ─── Search panel: full width, paper, under the bar ─── */}
+        {searchOpen && (
           <div
             id="mobile-search-panel"
-            className="pointer-events-auto mt-2 rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-lifted xl:hidden"
+            className="pointer-events-auto border-t border-[var(--line)] bg-[var(--paper)] px-4 py-4 lg:px-6"
           >
             <HeaderSearch variant="panel" autoFocus onClose={closeSearch} labels={searchLabels} />
           </div>
