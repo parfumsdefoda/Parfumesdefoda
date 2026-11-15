@@ -126,7 +126,7 @@ export function ProductCard({
       className={cn(
         "group relative flex flex-col bg-[var(--paper)]",
         "border-e border-b border-[var(--line)]",
-        deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_28rem]",
+        
         className,
       )}
     >
