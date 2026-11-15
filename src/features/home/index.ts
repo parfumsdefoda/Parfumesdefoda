@@ -1,5 +1,5 @@
-export { HeroSection } from "./components/hero-section";
-export type { HeroSectionProps } from "./components/hero-section";
+export { IntroBar } from "./components/intro-bar";
+export type { IntroBarProps } from "./components/intro-bar";
 export { BestSellersSection } from "./components/best-sellers-section";
 export type { BestSellersSectionProps } from "./components/best-sellers-section";
 export { CategoryTiles } from "./components/category-tiles";

@@ -17,11 +17,11 @@ export interface CategoryTilesProps {
 }
 
 /**
- * CategoryTiles — typographic links into the three shelves.
+ * CategoryTiles — three hairline cells into the shelves.
  *
- * No photography: the labels and the counts carry it, which is both honest
- * (thin categories would look emptier with a big image) and free. A category
- * with no visible products is not rendered at all.
+ * No photography and no cards: the section is a band divided by 1px lines, each
+ * cell carrying the shelf's name and its real count in type. A category with no
+ * visible products is not rendered at all.
  */
 export function CategoryTiles({ title, tiles, countLabel }: CategoryTilesProps) {
   const visible = tiles.filter((tile) => tile.count > 0);
@@ -30,32 +30,34 @@ export function CategoryTiles({ title, tiles, countLabel }: CategoryTilesProps) 
   return (
     <section
       aria-labelledby="categories-heading"
-      className="mx-auto w-full max-w-[1280px] px-4 pb-[var(--space-section)]"
+      className="border-t border-[var(--line)] bg-[var(--paper)]"
     >
-      <h2
-        id="categories-heading"
-        className="mb-6 text-title-2 font-bold text-[var(--color-text)]"
-      >
-        {title}
-      </h2>
+      <div className="mx-auto w-full max-w-[1920px] px-4 pt-10 sm:px-6 sm:pt-14">
+        <h2
+          id="categories-heading"
+          className="text-[14px] font-medium text-[var(--ink-muted)]"
+        >
+          {title}
+        </h2>
+      </div>
 
-      <ul className="grid gap-3 sm:grid-cols-3 sm:gap-6">
+      <ul className="mx-auto mt-4 grid w-full max-w-[1920px] grid-cols-1 border-t border-[var(--line)] sm:grid-cols-3">
         {visible.map((tile) => (
-          <li key={tile.href}>
+          <li key={tile.href} className="border-b border-[var(--line)] sm:border-b-0 sm:border-e sm:last:border-e-0">
             <Link
               href={tile.href}
-              className="group flex h-full flex-col justify-between gap-8 rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors duration-[var(--duration-base)] ease-[var(--ease-apple)] hover:border-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="group flex h-full flex-col justify-between gap-10 px-4 py-7 transition-colors hover:bg-[var(--paper-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)] sm:px-6 sm:py-9"
             >
-              <span className="text-title-3 font-bold text-[var(--color-text)]">
+              <span className="text-[22px] font-semibold leading-tight text-[var(--ink)] sm:text-[26px]">
                 {tile.label}
               </span>
               <span className="flex items-center justify-between gap-3">
-                <span className="text-caption text-[var(--color-text-muted)]">
+                <span className="text-[14px] tabular-nums text-[var(--ink-muted)]">
                   {countLabel.replace("{count}", formatNumber(tile.count))}
                 </span>
                 <ArrowLeft
                   aria-hidden="true"
-                  className="h-4 w-4 text-[var(--color-brand)] transition-transform duration-[var(--duration-base)] ease-[var(--ease-apple)] group-hover:-translate-x-1"
+                  className="h-4 w-4 text-[var(--ink)] transition-transform duration-100 group-hover:-translate-x-1"
                 />
               </span>
             </Link>

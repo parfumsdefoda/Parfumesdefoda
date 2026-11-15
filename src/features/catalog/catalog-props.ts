@@ -35,7 +35,7 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
     searchPlaceholder: t(locale, "home.searchPlaceholder", "ابحث عن عطرك..."),
     search: t(locale, "catalog.search", "بحث"),
     clearSearch: t(locale, "catalog.clearSearch", "مسح البحث"),
-    filters: t(locale, "catalog.filters", "الفلاتر"),
+    filters: t(locale, "catalog.filters", "الفلاتر والترتيب"),
     clearAll: t(locale, "catalog.clearAll", "مسح الكل"),
     availableOnly: t(locale, "catalog.availableOnly", "المتوفر فقط"),
     resultUnit: t(locale, "catalog.resultUnit", "منتج"),

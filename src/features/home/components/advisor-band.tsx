@@ -9,30 +9,29 @@ export interface AdvisorBandProps {
 /**
  * AdvisorBand — the one invitation to the perfume advisor, mid-page.
  *
- * A dark band so it reads as a change of mode rather than another product
- * block. The only gold is the hairline above it; the button itself is a quiet
- * outline. Nothing here claims more than the panel does (it asks a few
- * questions and suggests from the real catalogue).
+ * A hairline strip on paper rather than the old dark block: the page no longer
+ * changes mode to sell the advisor, it offers a purple rectangular button and
+ * lets the type do the rest. Nothing here claims more than the panel does.
  */
 export function AdvisorBand({ title, body, cta }: AdvisorBandProps) {
   return (
     <section
       aria-labelledby="advisor-band-heading"
-      className="border-t border-[var(--brand-gold)] bg-[var(--purple-950)]"
+      className="border-t border-[var(--line)] bg-[var(--paper)]"
     >
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-4 px-4 py-[var(--space-section)] md:flex-row md:items-center md:justify-between md:gap-12">
+      <div className="mx-auto flex w-full max-w-[1920px] flex-col gap-6 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between md:gap-12">
         <div className="max-w-[560px]">
           <h2
             id="advisor-band-heading"
-            className="text-title-2 font-bold text-[var(--color-on-dark)]"
+            className="text-[22px] font-semibold leading-tight text-[var(--ink)]"
           >
             {title}
           </h2>
-          <p className="mt-2 text-body text-[var(--color-on-dark-muted)]">
+          <p className="mt-2 text-[14px] leading-relaxed text-[var(--ink-muted)]">
             {body}
           </p>
         </div>
-        <AdvisorLink label={cta} variant="secondary" />
+        <AdvisorLink label={cta} variant="primary" />
       </div>
     </section>
   );

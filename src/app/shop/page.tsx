@@ -7,6 +7,8 @@ import { formatNumber } from "@/lib/currency";
 import { parseCatalogState } from "@/lib/catalog-filters";
 import { buildCatalogView } from "@/lib/catalog-query";
 import { CatalogSection } from "@/features/catalog";
+import { Breadcrumbs } from "@/features/layout";
+import { getSiteUrl } from "@/lib/seo";
 import {
   buildCardLabels,
   buildControlsLabels,
@@ -56,7 +58,16 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const heading = t(locale, "nav.shop", "المتجر");
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-4 pb-[var(--space-section)] pt-8">
+    <div className="mx-auto w-full max-w-[1280px] px-4 pb-[var(--space-section)] pt-6">
+      <Breadcrumbs
+        className="mb-5"
+        siteUrl={getSiteUrl()}
+        items={[
+          { label: t(locale, "nav.home", "الرئيسية"), href: "/" },
+          { label: t(locale, "nav.shop", "المتجر") },
+        ]}
+      />
+
       <header className="mb-6 flex flex-col gap-2">
         <h1 className="text-title-3 font-bold text-[var(--color-text)]">
           {heading}

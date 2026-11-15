@@ -42,18 +42,17 @@ async function completeCheckout(page: Page) {
 }
 
 test.describe("production storefront and checkout", () => {
-  test("home has a single heading, a product-free hero, shop CTA, category and best sellers", async ({ page }) => {
+  test("home has a single heading, a product-free intro, categories and best sellers", async ({ page }) => {
     // networkidle: the catalogue's first row is laid out with its derived images;
     // measuring scrollWidth during that first layout pass reports a phantom
     // horizontal overflow.
     await page.goto("/", { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("h1")).toHaveCount(1);
-    // Base-UI renders the CTA as <a href="/shop" role="button">, so it is a
-    // button in the accessibility tree, not a link.
-    await expect(page.getByRole("button", { name: "تسوّق الآن" })).toHaveAttribute("href", "/shop");
-    // The hero is type and CSS only — its full contract lives in e2e/hero.spec.ts.
-    await expect(page.locator("section[aria-labelledby='hero-heading'] img")).toHaveCount(0);
+    // The hero is gone: one intro bar with the h1 and the way into /shop.
+    await expect(page.locator("section[aria-labelledby='home-intro']")).toBeVisible();
+    await expect(page.getByRole("link", { name: "عرض الكل" })).toHaveAttribute("href", "/shop");
+    await expect(page.locator("section[aria-labelledby='home-intro'] img")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
@@ -110,16 +109,20 @@ test.describe("production storefront and checkout", () => {
   test("shop filters are URL-driven, search normalizes Arabic, and category routes lock gender", async ({ page }) => {
     await page.goto("/shop");
     await expect(page.locator("h1")).toHaveCount(1);
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    // Real key events, not fill(): WebKit drops the input event that fill()
-    // synthesises on a type=search field, so the controlled value never commits.
-    await search.pressSequentially("افريكان");
-    // The site search is a GET form (action="/shop" name="q"); it commits on submit.
-    await search.press("Enter");
-    await expect(page).toHaveURL(/q=/, { timeout: 10_000 });
+    // The catalogue bar no longer carries a search field: the query lives in
+    // the URL and is typed in the header's search panel, so the contract is the
+    // URL, not a toolbar input.
+    await page.goto(`/shop?q=${encodeURIComponent("افريكان")}`);
+    await expect(page).toHaveURL(/q=/);
     await expect(page.getByRole("link", { name: /أفريكان ليذر/ }).first()).toBeVisible();
-    await page.getByLabel("الترتيب").selectOption("price-desc");
+
+    // Sort moved inside the one drawer, as a radio group driven by the URL.
+    await page.getByRole("button", { name: /^الفلاتر/ }).click();
+    const drawer = page.getByRole("dialog");
+    await drawer.getByRole("button", { name: "الترتيب" }).click();
+    await drawer.getByRole("radio", { name: "الأعلى سعرًا" }).click();
     await expect(page).toHaveURL(/sort=price-desc/);
+    await page.keyboard.press("Escape");
     for (const [path, heading] of [["/shop/men", "رجالي"], ["/shop/women", "حريمي"], ["/shop/unisex", "للجنسين"]]) {
       await page.goto(path);
       await expect(page.locator("h1")).toHaveText(heading);
@@ -303,7 +306,7 @@ test.describe("production storefront and checkout", () => {
     const page = await context.newPage();
     await page.goto("/");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("button", { name: "تسوّق الآن" })).toHaveAttribute("href", "/shop");
+    await expect(page.getByRole("link", { name: "عرض الكل" })).toHaveAttribute("href", "/shop");
     await page.goto("/shop");
     await expect(page.locator("h1")).toBeVisible();
     await page.goto("/product/pf090");
@@ -379,8 +382,12 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await trigger.click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible();
-    await expect(sheet.getByRole("heading", { name: "الفلاتر" })).toBeVisible();
+    await expect(
+      sheet.getByRole("heading", { name: /^الفلاتر/ }),
+    ).toBeVisible();
 
+    // The groups are accordions and start closed, like the design system says.
+    await sheet.getByRole("button", { name: "الجنس" }).click();
     await sheet.getByRole("checkbox", { name: "رجالي" }).click();
     await expect(page).toHaveURL(/gender=/);
     await sheet.getByRole("button", { name: /عرض .* منتج/ }).click();
@@ -408,17 +415,14 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
     await expect(count).not.toHaveText("٠ منتج");
 
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    await search.pressSequentially("zzzzzzz");
-    await search.press("Enter");
-    // Enter with no highlighted suggestion is a native form submit, so this is
-    // a full document navigation to /shop?q=… (not a client transition) on a
-    // dynamic page; 5 s is tight when the suite runs in parallel.
+    await page.goto(`/shop?q=${encodeURIComponent("zzzzzzz")}`);
     await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible({
       timeout: 15_000,
     });
     await page.getByRole("link", { name: "مسح الفلاتر" }).click();
-    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden();
+    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden({
+      timeout: 15_000,
+    });
     await expect(page).toHaveURL(/\/shop$/);
     await expect(count).toHaveText(fullCatalogue);
   });

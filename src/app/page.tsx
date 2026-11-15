@@ -10,7 +10,7 @@ import {
   AdvisorBand,
   BestSellersSection,
   CategoryTiles,
-  HeroSection,
+  IntroBar,
 } from "@/features/home";
 
 /**
@@ -41,15 +41,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Homepage — hero, best sellers, categories and the advisor invitation.
+ * Homepage — intro bar, best sellers, categories and the advisor invitation.
  *
- * The trust facts and the questions used to live here too; the owner asked for
- * a shorter home, so they moved to their own pages (/shipping-returns, /faq)
- * and the button band now sits directly above the footer.
- *
- * Every section is a Server Component. The only client code on the page is the
- * advisor links and the quick-add islands on the eight cards — no marquee, no
- * framer-motion, no grid of forty hydrated cards.
+ * The hero was removed in the gallery redesign: the page opens on an h1 and the
+ * "عرض الكل" link, and the eight best sellers sit directly under it in the same
+ * hairline grid the catalogue uses. Every section is a Server Component; the
+ * only client code is the advisor button and the quick-add islands on the cards.
  */
 export default async function HomePage() {
   const [products, locale, salesCounts] = await Promise.all([
@@ -69,22 +66,15 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection
-        heading={t(locale, "home.heroHeading", "عطر يترك أثرًا قبل أن تتكلم")}
-        lead={t(
-          locale,
-          "home.heroLead",
-          "تشكيلة مختارة من العطور الشرقية والنيش، تُطلب في دقيقة واحدة والدفع عند الاستلام.",
-        )}
-        shopCta={t(locale, "home.shopNow", "تسوّق الآن")}
-        advisorCta={t(locale, "home.chooseWithAdvisor", "اختر عطرك بالمساعد")}
+      <IntroBar
+        heading={t(locale, "home.introHeading", "عطور تبقى في الذاكرة")}
+        viewAll={t(locale, "home.viewAll", "عرض الكل")}
       />
 
       <BestSellersSection
         products={bestSellers}
         labels={{
           title: t(locale, "home.bestSellers", "الأكثر مبيعًا"),
-          viewAll: t(locale, "home.viewAll", "عرض الكل"),
           card: buildCardLabels(locale),
         }}
       />
@@ -108,14 +98,6 @@ export default async function HomePage() {
         )}
         cta={t(locale, "home.advisorCta", "اختر عطرك")}
       />
-
-      {/*
-       * The advisor band and the footer are both --purple-950, and the band is
-       * now the last section: without this seam the page ends in one tall dark
-       * block. A narrow strip of the page background (plus the footer's gold
-       * hairline) makes them read as two surfaces. Decoration only.
-       */}
-      <div aria-hidden="true" className="h-6 bg-[var(--color-bg)]" />
     </>
   );
 }

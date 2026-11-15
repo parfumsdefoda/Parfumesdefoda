@@ -79,8 +79,18 @@ test.describe("floating header", () => {
       )
       .toBe("true");
 
-    await page.evaluate(() => window.scrollTo(0, 500));
-    await expect.poll(async () => hidden(page), { timeout: 5000 }).toBe("false");
+    // Same two-sample reading for the way back up: the jump starts from the
+    // poll's own 900, so the last direction the listener sees is always up.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.scrollTo(0, 700));
+          await page.evaluate(() => window.scrollTo(0, 500));
+          return hidden(page);
+        },
+        { timeout: 5000 },
+      )
+      .toBe("false");
   });
 
   test("stays put while the search has focus", async ({ page }) => {

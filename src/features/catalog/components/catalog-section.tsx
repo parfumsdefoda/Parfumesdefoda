@@ -45,7 +45,7 @@ export function CatalogSection({
   lockedKeys,
 }: CatalogSectionProps) {
   return (
-    <section className="container mx-auto px-4 py-[var(--space-section)]">
+    <section className="container mx-auto px-4 pb-[var(--space-section)]">
       <h2 className="sr-only">{labels.title}</h2>
 
       <CatalogControls
