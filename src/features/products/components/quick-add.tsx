@@ -127,7 +127,7 @@ export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
         aria-label={label}
         aria-haspopup={mode === "chooser" ? "dialog" : undefined}
         aria-expanded={mode === "chooser" ? chooserOpen : undefined}
-        className="quick-add-btn rounded-pill shadow-soft"
+        className="quick-add-btn rounded-none border border-[var(--color-brand)] bg-transparent text-[var(--color-brand)] shadow-none hover:bg-[var(--color-brand)] hover:text-[var(--color-on-brand)]"
       >
         <span aria-hidden="true" className="quick-add-icon">
           {justAdded ? <Check /> : <Plus />}

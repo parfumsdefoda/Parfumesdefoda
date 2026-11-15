@@ -975,32 +975,9 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
 
 /* The pointer spotlight. `--card-mx` / `--card-my` are written by the one
    delegated pointermove island; without it the light sits at the centre. */
-.card-spot {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 320ms var(--ease-apple);
-  background: radial-gradient(
-    240px circle at var(--card-mx, 50%) var(--card-my, 36%),
-    color-mix(in srgb, var(--brand-purple) 16%, transparent) 0%,
-    transparent 72%
-  );
-}
 
-.premium-card .card-spot {
-  background: radial-gradient(
-    260px circle at var(--card-mx, 50%) var(--card-my, 36%),
-    color-mix(
-        in srgb,
-        color-mix(in srgb, var(--brand-white) 84%, var(--brand-gold)) 24%,
-        transparent
-      )
-      0%,
-    transparent 74%
-  );
-}
+
+
 
 /* The stage's edge light: an inset ring, so the stage's box never moves. */
 .card-edge {

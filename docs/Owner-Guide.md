@@ -195,3 +195,16 @@ shipping is
 `shipping.cost` in `data/settings.json` (100 EGP, no free-shipping threshold).
 Photos with a non-transparent background are listed in `.audit/needs-retouch.txt`
 and never auto-cut. Before launch run `npm run preflight -- --url=https://your-domain`.
+
+
+## The banner
+
+The homepage banner is generated from the design tokens, so it is always in the
+right colours and needs no artwork. It is letterbox on desktop (16:5) and portrait
+on phones (4:5, capped at 70% of the screen height), and the headline, copy and
+"تسوّق الآن" button sit over a dark scrim so the text stays readable.
+
+An owner-supplied photograph is **not** wired in yet: the brief asks for optional
+`settings.hero.image` / `settings.hero.imageMobile` files under `public/hero/`,
+and that switch is still to be added. Until then, keep the token banner: it is
+guaranteed contrast-safe and adds no weight to the first screen.

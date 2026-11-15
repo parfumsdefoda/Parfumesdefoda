@@ -482,3 +482,36 @@ whatever `data-motion` says.
 
 RTL is unaffected: presets only move colour, and every layout rule uses logical
 properties, so no preset needs a direction-specific variant.
+
+
+## Ivory editorial direction (amouage-style branch)
+
+The storefront now speaks one language: warm ivory paper, near-black ink, 1px
+hairlines and type that stays quiet. Purple is the only action colour; gold is
+reserved for the premium frame and its diamond.
+
+- **Tokens.** `--paper` (#F3EEE8), `--paper-deep`, `--ink` (#1B1620),
+  `--ink-muted` (4.5:1 on paper), `--line` (ink at ~85%) and `--line-soft`
+  (ink at ~18%). Every radius token is `0px` except `--radius-pill`, which only
+  the floating advisor launcher uses. Shadows are reduced to the overlay token and
+  `--shadow-cast` under a product cut-out.
+- **Header.** Flat, opaque paper with one hairline; two tiers at >= 1024px (centred
+  wordmark, search + cart at the inline end, centred nav row with a purple active
+  underline) and one 56px row below that. It is in the flow, retracts on scroll
+  down, returns on scroll up, and never moves under reduced motion. Search lives in
+  a full-width panel under the bar, opened by the "بحث" button.
+- **Banner.** Full-bleed, 16/5 on desktop and 4/5 (max 70svh) on phones, built only
+  from tokens: purple gradient, radial glow, a diamond lattice below 8% opacity, a
+  gold hairline at the bottom and a scrim that keeps overlay text above 4.5:1.
+- **Grid and card.** Edge-to-edge cells separated by 1px hairlines drawn as borders
+  (so an incomplete last row never shows a dark block), 4 / 3 / 2 columns at 1100 /
+  768 / below. The stage carries no tint: the bottle sits on the page paper with a
+  cast shadow. A card shows the name and the price and nothing else; premium adds a
+  1px gold inset frame and `◆ فاخر`, with the label row reserved on every card so
+  cells stay the same height.
+- **Hover (fine pointers only).** The bottle scales to 1.03 over 500ms, the name
+  underlines in purple, and a rectangular outlined "إضافة سريعة" appears. Reduced
+  motion keeps every stage transform at 1.
+- **Catalogue.** A slim typographic banner, then a hairline bar (breadcrumb, count,
+  "الفلاتر والترتيب"), then exactly one drawer holding every facet as an accordion
+  plus sort radios. Active filters are removable chips under the bar.

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { CardSpotlight, ProductCard, type ProductCardLabels } from "@/features/products";
+
 import type { Product } from "@/types";
+import { ProductCard, type ProductCardLabels } from "@/features/products";
 
 export interface BestSellersSectionProps {
   products: Product[];
@@ -53,7 +54,6 @@ export function BestSellersSection({
         aria-label={labels.title}
       >
         {/* The island renders no DOM; it wires this rail's pointer spotlight. */}
-        <CardSpotlight />
 
         {products.map((product, index) => (
           <li

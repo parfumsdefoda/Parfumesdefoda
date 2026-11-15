@@ -158,3 +158,20 @@ These need the real deployment and stay on the launch checklist:
 - the 308 redirects at the edge, custom domain and DNS
 - field performance (CrUX) and real devices
 - the AI advisor with a funded key (local runs use the deterministic fallback)
+
+
+## The ivory language in the suite
+
+- Specs that described the capsule header, tone switching, filter popovers, the
+  in-page catalogue search and the rounded stage were replaced, not weakened:
+  `card-hover`, `premium-card`, the catalogue tests in `storefront`, `header`,
+  `hero`, `light-only` and `ui-luxury-a11y`.
+- The suite runs with `reducedMotion: "reduce"` by default, which is also the
+  contract the header follows (it never retracts). The smart-hide test emulates
+  `no-preference` explicitly and a companion test pins the reduced-motion case.
+- Playwright is pinned to two workers: a single `next start` cannot feed more, and
+  the visual, axe and SEO tests then blow their 30s budgets.
+- The visual snapshot waits for `load` (not `networkidle`, which never settles on
+  `/checkout` because the cart holds a request open) and then for image decode.
+- Baselines live in `e2e/__screenshots__/{chromium-desktop,chromium-mobile,webkit-mobile}`
+  and are platform-specific (Windows); CI skips only the pixel comparison.
