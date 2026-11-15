@@ -91,7 +91,7 @@ export function ProductImage({
     <span
       className={cn(
         "relative block overflow-hidden",
-        tone === "dark" ? "premium-stage" : "bg-[var(--ui-surface-muted)]",
+        tone === "dark" ? "premium-stage" : "bg-[var(--paper)]",
         frame === "stage" ? "aspect-[4/5] w-full" : "h-full w-full",
         frameClassName,
       )}

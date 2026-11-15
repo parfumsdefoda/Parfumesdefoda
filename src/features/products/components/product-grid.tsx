@@ -1,5 +1,4 @@
 import { CARD_IMAGE_SIZES, ProductCard, type ProductCardLabels } from "./product-card";
-import { CardSpotlight } from "./card-spotlight";
 import { buildProductImageSources } from "@/lib/product-image";
 import { hasProductImage } from "@/lib/card-presentation";
 import { orderForCatalog } from "@/lib/catalog-order";
@@ -66,16 +65,13 @@ export function ProductGrid({
   return (
     <div
       className={[
-        "grid gap-[var(--space-3)] sm:gap-[var(--space-6)]",
+        "mx-auto grid w-full max-w-[1920px] border-s border-t border-[var(--line)]",
         MOBILE_COLS[columns.mobile] ?? MOBILE_COLS[2],
         TABLET_COLS[columns.tablet] ?? TABLET_COLS[3],
         DESKTOP_COLS[columns.desktop] ?? DESKTOP_COLS[4],
         className ?? "",
       ].join(" ")}
     >
-      {/* One delegated pointer listener for the grid's stages. */}
-      <CardSpotlight />
-
       {firstSources?.avif && (
         <link
           rel="preload"
