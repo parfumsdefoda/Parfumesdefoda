@@ -73,29 +73,32 @@ test.describe("product page", () => {
     expect(geometry.stagePaintsPaper).toBe(true);
   });
 
-  test("premium products carry the inset gold frame and the label", async ({ page }) => {
+  test("premium products carry the premium meta line, not the old frame", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/product/pf240");
 
-    const stage = page.locator("main").evaluate((main) => {
-      const frames = Array.from(main.querySelectorAll("[data-premium-frame]"));
-      const visible = frames.find((node) => node.getBoundingClientRect().width > 0);
-      if (!visible) return null;
-      const f = visible.getBoundingClientRect();
-      const parent = visible.parentElement!.getBoundingClientRect();
-      const labels = Array.from(main.querySelectorAll("span"))
-        .filter((node) => node.textContent?.trim() === "◆ فاخر" && node.getBoundingClientRect().width > 0);
+    // The inset frame is gone from the gallery; the premium word now lives in
+    // the meta line above the title, drawn in gold-700 with a diamond glyph.
+    await expect(page.locator("[data-premium-frame]")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("(فاخر)");
+
+    const meta = await page.locator("main h1").evaluate((heading) => {
+      const line = heading.previousElementSibling as HTMLElement | null;
+      if (!line) return null;
+      const first = line.querySelector("span > span") as HTMLElement | null;
       return {
-        inset: Math.round(f.left - parent.left),
-        insetTop: Math.round(f.top - parent.top),
-        labelVisible: labels.length > 0,
+        text: line.textContent?.replace(/\s+/g, " ").trim() ?? "",
+        firstColour: first ? getComputedStyle(first).color : "",
+        diamond: first ? first.querySelectorAll("svg").length : 0,
+        visible: line.getBoundingClientRect().width > 0,
       };
     });
-    const premium = await stage;
-    expect(premium).not.toBeNull();
-    expect(Math.abs(premium!.inset - 10)).toBeLessThanOrEqual(1);
-    expect(Math.abs(premium!.insetTop - 10)).toBeLessThanOrEqual(1);
-    expect(premium!.labelVisible).toBe(true);
+
+    expect(meta).not.toBeNull();
+    expect(meta!.visible).toBe(true);
+    expect(meta!.text.replace(/\s/g, "")).toBe("فاخر·نيش·شرقي");
+    expect(meta!.firstColour).toBe("rgb(122, 90, 18)");
+    expect(meta!.diamond).toBe(1);
   });
 
   test("similar perfumes use the hairline grid and the accordion hairlines", async ({ page }) => {
@@ -105,11 +108,18 @@ test.describe("product page", () => {
     const card = page.locator("[data-card]").first();
     await expect(card).toBeVisible();
     const borders = await card.evaluate((el) => {
-      const cs = getComputedStyle(el);
-      return { radius: cs.borderTopLeftRadius, shadow: cs.boxShadow, end: cs.borderInlineEndWidth };
+      const shell = getComputedStyle(el);
+      const inner = getComputedStyle(el.firstElementChild as HTMLElement);
+      return {
+        radius: shell.borderTopLeftRadius,
+        shadow: shell.boxShadow,
+        innerRadius: inner.borderTopLeftRadius,
+        innerBorder: inner.borderInlineEndWidth,
+      };
     });
-    expect(borders.radius).toBe("0px");
+    expect(borders.radius).toBe("16px");
     expect(borders.shadow).toBe("none");
-    expect(borders.end).toBe("1px");
+    expect(borders.innerRadius).toBe("14px");
+    expect(borders.innerBorder).toBe("1px");
   });
 });

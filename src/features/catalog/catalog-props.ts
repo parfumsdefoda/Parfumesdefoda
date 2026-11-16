@@ -27,6 +27,7 @@ export function buildCardLabels(locale: LocaleMessages): ProductCardLabels {
     quickAdd: t(locale, "product.quickAddShort", "إضافة سريعة"),
     addedToast: t(locale, "home.addedToast", "تمت إضافة {name} إلى السلة"),
     premium: t(locale, "product.premium", "فاخر"),
+    addShort: t(locale, "product.addToCartShort", "أضف للسلة"),
   };
 }
 

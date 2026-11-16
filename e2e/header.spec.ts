@@ -1,44 +1,21 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The floating glass header.
+ * The single-row header.
  *
- * Two tones, one capsule, no product imagery. The suite runs with
+ * 76px on white, sticky, one palette: logo at the inline start, the links in
+ * the centre and search/cart/WhatsApp at the inline end. The suite runs with
  * `reducedMotion: "reduce"` globally (playwright.config.ts), so the tests that
  * are ABOUT motion opt back in with `emulateMedia`.
  */
 
 const MENU = "القائمة";
 
-async function tone(page: Page) {
-  return page.locator("header.site-header").getAttribute("data-tone");
-}
-
 async function hidden(page: Page) {
   return page.locator("header.site-header").getAttribute("data-hidden");
 }
 
-/**
- * The capsule's painted alpha.
- *
- * Chrome serialises a `color-mix(… transparent)` as `color(srgb 1 1 1 / 0.88)`
- * and older engines as `rgba(…, 0.88)`, so both spellings are read.
- */
-async function capsuleAlpha(page: Page) {
-  return page.evaluate(() => {
-    const el = document.querySelector("header > div > div") as Element;
-    const color = getComputedStyle(el).backgroundColor;
-    const legacy = color.match(/rgba?\(([^)]+)\)/);
-    if (legacy) {
-      const parts = legacy[1].split(",").map((part) => Number(part.trim()));
-      return parts.length === 4 ? parts[3] : 1;
-    }
-    const modern = color.match(/\/\s*([\d.]+)\s*\)/);
-    return modern ? Number(modern[1]) : 1;
-  });
-}
-
-test.describe("floating header", () => {
+test.describe("single-row header", () => {
   test("carries no product imagery anywhere in the header", async ({ page }) => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
@@ -59,6 +36,106 @@ test.describe("floating header", () => {
 
 
 
+
+  test("is one 76px sticky row with no overlap from 1024 to 1440", async ({ page }) => {
+    test.setTimeout(90_000);
+    for (const width of [1024, 1280, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/shop", { waitUntil: "networkidle" });
+
+      const header = page.locator("header.site-header");
+      await expect(header).toHaveCount(1);
+      const g = await header.evaluate((el) => {
+        const nav = el.querySelector("nav") as HTMLElement;
+        const logo = el.querySelector("a[aria-label]") as HTMLElement;
+        const actions = nav.parentElement?.lastElementChild as HTMLElement;
+        const brand = logo.lastElementChild as HTMLElement;
+        const whatsapp = el.querySelector('a[href*="wa.me"]') as HTMLElement;
+        const box = (node: Element) => node.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        return {
+          height: box(el).height,
+          rowHeight: (el.firstElementChild as HTMLElement).getBoundingClientRect().height,
+          position: style.position,
+          background: style.backgroundColor,
+          borderBottom: style.borderBottomWidth,
+          logoStart: box(logo).left,
+          navEnd: box(nav).right,
+          navStart: box(nav).left,
+          actionsEnd: box(actions).right,
+          navGap: getComputedStyle(nav).columnGap,
+          brandSize: getComputedStyle(brand).fontSize,
+          brandTracking: getComputedStyle(brand).letterSpacing,
+          whatsappWidth: box(whatsapp).width,
+          links: nav.querySelectorAll("a").length,
+          houses: Array.from(nav.querySelectorAll("button")).filter((b) =>
+            b.textContent?.includes("الدور"),
+          ).length,
+          brand: brand.textContent?.trim(),
+        };
+      });
+
+      expect(g.height, `${width}px header height`).toBe(76);
+      // The 1px bottom border sits inside the 76px box; the row fills the rest.
+      expect(g.rowHeight, `${width}px row height`).toBe(g.height - 1);
+      expect(g.position, `${width}px position`).toBe("sticky");
+      expect(g.background, `${width}px background`).toBe("rgb(255, 255, 255)");
+      expect(g.borderBottom, `${width}px border`).toBe("1px");
+      expect(g.brand).toBe("PARFUMS DE FODA");
+      expect(g.links, `${width}px nav links`).toBe(6);
+      expect(g.houses, `${width}px houses menu`).toBe(1);
+
+      // RTL: the logo is at the inline start (right), the actions at the end
+      // (left), and the centred nav never enters either neighbour's box.
+      expect(g.logoStart - g.navEnd, `${width}px logo/nav gap`).toBeGreaterThanOrEqual(12);
+      expect(g.navStart - g.actionsEnd, `${width}px nav/actions gap`).toBeGreaterThanOrEqual(12);
+
+      if (width < 1280) {
+        expect(g.navGap).toBe("12px");
+        expect(g.brandSize).toBe("16px");
+        expect(g.brandTracking).toBe("3px");
+        // Icon-only WhatsApp pill: no label before xl.
+        expect(g.whatsappWidth).toBeLessThan(60);
+      } else {
+        expect(g.navGap).toBe("20px");
+        expect(g.brandSize).toBe("18px");
+        expect(g.brandTracking).toBe("4px");
+        expect(g.whatsappWidth).toBeGreaterThanOrEqual(120);
+      }
+    }
+  });
+
+  test("on a phone keeps the logo and actions on one row without the nav", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/shop", { waitUntil: "networkidle" });
+
+    const header = page.locator("header.site-header");
+    const g = await header.evaluate((el) => {
+      const nav = el.querySelector("nav") as HTMLElement;
+      const logo = el.querySelector("a[aria-label]") as HTMLElement;
+      const brand = logo.lastElementChild as HTMLElement;
+      return {
+        height: el.getBoundingClientRect().height,
+        navDisplay: getComputedStyle(nav).display,
+        brandDisplay: getComputedStyle(brand).display,
+        logoLeft: logo.getBoundingClientRect().left,
+        menu: el.querySelector('[aria-label="القائمة"]')?.getBoundingClientRect().width ?? 0,
+      };
+    });
+
+    expect(g.height).toBe(76);
+    expect(g.navDisplay).toBe("none");
+    expect(g.brandDisplay).toBe("none");
+    expect(g.menu).toBeGreaterThanOrEqual(44);
+    expect(g.logoLeft).toBeGreaterThan(200);
+
+    await page.getByRole("button", { name: "القائمة" }).click();
+    const sheet = page.locator('[data-slot="sheet-content"]');
+    await expect(sheet).toBeVisible();
+    await expect(
+      sheet.getByRole("link", { name: "المتجر" }),
+    ).toHaveAttribute("href", "/shop");
+  });
 
   test("hides on scroll down and returns on scroll up", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -99,7 +176,7 @@ test.describe("floating header", () => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
     // Focus first (the bar is visible at the top), then scroll: an open search
-    // must keep the capsule on screen even while the page scrolls down.
+    // must keep the header on screen even while the page scrolls down.
     // Under load the trigger can be clicked before hydration attaches its
     // handler, so open the panel with a retry rather than a single click.
     await expect(async () => {

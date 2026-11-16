@@ -202,6 +202,10 @@ export default async function RootLayout({
   const headerNav = buildPrimaryNav(genderCounts(products), navLabels, {
     hasOil: products.some((product) => product.oily),
   });
+  headerNav.push({
+    label: t(localeMessages, "nav.featured", "عطور مميزة"),
+    href: "/shop?sort=featured",
+  });
   const cartCatalogue: CartCatalogProduct[] = products.map((product) => ({
     id: product.id,
     slug: product.slug,
@@ -410,25 +414,11 @@ export default async function RootLayout({
               boundary so a failure here never takes down the rest of the site. */}
           <ChatAssistant
             labels={{
-              title: t(localeMessages, "advisor.title", "مساعد العطور"),
+              title: t(localeMessages, "advisor.title", "مساعد الذوق"),
               close: t(localeMessages, "advisor.close", "إغلاق"),
             }}
             launcher={{
-              open: t(
-                localeMessages,
-                "advisor.launcher",
-                "اختر عطرك بمساعدة المساعد الذكي",
-              ),
-              greeting: t(
-                localeMessages,
-                "advisor.greeting",
-                "محتار في الاختيار؟ اسألني وأرشّح لك عطراً يناسب ذوقك.",
-              ),
-              dismiss: t(
-                localeMessages,
-                "advisor.dismissGreeting",
-                "إخفاء الترحيب",
-              ),
+              open: t(localeMessages, "advisor.ask", "اسأل المساعد"),
             }}
           />
         </Providers>

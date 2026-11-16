@@ -2,9 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Axe over the states this phase introduced: the two header tones, the premium
- * card (dark stage + gold ring), the PDP gallery stage and the mobile menu
- * sheet. Nothing here replaces the whole-site axe run in storefront.spec.ts —
+ * Axe over the states the boutique phase introduced: the single-row header, the
+ * premium card (gradient shell + glow), the PDP gallery stage and the mobile
+ * menu sheet. Nothing here replaces the whole-site axe run in storefront.spec.ts —
  * it pins the surfaces that changed, so a future tweak cannot quietly drop
  * contrast or a landmark.
  */

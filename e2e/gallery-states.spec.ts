@@ -100,6 +100,60 @@ test.describe("gallery states", () => {
   });
 });
 
+test.describe("advisor launcher", () => {
+  test("never auto-opens, opens one dialog, and returns focus on Escape", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/shop", { waitUntil: "networkidle" });
+
+    // The old greeting popup appeared on a timer; the redesign only opens on
+    // an explicit click, so nothing may exist before one.
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.getByText(/أهلاً بيك/)).toHaveCount(0);
+
+    const launcher = page.getByRole("button", { name: "اسأل المساعد" });
+    await expect(launcher).toBeVisible();
+    await expect(page.locator("[data-advisor-launcher] button")).toHaveCount(1);
+    const box = await launcher.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBe(24);
+    expect(box!.height).toBe(48);
+    expect(box!.width).toBeGreaterThan(130);
+
+    const dialog = page.getByRole("dialog", { name: "مساعد الذوق" });
+    // WebKit can answer the first tap before hydration attaches the handler;
+    // retry the click, as the search specs do, instead of assuming one click.
+    await expect(async () => {
+      await launcher.click();
+      await expect(dialog).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
+    await expect(dialog.getByRole("heading", { name: "مساعد الذوق" })).toBeVisible();
+    await expect(dialog.getByText("يرشّح لك العطر في ثوانٍ")).toBeVisible();
+    await expect(dialog.getByText(/أهلاً بيك/)).toBeVisible();
+
+    // The input takes focus, so typing works without another click.
+    await expect
+      .poll(() => page.evaluate(() => document.activeElement?.getAttribute("aria-label")))
+      .toBe("رسالتك");
+
+    // The three gold suggestions are visible until the first message.
+    await expect(
+      dialog.getByRole("button", { name: /^(رجالي للصيف|هدية|ثبات قوي)$/ }),
+    ).toHaveCount(3);
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(launcher).toBeFocused();
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const root = document.querySelector("[data-advisor-launcher]");
+          return root ? getComputedStyle(root).opacity : "0";
+        }),
+      )
+      .toBe("1");
+  });
+});
+
 test.describe("keyboard and motion", () => {
   test("keyboard only: size, add to cart, drawer", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });

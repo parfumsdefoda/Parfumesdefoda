@@ -33,12 +33,16 @@ export interface QuickAddLabels {
   quickAdd: string;
   /** Toast template — `{name}` is replaced with the product name. */
   addedToast: string;
+  /** The featured card's full-width label. */
+  addShort?: string;
 }
 
 export interface QuickAddProps {
   product: QuickAddProduct;
   sizes: ProductSize[];
   labels: QuickAddLabels;
+  /** `featured` is the always-visible full-width button of a premium card. */
+  variant?: "compact" | "featured";
   className?: string;
 }
 
@@ -50,7 +54,14 @@ export interface QuickAddProps {
  * lazily, with the out-of-stock sizes disabled. Nothing in stock → the parent
  * card does not render this at all.
  */
-export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
+export function QuickAdd({
+  product,
+  sizes,
+  labels,
+  variant = "compact",
+  className,
+}: QuickAddProps) {
+  const featured = variant === "featured";
   const cart = useCart();
   const { showToast } = useToast();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -107,14 +118,16 @@ export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
   return (
     <div
       className={cn(
-        "absolute bottom-3 start-3 z-20",
-        "transition-opacity duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
-        // Always visible where there is no hover (touch); revealed on hover or
-        // keyboard focus on pointer devices. Opacity only — no layout shift.
-        "md:pointer-events-none md:opacity-0",
-        "md:group-hover:pointer-events-auto md:group-hover:opacity-100",
-        "md:group-focus-within:pointer-events-auto md:group-focus-within:opacity-100",
-        "md:focus-within:opacity-100",
+        featured
+          ? "relative w-full"
+          : [
+              "absolute bottom-3 start-3 z-20",
+              "transition-opacity duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
+              "md:pointer-events-none md:opacity-0",
+              "md:group-hover:pointer-events-auto md:group-hover:opacity-100",
+              "md:group-focus-within:pointer-events-auto md:group-focus-within:opacity-100",
+              "md:focus-within:opacity-100",
+            ],
         className,
       )}
     >
@@ -127,15 +140,28 @@ export function QuickAdd({ product, sizes, labels, className }: QuickAddProps) {
         aria-label={label}
         aria-haspopup={mode === "chooser" ? "dialog" : undefined}
         aria-expanded={mode === "chooser" ? chooserOpen : undefined}
-        className="quick-add-btn rounded-pill shadow-soft"
+        className={cn(
+          featured
+            ? "h-11 w-full rounded-lg bg-[var(--boutique-ink)] px-4 text-[14px] font-bold text-[var(--gold-300)] hover:bg-[var(--gold-700)]"
+            : "quick-add-btn rounded-pill shadow-soft",
+        )}
       >
-        <span aria-hidden="true" className="quick-add-icon">
-          {justAdded ? <Check /> : <Plus />}
-        </span>
-        {/* Decoration on hover: the button is already named by aria-label. */}
-        <span aria-hidden="true" className="quick-add-label">
-          {labels.quickAdd}
-        </span>
+        {featured ? (
+          <>
+            {justAdded ? (
+              <Check aria-hidden="true" className="size-4" />
+            ) : (
+              <Plus aria-hidden="true" className="size-4" />
+            )}
+            <span aria-hidden="true">{labels.addShort ?? "أضف للسلة"}</span>
+          </>
+        ) : (
+          <>
+            <span aria-hidden="true" className="quick-add-icon">
+              {justAdded ? <Check /> : <Plus />}
+            </span>
+          </>
+        )}
       </Button>
 
       {chooserOpen && (

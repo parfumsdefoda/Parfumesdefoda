@@ -5,10 +5,8 @@ import {
   useEffect,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/providers/CartProvider";
 import { useChat } from "../hooks/use-chat";
 import { consumeAdvisorOpen, subscribeAdvisor } from "../advisor-bus";
@@ -23,54 +21,24 @@ export interface ChatWidgetProps {
   labels: AdvisorLabels;
 }
 
-/** Desktop side panel from this breakpoint up; a bottom sheet below it. */
-const DESKTOP_QUERY = "(min-width: 1024px)";
-
-function subscribeDesktop(callback: () => void): () => void {
-  const query = window.matchMedia(DESKTOP_QUERY);
-  query.addEventListener("change", callback);
-  return () => query.removeEventListener("change", callback);
-}
-
-function desktopSnapshot(): boolean {
-  return window.matchMedia(DESKTOP_QUERY).matches;
-}
-
-/** The server render and the first client render agree on the sheet. */
-function serverSnapshot(): boolean {
-  return false;
-}
-
 /**
- * ChatWidget — the perfume advisor panel.
+ * ChatWidget — the advisor panel, bottom-left.
  *
- * Replaces the floating pulsing card. There is no permanent trigger on the
- * page: the header's "اختر عطرك", the hero's tertiary link and the homepage's
- * advisor band all ask for the panel through the advisor bus, so nothing
- * overlaps a CTA on a phone.
- *
- * A side panel from 1024px up, a bottom sheet below it. The conversation, the
- * /api/chat contract and the recommendation cards are unchanged; only the
- * doorway is. Focus goes to the input when it opens and back to whatever
- * opened it when it closes, and Tab stays inside the panel.
+ * A fixed 330px card (full width minus 16px on phones) with the gold-ink
+ * header, message bubbles, suggestion chips and one input row. The
+ * conversation, `/api/chat`, the lazy chunk and the cart/route rules are
+ * unchanged; only the doorway and the surface are new. Focus goes to the input
+ * on open, Esc closes, Tab stays inside, and closing hands focus back.
  */
 export function ChatWidget({ labels }: ChatWidgetProps) {
-  // A click made while this chunk was still downloading is not lost.
   const [isOpen, setIsOpen] = useState(() => consumeAdvisorOpen());
+  const [closing, setClosing] = useState(false);
   const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
   const { isDrawerOpen } = useCart();
   const pathname = usePathname();
-  const isDesktop = useSyncExternalStore(
-    subscribeDesktop,
-    desktopSnapshot,
-    serverSnapshot,
-  );
-
-  /** The control that opened the panel, so focus can go back to it. */
   const returnFocusRef = useRef<HTMLElement | null>(null);
 
-  // Collapse the panel when the cart drawer opens — render-time state
-  // adjustment, the documented pattern for reacting to context changes.
+  // Collapse the panel when the cart drawer opens — render-time adjustment.
   const [prevDrawerOpen, setPrevDrawerOpen] = useState(isDrawerOpen);
   if (prevDrawerOpen !== isDrawerOpen) {
     setPrevDrawerOpen(isDrawerOpen);
@@ -82,25 +50,33 @@ export function ChatWidget({ labels }: ChatWidgetProps) {
     () =>
       subscribeAdvisor(() => {
         const active = document.activeElement;
+        // Safari does not focus a button when it is tapped, so fall back to
+        // the launcher itself: closing must always hand focus back.
         returnFocusRef.current =
-          active instanceof HTMLElement ? active : null;
+          active instanceof HTMLElement && active !== document.body
+            ? active
+            : document.querySelector<HTMLElement>("[data-advisor-launcher-button]");
         setIsOpen(true);
+        setClosing(false);
       }),
     [],
   );
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsOpen(open);
+  const close = useCallback(() => {
+    setClosing(true);
+    window.setTimeout(() => {
+      setIsOpen(false);
+      setClosing(false);
+      // Focus after React has removed the panel, so the launcher is visible
+      // (and therefore focusable) again.
+      window.requestAnimationFrame(() => returnFocusRef.current?.focus());
+    }, 140);
   }, []);
 
-  // Focus contract: Tab stays inside the panel, and closing hands focus back to
-  // the control the shopper used. Base UI's dialog parts do not move focus in
-  // this build, so the small amount a keyboard user needs lives here.
+  // Esc closes; Tab stays inside the panel.
   useEffect(() => {
     if (!isOpen) return;
-
-    const getPanel = () =>
-      document.querySelector<HTMLElement>("[data-advisor-panel]");
+    const getPanel = () => document.querySelector<HTMLElement>("[data-advisor-panel]");
 
     const focusable = () => {
       const panel = getPanel();
@@ -113,13 +89,17 @@ export function ChatWidget({ labels }: ChatWidgetProps) {
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
       if (event.key !== "Tab") return;
       const items = focusable();
       if (items.length === 0) return;
       const first = items[0];
       const last = items[items.length - 1];
       const active = document.activeElement;
-
       if (event.shiftKey && active === first) {
         event.preventDefault();
         last.focus();
@@ -130,44 +110,33 @@ export function ChatWidget({ labels }: ChatWidgetProps) {
     };
 
     document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      returnFocusRef.current?.focus();
-    };
-  }, [isOpen]);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [close, isOpen]);
 
-  // The checkout flow keeps its own reduced shell and must not open a panel
-  // over the form.
+  // The checkout flow keeps its reduced shell and must not open a panel.
   const isCheckoutRoute = pathname?.startsWith("/checkout") ?? false;
-  if (isCheckoutRoute) return null;
-
-  /* A side panel from the desktop breakpoint up, a bottom sheet below it. */
-  const panelClass = isDesktop
-    ? "w-[420px] max-w-[92vw] p-0"
-    : "min-h-[78dvh] border-t border-[var(--line)] p-0";
+  if (isCheckoutRoute || !isOpen) return null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
-      <SheetContent
-        side={isDesktop ? "left" : "bottom"}
-        data-advisor-panel=""
+    <div
+      data-advisor-panel=""
+      role="dialog"
+      aria-modal="true"
+      aria-label={labels.title}
+      className={`pf-panel-shadow fixed bottom-24 left-4 z-50 flex max-h-[70vh] w-[calc(100vw-32px)] flex-col overflow-hidden rounded-2xl border border-[var(--boutique-line)] bg-[var(--boutique-white)] sm:left-6 sm:w-[330px] ${
+        closing ? "pf-panel-out" : "pf-panel-in"
+      }`}
+    >
+      <ChatWindow
+        messages={messages}
+        isLoading={isLoading}
+        error={error}
+        onSendMessage={sendMessage}
+        onClearMessages={clearMessages}
+        onClose={close}
         closeLabel={labels.close}
-        className={`flex flex-col gap-0 ${panelClass}`}
-      >
-        {/* The chat window already shows the advisor's name; this title exists
-            for the dialog's accessible name, not for the eye. */}
-        <SheetHeader className="sr-only">
-          <SheetTitle>{labels.title}</SheetTitle>
-        </SheetHeader>
-        <ChatWindow
-          messages={messages}
-          isLoading={isLoading}
-          error={error}
-          onSendMessage={sendMessage}
-          onClearMessages={clearMessages}
-          onNavigateToProduct={() => setIsOpen(false)}
-        />
-      </SheetContent>
-    </Sheet>
+        onNavigateToProduct={close}
+      />
+    </div>
   );
 }

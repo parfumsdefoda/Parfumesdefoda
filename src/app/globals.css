@@ -74,10 +74,10 @@
   /* ── Gold scale — signature detail only ────────────────────── */
   --gold-50: color-mix(in srgb, var(--brand-gold) 9%, var(--brand-white));
   --gold-100: color-mix(in srgb, var(--brand-gold) 18%, var(--brand-white));
-  --gold-300: color-mix(in srgb, var(--brand-gold) 60%, var(--brand-white));
-  --gold-500: var(--brand-gold);
+  --gold-300: #e8c766;
+  --gold-500: #b88a2a;
   /* 5.1:1 on white — the only gold allowed as text */
-  --gold-700: color-mix(in srgb, var(--brand-gold) 62%, #000000);
+  --gold-700: #7a5a12;
 
   /* ── Green scale — status & freshness only ─────────────────── */
   --green-50: color-mix(in srgb, var(--brand-green) 14%, var(--brand-white));
@@ -143,16 +143,8 @@
   --color-on-dark-muted: color-mix(in srgb, var(--brand-white) 76%, var(--purple-950));
   --color-on-dark-border: color-mix(in srgb, var(--brand-white) 18%, var(--purple-950));
 
-  /* ── Floating header (the glass capsule) ───────────────────────
-     One offset drives the page: the capsule's height plus the gap it
-     floats in. Non-hero pages pad `main` by it; the homepage hero eats
-     it with a negative margin so the hero runs under the capsule. */
-  --header-gap: 12px;
-  --header-capsule: 52px;
-  --header-offset: calc(var(--header-capsule) + var(--header-gap));
-  /* The capsule's 1px hairline is the only gold in the header. */
-  --ui-gold-hairline: color-mix(in srgb, var(--brand-gold) 58%, transparent);
-  --ui-hairline-soft: color-mix(in srgb, var(--ui-border-strong) 26%, transparent);
+  /* The sticky header is always 76px; anchors land below it. */
+  --header-height: 76px;
 
   /* ── Legacy names kept because existing components read them ─ */
   --color-primary: var(--brand-white);
@@ -410,81 +402,20 @@
   opacity: 0.16;
 }
 
-@media (min-width: 1024px) {
-  :root {
-    --header-capsule: 60px;
-  }
-}
-
-/* ── Header tones ────────────────────────────────────────────────
-   The capsule is one component with two palettes. `data-tone` is written
-   during the server render (dark on the homepage while the hero is behind
-   it, light everywhere else) and flipped by a client island once the hero
-   has scrolled away — so there is never a flash of the wrong tone. */
+/* ── Header palette ─────────────────────────────────────────────
+   The single-row header is always white; the search panel reads the field
+   tokens from here. No tone switching, no dark capsule. */
 .site-header {
-  --header-fg: var(--color-text);
-  --header-fg-muted: var(--color-text-muted);
-  --header-accent: var(--color-brand);
-  --header-surface: color-mix(in srgb, var(--brand-white) 88%, transparent);
-  --header-field: color-mix(in srgb, var(--ui-surface-muted) 92%, transparent);
-  --header-field-strong: var(--color-surface);
-  --header-field-border: var(--ui-border-strong);
-  --header-hover: color-mix(in srgb, var(--brand-purple) 7%, transparent);
-  --header-ring: var(--color-focus);
+  --header-fg: var(--boutique-ink);
+  --header-fg-muted: color-mix(in srgb, var(--boutique-ink) 68%, var(--boutique-white));
+  --header-field: var(--cream);
+  --header-field-strong: var(--boutique-white);
+  --header-field-border: var(--boutique-line);
 }
 
-.site-header[data-tone="dark"] {
-  --header-fg: var(--color-on-dark);
-  --header-fg-muted: var(--color-on-dark-muted);
-  --header-accent: var(--color-on-dark);
-  --header-surface: color-mix(in srgb, var(--brand-white) 8%, transparent);
-  --header-field: color-mix(in srgb, var(--brand-white) 12%, transparent);
-  --header-field-strong: color-mix(in srgb, var(--brand-white) 18%, transparent);
-  --header-field-border: color-mix(in srgb, var(--brand-white) 55%, var(--purple-950));
-  --header-hover: color-mix(in srgb, var(--brand-white) 12%, transparent);
-  --header-ring: var(--color-on-dark);
-}
-
-/* No blur support, or the visitor asked for less transparency: the capsule
-   becomes a solid surface in the same tone, with the same text contrast. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-header {
-    --header-surface: var(--color-surface);
-    --header-field: var(--ui-surface-muted);
-  }
-
-  .site-header[data-tone="dark"] {
-    --header-surface: var(--purple-950);
-    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .site-header {
-    --header-surface: var(--color-surface);
-    --header-field: var(--ui-surface-muted);
-  }
-
-  .site-header[data-tone="dark"] {
-    --header-surface: var(--purple-950);
-    --header-field: color-mix(in srgb, var(--brand-white) 12%, var(--purple-950));
-  }
-}
-
-/* The cart count: ivory on the dark tone, brand purple on the light tone. */
-.header-cart-badge {
-  background: var(--color-brand);
-  color: var(--brand-white);
-}
-
-.site-header[data-tone="dark"] .header-cart-badge {
-  background: var(--color-on-dark);
-  color: var(--purple-950);
-}
-
-/* Anchors land below the floating capsule instead of behind it. */
+/* Anchors land below the sticky header instead of behind it. */
 html {
-  scroll-padding-top: calc(var(--header-offset) + var(--space-4));
+  scroll-padding-top: calc(var(--header-height) + var(--space-4));
 }
 
 /* ── Hero (type only, no product imagery) ────────────────────────
@@ -801,31 +732,14 @@ body {
 }
 
 /* ─── Floating advisor launcher ───
-   Two soft rings when the button first paints, never a loop. The button is
-   hidden by CSS (not by React) while the cart drawer or any Sheet/Dialog is
-   open, and while the footer is on screen. */
-@keyframes advisor-ring {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 32%, transparent);
-  }
-  60% {
-    box-shadow: 0 0 0 14px color-mix(in srgb, var(--color-brand) 0%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-brand) 0%, transparent);
-  }
-}
-
+   The button is hidden by CSS (not by React) while the cart drawer or any
+   Sheet/Dialog is open, and while the footer is on screen. */
 [data-advisor-launcher] {
-  transition:
-    opacity var(--duration-fast) var(--ease-apple),
-    visibility 0s linear var(--duration-fast);
+  /* Showing is immediate (focus can return at once); hiding waits out the fade. */
+  transition: opacity var(--duration-fast) var(--ease-apple);
 }
 
-[data-advisor-launcher] > button {
-  animation: advisor-ring 1.3s var(--ease-apple) 2;
-}
-
+body:has([data-advisor-panel]) [data-advisor-launcher],
 html[data-cart-open="true"] [data-advisor-launcher],
 body:has([data-slot="sheet-content"][data-open]) [data-advisor-launcher],
 body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
@@ -833,155 +747,13 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transition:
+    opacity var(--duration-fast) var(--ease-apple),
+    visibility 0s linear var(--duration-fast);
 }
 
-/* ─── Premium (فاخر) product ───
-   The metallic frame REPLACES the old gold badge. It is a 2px ring drawn as
-   an overlay with mask-composite, so the card keeps exactly the same box,
-   height and radius as a normal card. Pure CSS: no JavaScript, no infinite
-   animation, and nothing that can intercept a click (`pointer-events: none`). */
-@property --premium-sweep {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
-}
-
-.premium-frame {
-  position: relative;
-}
-
-.premium-frame::before,
-.premium-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  pointer-events: none;
-  -webkit-mask:
-    linear-gradient(black 0 0) content-box,
-    linear-gradient(black 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(black 0 0) content-box,
-    linear-gradient(black 0 0);
-  mask-composite: exclude;
-}
-
-/* The metal itself: light highlight → base gold → deep shade → base → light. */
-.premium-frame::before {
-  z-index: 20;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--brand-gold) 88%, var(--brand-white)) 0%,
-    var(--brand-gold) 26%,
-    color-mix(in srgb, var(--brand-gold) 52%, #3d2d06) 50%,
-    var(--brand-gold) 76%,
-    color-mix(in srgb, var(--brand-gold) 88%, var(--brand-white)) 100%
-  );
-}
-
-/* The travelling highlight (only visible while it animates). */
-.premium-frame::after {
-  z-index: 21;
-  opacity: 0;
-  background: conic-gradient(
-    from var(--premium-sweep),
-    transparent 0deg 292deg,
-    color-mix(in srgb, var(--brand-white) 88%, var(--brand-gold)) 336deg,
-    transparent 360deg
-  );
-}
-
-/* A premium product nobody can buy yet keeps a muted, still frame. */
-.premium-frame[data-premium="muted"]::before {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--brand-gold) 30%, var(--neutral-300)) 0%,
-    color-mix(in srgb, var(--brand-gold) 16%, var(--neutral-400)) 50%,
-    color-mix(in srgb, var(--brand-gold) 30%, var(--neutral-300)) 100%
-  );
-}
-
-.premium-frame[data-premium="muted"]::after {
-  content: none;
-}
-
-@keyframes premium-sweep {
-  from {
-    --premium-sweep: 0deg;
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.9;
-  }
-  72% {
-    opacity: 0.9;
-  }
-  to {
-    --premium-sweep: 360deg;
-    opacity: 0;
-  }
-}
-
-/* Entry sweep, once, as the card enters the viewport. The timeline is the
-   scroll position (entry range), so it cannot loop; a browser without
-   scroll-driven animations keeps the static frame and only hover/focus moves. */
-@supports (animation-timeline: view()) {
-  .premium-frame::after {
-    animation: premium-sweep linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
-  }
-}
-
-/* The dark stage — only ever used when the photo is a real cut-out. */
 .premium-stage {
   background: var(--gradient-stage-dark);
-}
-
-/* Shine band and glints live inside the stage's overflow-hidden box. */
-.premium-shine,
-.premium-glint {
-  position: absolute;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.premium-shine {
-  inset: 0;
-  z-index: 15;
-  background: linear-gradient(
-    112deg,
-    transparent 32%,
-    color-mix(in srgb, var(--brand-white) 46%, transparent) 50%,
-    transparent 68%
-  );
-  transform: translateX(-110%);
-}
-
-.premium-glint {
-  z-index: 16;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--brand-white) 82%, var(--brand-gold));
-}
-
-.premium-glint[data-glint="a"] {
-  top: 16%;
-  inset-inline-end: 18%;
-}
-
-.premium-glint[data-glint="b"] {
-  top: 44%;
-  inset-inline-start: 22%;
-}
-
-/* The bottle lifts off its shadow; transform and opacity only. */
-.premium-bottle {
-  transform-origin: 50% 100%;
-  transition: transform var(--duration-slow) var(--ease-apple);
 }
 
 [data-ground] {
@@ -990,271 +762,11 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
     transform var(--duration-slow) var(--ease-apple);
 }
 
-@keyframes premium-shine-once {
-  from {
-    opacity: 0.85;
-    transform: translateX(-110%);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(110%);
-  }
-}
-
-@keyframes premium-glint-twice {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  14%,
-  32% {
-    opacity: 0.9;
-  }
-  50% {
-    opacity: 0;
-  }
-  64%,
-  82% {
-    opacity: 0.72;
-  }
-}
-
-/* ─── Card hover system ───
-   EVERY card lifts and gets a pointer spotlight, a 1px stage edge, a
-   contracting ground shadow and a quick-add pill; a premium card adds the
-   gold layer on top. Only transform/opacity animate, plus the inline size of
-   one absolutely positioned button — never a shadow on the card itself, and
-   nothing here loops. */
-.card-shell {
-  /* `layout`, not `paint`: the lifted shadow is painted OUTSIDE the card box,
-     so `contain: paint` would clip away the very effect it belongs to. */
-  contain: layout style;
-  isolation: isolate;
-  transition: transform 420ms var(--ease-apple);
-}
-
-/* The lifted shadow lives on a pseudo whose opacity animates. */
-.card-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-lifted);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 420ms var(--ease-apple);
-}
-
-/* The premium card's outer gold glow, for the same reason. */
-.premium-card::before {
-  content: "";
-  position: absolute;
-  inset: -6px;
-  z-index: -1;
-  border-radius: calc(var(--radius-card) + 6px);
-  box-shadow: 0 0 36px color-mix(in srgb, var(--brand-gold) 30%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 420ms var(--ease-apple);
-}
-
-/* The pointer spotlight. `--card-mx` / `--card-my` are written by the one
-   delegated pointermove island; without it the light sits at the centre. */
-.card-spot {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 320ms var(--ease-apple);
-  background: radial-gradient(
-    240px circle at var(--card-mx, 50%) var(--card-my, 36%),
-    color-mix(in srgb, var(--brand-purple) 16%, transparent) 0%,
-    transparent 72%
-  );
-}
-
-.premium-card .card-spot {
-  background: radial-gradient(
-    260px circle at var(--card-mx, 50%) var(--card-my, 36%),
-    color-mix(
-        in srgb,
-        color-mix(in srgb, var(--brand-white) 84%, var(--brand-gold)) 24%,
-        transparent
-      )
-      0%,
-    transparent 74%
-  );
-}
-
-/* The stage's edge light: an inset ring, so the stage's box never moves. */
-.card-edge {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: var(--radius-card);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-purple) 35%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 320ms var(--ease-apple);
-}
-
-.card-bottle {
-  transform-origin: 50% 100%;
-  transition: transform 500ms var(--ease-apple);
-}
-
-/* Quick add: a 44px circle that grows into a pill, absolutely positioned so
-   no sibling reflows while it does. */
+/* Quick add: a 44px circle on the card stage. */
 .quick-add-btn {
   inline-size: 44px;
   padding-inline: 0;
-  overflow: hidden;
   justify-content: center;
-  transition: inline-size 320ms var(--ease-apple);
-}
-
-.quick-add-label {
-  max-inline-size: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transform: translateX(6px);
-  transition:
-    max-inline-size 320ms var(--ease-apple),
-    opacity 220ms var(--ease-apple),
-    transform 320ms var(--ease-apple);
-}
-
-@keyframes premium-ring-sweep {
-  from {
-    --premium-sweep: 0deg;
-    opacity: 0.95;
-  }
-  to {
-    --premium-sweep: 360deg;
-    opacity: 0;
-  }
-}
-
-/* Hover/focus motion is for devices with a real pointer only. */
-@media (hover: hover) and (pointer: fine) {
-  .card-shell[data-card-state="live"]:hover {
-    transform: translateY(-4px);
-    will-change: transform;
-  }
-
-  .card-shell[data-card-state="live"]:hover::after {
-    opacity: 1;
-  }
-
-  .card-shell[data-card-state="live"]:hover .card-spot,
-  .card-shell[data-card-state="live"]:hover .card-edge {
-    opacity: 1;
-  }
-
-  .card-shell[data-card-state="live"]:hover .card-bottle {
-    transform: translateY(-6px) scale(1.04);
-  }
-
-  .card-shell[data-card-state="live"]:hover [data-ground] {
-    opacity: 0.72;
-    transform: scaleX(0.85);
-  }
-
-  .card-shell[data-card-state="live"]:hover .card-name {
-    color: var(--color-brand);
-  }
-
-  .card-shell[data-card-state="live"]:hover .quick-add-btn {
-    inline-size: 8.25rem;
-    padding-inline-start: 14px;
-    justify-content: flex-start;
-  }
-
-  .card-shell[data-card-state="live"]:hover .quick-add-label {
-    max-inline-size: 8rem;
-    opacity: 1;
-    transform: none;
-  }
-
-  /* Keyboard gets the same state — minus the pointer's spotlight. */
-  .card-shell[data-card-state="live"]:focus-within {
-    transform: translateY(-4px);
-  }
-
-  .card-shell[data-card-state="live"]:focus-within::after,
-  .card-shell[data-card-state="live"]:focus-within .card-edge {
-    opacity: 1;
-  }
-
-  .card-shell[data-card-state="live"]:focus-within .card-bottle {
-    transform: translateY(-6px) scale(1.04);
-  }
-
-  .card-shell[data-card-state="live"]:focus-within [data-ground] {
-    opacity: 0.72;
-    transform: scaleX(0.85);
-  }
-
-  .card-shell[data-card-state="live"]:focus-within .card-name {
-    color: var(--color-brand);
-  }
-
-  .card-shell[data-card-state="live"]:focus-within .quick-add-btn {
-    inline-size: 8.25rem;
-    padding-inline-start: 14px;
-    justify-content: flex-start;
-  }
-
-  .card-shell[data-card-state="live"]:focus-within .quick-add-label {
-    max-inline-size: 8rem;
-    opacity: 1;
-    transform: none;
-  }
-
-  /* The premium layer, on top of everything above. */
-  .premium-card:hover::before,
-  .premium-card:focus-within::before {
-    opacity: 1;
-  }
-
-  .premium-card:hover .premium-shine,
-  .premium-card:focus-within .premium-shine {
-    animation: premium-shine-once var(--duration-slow) var(--ease-apple) both;
-  }
-
-  .premium-card:hover .premium-glint,
-  .premium-card:focus-within .premium-glint {
-    animation: premium-glint-twice 1.1s var(--ease-apple) both;
-  }
-
-  .premium-card:hover .premium-glint[data-glint="b"],
-  .premium-card:focus-within .premium-glint[data-glint="b"] {
-    animation-delay: 140ms;
-  }
-
-  /* One conic pass along the ring. `animation-timeline: auto` is what lets
-     this override the scroll-driven entry sweep above. */
-  .premium-card:hover .premium-frame::after,
-  .premium-card:focus-within .premium-frame::after {
-    animation: premium-ring-sweep 1.2s var(--ease-apple) both;
-    animation-timeline: auto;
-  }
-
-  .premium-card:hover .premium-bottle,
-  .premium-card:focus-within .premium-bottle {
-    transform: translateY(-6px) scale(1.04);
-  }
-}
-
-/* Touch: no hover state at all, but a press still answers. */
-@media (hover: none) {
-  .card-shell[data-card-state="live"]:active {
-    transform: scale(0.985);
-    transition-duration: 120ms;
-  }
 }
 
 /* Global reduced-motion contract: no decorative motion, ever. */
@@ -1276,46 +788,10 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
     animation: none !important;
   }
 
-  /* A premium card is completely still: static ring, no sweep, no lift. */
-  .premium-frame::after,
-  .premium-card .premium-shine,
-  .premium-card .premium-glint {
-    animation: none !important;
-    opacity: 0 !important;
-  }
-
-  .premium-bottle,
-  .card-bottle,
   [data-ground] {
     transition: none !important;
   }
 
-  /* No lift, no bottle move, no spotlight drift: the ring and the edge may
-     still change opacity, instantly. */
-  .card-shell,
-  .card-shell:hover,
-  .card-shell:focus-within,
-  .card-shell:active {
-    transform: none !important;
-    will-change: auto !important;
-  }
-
-  .card-shell:hover .card-bottle,
-  .card-shell:focus-within .card-bottle,
-  .card-shell:hover [data-ground],
-  .card-shell:focus-within [data-ground] {
-    transform: none !important;
-  }
-
-  .premium-card:hover .premium-bottle,
-  .premium-card:focus-within .premium-bottle {
-    transform: none !important;
-  }
-
-  .quick-add-btn,
-  .quick-add-label {
-    transition-duration: 80ms !important;
-  }
 }
 
 
@@ -1332,6 +808,84 @@ body:has([data-slot="dialog-content"][data-open]) [data-advisor-launcher],
   --line: color-mix(in srgb, var(--ink) 85%, var(--paper));
   --line-soft: color-mix(in srgb, var(--ink) 18%, var(--paper));
   --shadow-cast: 10px 14px 12px color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+/* ─── Boutique tokens ───
+   The header, the advisor and the featured card wear this warmer palette. The
+   document keeps its paper/ink pair; these are declared once here so no
+   component carries a literal colour. */
+:root {
+  --boutique-ink: #16120e;
+  --cream: #f6f2eb;
+  --boutique-line: #e4dccf;
+  --boutique-white: #ffffff;
+  --gold-gradient: linear-gradient(135deg, #f3dd96, #b88a2a 35%, #f3dd96 60%, #9a6c1c);
+  --premium-surface: radial-gradient(circle at 50% 0%, #fbf0cf, #fffdf7 60%);
+  --premium-glow: 0 10px 30px rgba(184, 138, 42, 0.35);
+  --premium-glow-hover: 0 16px 40px rgba(184, 138, 42, 0.5);
+  --panel-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
+}
+
+.pf-gold-surface {
+  background-image: var(--gold-gradient);
+}
+
+.pf-gold-glow {
+  box-shadow: var(--premium-glow);
+  transition:
+    box-shadow 180ms var(--ease-apple),
+    transform 180ms var(--ease-apple);
+}
+
+.pf-gold-glow:hover,
+.pf-gold-glow:focus-within {
+  box-shadow: var(--premium-glow-hover);
+  transform: translateY(-2px);
+}
+
+.pf-panel-shadow {
+  box-shadow: var(--panel-shadow);
+}
+
+.pf-panel-in {
+  animation: pf-panel-in 160ms var(--ease-apple) both;
+}
+
+.pf-panel-out {
+  animation: pf-panel-out 140ms var(--ease-apple) both;
+}
+
+@keyframes pf-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pf-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-gold-glow:hover,
+  .pf-gold-glow:focus-within {
+    transform: none;
+  }
+  .pf-panel-in,
+  .pf-panel-out {
+    animation: none;
+  }
 }
 
 body {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import { QuickAdd } from "./quick-add";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ export interface ProductCardLabels {
   comingSoon: string;
   /** Ink for a sold-out product. */
   outOfStock: string;
-  /** Prefix for a multi-size price (\"من ١٢٠ ج.م\"). */
+  /** Prefix for a multi-size price ("من ١٢٠ ج.م"). */
   from: string;
   /** Accessible name of the quick-add control. */
   add: string;
@@ -30,10 +31,12 @@ export interface ProductCardLabels {
   addToCart: string;
   /** Heading of the size chooser. */
   chooseSize: string;
-  /** The row button revealed on hover (\"إضافة سريعة\"). */
+  /** The row button revealed on hover ("إضافة سريعة"). */
   quickAdd: string;
-  /** The premium label (\"فاخر\"). */
+  /** The premium label ("فاخر"). */
   premium: string;
+  /** The featured card's full-width button ("أضف للسلة"). */
+  addShort?: string;
 }
 
 export const DEFAULT_CARD_LABELS: ProductCardLabels = {
@@ -46,6 +49,7 @@ export const DEFAULT_CARD_LABELS: ProductCardLabels = {
   chooseSize: "اختر الحجم",
   quickAdd: "إضافة سريعة",
   premium: "فاخر",
+  addShort: "أضف للسلة",
 };
 
 export interface ProductCardProps {
@@ -66,14 +70,12 @@ export const CARD_IMAGE_SIZES = "(max-width: 767px) 50vw, (max-width: 1099px) 33
 
 type PhotoClass = "transparent" | "white" | "scene";
 
-/** Contract P: the manifest decides how a photo meets the paper. */
+/** Contract P: the manifest decides how a photo meets the card. */
 function photoClassOf(product: Product): PhotoClass {
   if (!hasProductImage(product)) return "scene";
   const sources = buildProductImageSources(product.slug, "card");
   if (!sources) return "scene";
   if (sources.blend === "multiply") return "white";
-  // A derived cut-out is transparent when it is not multiplied and the
-  // manifest keeps the original alpha; `hasTransparentCutout` is that flag.
   return hasTransparentCutout(product.slug) ? "transparent" : "scene";
 }
 
@@ -86,18 +88,14 @@ const PHOTO_CLASS: Record<PhotoClass, string> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * ProductCard — one cell of the gallery.
+ * ProductCard — one cell of the catalogue.
  *
- * A Server Component: the only client code is the quick-add island in the
- * reserved action slot. Anatomy, top to bottom:
- *
- *   image box    full cell width, 1:1, the subject about 72% of its height
- *   text block   16px 12px: optional \"◆ فاخر\", the name (15/600), the price
- *                (14/500, muted ink), then a 44px slot that stays empty at rest
- *
- * The cell is one link target via an overlay link; the action slot sits above
- * it. Hairlines live on the cell itself (border-inline-end + border-block-end)
- * so an incomplete last row shows paper, never a dark block.
+ * Every card is a 2px shell around a 14px inner: the premium shell is the gold
+ * gradient with a soft glow, the regular one is transparent with a hairline
+ * border, so both rows keep the same height. Premium adds the gradient star
+ * badge on the image, an ink/gold full-width add button and a warmer surface;
+ * the name and image remain the only links, and the quick-add island stays the
+ * only client code.
  */
 export function ProductCard({
   product,
@@ -124,132 +122,157 @@ export function ProductCard({
       data-card-state={comingSoon || outOfStock ? "static" : "live"}
       data-photo={photo}
       className={cn(
-        "group relative flex flex-col bg-[var(--paper)]",
-        "border-e border-b border-[var(--line)]",
-        
+        "group relative rounded-[16px] p-[2px]",
+        premium
+          ? "pf-gold-surface pf-gold-glow"
+          : "bg-transparent transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none",
         className,
       )}
     >
-      {/* ─── Image box: full width, 1:1, no padding ─── */}
-      <div data-card-stage="" className="relative aspect-square w-full overflow-hidden">
-        {comingSoon ? (
-          <span className="absolute inset-0 grid place-items-center text-[14px] font-medium text-[var(--ink-muted)]">
-            {copy.comingSoon}
-          </span>
-        ) : !hasImage ? (
-          <span aria-hidden="true" className="block size-full" />
-        ) : (
-          <ProductImage
-            slug={product.slug}
-            src={product.image}
-            name={product.name}
-            tier="card"
-            frame="stage"
-            tone="light"
-            sizes={CARD_IMAGE_SIZES}
-            priority={priority}
-            loading={loading}
-            frameClassName="flex size-full items-center justify-center"
-            className={cn(
-              "size-full transition-transform duration-[500ms] ease-[var(--ease-apple)] group-hover:scale-[1.03] group-focus-within:scale-[1.03] motion-reduce:transform-none",
-              PHOTO_CLASS[photo],
-              outOfStock && "opacity-60",
-            )}
-          />
+      <div
+        className={cn(
+          "flex h-full flex-col overflow-hidden rounded-[14px] border",
+          premium
+            ? "border-transparent bg-[image:var(--premium-surface)]"
+            : "border-[var(--boutique-line)] bg-[var(--boutique-white)]",
         )}
-
-        {href && !comingSoon && (
-          <Link
-            href={href}
-            tabIndex={-1}
-            aria-hidden="true"
-            className="absolute inset-0 z-10 focus-visible:outline-none"
-          />
-        )}
-      </div>
-
-      {/* ─── Text block ─── */}
-      <div className="px-3 py-4">
-        <div className="flex flex-col items-center gap-1 text-center">
-          <span
-            aria-hidden={premium ? undefined : true}
-            className={cn(
-              "text-[14px] font-medium leading-5 text-[var(--color-gold-text)]",
-              premium ? "" : "invisible",
-            )}
-          >
-            ◆ {copy.premium}
-          </span>
-
-          <h3
-            className={cn(
-              "line-clamp-2 text-[15px] font-semibold leading-snug",
-              outOfStock || comingSoon ? "text-[var(--ink-muted)]" : "text-[var(--ink)]",
-            )}
-          >
-            {href ? (
-              <Link
-                href={href}
-                className="group-hover:underline group-hover:decoration-[var(--color-brand)] group-hover:decoration-1 group-hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
-              >
-                {product.name}
-              </Link>
-            ) : (
-              product.name
-            )}
-          </h3>
-
-          {price ? (
-            <p data-card-price="" className="text-[14px] font-medium text-[var(--ink-muted)]">
-              {price.prefix && <span className="me-1">{price.prefix}</span>}
-              <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
-            </p>
+      >
+        {/* ─── Image box ─── */}
+        <div data-card-stage="" className="relative aspect-square w-full overflow-hidden">
+          {comingSoon ? (
+            <span className="absolute inset-0 grid place-items-center text-[14px] font-medium text-[var(--boutique-ink)]/60">
+              {copy.comingSoon}
+            </span>
+          ) : !hasImage ? (
+            <span aria-hidden="true" className="block size-full" />
           ) : (
-            outOfStock && (
-              <p className="text-[14px] font-medium text-[var(--ink-muted)]">{copy.outOfStock}</p>
-            )
-          )}
-        </div>
-
-        {/* The slot is reserved at rest so hovering moves nothing. */}
-        <div data-card-action="" className="mt-2 flex h-11 items-center justify-center">
-          {canAdd && (
-            <QuickAdd
-              product={{
-                id: product.id,
-                slug: product.slug,
-                name: product.name,
-                image: product.image,
-              }}
-              sizes={product.sizes}
-              labels={{
-                add: copy.add,
-                addedToast: copy.addedToast,
-                addToCart: copy.addToCart,
-                chooseSize: copy.chooseSize,
-                quickAdd: copy.quickAdd,
-              }}
+            <ProductImage
+              slug={product.slug}
+              src={product.image}
+              name={product.name}
+              tier="card"
+              frame="stage"
+              tone="light"
+              sizes={CARD_IMAGE_SIZES}
+              priority={priority}
+              loading={loading}
+              frameClassName="flex size-full items-center justify-center"
               className={cn(
-                "flex w-full justify-center",
-                "opacity-0 transition-opacity duration-200 ease-[var(--ease-apple)] motion-reduce:transition-none",
-                "group-hover:opacity-100 group-focus-within:opacity-100",
-                "pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto",
-                // Touch never hides it: there is no hover to reveal it with.
-                "[@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:opacity-100",
+                "size-full transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-[1.03] motion-reduce:transform-none",
+                PHOTO_CLASS[photo],
+                outOfStock && "opacity-60",
               )}
             />
           )}
+
+          {premium && (
+            <span
+              data-premium-badge=""
+              className="pf-gold-surface absolute top-3 start-3 z-20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[14px] font-bold text-[var(--boutique-ink)]"
+            >
+              <Star aria-hidden="true" className="size-3.5 fill-current" />
+              {copy.premium}
+            </span>
+          )}
+
+          {href && !comingSoon && (
+            <Link
+              href={href}
+              tabIndex={-1}
+              aria-hidden="true"
+              className="absolute inset-0 z-10 focus-visible:outline-none"
+            />
+          )}
+        </div>
+
+        {/* ─── Text block ─── */}
+        <div className={cn("flex flex-1 flex-col px-3 pb-4 pt-4", premium && "px-3.5")}>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h3
+              className={cn(
+                "line-clamp-2 leading-snug",
+                premium
+                  ? "text-[17px] font-bold"
+                  : "text-[15px] font-semibold",
+                outOfStock || comingSoon ? "text-[var(--boutique-ink)]/60" : "text-[var(--boutique-ink)]",
+              )}
+            >
+              {href ? (
+                <Link
+                  href={href}
+                  className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                >
+                  {product.name}
+                </Link>
+              ) : (
+                product.name
+              )}
+            </h3>
+
+            {price ? (
+              <p
+                data-card-price=""
+                className={cn(
+                  "text-[14px]",
+                  premium
+                    ? "font-medium text-[var(--gold-700)]"
+                    : "font-medium text-[var(--boutique-ink)]/70",
+                )}
+              >
+                {price.prefix && <span className="me-1">{price.prefix}</span>}
+                <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
+              </p>
+            ) : (
+              outOfStock && (
+                <p className="text-[14px] font-medium text-[var(--boutique-ink)]/70">
+                  {copy.outOfStock}
+                </p>
+              )
+            )}
+          </div>
+
+          {/* Regular cards reserve the hover row; featured always shows its button. */}
+          <div
+            data-card-action=""
+            className={cn(
+              "flex items-center justify-center",
+              premium ? "mt-auto pt-3" : "mt-2 h-11",
+            )}
+          >
+            {canAdd && (
+              <QuickAdd
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  image: product.image,
+                }}
+                sizes={product.sizes}
+                variant={premium ? "featured" : "compact"}
+                labels={{
+                  add: copy.add,
+                  addedToast: copy.addedToast,
+                  addToCart: copy.addToCart,
+                  chooseSize: copy.chooseSize,
+                  quickAdd: copy.quickAdd,
+                  addShort: copy.addShort,
+                }}
+                className={cn(
+                  premium
+                    ? "mt-auto w-full"
+                    : [
+                        "flex w-full justify-center",
+                        "opacity-0 transition-opacity duration-200 ease-[var(--ease-apple)] motion-reduce:transition-none",
+                        "group-hover:opacity-100 group-focus-within:opacity-100",
+                        "pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto",
+                        "[@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:opacity-100",
+                      ],
+                )}
+              />
+            )}
+          </div>
         </div>
       </div>
-
-      {/* ─── Premium: one gold hairline, inset 10px, around the whole cell ─── */}
-      {premium && (
-        <span
-          aria-hidden="true"
-          data-premium-frame=""
-          className="pointer-events-none absolute inset-[10px] border border-[var(--brand-gold)]"
-        />
-      )}
     </article>
   );
 }

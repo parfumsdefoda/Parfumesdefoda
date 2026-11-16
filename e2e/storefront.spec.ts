@@ -362,8 +362,8 @@ test.describe("production storefront and checkout", () => {
         animations: "disabled",
         fullPage: true,
         // Footer and the floating advisor are chrome, not page content: the
-        // greeting bubble appears on a timer and would otherwise enter the
-        // baseline at an arbitrary scroll position.
+        // launcher sits above the grid and would otherwise depend on the
+        // viewport rather than on the page being captured.
         mask: [page.locator("footer"), page.locator("[data-advisor-launcher]")],
         maxDiffPixelRatio: 0.015,
       });

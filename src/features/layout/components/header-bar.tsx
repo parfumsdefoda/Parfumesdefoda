@@ -20,7 +20,6 @@ export interface HouseLink {
 }
 
 export interface HeaderLabels {
-  /** Skip link and scroll landmark text. */
   nav: string;
   houses: string;
   search: string;
@@ -44,7 +43,7 @@ export interface HeaderBarProps {
   labels: HeaderLabels;
   /** Checkout wears a reduced bar: logo + a way back to the cart, nothing else. */
   reduced?: boolean;
-  /** wa.me link from data/contact.json; the mobile menu ends with it. */
+  /** wa.me link from data/contact.json; the desktop pill and the mobile menu end with it. */
   whatsappHref?: string;
   /** Cash-on-delivery + shipping note, already resolved from the helpers. */
   menuNote?: string;
@@ -53,8 +52,6 @@ export interface HeaderBarProps {
 /** Is this nav link the current route? Query strings never decide it. */
 function isActiveRoute(pathname: string, href: string): boolean {
   const [rawPath, query] = href.split("?");
-  // A filtered view is never "the page you are on": `/shop?form=…` must not
-  // underline itself beside "المتجر" on the plain catalogue.
   if (query) return false;
   const path = rawPath.replace(/\/+$/, "") || "/";
   if (path === "/shop") {
@@ -64,31 +61,13 @@ function isActiveRoute(pathname: string, href: string): boolean {
 }
 
 /**
- * HeaderBar — the site's one header, mounted by the root layout.
+ * HeaderBar — one row, 76px, on white.
  *
- * A floating glass capsule, not a full-width bar: it sits 12px below the top
- * edge, inset from the viewport, 52px tall on phones and 60px from 1024px, with
- * a single 1px gold hairline and a soft shadow. The page scrolls underneath it,
- * so the capsule has two tones (`data-tone`):
- *
- *   dark   translucent white-on-purple glass, white text — the homepage while
- *          the hero is behind it
- *   light  ivory at ~0.88 alpha, dark text — every other route, and the
- *          homepage once the hero has scrolled past
- *
- * The server renders the correct tone for the route (no flash); a tiny island
- * here flips it from dark to light with an IntersectionObserver on the hero, so
- * there is no scroll listener and no React state in an effect.
- *
- * The capsule is TEXT ONLY — the brand mark is the logo file painted as a CSS
- * background, so no <img> (and no product thumbnail) ever sits in the header,
- * its menus or its search suggestions. Gold appears only as the hairline.
- *
- * The smart hide is deliberately not React state: a rAF-throttled scroll
- * listener writes `data-hidden` on the element itself, so scrolling never
- * re-renders the bar. It stays put at the top, while the search/dropdown/sheet
- * is open (`data-locked`), while focus is inside it, and when the visitor asks
- * for reduced motion.
+ * RTL order: the logo block sits at the inline start, the nav in the centre and
+ * the actions at the inline end. The old logo-over-nav stack is gone; nothing
+ * inside the row is absolutely positioned, so the wordmark cannot cover the
+ * links at any width. The cart drawer trigger, the search panel, the houses
+ * menu and the scroll hide keep their previous behaviour.
  */
 export function HeaderBar({
   storeName,
@@ -101,7 +80,6 @@ export function HeaderBar({
 }: HeaderBarProps) {
   const cart = useCart();
   const pathname = usePathname() ?? "/";
-  const isHome = pathname === "/";
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [housesAnchor, setHousesAnchor] = useState<HTMLButtonElement | null>(null);
@@ -109,9 +87,6 @@ export function HeaderBar({
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
 
-  const locked = searchOpen || menuOpen || housesAnchor !== null;
-
-  /* Show the bar immediately when something inside it takes over. */
   const reveal = useCallback(() => {
     const header = headerRef.current;
     if (header) header.dataset.hidden = "false";
@@ -131,7 +106,7 @@ export function HeaderBar({
       header.dataset.scrolled = y > 4 ? "true" : "false";
 
       const focusInside = header.contains(document.activeElement);
-      if (motion.matches || y <= 8 || header.dataset.locked === "true" || focusInside) {
+      if (motion.matches || y <= 8 || focusInside) {
         header.dataset.hidden = "false";
         lastY = y;
         return;
@@ -161,27 +136,13 @@ export function HeaderBar({
     };
   }, [reveal]);
 
-  /*
-   * Tone island: the homepage starts dark because the hero is behind the
-   * capsule. Once the hero's bottom edge passes under it, the capsule turns
-   * light. One observer, no scroll handler, no React state — the attribute is
-   * written straight onto the element, which is what the CSS reads.
-   */
-
-
   const closeSearch = useCallback(() => {
     setSearchOpen(false);
     searchTriggerRef.current?.focus();
   }, []);
 
-  /*
-   * Focus for the mobile menu, done explicitly.
-   *
-   * The menu is a modal sheet, so it must take focus when it opens, keep Tab
-   * inside it and hand focus back to the button that opened it. Base UI's
-   * dialog parts do not move focus in this build, so the small amount of
-   * behaviour a keyboard user needs is implemented here.
-   */
+  /* Focus for the mobile menu: it is a modal sheet, so it takes focus, keeps
+     Tab inside and hands focus back to the button that opened it. */
   useEffect(() => {
     if (!menuOpen) return;
     const trigger = menuTriggerRef.current;
@@ -257,241 +218,212 @@ export function HeaderBar({
   return (
     <header
       ref={headerRef}
-      
-      data-locked={locked ? "true" : "false"}
       data-scrolled="false"
       data-hidden="false"
       className={cn(
-        // `pointer-events-none` on the header itself: the page runs underneath
-        // the capsule, so the transparent strip around it must not eat clicks.
-        "site-header sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--paper)]",
-        // Tailwind v4 hides with the `translate` property, so that is the
-        // property the slide transition must name.
+        "site-header sticky top-0 z-40 h-[76px] border-b border-[var(--boutique-line)] bg-[var(--boutique-white)]",
         "transition-[translate] duration-[var(--duration-base)] ease-[var(--ease-apple)]",
         "data-[hidden=true]:-translate-y-full",
         "motion-reduce:transition-none motion-reduce:data-[hidden=true]:translate-y-0",
       )}
     >
-      <div className="mx-auto flex w-full max-w-[1920px] flex-col">
-        {/* ─── The capsule ─── */}
-        <div
-          className={cn(
-            "relative flex min-h-[56px] flex-wrap items-center gap-x-3 px-4 lg:min-h-[52px] lg:px-6",
-            "",
-            "",
-          )}
+      <div className="mx-auto flex h-full w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:gap-5 lg:px-8 2xl:gap-6 2xl:px-10">
+        {/* ─── Logo block (inline start) ─── */}
+        <Link
+          href="/"
+          aria-label={storeName}
+          className="flex shrink-0 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
         >
-          {!reduced && (
-            <Button
-              ref={menuTriggerRef}
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                reveal();
-                setMenuOpen(true);
-              }}
-              aria-label={labels.menu}
-              aria-expanded={menuOpen}
-              aria-haspopup="dialog"
-              className="text-[var(--header-fg)] hover:bg-[var(--header-hover)] focus-visible:ring-offset-0 lg:hidden"
-            >
-              <Menu aria-hidden="true" />
-            </Button>
-          )}
+          <span className="grid size-[42px] shrink-0 place-items-center overflow-hidden rounded-xl border border-[var(--boutique-line)] bg-[var(--boutique-white)]">
+            <span
+              aria-hidden="true"
+              className="block size-8 bg-contain bg-center bg-no-repeat"
+              style={{ backgroundImage: "url(/logos/logo.svg)" }}
+            />
+          </span>
+          <span
+            aria-hidden="true"
+            className="hidden font-serif text-[16px] leading-none tracking-[3px] text-[var(--boutique-ink)] sm:block xl:text-[18px] xl:tracking-[4px]"
+          >
+            PARFUMS DE FODA
+          </span>
+        </Link>
 
-          {/* ─── Row one: contact at the start, lockup centred, tools at the end ─── */}
-          {!reduced && whatsappHref && (
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noreferrer"
-              className="hidden shrink-0 items-center gap-1.5 rounded-none px-3 text-[14px] font-medium text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] lg:inline-flex"
-            >
-              <MessageCircle aria-hidden="true" className="size-4" />
-              {labels.whatsapp}
-            </a>
-          )}
-
-          {/* ─── Brand lockup (CSS background: no <img> in the header) ─── */}
+        {reduced ? (
           <Link
-            href="/"
-            // Physical `left` on purpose: centring is symmetric, while
-            // `start-1/2` in RTL anchors the right edge and shifts the mark one
-            // logo-width off centre.
-            aria-label={storeName}
-            className="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2 rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
+            href="/checkout"
+            className="ms-auto text-[14px] font-medium text-[var(--boutique-ink)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
           >
-            {/* The emblem keeps its own colours; the ivory seat is what makes
-                it read on both tones. The asset is never recoloured. */}
-            <span className="grid size-9 shrink-0 place-items-center border border-[var(--line-soft)] bg-[var(--paper)]">
-              <span
-                aria-hidden="true"
-                className="block size-6 bg-contain bg-center bg-no-repeat"
-                style={{ backgroundImage: "url(/logos/logo.svg)" }}
-              />
-            </span>
-            <span aria-hidden="true" className="hidden items-baseline gap-1 text-[14px] font-semibold uppercase tracking-[0.18em] text-[var(--ink)] sm:flex">
-              <span className="hidden xl:inline">PARFUMS DE FODA</span>
-              <span className="xl:hidden">FODA</span>
-            </span>
+            {labels.backToCart}
           </Link>
-
-          {reduced ? (
-            <Link
-              href="/checkout"
-              className="ms-auto text-caption font-medium text-[var(--header-fg-muted)] transition-colors hover:text-[var(--header-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--header-ring)] focus-visible:ring-offset-0"
+        ) : (
+          <>
+            {/* ─── Centre nav ─── */}
+            <nav
+              aria-label={labels.nav}
+              className="hidden min-w-0 flex-1 items-center justify-center gap-3 lg:flex xl:gap-5 2xl:gap-[30px]"
             >
-              {labels.backToCart}
-            </Link>
-          ) : (
-            <>
-              {/* ─── Desktop nav ─── */}
-              <nav
-                aria-label={labels.nav}
-                className="order-last hidden h-10 w-full items-center justify-center gap-0.5 border-t border-[var(--line-soft)] lg:flex"
-              >
-                {nav.map((item) => {
-                  const active = isActiveRoute(pathname, item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
+              {nav.map((item) => {
+                const active = isActiveRoute(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "relative inline-flex shrink-0 items-center pb-1 text-[14px] font-medium transition-colors xl:text-[16px]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+                      active
+                        ? "text-[var(--gold-700)]"
+                        : "text-[var(--boutique-ink)] hover:text-[var(--gold-700)]",
+                    )}
+                  >
+                    {item.label}
+                    <span
+                      aria-hidden="true"
                       className={cn(
-                        "group/nav relative inline-flex h-10 items-center rounded-none px-3 text-[14px] font-medium transition-colors",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--header-ring)] focus-visible:ring-offset-0",
-                        active
-                          ? "text-[var(--header-fg)]"
-                          : "text-[var(--header-fg-muted)] hover:text-[var(--header-fg)]",
+                        "absolute inset-x-0 bottom-0 h-0.5 origin-center bg-[var(--gold-500)] transition-transform duration-200",
+                        active ? "scale-x-100" : "scale-x-0",
                       )}
-                    >
-                      {item.label}
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "absolute inset-x-3 bottom-1 h-0.5 origin-center rounded-none bg-[var(--color-brand)]",
-                          "transition-transform duration-200 ease-[var(--ease-apple)]",
-                          active ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100",
-                        )}
-                      />
-                    </Link>
-                  );
-                })}
-
-                {houses.length > 0 && (
-                  <button
-                    type="button"
-                    aria-haspopup="dialog"
-                    aria-expanded={housesAnchor !== null}
-                    onClick={(event) => {
-                      reveal();
-                      setHousesAnchor((current) => (current ? null : event.currentTarget));
-                    }}
-                    className="group/nav relative inline-flex h-10 items-center gap-1 rounded-none px-3 text-[14px] font-medium text-[var(--ink-muted)] transition-colors hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]"
-                  >
-                    {labels.houses}
-                    <ChevronDown aria-hidden="true" className="size-4" />
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-x-3 bottom-1 h-0.5 origin-center scale-x-0 rounded-none bg-[var(--color-brand)] transition-transform duration-200 ease-[var(--ease-apple)] group-hover/nav:scale-x-100"
                     />
-                  </button>
-                )}
+                  </Link>
+                );
+              })}
 
-                {housesAnchor && (
-                  <Popover.Root
-                    open
-                    onOpenChange={(open) => {
-                      if (!open) setHousesAnchor(null);
-                    }}
-                  >
-                    <Popover.Portal>
-                      <Popover.Positioner
-                        anchor={housesAnchor}
-                        side="bottom"
-                        align="start"
-                        sideOffset={10}
-                        className="z-50"
-                      >
-                        <Popover.Popup
-                          initialFocus
-                          finalFocus={() => housesAnchor}
-                          className="flex w-44 flex-col border border-[var(--line)] bg-[var(--paper)] p-2 text-[14px]"
-                        >
-                          {houses.map((house) => (
-                            <Link
-                              key={house.href}
-                              href={house.href}
-                              onClick={() => setHousesAnchor(null)}
-                              className="px-2.5 py-2 text-[14px] text-[var(--ink)] transition-colors hover:bg-[var(--paper-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-                            >
-                              {house.label}
-                            </Link>
-                          ))}
-                        </Popover.Popup>
-                      </Popover.Positioner>
-                    </Popover.Portal>
-                  </Popover.Root>
-                )}
-              </nav>
-
-              {/* ─── Tools ─── */}
-              <div className="ms-auto flex shrink-0 items-center gap-1 lg:ms-2">
-
-                <Button
-                  ref={searchTriggerRef}
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
+              {houses.length > 0 && (
+                <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded={housesAnchor !== null}
+                  onClick={(event) => {
                     reveal();
-                    if (searchOpen) closeSearch();
-                    else setSearchOpen(true);
+                    setHousesAnchor((current) => (current ? null : event.currentTarget));
                   }}
-                  aria-label={labels.search}
-                  aria-expanded={searchOpen}
-                  aria-controls="mobile-search-panel"
-                  className="gap-2 text-[var(--ink)] hover:bg-[var(--paper-deep)] focus-visible:ring-offset-0"
+                  className="inline-flex shrink-0 items-center gap-1 pb-1 text-[14px] font-medium xl:text-[16px] text-[var(--boutique-ink)] transition-colors hover:text-[var(--gold-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
-                  {searchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
-                  <span className="hidden text-[14px] font-medium lg:inline">{labels.search}</span>
-                </Button>
+                  {labels.houses}
+                  <ChevronDown aria-hidden="true" className="size-4" />
+                </button>
+              )}
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={cart.openDrawer}
-                  // Warm the drawer chunk before the click so opening feels local.
-                  onPointerEnter={preloadCartDrawer}
-                  onPointerDown={preloadCartDrawer}
-                  onFocus={preloadCartDrawer}
-                  aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
-                  className="relative text-[var(--header-fg)] hover:bg-[var(--header-hover)] focus-visible:ring-offset-0"
+              {housesAnchor && (
+                <Popover.Root
+                  open
+                  onOpenChange={(open) => {
+                    if (!open) setHousesAnchor(null);
+                  }}
                 >
-                  <ShoppingCart aria-hidden="true" />
-                  {cart.totalItems > 0 && (
-                    <span
-                      aria-hidden="true"
-                      className="header-cart-badge absolute -top-0.5 -start-0.5 flex h-4 min-w-4 items-center justify-center rounded-pill px-1 text-caption font-bold tabular-nums"
+                  <Popover.Portal>
+                    <Popover.Positioner
+                      anchor={housesAnchor}
+                      side="bottom"
+                      align="start"
+                      sideOffset={10}
+                      className="z-50"
                     >
-                      {cart.totalItems > 99 ? "٩٩+" : formatNumber(cart.totalItems)}
-                    </span>
-                  )}
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
+                      <Popover.Popup
+                        initialFocus
+                        finalFocus={() => housesAnchor}
+                        className="pf-panel-shadow flex w-44 flex-col rounded-xl border border-[var(--boutique-line)] bg-[var(--boutique-white)] p-2 text-[14px]"
+                      >
+                        {houses.map((house) => (
+                          <Link
+                            key={house.href}
+                            href={house.href}
+                            onClick={() => setHousesAnchor(null)}
+                            className="rounded-lg px-2.5 py-2 text-[14px] text-[var(--boutique-ink)] transition-colors hover:bg-[var(--cream)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+                          >
+                            {house.label}
+                          </Link>
+                        ))}
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              )}
+            </nav>
 
-        {/* ─── Search panel: full width, paper, under the bar ─── */}
-        {searchOpen && (
-          <div
-            id="mobile-search-panel"
-            className="pointer-events-auto border-t border-[var(--line)] bg-[var(--paper)] px-4 py-4 lg:px-6"
-          >
-            <HeaderSearch variant="panel" autoFocus onClose={closeSearch} labels={searchLabels} />
-          </div>
+            {/* ─── Actions (inline end) ─── */}
+            <div className="ms-auto flex shrink-0 items-center gap-2 xl:gap-3">
+              <Button
+                ref={searchTriggerRef}
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  reveal();
+                  if (searchOpen) closeSearch();
+                  else setSearchOpen(true);
+                }}
+                aria-label={labels.search}
+                aria-expanded={searchOpen}
+                aria-controls="mobile-search-panel"
+                className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0"
+              >
+                {searchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
+              </Button>
+
+              <button
+                type="button"
+                onClick={cart.openDrawer}
+                onPointerEnter={preloadCartDrawer}
+                onPointerDown={preloadCartDrawer}
+                onFocus={preloadCartDrawer}
+                aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
+                className="relative inline-flex h-11 items-center gap-2 rounded-full bg-[var(--cream)] px-3 text-[14px] font-medium text-[var(--boutique-ink)] transition-colors hover:bg-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              >
+                <ShoppingCart aria-hidden="true" className="size-4" />
+                <span className="hidden xl:inline">{labels.cart}</span>
+                {cart.totalItems > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -top-1 -start-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--gold-500)] px-1 text-[14px] font-bold tabular-nums text-[var(--boutique-ink)]"
+                  >
+                    {cart.totalItems > 99 ? "٩٩+" : formatNumber(cart.totalItems)}
+                  </span>
+                )}
+              </button>
+
+              {whatsappHref && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hidden size-11 items-center justify-center gap-2 rounded-full bg-[var(--boutique-ink)] text-[14px] font-medium text-[var(--gold-300)] transition-colors hover:bg-[var(--gold-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 lg:inline-flex xl:size-auto xl:px-4"
+                >
+                  <MessageCircle aria-hidden="true" className="size-4" />
+                  <span className="hidden xl:inline">{labels.whatsapp}</span>
+                </a>
+              )}
+
+              <Button
+                ref={menuTriggerRef}
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  reveal();
+                  setMenuOpen(true);
+                }}
+                aria-label={labels.menu}
+                aria-expanded={menuOpen}
+                aria-haspopup="dialog"
+                className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0 lg:hidden"
+              >
+                <Menu aria-hidden="true" />
+              </Button>
+            </div>
+          </>
         )}
       </div>
+
+      {/* ─── Search panel: full width, under the bar ─── */}
+      {searchOpen && (
+        <div
+          id="mobile-search-panel"
+          className="border-t border-[var(--boutique-line)] bg-[var(--boutique-white)] px-4 py-4 lg:px-8"
+        >
+          <HeaderSearch variant="panel" autoFocus onClose={closeSearch} labels={searchLabels} />
+        </div>
+      )}
 
       {/* ─── Mobile menu ─── */}
       {!reduced && (
@@ -499,10 +431,10 @@ export function HeaderBar({
           <SheetContent
             side="right"
             showCloseButton={false}
-            className="w-[88vw] max-w-sm gap-0 bg-[var(--purple-950)] text-[var(--color-on-dark)]"
+            className="w-[88vw] max-w-sm gap-0 bg-[var(--boutique-white)] text-[var(--boutique-ink)]"
           >
-            <SheetHeader className="flex-row items-center justify-between border-b border-[var(--ui-gold-hairline)] pe-2">
-              <SheetTitle className="text-body font-bold text-[var(--color-on-dark)]">
+            <SheetHeader className="flex-row items-center justify-between border-b border-[var(--boutique-line)] pe-2">
+              <SheetTitle className="text-[16px] font-bold text-[var(--boutique-ink)]">
                 {labels.nav}
               </SheetTitle>
               <SheetClose
@@ -511,7 +443,7 @@ export function HeaderBar({
                     variant="ghost"
                     size="icon"
                     aria-label={labels.closeMenu}
-                    className="text-[var(--color-on-dark)] hover:bg-[color-mix(in_srgb,var(--brand-white)_12%,transparent)] hover:text-[var(--color-on-dark)] focus-visible:ring-offset-0"
+                    className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0"
                   />
                 }
               >
@@ -523,15 +455,15 @@ export function HeaderBar({
               action="/shop"
               method="get"
               role="search"
-              className="border-b border-[var(--ui-gold-hairline)] p-4"
+              className="border-b border-[var(--boutique-line)] p-4"
             >
               <label htmlFor="mobile-menu-search" className="sr-only">
                 {labels.search}
               </label>
-              <div className="flex items-center gap-2 rounded-pill border border-[var(--color-on-dark-border)] bg-[color-mix(in_srgb,var(--brand-white)_10%,transparent)]">
+              <div className="flex items-center gap-2 rounded-full border border-[var(--boutique-line)] bg-[var(--cream)]">
                 <Search
                   aria-hidden="true"
-                  className="ms-3 size-4 shrink-0 text-[var(--color-on-dark-muted)]"
+                  className="ms-3 size-4 shrink-0 text-[var(--boutique-ink)]/60"
                 />
                 <input
                   id="mobile-menu-search"
@@ -539,12 +471,12 @@ export function HeaderBar({
                   name="q"
                   autoComplete="off"
                   placeholder={labels.searchPlaceholder}
-                  className="h-11 w-full min-w-0 bg-transparent px-1 text-caption text-[var(--color-on-dark)] placeholder:text-[var(--color-on-dark-muted)] focus-visible:outline-none"
+                  className="h-11 w-full min-w-0 bg-transparent px-1 text-[14px] text-[var(--boutique-ink)] placeholder:text-[var(--boutique-ink)]/50 focus-visible:outline-none"
                 />
                 <Button
                   type="submit"
                   variant="tertiary"
-                  className="me-2 shrink-0 font-bold text-[var(--color-on-dark)] hover:text-[var(--color-on-dark)]"
+                  className="me-2 shrink-0 rounded-full text-[14px] font-bold text-[var(--boutique-ink)] hover:text-[var(--gold-700)]"
                 >
                   {labels.searchSubmit}
                 </Button>
@@ -552,32 +484,39 @@ export function HeaderBar({
             </form>
 
             <nav aria-label={labels.nav} className="flex flex-col px-4">
-              {[...nav, ...houses].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="border-b border-[var(--ui-gold-hairline)] py-4 text-title-3 font-bold text-[var(--color-on-dark)] transition-colors last:border-b-0 hover:text-[var(--gold-300)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-on-dark)] focus-visible:ring-offset-0"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {[...nav, ...houses].map((item) => {
+                const active = isActiveRoute(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "border-b border-[var(--boutique-line)] py-4 text-[16px] font-medium transition-colors last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]",
+                      active ? "text-[var(--gold-700)]" : "text-[var(--boutique-ink)]",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
 
-            <div className="mt-auto flex flex-col gap-3 border-t border-[var(--ui-gold-hairline)] p-4">
+            <div className="mt-auto flex flex-col gap-3 border-t border-[var(--boutique-line)] p-4">
               {whatsappHref && (
-                <Button
-                  variant="secondary"
-                  className="w-full border-[var(--color-on-dark)] bg-[var(--color-on-dark)] font-bold text-[var(--purple-950)] hover:bg-[var(--purple-100)]"
-                  render={<a href={whatsappHref} target="_blank" rel="noopener noreferrer" />}
-                  nativeButton={false}
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--boutique-ink)] text-[14px] font-medium text-[var(--gold-300)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
                 >
-                  <MessageCircle aria-hidden="true" />
+                  <MessageCircle aria-hidden="true" className="size-4" />
                   {labels.whatsapp}
-                </Button>
+                </a>
               )}
               {menuNote && (
-                <p className="text-caption leading-relaxed text-[var(--color-on-dark-muted)]">
+                <p className="text-[14px] leading-relaxed text-[var(--boutique-ink)]/70">
                   {menuNote}
                 </p>
               )}
