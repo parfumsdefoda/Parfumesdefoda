@@ -105,15 +105,19 @@ export function matchesFacetValue(product: Product, key: FilterKey, value: strin
 /**
  * Does the product survive the whole state?
  *
- * `except` leaves one group (or the availability toggle) out, which is exactly
- * how facet counts are computed.
+ * `except` leaves one group (or a toggle — availability, فوده) out, which is
+ * exactly how facet counts are computed.
  */
 export function productMatchesState(
   product: Product,
   state: CatalogState,
-  except?: FilterKey | "available",
+  except?: FilterKey | "available" | "foda",
 ): boolean {
   if (state.q && !productMatchesQuery(product, state.q)) return false;
+
+  if (except !== "foda" && state.foda && product.fodaOriginal !== true) {
+    return false;
+  }
 
   if (
     except !== "available" &&

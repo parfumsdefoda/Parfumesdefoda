@@ -174,6 +174,15 @@ describe("filterCatalog", () => {
     ]);
   });
 
+  it("narrows to fodaOriginal products with the foda toggle", () => {
+    const flagged = [
+      ...CATALOGUE,
+      product({ id: "foda", name: "فودا", fodaOriginal: true }),
+    ];
+    expect(ids(filterCatalog(flagged, state({ foda: true })))).toEqual(["foda"]);
+    expect(filterCatalog(flagged, state())).toHaveLength(CATALOGUE.length + 1);
+  });
+
   it("searches with Arabic normalisation", () => {
     expect(ids(filterCatalog(CATALOGUE, state({ q: "افريكان" })))).toEqual(["african"]);
   });

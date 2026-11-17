@@ -60,6 +60,8 @@ export interface CatalogState {
   size: string[];
   /** "المتوفر فقط" */
   available: boolean;
+  /** "عطور فوده الأصلية" — the `fodaOriginal` catalogue flag. */
+  foda: boolean;
   sort: SortOption;
   q: string;
 }
@@ -75,6 +77,7 @@ export const EMPTY_CATALOG_STATE: CatalogState = {
   performance: [],
   size: [],
   available: false,
+  foda: false,
   sort: DEFAULT_SORT,
   q: "",
 };
@@ -136,6 +139,7 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
     performance: readList(params, "performance"),
     size: readList(params, "size"),
     available: firstValue(params.available) === "1",
+    foda: firstValue(params.foda) === "1",
     sort,
     q: firstValue(params.q).trim().slice(0, MAX_QUERY_LENGTH),
   };
@@ -161,6 +165,7 @@ export function serializeCatalogState(
     if (values.length > 0) params.set(key, values.join(","));
   }
   if (state.available) params.set("available", "1");
+  if (state.foda) params.set("foda", "1");
   if (state.sort !== DEFAULT_SORT) params.set("sort", state.sort);
   if (state.q) params.set("q", state.q);
 
@@ -201,18 +206,22 @@ export function setAvailable(state: CatalogState, available: boolean): CatalogSt
   return { ...state, available };
 }
 
+export function setFoda(state: CatalogState, foda: boolean): CatalogState {
+  return { ...state, foda };
+}
+
 /** Every filter and the search cleared; the sort is preserved. */
 export function clearCatalogFilters(state: CatalogState): CatalogState {
   return { ...EMPTY_CATALOG_STATE, sort: state.sort };
 }
 
-/** How many filter values (plus the availability toggle) are active. */
+/** How many filter values (plus the availability and فوده toggles) are active. */
 export function countActiveFilters(state: CatalogState, omit: readonly FilterKey[] = []): number {
   const values = FILTER_KEYS.reduce(
     (sum, key) => (omit.includes(key) ? sum : sum + state[key].length),
     0,
   );
-  return values + (state.available ? 1 : 0);
+  return values + (state.available ? 1 : 0) + (state.foda ? 1 : 0);
 }
 
 /** True when nothing narrows the catalogue. */

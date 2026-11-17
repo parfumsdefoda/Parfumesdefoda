@@ -24,6 +24,7 @@ import {
   parseCatalogState,
   serializeCatalogState,
   setAvailable,
+  setFoda,
   setSort,
   toggleFacetValue,
   type CatalogState,
@@ -50,6 +51,8 @@ export interface CatalogControlsLabels {
   filters: string;
   clearAll: string;
   availableOnly: string;
+  /** "عطور فوده الأصلية" — the fodaOriginal flag's toggle. */
+  fodaOnly: string;
   /** Unit shown after the result count, e.g. "منتج". */
   resultUnit: string;
   sort: string;
@@ -71,6 +74,7 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   filters: "الفلاتر والترتيب",
   clearAll: "مسح الكل",
   availableOnly: "المتوفر فقط",
+  fodaOnly: "عطور فوده الأصلية",
   resultUnit: "منتج",
   sort: "الترتيب",
   sortFeatured: "الافتراضي",
@@ -193,7 +197,7 @@ export function CatalogControls({
       </div>
 
       {/* Active chips */}
-      {(activeValues.length > 0 || state.available || state.q) && (
+      {(activeValues.length > 0 || state.available || state.foda || state.q) && (
         <div className="flex flex-wrap items-center gap-2">
           {activeValues.map(({ key, value }) => (
             <button
@@ -207,6 +211,17 @@ export function CatalogControls({
               <X aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           ))}
+          {state.foda && (
+            <button
+              type="button"
+              onClick={() => commit(setFoda(state, false))}
+              aria-label={`${labels.remove} ${labels.fodaOnly}`}
+              className="inline-flex items-center gap-1.5 border border-[var(--line)] bg-transparent px-2.5 py-1.5 text-[14px] text-[var(--ink)] transition-colors hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            >
+              {labels.fodaOnly}
+              <X aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
+          )}
           {state.available && (
             <button
               type="button"
@@ -302,6 +317,28 @@ export function CatalogControls({
                       className="cursor-pointer text-[14px] font-normal text-[var(--ink)]"
                     >
                       {labels.availableOnly}
+                    </Label>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="foda" className="border-b border-[var(--line)]">
+                <AccordionTrigger className="py-4 text-[14px] font-medium hover:no-underline">
+                  {labels.fodaOnly}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  <div className="flex items-center gap-2.5 py-1">
+                    <Checkbox
+                      id="catalog-foda"
+                      checked={state.foda}
+                      onCheckedChange={() => commit(setFoda(state, !state.foda))}
+                      aria-label={labels.fodaOnly}
+                    />
+                    <Label
+                      htmlFor="catalog-foda"
+                      className="cursor-pointer text-[14px] font-normal text-[var(--ink)]"
+                    >
+                      {labels.fodaOnly}
                     </Label>
                   </div>
                 </AccordionContent>
