@@ -221,28 +221,9 @@ export default async function RootLayout({
       href: `/shop?tier=${encodeURIComponent(house)}`,
     }));
 
-  /* Footer columns: the help routes and contact — categories live only in
-     the header navigation, so the footer carries no shop column. The contact
-     column itself is rendered from data/contact.json by the footer. */
-  const footerColumns = [
-    {
-      title: t(localeMessages, "footer.helpTitle", "المساعدة"),
-      links: [
-        {
-          label: t(localeMessages, "footer.faq", "الأسئلة الشائعة"),
-          href: "/faq",
-        },
-        {
-          label: t(localeMessages, "footer.shippingReturns", "الشحن والإرجاع"),
-          href: "/shipping-returns",
-        },
-        {
-          label: t(localeMessages, "footer.contact", "اتصل بنا"),
-          href: "/contact",
-        },
-      ],
-    },
-  ];
+  /* Footer: brand column + the "تواصل معنا" contact column only. The help
+     column (المساعدة) was removed; /faq and /shipping-returns still exist as
+     pages, they are just no longer linked from the footer. */
 
   /* Cash on delivery is the store's only payment method (content/faq.json) and
      shipping is the flat fee from data/settings.json — no number is typed here. */
@@ -384,7 +365,6 @@ export default async function RootLayout({
             footer={{
               storeName: settings.store.name,
               description: settings.footer.description,
-              columns: footerColumns,
               contact: settings.contact,
               contactTitle: t(
                 localeMessages,

@@ -84,7 +84,7 @@ vi.mock("@/services/settings", () => ({
     contact: { whatsapp: "", email: "", phone: "" },
     social: {},
     navigation: [],
-    footer: { description: "", columns: [] },
+    footer: { description: "" },
     features: { premium: false, assistant: false },
   }),
 }));

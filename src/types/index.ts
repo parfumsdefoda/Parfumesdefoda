@@ -9,8 +9,6 @@ export type {
   ContactInfo,
   SocialLinks,
   NavItem,
-  FooterLink,
-  FooterColumn,
   FooterData,
   FullSettings,
   FilterData,

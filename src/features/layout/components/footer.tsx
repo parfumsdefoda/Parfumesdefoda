@@ -1,15 +1,7 @@
-import Link from "next/link";
-
 export interface FooterLink {
   label: string;
-  href?: string;
   /** External link (WhatsApp, mail, tel). Opened in a new tab. */
   url?: string;
-}
-
-export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
 }
 
 export interface FooterContact {
@@ -22,17 +14,10 @@ export interface FooterProps {
   storeName?: string;
   /** One line about the store, from data/footer.json. */
   description?: string
-  /** Shop and help columns; contact is rendered from `contact`. */
-  columns?: FooterColumn[];
   contact?: FooterContact;
-  /**
-   * The facts line: cash on delivery + the flat shipping fee, already
-   * formatted from data/settings.json. Never build this string in the footer.
-   */
-  note?: string;
   contactTitle?: string;
   rights?: string;
-  /** Checkout keeps only the contact line — no shop or help links. */
+  /** Checkout keeps only the contact line. */
   reduced?: boolean;
   className?: string;
 }
@@ -40,10 +25,12 @@ export interface FooterProps {
 /**
  * Footer — the quiet close of every page.
  *
- * Dark purple surface, one gold hairline on top, four short columns on a
- * desktop and a single column on a phone. Nothing here is invented: the links
- * are the catalogue routes, the help routes and the contact details from
- * data/contact.json; the facts line comes from the shipping helper.
+ * Dark purple surface, one gold hairline on top, two short columns on a
+ * desktop and a single column on a phone: the brand column and the contact
+ * column. Nothing here is invented: the contact details come from
+ * data/contact.json and the facts line from the shipping helper. The help
+ * column (المساعدة) was removed; /faq and /shipping-returns remain as pages
+ * but are no longer linked from the footer.
  *
  * The contact column keeps `id="contact"`, so every existing `/#contact` link
  * (navigation data, WhatsApp messages) still lands on something real now that
@@ -52,9 +39,7 @@ export interface FooterProps {
 export function Footer({
   storeName = "Parfums De Foda",
   description,
-  columns = [],
   contact,
-  note,
   contactTitle = "تواصل معنا",
   rights = "جميع الحقوق محفوظة",
   reduced = false,
@@ -98,7 +83,7 @@ export function Footer({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
             {/* Brand */}
             <div className="flex flex-col gap-3">
               <p className="text-body font-bold">{storeName}</p>
@@ -108,39 +93,6 @@ export function Footer({
                 </p>
               )}
             </div>
-
-            {columns.map((column) => (
-              <nav key={column.title} aria-label={column.title}>
-                <h2 className="mb-3 text-caption font-bold">{column.title}</h2>
-                <ul className="flex flex-col gap-2">
-                  {column.links.map((link) => (
-                    <li key={`${column.title}-${link.label}`}>
-                      {link.href ? (
-                        <Link
-                          href={link.href}
-                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <a
-                          href={link.url}
-                          target={link.url?.startsWith("http") ? "_blank" : undefined}
-                          rel={
-                            link.url?.startsWith("http")
-                              ? "noopener noreferrer"
-                              : undefined
-                          }
-                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
-                        >
-                          {link.label}
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
 
             {/* Contact — keeps the /#contact anchor alive */}
             <div id="contact" className="scroll-mt-24">
@@ -163,12 +115,6 @@ export function Footer({
                   </li>
                 ))}
               </ul>
-
-              {note && (
-                <p className="mt-4 max-w-[15rem] text-caption leading-relaxed text-[var(--color-on-dark-muted)]">
-                  {note}
-                </p>
-              )}
             </div>
           </div>
         )}

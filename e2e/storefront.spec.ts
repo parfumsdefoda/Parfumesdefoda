@@ -71,8 +71,12 @@ test.describe("production storefront and checkout", () => {
     await expect(page.locator('[aria-labelledby="faq-heading"]')).toHaveCount(0);
     await expect(page.locator('[aria-labelledby="trust-heading"]')).toHaveCount(0);
 
-    // The full page still exists and is linked from the footer.
-    await page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }).click();
+    // The footer help column was removed: the page still exists, it is just
+    // no longer linked from the footer.
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }),
+    ).toHaveCount(0);
+    await page.goto("/faq");
     await expect(page).toHaveURL(/\/faq$/);
     await expect(
       page.getByRole("heading", { name: "الأسئلة الشائعة", level: 1 }),
@@ -80,14 +84,16 @@ test.describe("production storefront and checkout", () => {
     await expect(page.locator('[aria-labelledby="faq-heading"]').first()).toBeVisible();
   });
 
-  test("desktop navigation, skip link, and footer links are reachable", async ({ page, isMobile }) => {
+  test("desktop navigation and skip link are reachable", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop navigation layout");
     await page.goto("/");
     await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "المتجر" })).toHaveAttribute("href", "/shop");
     await page.getByRole("link", { name: "انتقل إلى المحتوى الرئيسي" }).focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
-    await expect(page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" })).toHaveAttribute("href", "/faq");
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }),
+    ).toHaveCount(0);
   });
 
   test("mobile menu opens, traps focus, closes with Escape, and returns focus", async ({ page, isMobile }) => {

@@ -92,7 +92,7 @@ test.describe("home structure (RUN 1.5)", () => {
     await expect(footer.getByRole("navigation", { name: "المتجر" })).toHaveCount(0);
     await expect(footer.getByText("وجهتك الأولى للعطور الفاخرة. عطور أصلية بجودة استثنائية.")).toHaveCount(0);
     await expect(footer.getByText("الدفع عند الاستلام · شحن ثابت ١٠٠ ج.م لكل الطلبات")).toHaveCount(0);
-    await expect(footer.getByRole("navigation", { name: "المساعدة" })).toHaveCount(1);
+    await expect(footer.getByRole("navigation", { name: "المساعدة" })).toHaveCount(0);
     await expect(footer.getByRole("heading", { name: "تواصل معنا" })).toHaveCount(1);
   });
 

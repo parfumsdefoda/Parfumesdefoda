@@ -51,21 +51,8 @@ export interface NavItem {
   href: string;
 }
 
-export interface FooterLink {
-  label: string;
-  href?: string;
-  url?: string;
-  path?: string;
-}
-
-export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
-}
-
 export interface FooterData {
   description: string;
-  columns: FooterColumn[];
 }
 
 export interface FeatureFlags {
