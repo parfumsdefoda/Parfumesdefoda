@@ -23,10 +23,10 @@
 | notes.base | 0 | 80 | 0% |
 | price (every size) | 80 | 80 | 100% |
 | avail (any نعم) | 80 | 80 | 100% |
-| description | 40 | 80 | 50% |
+| description | 0 | 80 | 0% |
 | gallery (more than the cover) | 0 | 80 | 0% |
 | internal_note | 0 | 80 | 0% |
 
-الملف المراد تعديله هو `data/product-master.csv`. الخلية الفارغة تعني «غير معروف» ولا تُمسح قيمة موجودة.
+الملف المراد تعديله هو `data/product-master.csv`. الخلية الفارغة تعني: التوافر الفارغ = غير متوفر، والسعر الفارغ = الحجم غير معروض، والوصف الفارغ = لا وصف، والعلم الفارغ = لا.
 
-The file to edit is `data/product-master.csv`. An empty cell means "unknown" and never clears an existing value.
+The file to edit is `data/product-master.csv`. Empty cells: blank availability means unavailable, a blank price hides that volume, a blank description means none, a blank flag means لا.

@@ -29,8 +29,8 @@ export interface SizeChooserProps {
  * SizeChooser — the multi-size step of quick add.
  *
  * Loaded as its own chunk the first time a shopper opens it, so a catalogue
- * page never pays for a dialog nobody asked for. Out-of-stock sizes stay
- * visible but disabled and struck, because "which sizes exist" is information.
+ * page never pays for a dialog nobody asked for. Only the sizes in stock are
+ * offered: a sold-out volume is not a choice.
  */
 export default function SizeChooser({
   mode,
@@ -41,7 +41,8 @@ export default function SizeChooser({
   onSelect,
 }: SizeChooserProps) {
   // Same small → large order as the product page, whatever the data stores.
-  const sizes = sortSizesByVolume(rawSizes);
+  // Only the sizes a shopper can buy today appear.
+  const sizes = sortSizesByVolume(rawSizes.filter((size) => size.inStock));
 
   const [selected, setSelected] = useState<string | null>(
     sizes.find((size) => size.inStock)?.label ?? null,

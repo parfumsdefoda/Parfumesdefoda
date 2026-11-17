@@ -31,6 +31,21 @@ export async function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
 }
 
+/**
+ * Resolve a URL segment to a product: the slug case-insensitively, and the
+ * uppercase SKU as an alias, so old `/product/PF010` links keep working.
+ */
+function findByRef(
+  products: Awaited<ReturnType<typeof loadProducts>>,
+  ref: string,
+) {
+  const key = ref.trim().toLowerCase();
+  return (
+    products.find((product) => product.slug.toLowerCase() === key) ??
+    products.find((product) => product.sku.toLowerCase() === key)
+  );
+}
+
 /** Absolute Open Graph image: the derived 2000px frame when one exists. */
 function ogImage(product: { slug: string; image: string }): {
   url: string;
@@ -50,7 +65,7 @@ export async function generateMetadata({
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const products = await loadVisibleProducts();
-  const product = products.find((p) => p.slug === slug);
+  const product = findByRef(products, slug);
 
   if (!product) {
     return { title: "المنتج غير موجود", description: "المنتج غير موجود." };
@@ -93,7 +108,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     loadLocale(),
   ]);
 
-  const product = products.find((entry) => entry.slug === slug);
+  const product = findByRef(products, slug);
 
   // Hidden products are indistinguishable from missing ones to a shopper.
   if (!product || product.hidden === true) {

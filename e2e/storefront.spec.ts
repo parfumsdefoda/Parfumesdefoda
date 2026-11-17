@@ -152,8 +152,11 @@ test.describe("production storefront and checkout", () => {
     await expect(page.getByRole("dialog")).toBeVisible();
     await expect(page.getByRole("dialog").getByText("أمواج انترلود").first()).toBeVisible();
     await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "وصف العطر" }).click();
-    await expect(page.getByText(/أمواج انترلود/).first()).toBeVisible();
+    // The catalogue carries no descriptions (all master cells are empty), so
+    // the وصف العطر section does not render — the الفصل والأداء section is the
+    // one that carries facts on every page.
+    await page.getByRole("button", { name: "الفصل والأداء" }).click();
+    await expect(page.getByText(/شتوي/).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "عطور مشابهة" })).toBeVisible();
     await expect(page.getByRole("link", { name: /اسأل عن هذا العطر/ })).toHaveAttribute("href", /wa\.me/);
     await page.getByRole("button", { name: /تكبير الصورة/ }).first().click();

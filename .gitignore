@@ -71,3 +71,6 @@ next-env.d.ts
 # playwright output (screenshots under e2e/__screenshots__ stay tracked)
 /playwright-report/
 /playwright-results/
+
+# pre-sync backup of the catalogue (local only, never committed)
+data/products.backup.json

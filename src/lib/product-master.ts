@@ -8,18 +8,25 @@
  * pure and unit-testable.
  *
  * Rules:
- * - An EMPTY cell means "unknown, do not touch". A value is never blanked by
- *   an empty cell — except the three boolean flags, where blank means `لا`.
- * - A cell containing exactly `-` clears the field (only in
- *   {@link CLEARABLE_COLUMNS}).
+ * - An EMPTY cell means "unknown, do not touch" — except where a column has
+ *   its own blank rule below. A cell containing exactly `-` clears the field
+ *   (only in {@link CLEARABLE_COLUMNS}).
+ * - The three boolean flags: blank means `لا`.
+ * - `description_ar`: blank means `""` (the master carries no description, so
+ *   none is invented — the PDP omits the section instead).
  * - A cell that does not match an enum is rejected with a reason — never
  *   guessed at. Arabic spelling variants (ى/ي, أ/إ/آ/ا) are folded with a
  *   warning instead of a rejection.
  * - Sizes come from the header: every `price_<ml>` / `avail_<ml>` pair is a
  *   bottle volume, whatever the column order. A price creates a missing size;
- *   an availability cell alone never does.
- * - Prices, availability, names and descriptions only move with
- *   `--sync-commerce`, so a typo cannot silently reprice the shop.
+ *   an availability cell alone never does, and a size whose price cell is
+ *   blank is not sold at that volume any more — it is removed.
+ * - Availability: ONLY `نعم` is in stock. A blank `avail_<ml>` (or `لا`) means
+ *   the size is unavailable; a product is in stock iff at least one of its
+ *   sizes is.
+ * - Prices, availability (tracked per priced size), names and descriptions
+ *   only move with `--sync-commerce`, so a typo cannot silently reprice the
+ *   shop.
  * - Nothing is invented. `ml` is read from the size label ("100 مل"), which is
  *   information the catalogue already carries, not a guess.
  */
@@ -758,6 +765,12 @@ interface PassContext {
   includeCreates: boolean;
   /** Volumes declared by the header: the only sizes a price may create. */
   sizes: number[];
+  /**
+   * The header carries a `description_ar` column. A column that is absent
+   * means "do not touch"; a present one with blank cells means "clear"
+   * (the master decides the description, blank included).
+   */
+  hasDescription: boolean;
 }
 
 interface PassResult {
@@ -836,6 +849,7 @@ export function planMasterImport(
     photos: options.photos,
     includeCreates: false,
     sizes: header.sizes,
+    hasDescription: !header.absent.includes("description_ar"),
   });
 
   const allowed: ReadonlySet<ChangeGroup> =
@@ -854,6 +868,7 @@ export function planMasterImport(
           photos: options.photos,
           includeCreates: true,
           sizes: header.sizes,
+          hasDescription: !header.absent.includes("description_ar"),
         });
 
   const masterSlugs = new Set(
@@ -1559,83 +1574,101 @@ function mergePass(
       }
     }
 
-    if (row.description_ar === CLEAR_TOKEN) {
-      if (record(slug, "description", "commerce", original.description, "")) {
-        draft.description = "";
-      }
-    } else if (row.description_ar) {
-      if (record(slug, "description", "commerce", original.description, row.description_ar)) {
-        draft.description = row.description_ar;
+    // The master carries the description, blank included: every description
+    // cell in the file is empty, so the store shows none of them rather than
+    // inventing Arabic copy the owner never wrote. `-` and blank collapse to
+    // the same `""` — but only when the file actually carries the column:
+    // a missing column means "do not touch".
+    if (ctx.hasDescription) {
+      const nextDescription = row.description_ar === CLEAR_TOKEN ? "" : row.description_ar;
+      if (record(slug, "description", "commerce", original.description, nextDescription)) {
+        draft.description = nextDescription;
       }
     }
 
     // Every `price_<ml>` the header declares is a size, in ANY order. A price
     // for a volume the product does not have yet creates that size; a blank
-    // price never does (avail alone cannot invent a bottle).
+    // price never does (avail alone cannot invent a bottle). A size the master
+    // no longer prices is not sold at that volume any more — PF680's
+    // 100/50/30/10 stay in the catalogue until this prunes them for the
+    // 12/6/3 the file actually prices.
+    //
+    // Availability: only `نعم` puts a size on sale. A BLANK `avail_<ml>` (or
+    // `لا`) means the size is unavailable — blank no longer means "leave it",
+    // so the six 100-only bottles silently lose nothing they ever had a price
+    // for, and a row that once said nothing re-prices honestly.
+    const prunedMl = new Set<number>();
     for (const ml of ctx.sizes) {
       const priceCell = row[`price_${ml}`] ?? "";
       const availCell = row[`avail_${ml}`] ?? "";
 
-      let size = draft.sizes.find((entry) => sizeMl(entry) === ml);
-      let createdHere = false;
-
-      if (!size && priceCell) {
-        const price = Number(priceCell.replace(",", "."));
-        if (!Number.isFinite(price) || price < 0) {
-          reject(slug, `price_${ml}`, priceCell, "price must be a number ≥ 0");
-          continue;
-        }
-
-        const label = `${ml} مل`;
-        const inStock = availCell ? readBool(availCell) === true : false;
-        // An explicit لا is a decision; only a SILENT size is worth a warning.
-        if (!availCell) {
-          warn(slug, `avail_${ml}`, availCell, `new ${label} size starts out of stock (avail is blank)`);
-        }
-
-        size = { label, price, inStock, ml };
-        createdHere = true;
-        if (record(slug, `sizes.${label}`, "commerce", "", `${price} ج.م`)) {
-          draft.sizes.push(size);
-          draft.sizes.sort((a, b) => (sizeMl(b) ?? 0) - (sizeMl(a) ?? 0));
-        }
-      }
-
-      if (!size) {
-        if (priceCell || availCell) {
-          const known = draft.sizes.map((entry) => entry.label).join(", ") || "none";
-          reject(
-            slug,
-            priceCell ? `price_${ml}` : `avail_${ml}`,
-            priceCell || availCell,
-            `this product has no ${ml} مل size (has: ${known}) — put a price in price_${ml} to create it`,
-          );
-        }
-        continue;
-      }
-
-      // A size created in this row already carries its price and availability.
-      if (createdHere) continue;
+      const size = draft.sizes.find((entry) => sizeMl(entry) === ml);
 
       if (priceCell) {
         const price = Number(priceCell.replace(",", "."));
         if (!Number.isFinite(price) || price < 0) {
           reject(slug, `price_${ml}`, priceCell, "price must be a number ≥ 0");
-        } else if (record(slug, `sizes.${size.label}.price`, "commerce", size.price, price)) {
-          size.price = price;
+          continue;
         }
+        const inStock = readBool(availCell);
+        if (inStock === null && availCell) {
+          reject(slug, `avail_${ml}`, availCell, "use نعم / لا (or yes / no)");
+          continue;
+        }
+
+        if (!size) {
+          const label = `${ml} مل`;
+          if (inStock !== true) {
+            warn(slug, `avail_${ml}`, availCell, `new ${label} size starts out of stock (avail is blank)`);
+          }
+          if (record(slug, `sizes.${label}`, "commerce", "", `${price} ج.م`)) {
+            draft.sizes.push({ label, price, inStock: inStock === true, ml });
+            draft.sizes.sort((a, b) => (sizeMl(b) ?? 0) - (sizeMl(a) ?? 0));
+          }
+        } else {
+          if (record(slug, `sizes.${size.label}.price`, "commerce", size.price, price)) {
+            size.price = price;
+          }
+          if (record(slug, `sizes.${size.label}.inStock`, "commerce", size.inStock, inStock === true)) {
+            size.inStock = inStock === true;
+          }
+        }
+        continue;
+      }
+
+      // No price cell: the volume is not offered any more. An availability with
+      // no price is still an error (there is nothing to sell at).
+      if (size) {
+        if (availCell) {
+          reject(
+            slug,
+            `avail_${ml}`,
+            availCell,
+            `this product has no ${ml} مل price — a size needs price_${ml} before it can be available`,
+          );
+          continue;
+        }
+        prunedMl.add(ml);
+        record(slug, `sizes.${size.label}`, "commerce", `${size.price} ج.م`, "");
+        continue;
       }
 
       if (availCell) {
-        const inStock = readBool(availCell);
-        if (inStock === null) {
-          reject(slug, `avail_${ml}`, availCell, "use نعم / لا (or yes / no)");
-        } else if (
-          record(slug, `sizes.${size.label}.inStock`, "commerce", size.inStock, inStock)
-        ) {
-          size.inStock = inStock;
-        }
+        const known = draft.sizes.map((entry) => entry.label).join(", ") || "none";
+        reject(
+          slug,
+          `avail_${ml}`,
+          availCell,
+          `this product has no ${ml} مل size (has: ${known}) — put a price in price_${ml} to create it`,
+        );
       }
+    }
+
+    if (prunedMl.size > 0 && groups.has("commerce")) {
+      draft.sizes = draft.sizes.filter((entry) => {
+        const ml = sizeMl(entry);
+        return ml === null || !prunedMl.has(ml);
+      });
     }
 
     // A product still pointing at the shared placeholder but whose real photo
@@ -1660,11 +1693,27 @@ function mergePass(
     bySlug.set(slug, draft);
   }
 
-  // Rebuild in catalogue order; creations go last, in CSV order.
-  const merged = products.map((product) => bySlug.get(product.slug) ?? product);
+  // Rebuild in the master's row order — the shop and the spreadsheet agree
+  // on the sequence. Products the file does not mention keep their relative
+  // order after the master's rows (they are never deleted).
+  const createdBySlug = new Map(created.map((product) => [product.slug, product]));
+  const inMaster = new Set(entries.map((entry) => entry.row.slug.trim()));
+  const seenOrder = new Set<string>();
+  const ordered: Product[] = [];
+  for (const entry of entries) {
+    const slug = entry.row.slug.trim();
+    if (seenOrder.has(slug)) continue;
+    seenOrder.add(slug);
+    const product = bySlug.get(slug) ?? createdBySlug.get(slug);
+    if (product) ordered.push(product);
+  }
+  for (const product of products) {
+    if (inMaster.has(product.slug)) continue;
+    ordered.push(bySlug.get(product.slug) ?? product);
+  }
 
   return {
-    products: [...merged, ...created],
+    products: ordered,
     changes,
     rejections,
     warnings,
@@ -1953,9 +2002,9 @@ export function renderMasterStatusMarkdown(
       return `| ${row.field} | ${row.filled} | ${row.total} | ${share}% |`;
     }),
     "",
-    "الملف المراد تعديله هو `data/product-master.csv`. الخلية الفارغة تعني «غير معروف» ولا تُمسح قيمة موجودة.",
+    "الملف المراد تعديله هو `data/product-master.csv`. الخلية الفارغة تعني: التوافر الفارغ = غير متوفر، والسعر الفارغ = الحجم غير معروض، والوصف الفارغ = لا وصف، والعلم الفارغ = لا.",
     "",
-    "The file to edit is `data/product-master.csv`. An empty cell means \"unknown\" and never clears an existing value.",
+    "The file to edit is `data/product-master.csv`. Empty cells: blank availability means unavailable, a blank price hides that volume, a blank description means none, a blank flag means لا.",
     "",
   ];
   return lines.join("\n");

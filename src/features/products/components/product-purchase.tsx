@@ -46,8 +46,10 @@ export function ProductPurchase({
   const cart = useCart();
   const { showToast } = useToast();
 
-  // Small → large, regardless of how the catalogue stores the sizes.
-  const sizes = sortSizesByVolume(product.sizes);
+  // Only the sizes a shopper can buy today are offered: a sold-out volume is
+  // not a choice, it is a dead end. Small → large, regardless of how the
+  // catalogue stores them.
+  const sizes = sortSizesByVolume(product.sizes.filter((size) => size.inStock));
 
   const [selected, setSelected] = useState<string>(() => {
     const firstInStock = sizes.find((size) => size.inStock);
@@ -182,7 +184,8 @@ export function ProductPurchase({
         </p>
       )}
 
-      {/* Size selector */}
+      {/* Size selector — only when there is something to choose. */}
+      {sizes.length > 0 && (
       <div>
         <p className="mb-2 text-[14px] font-medium text-[var(--ink)]">
           {labels.chooseSize}
@@ -222,6 +225,7 @@ export function ProductPurchase({
           })}
         </div>
       </div>
+      )}
 
       {/* Availability — green is status only, never decoration. */}
       {chosen && (

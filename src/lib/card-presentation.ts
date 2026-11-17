@@ -115,14 +115,17 @@ export interface CardPrice {
 }
 
 /**
- * The price line: "من ١٢٠ ج.م" when the product has several sizes (the number
- * is the cheapest one on sale), "١٢٠ ج.م" when it has exactly one.
+ * The price line: "من ١٢٠ ج.م" when the product has more than one size a
+ * shopper can buy (the number is the cheapest one on sale), "١٢٠ ج.م" when
+ * exactly one size is buyable — showing a "من" for a bottle the shopper
+ * cannot buy would mean a price the store cannot honour.
  */
 export function cardPrice(product: Pick<Product, "sizes">, fromLabel = "من"): CardPrice | null {
   const amount = lowestInStockPrice(product);
   if (amount === null) return null;
+  const buyable = product.sizes.filter((size) => size.inStock).length;
   return {
-    prefix: product.sizes.length > 1 ? fromLabel : null,
+    prefix: buyable > 1 ? fromLabel : null,
     amount,
   };
 }
