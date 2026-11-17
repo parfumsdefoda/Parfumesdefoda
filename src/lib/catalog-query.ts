@@ -13,6 +13,7 @@ import { GENDERS, PERFORMANCES, PRODUCT_FORMS, PRODUCT_TYPES } from "./product-v
 import {
   FILTER_KEYS,
   FILTERABLE_TIERS,
+  FODA_FILTER_VALUE,
   facetValueLabel,
   productFacetValue,
   type CatalogState,
@@ -84,6 +85,10 @@ function optionValues(products: Product[], key: FilterKey): string[] {
       return [...FILTERABLE_TIERS];
     case "performance":
       return [...PERFORMANCES];
+    case "foda":
+      // A one-value group: `presentOptions` keeps it only while a visible
+      // product actually carries the flag, so the group is never a dead end.
+      return [FODA_FILTER_VALUE];
     case "size":
       return catalogueSizeLabels(products);
     default:
@@ -105,19 +110,15 @@ export function matchesFacetValue(product: Product, key: FilterKey, value: strin
 /**
  * Does the product survive the whole state?
  *
- * `except` leaves one group (or a toggle — availability, فوده) out, which is
- * exactly how facet counts are computed.
+ * `except` leaves one group (or the availability toggle) out, which is exactly
+ * how facet counts are computed.
  */
 export function productMatchesState(
   product: Product,
   state: CatalogState,
-  except?: FilterKey | "available" | "foda",
+  except?: FilterKey | "available",
 ): boolean {
   if (state.q && !productMatchesQuery(product, state.q)) return false;
-
-  if (except !== "foda" && state.foda && product.fodaOriginal !== true) {
-    return false;
-  }
 
   if (
     except !== "available" &&

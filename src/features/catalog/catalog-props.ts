@@ -39,7 +39,6 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
     filters: t(locale, "catalog.filters", "الفلاتر والترتيب"),
     clearAll: t(locale, "catalog.clearAll", "مسح الكل"),
     availableOnly: t(locale, "catalog.availableOnly", "المتوفر فقط"),
-    fodaOnly: t(locale, "catalog.fodaOnly", "عطور فوده الأصلية"),
     resultUnit: t(locale, "catalog.resultUnit", "منتج"),
     sort: t(locale, "catalog.sort", "الترتيب"),
     sortFeatured: t(locale, "catalog.sortFeatured", "الافتراضي"),
@@ -55,6 +54,7 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
       tier: t(locale, "catalog.groupTier", "الدار"),
       performance: t(locale, "catalog.groupPerformance", "الأداء"),
       size: t(locale, "catalog.groupSize", "المقاس"),
+      foda: t(locale, "catalog.groupFoda", "عطور فوده الأصلية"),
     },
   };
 }

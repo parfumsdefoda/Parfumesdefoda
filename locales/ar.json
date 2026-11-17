@@ -129,7 +129,6 @@
     "clearAll": "مسح الكل",
     "clearFilters": "مسح الفلاتر",
     "availableOnly": "المتوفر فقط",
-    "fodaOnly": "عطور فوده الأصلية",
     "resultUnit": "منتج",
     "sort": "الترتيب",
     "sortFeatured": "الافتراضي",
@@ -143,6 +142,7 @@
     "groupTier": "الدار",
     "groupPerformance": "الأداء",
     "groupSize": "المقاس",
+    "groupFoda": "عطور فوده الأصلية",
     "groupForm": "الصيغة",
     "emptyTitle": "لا توجد منتجات مطابقة",
     "emptyHint": "جرّب إزالة بعض الفلاتر أو البحث باسم آخر"

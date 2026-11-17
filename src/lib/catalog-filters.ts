@@ -38,6 +38,14 @@ import type { SortOption } from "./sort-helpers";
  */
 export const SIZE_LABEL_PATTERN = /^\d+(?:[.,]\d+)?\s*مل$/;
 
+/**
+ * The single value of the "foda" facet — the foda-original collection. It is a
+ * facet (not a toggle) so it inherits counts, chips and the empty-state hiding
+ * of every other facet, and the group vanishes when no visible product carries
+ * the flag. The label is rendered by `facetValueLabel`.
+ */
+export const FODA_FILTER_VALUE = "الأصلية" as const;
+
 export function isSizeFilterValue(value: string): boolean {
   return SIZE_LABEL_PATTERN.test(value.trim());
 }
@@ -45,7 +53,7 @@ export function isSizeFilterValue(value: string): boolean {
 // ─── State ──────────────────────────────────────────────────────────────────
 
 /** Every filter group, in URL order. `available` is a toggle, not a list. */
-export const FILTER_KEYS = ["gender", "style", "form", "tier", "performance", "size"] as const;
+export const FILTER_KEYS = ["gender", "style", "form", "tier", "performance", "size", "foda"] as const;
 
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
@@ -60,8 +68,8 @@ export interface CatalogState {
   size: string[];
   /** "المتوفر فقط" */
   available: boolean;
-  /** "عطور فوده الأصلية" — the `fodaOriginal` catalogue flag. */
-  foda: boolean;
+  /** "عطور فوده الأصلية" — the `fodaOriginal` flag, as a one-value facet. */
+  foda: string[];
   sort: SortOption;
   q: string;
 }
@@ -77,7 +85,7 @@ export const EMPTY_CATALOG_STATE: CatalogState = {
   performance: [],
   size: [],
   available: false,
-  foda: false,
+  foda: [],
   sort: DEFAULT_SORT,
   q: "",
 };
@@ -94,6 +102,7 @@ const ALLOWED: Record<Exclude<FilterKey, "size">, readonly string[]> = {
   form: PRODUCT_FORMS,
   tier: FILTERABLE_TIERS,
   performance: PERFORMANCES,
+  foda: [FODA_FILTER_VALUE],
 };
 
 const SORT_OPTIONS: readonly SortOption[] = ["default", "price-asc", "price-desc", "alphabetical"];
@@ -139,7 +148,7 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
     performance: readList(params, "performance"),
     size: readList(params, "size"),
     available: firstValue(params.available) === "1",
-    foda: firstValue(params.foda) === "1",
+    foda: readList(params, "foda"),
     sort,
     q: firstValue(params.q).trim().slice(0, MAX_QUERY_LENGTH),
   };
@@ -165,7 +174,6 @@ export function serializeCatalogState(
     if (values.length > 0) params.set(key, values.join(","));
   }
   if (state.available) params.set("available", "1");
-  if (state.foda) params.set("foda", "1");
   if (state.sort !== DEFAULT_SORT) params.set("sort", state.sort);
   if (state.q) params.set("q", state.q);
 
@@ -206,22 +214,18 @@ export function setAvailable(state: CatalogState, available: boolean): CatalogSt
   return { ...state, available };
 }
 
-export function setFoda(state: CatalogState, foda: boolean): CatalogState {
-  return { ...state, foda };
-}
-
 /** Every filter and the search cleared; the sort is preserved. */
 export function clearCatalogFilters(state: CatalogState): CatalogState {
   return { ...EMPTY_CATALOG_STATE, sort: state.sort };
 }
 
-/** How many filter values (plus the availability and فوده toggles) are active. */
+/** How many filter values (plus the availability toggle) are active. */
 export function countActiveFilters(state: CatalogState, omit: readonly FilterKey[] = []): number {
   const values = FILTER_KEYS.reduce(
     (sum, key) => (omit.includes(key) ? sum : sum + state[key].length),
     0,
   );
-  return values + (state.available ? 1 : 0) + (state.foda ? 1 : 0);
+  return values + (state.available ? 1 : 0);
 }
 
 /** True when nothing narrows the catalogue. */
@@ -240,6 +244,7 @@ export function facetValueLabel(key: FilterKey, value: string): string {
     return genderPublicLabel(value);
   }
   if (key === "size") return formatSizeLabel(value);
+  if (key === "foda") return "الأصلية فقط";
   return value;
 }
 
@@ -248,6 +253,9 @@ export function productFacetValue(
   product: Product,
   key: Exclude<FilterKey, "size">,
 ): string | null {
+  // A flag facet: the product is either in the foda-original collection or it
+  // has no value at all, which is exactly productForm's shape too.
+  if (key === "foda") return product.fodaOriginal ? FODA_FILTER_VALUE : null;
   if (key === "gender") return product.gender;
   if (key === "style") return product.type;
   if (key === "form") return productForm(product);

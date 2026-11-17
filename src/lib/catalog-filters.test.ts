@@ -10,7 +10,6 @@ import {
   removeFacetValue,
   serializeCatalogState,
   setAvailable,
-  setFoda,
   setQuery,
   setSort,
   toggleFacetValue,
@@ -140,7 +139,7 @@ describe("serializeCatalogState", () => {
       performance: ["أداء قوي"],
       size: ["100 مل"],
       available: true,
-      foda: true,
+      foda: ["الأصلية"],
       sort: "alphabetical",
       q: "أفريكان",
     };
@@ -186,12 +185,13 @@ describe("transitions", () => {
     expect(isDefaultCatalogState({ ...state, q: "عود" })).toBe(false);
   });
 
-  it("reads and writes the foda toggle, and counts it", () => {
-    expect(parseCatalogState({ foda: "1" }).foda).toBe(true);
-    expect(parseCatalogState({ foda: "foda" }).foda).toBe(false);
-    expect(serializeCatalogState({ ...EMPTY_CATALOG_STATE, foda: true })).toBe("foda=1");
-    expect(setFoda(EMPTY_CATALOG_STATE, true).foda).toBe(true);
-    expect(countActiveFilters({ ...EMPTY_CATALOG_STATE, foda: true })).toBe(1);
+  it("reads and writes the foda facet and counts it", () => {
+    expect(parseCatalogState({ foda: "الأصلية" }).foda).toEqual(["الأصلية"]);
+    expect(parseCatalogState({ foda: "foda" }).foda).toEqual([]);
+    expect(serializeCatalogState({ ...EMPTY_CATALOG_STATE, foda: ["الأصلية"] })).toBe(
+      `foda=${encodeURIComponent("الأصلية")}`,
+    );
+    expect(countActiveFilters({ ...EMPTY_CATALOG_STATE, foda: ["الأصلية"] })).toBe(1);
   });
 
   it("setters return new objects", () => {
