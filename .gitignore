@@ -74,3 +74,6 @@ next-env.d.ts
 
 # pre-sync backup of the catalogue (local only, never committed)
 data/products.backup.json
+
+# archived product photos from an image swap (local only, never committed)
+/.backups/

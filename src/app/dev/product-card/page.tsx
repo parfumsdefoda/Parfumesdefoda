@@ -25,7 +25,7 @@ function fixture(overrides: Partial<Product> & { id: string; name: string }): Pr
     slug: `dev-${overrides.id}`,
     brand: "Parfums De Foda",
     description: "سطر تجريبي لصفحة المراجعة فقط.",
-    image: "/products/PF020.png",
+    image: "/products/PF020.webp",
     gender: "للجنسين",
     type: "شرقي",
     house: "نيش",
@@ -57,7 +57,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-alpha",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "تيروني (فاخر)",
       featured: true,
     }),
@@ -67,7 +67,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-framed",
       slug: "pf091",
-      image: "/products/PF091.png",
+      image: "/products/PF091.webp",
       name: "أمواج انترلود (فاخر)",
       featured: true,
     }),
@@ -77,7 +77,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-sold-out",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "فاخر غير متوفر",
       featured: true,
       inStock: false,
@@ -89,7 +89,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-oil",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "زيت فاخر",
       featured: true,
       oily: true,
