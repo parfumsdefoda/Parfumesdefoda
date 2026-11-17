@@ -141,7 +141,7 @@ test.describe("production storefront and checkout", () => {
   });
 
   test("PDP size selector, cart drawer, accordion, gallery, related products, and WhatsApp link", async ({ page }) => {
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("h1")).toHaveCount(1);
     const sizes = page.getByRole("radiogroup", { name: "اختر الحجم" }).getByRole("radio");
     await expect(sizes).toHaveCount(4);
@@ -150,7 +150,7 @@ test.describe("production storefront and checkout", () => {
     await expect(sizes.nth(1)).toHaveAttribute("aria-checked", "true");
     await page.getByRole("button", { name: "أضف إلى السلة", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByRole("dialog").getByText("أمواج انترلود").first()).toBeVisible();
+    await expect(page.getByRole("dialog").getByText("أفريكان ليذر").first()).toBeVisible();
     await page.keyboard.press("Escape");
     // The catalogue carries no descriptions (all master cells are empty), so
     // the وصف العطر section does not render — the الفصل والأداء section is the
@@ -183,7 +183,7 @@ test.describe("production storefront and checkout", () => {
       // "أضف إلى السلة — تيروني"; the main CTA would be the exact name.
       await expect(page.getByRole("button", { name: "أضف إلى السلة", exact: true })).toHaveCount(0);
     }
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("picture source[type='image/avif']").first()).toHaveAttribute("srcset", /products\/derived/);
     const requestedOriginals: string[] = [];
     page.on("request", (request) => {
@@ -275,7 +275,7 @@ test.describe("production storefront and checkout", () => {
     const sitemap = await request.get("/sitemap.xml");
     expect(sitemap.ok()).toBeTruthy();
     const sitemapText = await sitemap.text();
-    expect(sitemapText).toContain("/product/pf090");
+    expect(sitemapText).toContain("/product/pf020");
     // The sitemap lists every visible product: coming-soon pages exist and
     // answer 200, while hidden products (none in the catalogue today) must
     // never appear.
@@ -292,7 +292,7 @@ test.describe("production storefront and checkout", () => {
     );
     expect(sitemapText).not.toContain("/product/does-not-exist");
     expect((await request.get("/robots.txt")).ok()).toBeTruthy();
-    for (const path of ["/", "/shop", "/shop/women", "/product/pf090"]) {
+    for (const path of ["/", "/shop", "/shop/women", "/product/pf020"]) {
       await page.goto(path);
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -321,14 +321,14 @@ test.describe("production storefront and checkout", () => {
     await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     await page.goto("/shop");
     await expect(page.locator("h1")).toBeVisible();
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "مسار التنقل" })).toBeVisible();
     await context.close();
   });
 
   test("indexable pages pass serious and critical axe checks", async ({ page }) => {
-    for (const path of ["/", "/shop", "/product/pf090", "/cart", "/checkout", "/checkout/success", "/faq", "/contact"]) {
+    for (const path of ["/", "/shop", "/product/pf020", "/cart", "/checkout", "/checkout/success", "/faq", "/contact"]) {
       if (path === "/cart" || path === "/checkout") await seedCart(page);
       await page.goto(path);
       const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
@@ -351,7 +351,7 @@ test.describe("production storefront and checkout", () => {
     for (const [path, name] of [
       ["/", "home"],
       ["/shop", "shop"],
-      ["/product/pf090", "product-pf090"],
+      ["/product/pf020", "product-pf020"],
       ["/checkout", "checkout"],
     ] as const) {
       // networkidle keeps the capture out of the first-layout pass, when the
@@ -583,7 +583,7 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
 
   test("indexable pages carry a unique title and exactly one h1", async ({ page }) => {
     const seen = new Set<string>();
-    for (const path of ["/", "/shop", "/shop/men", "/product/pf090", "/faq", "/contact"]) {
+    for (const path of ["/", "/shop", "/shop/men", "/product/pf020", "/faq", "/contact"]) {
       await page.goto(path);
       const title = ((await page.locator("title").textContent()) ?? "").trim();
       const description = await page.locator("meta[name='description']").getAttribute("content");
@@ -597,7 +597,7 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
 
   test("sticky PDP bar appears after the CTA scrolls away and retracts at the footer", async ({ page, isMobile }) => {
     test.skip(!isMobile, "the sticky bar is phone-only");
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     const bar = page.locator("[data-sticky-bar]");
 
     await expect(bar).toHaveAttribute("data-visible", "false");

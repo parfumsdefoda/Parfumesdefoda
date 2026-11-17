@@ -389,7 +389,7 @@ describe("planMasterImport — --create-missing", () => {
     expect(created).toMatchObject({
       id: "PF999",
       name: "عطر جديد",
-      image: "/products/PF999.png",
+      image: "/products/PF999.webp",
       description: "وصف المنتج",
       sortOrder: 2,
       gender: "رجالي",
@@ -923,18 +923,18 @@ describe("planMasterImport — placeholder images", () => {
   it("points a placeholder at the real photo that exists on disk", () => {
     const plan = planMasterImport([placeholder], csv(["slug,on_site", "pf001,نعم"]), {
       mode: "apply",
-      imageExists: (path) => path === "/products/PF001.png",
+      imageExists: (path) => path === "/products/PF001.webp",
     });
 
     expect(plan.imageFixes).toEqual([
       {
         slug: "pf001",
         from: "/products/placeholder-unavailable.webp",
-        to: "/products/PF001.png",
+        to: "/products/PF001.webp",
       },
     ]);
-    expect(plan.products[0].image).toBe("/products/PF001.png");
-    expect(plan.products[0].gallery).toEqual(["/products/PF001.png"]);
+    expect(plan.products[0].image).toBe("/products/PF001.webp");
+    expect(plan.products[0].gallery).toEqual(["/products/PF001.webp"]);
   });
 
   it("never touches a product that already has a real image", () => {
@@ -1307,11 +1307,11 @@ describe("planMasterImport — the photo gate", () => {
         "slug,sku,name_ar,gender,scent_style,tier,performance,price_50,avail_50",
         "pf999,PF999,عطر جديد,رجالي,شرقي,نيش,أداء قوي,600,نعم",
       ]),
-      { mode: "apply", createMissing: true, photos: gate({ "PF999.png": 320 }) },
+      { mode: "apply", createMissing: true, photos: gate({ "PF999.webp": 320 }) },
     );
 
     expect(plan.creations).toEqual([]);
-    expect(plan.photoSkips[0]).toMatchObject({ status: "too-small", file: "PF999.png" });
+    expect(plan.photoSkips[0]).toMatchObject({ status: "too-small", file: "PF999.webp" });
     expect(plan.photoSkips[0].detail).toContain("320px");
   });
 
@@ -1341,7 +1341,7 @@ describe("planMasterImport — the photo gate", () => {
 
     expect(plan.creations).toEqual([]);
     expect(plan.refusals).toEqual([]);
-    expect(plan.photoSkips[0]).toMatchObject({ slug: "pf999", file: "PF999.png" });
+    expect(plan.photoSkips[0]).toMatchObject({ slug: "pf999", file: "PF999.webp" });
     expect(plan.products).toHaveLength(1);
   });
 

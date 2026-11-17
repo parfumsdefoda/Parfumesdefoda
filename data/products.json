@@ -418,63 +418,6 @@
     }
   },
   {
-    "id": "PF090",
-    "sku": "PF090",
-    "slug": "pf090",
-    "name": "أمواج انترلود",
-    "brand": "Parfums De Foda",
-    "description": "",
-    "image": "/products/PF090.webp",
-    "gallery": [
-      "/products/PF090.webp"
-    ],
-    "gender": "رجالي",
-    "type": "شرقي",
-    "house": "نيش",
-    "oily": false,
-    "fodaOriginal": false,
-    "season": "شتوي",
-    "performance": "أداء قوي",
-    "featured": false,
-    "badge": "",
-    "rating": 0,
-    "reviews": 0,
-    "status": "active",
-    "sortOrder": 5,
-    "sizes": [
-      {
-        "label": "10 مل",
-        "price": 120,
-        "inStock": true
-      },
-      {
-        "label": "30 مل",
-        "price": 350,
-        "inStock": true
-      },
-      {
-        "label": "50 مل",
-        "price": 500,
-        "inStock": true
-      },
-      {
-        "label": "100 مل",
-        "price": 700,
-        "inStock": true
-      }
-    ],
-    "inStock": true,
-    "notes": {
-      "top": [],
-      "middle": [],
-      "base": []
-    },
-    "seo": {
-      "title": "أمواج انترلود | Parfums De Foda",
-      "description": ""
-    }
-  },
-  {
     "id": "PF091",
     "sku": "PF091",
     "slug": "pf091",
@@ -530,9 +473,6 @@
       "middle": [],
       "base": []
     },
-    "similarTo": [
-      "pf090"
-    ],
     "seo": {
       "title": "أمواج انترلود (فاخر) | Parfums De Foda",
       "description": ""

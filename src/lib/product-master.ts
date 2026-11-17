@@ -641,7 +641,7 @@ export interface MasterPhotoSkip {
   slug: string;
   /** The public name, so the report reads without opening the CSV. */
   name: string;
-  /** The file the importer expects: `{SKU}.png`, exactly. */
+  /** The file the importer expects: `{SKU}.webp`, exactly. */
   file: string;
   status: MasterPhotoStatus;
   /** One sentence the owner can act on. */
@@ -653,8 +653,8 @@ export interface MasterPhotoSkip {
  *
  * ONLY a master row whose original photo is on disk, readable and at least
  * `minShortSide` px on its short side is imported. The file name is matched
- * EXACTLY (`PF760.png`, upper-case SKU, lower-case extension): this repo is
- * edited on Windows and built on Linux, and a file called `pf760.png` works in
+ * EXACTLY (`PF760.webp`, upper-case SKU, lower-case extension): this repo is
+ * edited on Windows and built on Linux, and a file called `pf760.webp` works in
  * one and 404s in the other. Everything about the gate is injected, so the
  * module stays pure and testable.
  */
@@ -672,7 +672,7 @@ export interface MasterPhotoGate {
 export interface MasterPlanOptions {
   mode?: MasterMode;
   createMissing?: boolean;
-  /** Disk check for `/products/{SKU}.png`; the script passes fs.existsSync. */
+  /** Disk check for `/products/{SKU}.webp`; the script passes fs.existsSync. */
   imageExists?: (imagePath: string) => boolean;
   /**
    * The photo gate (see {@link MasterPhotoGate}). Without it the importer keeps
@@ -957,6 +957,14 @@ export function planMasterImport(
   };
 }
 
+/** Product photos are one WebP file per SKU: `/products/PF091.webp`. */
+const PRODUCT_IMAGE_EXTENSION = "webp";
+
+/** The photo file name a SKU is expected to own. */
+function photoFileName(sku: string): string {
+  return `${sku}.${PRODUCT_IMAGE_EXTENSION}`;
+}
+
 /**
  * Is a product's own photo file still on disk, matched exactly?
  *
@@ -993,7 +1001,7 @@ function photoStatusFor(
     if (shortSide === null) {
       return {
         status: "unreadable",
-        detail: `public/products/${fileName} could not be read as a PNG`,
+        detail: `public/products/${fileName} could not be read as a PNG or WebP image`,
       };
     }
     const min = gate.minShortSide ?? 400;
@@ -1282,8 +1290,8 @@ function mergePass(
       const ownImage = original?.image?.split("?")[0] ?? "";
       const fileName =
         original && !isPlaceholderImage(ownImage) && ownImage.startsWith("/products/")
-          ? (ownImage.split("/").pop() ?? `${sku}.png`)
-          : `${sku}.png`;
+          ? (ownImage.split("/").pop() ?? photoFileName(sku))
+          : photoFileName(sku);
       const blocked = photoStatusFor(fileName, ctx.photos);
       if (blocked) {
         // The size floor is a bar for ENTERING the catalogue. A product that is
@@ -1539,7 +1547,7 @@ function mergePass(
             slug,
             "gallery_extra",
             path,
-            'image paths start with "/" — e.g. /products/PF020-2.png',
+            'image paths start with "/" — e.g. /products/PF020-2.webp',
           );
           continue;
         }
@@ -1673,7 +1681,7 @@ function mergePass(
 
     // A product still pointing at the shared placeholder but whose real photo
     // exists on disk gets that photo — never a rename, never a delete.
-    const realImage = `/products/${original.sku}.png`;
+    const realImage = `/products/${photoFileName(original.sku)}`;
     if (isPlaceholderImage(original.image) && ctx.imageExists?.(realImage)) {
       imageFixes.push({ slug, from: original.image, to: realImage });
       if (record(slug, "image", "enrichment", original.image, realImage)) {
@@ -1793,7 +1801,7 @@ function buildNewProduct(
     };
   }
 
-  const image = `/products/${sku}.png`;
+  const image = `/products/${photoFileName(sku)}`;
   if (ctx.imageExists && !ctx.imageExists(image)) {
     return { reason: `cannot create: image ${image} does not exist` };
   }

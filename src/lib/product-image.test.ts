@@ -48,16 +48,16 @@ describe("hasTransparentCutout", () => {
   });
 
   it("is false for a framed photo that still carries its background", () => {
-    // pf090 is listed in .audit/needs-retouch.txt: a coloured background
+    // pf680 is listed in .audit/needs-retouch.txt: a coloured background
     // served as a framed resize, so it keeps the light stage.
-    const entry = getProductImageEntry("pf090");
+    const entry = getProductImageEntry("pf680");
     expect(entry?.background).not.toBe("transparent");
-    expect(hasTransparentCutout("pf090")).toBe(false);
+    expect(hasTransparentCutout("pf680")).toBe(false);
   });
 
   it("is true for pf091, whose manifest entry the refresh corrected", () => {
-    // The stored entry carried pf090's hash and background; the real PF091.png
-    // is a transparent 2000×2000 cut-out, so the premium stage may go dark.
+    // The stored entry once carried another photo's hash and background; the
+    // real PF091.webp is a transparent cut-out, so the premium stage may go dark.
     expect(getProductImageEntry("pf091")?.background).toBe("transparent");
     expect(hasTransparentCutout("pf091")).toBe(true);
   });

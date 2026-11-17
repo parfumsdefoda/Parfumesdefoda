@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T23:18:40.425Z",
+  "generatedAt": "2026-11-17T23:30:50.403Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -206,34 +206,6 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf080/pdp-2000.webp"
-        }
-      ]
-    },
-    "pf090": {
-      "source": "/products/PF090.webp",
-      "sourceHash": "d8c747ce3ca81a22a28281e0e74d44665f8090d979467b6bba0833e79a84affc",
-      "background": "coloured",
-      "mode": "framed",
-      "blend": "normal",
-      "canvas": null,
-      "files": [
-        {
-          "w": 400,
-          "avif": "/products/derived/pf090/framed-400.avif",
-          "h": 225,
-          "webp": "/products/derived/pf090/framed-400.webp"
-        },
-        {
-          "w": 800,
-          "avif": "/products/derived/pf090/framed-800.avif",
-          "h": 450,
-          "webp": "/products/derived/pf090/framed-800.webp"
-        },
-        {
-          "w": 1200,
-          "avif": "/products/derived/pf090/framed-1200.avif",
-          "h": 675,
-          "webp": "/products/derived/pf090/framed-1200.webp"
         }
       ]
     },

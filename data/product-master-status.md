@@ -14,7 +14,7 @@
 | is_fouda_original | 3 | 80 | 4% |
 | is_oil | 1 | 80 | 1% |
 | is_featured | 2 | 80 | 3% |
-| is_similar | 2 | 80 | 3% |
+| is_similar | 1 | 80 | 1% |
 | concentration | 0 | 80 | 0% |
 | family | 0 | 80 | 0% |
 | notes (any level) | 0 | 80 | 0% |
