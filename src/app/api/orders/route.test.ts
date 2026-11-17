@@ -85,6 +85,7 @@ vi.mock("@/services/settings", () => ({
     social: {},
     navigation: [],
     footer: { description: "", columns: [] },
+    features: { premium: false, assistant: false },
   }),
 }));
 

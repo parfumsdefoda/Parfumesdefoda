@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-07T11:29:18.769Z",
+  "generatedAt": "2026-11-17T21:27:40.365Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -1816,29 +1816,30 @@
     },
     "pf630": {
       "source": "/products/PF630.png",
-      "sourceHash": "5711749af6d65da760ecf9be8d3072956376b9f1eeae5a5c6f168c5c76ad9bfc",
-      "background": "coloured",
-      "mode": "framed",
+      "sourceHash": "69c60b4f0e214f6d66a0de6c67867898ca7aee1cf5adb5d2b9ea01b35bad6dc5",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 1300,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf630/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf630/framed-400.webp"
+          "avif": "/products/derived/pf630/card-400.avif",
+          "webp": "/products/derived/pf630/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf630/framed-800.avif",
-          "h": 533,
-          "webp": "/products/derived/pf630/framed-800.webp"
+          "avif": "/products/derived/pf630/card-800.avif",
+          "webp": "/products/derived/pf630/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf630/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf630/framed-1200.webp"
+          "avif": "/products/derived/pf630/pdp-1200.avif",
+          "webp": "/products/derived/pf630/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf630/pdp-2000.webp"
         }
       ]
     },

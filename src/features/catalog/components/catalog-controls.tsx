@@ -155,7 +155,6 @@ export function CatalogControls({
   const clearAll = () => commit(clearCatalogFilters(state));
 
   const sortChoices: SortChoice[] = [
-    { value: "featured", label: labels.sortFeatured },
     { value: "price-asc", label: labels.sortPriceAsc },
     { value: "price-desc", label: labels.sortPriceDesc },
     { value: "alphabetical", label: labels.sortName },

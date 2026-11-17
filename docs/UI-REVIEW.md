@@ -1,5 +1,17 @@
 # UI Review — gallery redesign
 
+> **RUN 1.5 (cleanup):** premium (فاخر) and the floating assistant are now
+> disabled behind `settings.features` (`false` in `data/settings.json`),
+> the home intro/categories band/advisor band are deleted, and the home is
+> header → 12-product grid → "عرض كل المنتجات" row → footer. Items about
+> the premium frame (5), the home intro/categories/advisor (8) and the PDP
+> premium stage below are marked **N/A: flag off** rather than deleted.
+> G5: PF630 name refreshed from the master CSV and its derived photos
+> rebuilt; the photo is a transparent cutout, so its card uses the
+> drop-shadow treatment. Evidence: `.qa/clean/` (see G6 below).
+
+## RUN 1.5 — site cleanup answers
+
 Answered on the current `ui-gallery` build (HEAD `4ce0c1d` + the R1-4 rebuild),
 from `.qa/ui3final/` (home, shop and the one drawer at 375/1440) plus the earlier
 `.qa/ui2final/` set for the surfaces R1-4 did not touch, and the measured values
@@ -64,6 +76,29 @@ KiB vs 240/260. `check:derived` and 18 geometry spec cases green.
 **90 / LCP 3.6 s**, down from 100 / 0.91 s, because the LCP element changed from the
 hero headline to the first product photo. `/shop` is unchanged at 89 / 3.8 s. The
 budget gate is still green; trimming the card derivative sizes is the follow-up.
+
+## RUN 1.5 — G6 verification answers
+
+- **No premium visuals anywhere** — yes. `isPremiumProduct()` returns false
+  while `features.premium` is off; no gold shell/badge/hover on any card or
+  PDP, no `?featured` sort (legacy URLs fall back to the master order), and
+  `/dev/product-card` hides the premium states. Answers verified in
+  `.qa/clean/home-1440.png`, `shop-1440.png`, `pdp-375.png`.
+- **No assistant anywhere** — yes. No launcher/greeting/panel, no home band,
+  no header entry; `/api/chat` returns 404 without a model call (verified
+  live against the production build). The panel code is split into an
+  on-demand chunk that the initial HTML never references.
+- **No categories band** — yes. `CategoryTiles` and the whole home feature
+  are deleted; categories live only in the header nav (المتجر · رجالي ·
+  حريمي · للجنسين · زيوت عطرية · الدور). Footer has no المتجر column.
+- **No slogan** — yes. The home h1 is visually hidden neutral text
+  ("Parfums De Foda | العطور"); metadata/JSON-LD/manifest rewritten
+  factually; `e2e/banned-copy.spec.ts` scans ten routes for banned stems.
+- **Footer without the two removed items** — yes. Brand tagline and the
+  contact-column note are gone (`.qa/clean/footer-1440.png`); the facts
+  stay on PDP/cart/checkout/shipping pages.
+- **Home starts with the grid** — yes. Header → 12 products → hairline
+  "عرض كل المنتجات" → footer (`.qa/clean/home-1440.png`).
 
 ## Not fixed / not done
 - `/dev/product-card` returns 404 under `next start` because `/dev/*` routes are

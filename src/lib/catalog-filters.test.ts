@@ -51,7 +51,12 @@ describe("parseCatalogState", () => {
   it("ignores a non-volume size and an unknown sort", () => {
     const state = parseCatalogState({ size: "كبير", sort: "cheapest" });
     expect(state.size).toEqual([]);
-    expect(state.sort).toBe("featured");
+    expect(state.sort).toBe("default");
+  });
+
+  it("silently ignores a legacy premium sort value", () => {
+    const state = parseCatalogState({ sort: "featured" });
+    expect(state.sort).toBe("default");
   });
 
   it("reads any volume label the data can carry, oil sizes included", () => {

@@ -18,6 +18,7 @@ import { imageSlug } from "@/lib/product-image";
 import { isComingSoon } from "@/lib/product-availability";
 import { categoryHref, CATEGORY_ROUTES } from "@/lib/site-nav";
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
 
 export interface ProductDetailLabels {
   breadcrumbHome: string;
@@ -61,6 +62,7 @@ export interface ProductDetailPageProps {
   shippingFee: string;
   whatsapp?: string;
   siteUrl: string;
+  features?: FeatureFlags;
 }
 
 /**
@@ -86,9 +88,10 @@ export function ProductDetailPage({
   shippingFee,
   whatsapp,
   siteUrl,
+  features,
 }: ProductDetailPageProps) {
   const comingSoon = isComingSoon(product);
-  const premium = isPremiumProduct(product);
+  const premium = isPremiumProduct(product, features);
   const metaParts = cardMetaParts(product, { premium });
   const notes = product.notes;
   const hasNotes = notes.top.length > 0 || notes.middle.length > 0 || notes.base.length > 0;
@@ -288,7 +291,7 @@ export function ProductDetailPage({
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             <CardSpotlight />
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} labels={cardLabels} />
+              <ProductCard key={item.id} product={item} labels={cardLabels} features={features} />
             ))}
           </div>
         </section>

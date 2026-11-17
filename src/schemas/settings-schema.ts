@@ -33,6 +33,11 @@ export const gridConfigSchema = z.object({
   mobile: z.number().int().min(1),
 });
 
+export const featureFlagsSchema = z.object({
+  premium: z.boolean().optional(),
+  assistant: z.boolean().optional(),
+}).strict();
+
 export const settingsSchema = z.object({
   store: storeConfigSchema,
   grid: gridConfigSchema,
@@ -44,8 +49,11 @@ export const settingsSchema = z.object({
    * no consumer. It stays in the schema so an existing `data/settings.json`
    * keeps validating; deleting the key from the file is also fine.
    */
-  heroProducts: z.array(z.string().min(1)).optional()
+  heroProducts: z.array(z.string().min(1)).optional(),
+  /** Optional feature toggles; absent means enabled. */
+  features: featureFlagsSchema.optional()
 });
 
 export type ShippingConfig = z.infer<typeof shippingConfigSchema>;
 export type SettingsFile = z.infer<typeof settingsSchema>;
+export type FeatureFlagsFile = z.infer<typeof featureFlagsSchema>;

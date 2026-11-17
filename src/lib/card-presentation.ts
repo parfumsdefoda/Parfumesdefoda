@@ -8,6 +8,8 @@
  */
 
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
+import { featureFlags } from "./features";
 import type { ProductForm } from "./product-vocabulary";
 import { concentrationLabel, publicTierLabel } from "./product-labels";
 import { isComingSoon, isUnavailableProduct } from "./product-availability";
@@ -38,7 +40,13 @@ export function hasPremiumInName(name: string): boolean {
  * Premium is a FRAME, not a badge: the gold ring replaces the old gold pill, so
  * the same flag can style a card, a PDP stage and (later) any other surface.
  */
-export function isPremiumProduct(product: Pick<Product, "featured">): boolean {
+export function isPremiumProduct(
+  product: Pick<Product, "featured">,
+  features?: FeatureFlags | null,
+): boolean {
+  // While the premium flag is off the classification renders nowhere.
+  // The owner's `is_featured` data itself is never touched.
+  if (!featureFlags({ features: features ?? undefined }).premium) return false;
   return product.featured === true;
 }
 

@@ -12,8 +12,9 @@ import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
 import { themeAttributes } from "@/lib/theme-runtime";
 import { SiteShell } from "@/features/layout";
+import { isAssistantEnabled } from "@/lib/features";
 import { DerivedImageFallback } from "@/components/derived-image-fallback";
-import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
+import { AssistantMount } from "@/features/chat-assistant/components/assistant-mount";
 import "./globals.css";
 
 /**
@@ -43,8 +44,8 @@ export const metadata: Metadata = {
     default: "Parfums De Foda",
     template: "%s | Parfums De Foda",
   },
-  description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
-  keywords: ["عطور", "عربية", "فاخرة", "بارفان", "مسك", "عود", "برفانات", "عطور أصلية"],
+  description: "عطور شرقية وغربية وزيوت عطرية بأحجام متعددة",
+  keywords: ["عطور", "عربية", "بارفان", "مسك", "عود", "برفانات", "زيوت عطرية"],
   authors: [{ name: "Parfums De Foda" }],
   robots: {
     index: true,
@@ -62,8 +63,8 @@ export const metadata: Metadata = {
     locale: "ar_AR",
     url: siteUrl,
     siteName: "Parfums De Foda",
-    title: "Parfums De Foda — عطور فاخرة",
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
+    title: "Parfums De Foda | العطور",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية والمسك والعود",
     images: [
       {
         // Social platforms do not render SVG — this is a real 1200x630 PNG
@@ -71,14 +72,14 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Parfums De Foda — عطور فاخرة",
+        alt: "Parfums De Foda | العطور",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Parfums De Foda — عطور فاخرة",
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
+    title: "Parfums De Foda | العطور",
+    description: "عطور شرقية وغربية وزيوت عطرية بأحجام متعددة",
     images: ["/og-image.png"],
   },
   // No site-wide canonical here: a root canonical is inherited by every page,
@@ -101,7 +102,7 @@ function JsonLd() {
     name: "Parfums De Foda",
     url: siteUrl,
     logo: `${siteUrl}/logos/logo.svg`,
-    description: "متجر عطور فاخرة — عطور عربية أصيلة بجودة استثنائية",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     address: {
       "@type": "PostalAddress",
       addressCountry: "EG",
@@ -118,7 +119,7 @@ function JsonLd() {
     "@type": "WebSite",
     name: "Parfums De Foda",
     url: siteUrl,
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     inLanguage: "ar",
     potentialAction: {
       "@type": "SearchAction",
@@ -135,7 +136,7 @@ function JsonLd() {
     "@type": "Store",
     name: "Parfums De Foda",
     url: siteUrl,
-    description: "متجر عطور فاخرة — عطور عربية أصيلة",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     priceRange: "$$",
     openingHours: "Mo-Su 09:00-23:00",
     areaServed: {
@@ -202,10 +203,6 @@ export default async function RootLayout({
   const headerNav = buildPrimaryNav(genderCounts(products), navLabels, {
     hasOil: products.some((product) => product.oily),
   });
-  headerNav.push({
-    label: t(localeMessages, "nav.featured", "عطور مميزة"),
-    href: "/shop?sort=featured",
-  });
   const cartCatalogue: CartCatalogProduct[] = products.map((product) => ({
     id: product.id,
     slug: product.slug,
@@ -224,13 +221,10 @@ export default async function RootLayout({
       href: `/shop?tier=${encodeURIComponent(house)}`,
     }));
 
-  /* Footer columns: the shop routes, the three help routes, and contact — the
-     contact column itself is rendered from data/contact.json by the footer. */
+  /* Footer columns: the help routes and contact — categories live only in
+     the header navigation, so the footer carries no shop column. The contact
+     column itself is rendered from data/contact.json by the footer. */
   const footerColumns = [
-    {
-      title: t(localeMessages, "footer.shopTitle", "المتجر"),
-      links: headerNav.map((link) => ({ label: link.label, href: link.href })),
-    },
     {
       title: t(localeMessages, "footer.helpTitle", "المساعدة"),
       links: [
@@ -392,7 +386,6 @@ export default async function RootLayout({
               description: settings.footer.description,
               columns: footerColumns,
               contact: settings.contact,
-              note: footerNote,
               contactTitle: t(
                 localeMessages,
                 "footer.contactTitle",
@@ -412,7 +405,8 @@ export default async function RootLayout({
               Nothing floats on the page: the header, the hero and the homepage
               band open it through the advisor bus. Wrapped in its own error
               boundary so a failure here never takes down the rest of the site. */}
-          <ChatAssistant
+          <AssistantMount
+            enabled={isAssistantEnabled(settings)}
             labels={{
               title: t(localeMessages, "advisor.title", "مساعد الذوق"),
               close: t(localeMessages, "advisor.close", "إغلاق"),

@@ -73,32 +73,17 @@ test.describe("product page", () => {
     expect(geometry.stagePaintsPaper).toBe(true);
   });
 
-  test("premium products carry the premium meta line, not the old frame", async ({ page }) => {
+  test("premium treatment is off on the PDP (the product name is owner data)", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/product/pf240");
 
-    // The inset frame is gone from the gallery; the premium word now lives in
-    // the meta line above the title, drawn in gold-700 with a diamond glyph.
+    // The product NAME still contains "(فاخر)" — owner data, never edited —
+    // but while the premium flag is off the page carries no premium frame,
+    // no premium stage and no gold meta word.
     await expect(page.locator("[data-premium-frame]")).toHaveCount(0);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("(فاخر)");
-
-    const meta = await page.locator("main h1").evaluate((heading) => {
-      const line = heading.previousElementSibling as HTMLElement | null;
-      if (!line) return null;
-      const first = line.querySelector("span > span") as HTMLElement | null;
-      return {
-        text: line.textContent?.replace(/\s+/g, " ").trim() ?? "",
-        firstColour: first ? getComputedStyle(first).color : "",
-        diamond: first ? first.querySelectorAll("svg").length : 0,
-        visible: line.getBoundingClientRect().width > 0,
-      };
-    });
-
-    expect(meta).not.toBeNull();
-    expect(meta!.visible).toBe(true);
-    expect(meta!.text.replace(/\s/g, "")).toBe("فاخر·نيش·شرقي");
-    expect(meta!.firstColour).toBe("rgb(122, 90, 18)");
-    expect(meta!.diamond).toBe(1);
+    await expect(page.locator("[data-premium-badge]")).toHaveCount(0);
+    await expect(page.locator("main").getByText("فاخر", { exact: true })).toHaveCount(0);
+    await expect(page.locator("[data-premium-stage]")).toHaveCount(0);
   });
 
   test("similar perfumes use the hairline grid and the accordion hairlines", async ({ page }) => {

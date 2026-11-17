@@ -42,19 +42,22 @@ async function completeCheckout(page: Page) {
 }
 
 test.describe("production storefront and checkout", () => {
-  test("home has a single heading, a product-free intro, categories and best sellers", async ({ page }) => {
+  test("home is header, grid, view-all row — no intro, categories, advisor or claim", async ({ page }) => {
     // networkidle: the catalogue's first row is laid out with its derived images;
     // measuring scrollWidth during that first layout pass reports a phantom
     // horizontal overflow.
     await page.goto("/", { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("h1")).toHaveCount(1);
-    // The hero is gone: one intro bar with the h1 and the way into /shop.
-    await expect(page.locator("section[aria-labelledby='home-intro']")).toBeVisible();
-    await expect(page.getByRole("link", { name: "عرض الكل" })).toHaveAttribute("href", "/shop");
-    await expect(page.locator("section[aria-labelledby='home-intro'] img")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toBeVisible();
+    await expect(page.locator("h1")).toHaveText("Parfums De Foda | العطور");
+    // RUN 1.5: the intro bar, the "الأكثر مبيعًا" claim, the categories band
+    // and the advisor band are gone; the grid is the page.
+    await expect(page.locator("section[aria-labelledby='home-intro']")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toHaveCount(0);
+    await expect(page.locator("[data-category-tiles], [data-advisor-band]")).toHaveCount(0);
+    await expect(page.locator("section[aria-label] [data-card]")).toHaveCount(12);
+    await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   });
 
@@ -306,7 +309,7 @@ test.describe("production storefront and checkout", () => {
     const page = await context.newPage();
     await page.goto("/");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("link", { name: "عرض الكل" })).toHaveAttribute("href", "/shop");
+    await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     await page.goto("/shop");
     await expect(page.locator("h1")).toBeVisible();
     await page.goto("/product/pf090");
@@ -361,10 +364,9 @@ test.describe("production storefront and checkout", () => {
       await expect(page).toHaveScreenshot(`${name}.png`, {
         animations: "disabled",
         fullPage: true,
-        // Footer and the floating advisor are chrome, not page content: the
-        // launcher sits above the grid and would otherwise depend on the
-        // viewport rather than on the page being captured.
-        mask: [page.locator("footer"), page.locator("[data-advisor-launcher]")],
+        // The footer is chrome, not page content: it would otherwise depend
+        // on the viewport rather than on the page being captured.
+        mask: [page.locator("footer")],
         maxDiffPixelRatio: 0.015,
       });
     }

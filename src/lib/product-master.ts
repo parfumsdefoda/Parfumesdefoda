@@ -680,6 +680,11 @@ export interface MasterPlanOptions {
    * products are never deleted.
    */
   hideAbsent?: boolean | string[];
+  /**
+   * Only these slugs (case-insensitive) are applied. The change REPORT stays
+   * complete, but every other row is left untouched and never created/hidden.
+   */
+  only?: readonly string[];
 }
 
 /** A non-blocking remark: the row is still imported. */
@@ -818,6 +823,13 @@ export function planMasterImport(
     };
   }
 
+  const only = options.only && options.only.length > 0
+    ? new Set(options.only.map((slug) => slug.trim().toLowerCase()))
+    : null;
+  const appliedEntries = only
+    ? file.entries.filter((entry) => only.has(entry.row.slug.trim().toLowerCase()))
+    : file.entries;
+
   const report = mergePass(products, file.entries, ALL_GROUPS, {
     createMissing,
     imageExists: options.imageExists,
@@ -836,7 +848,7 @@ export function planMasterImport(
   const applied =
     mode === "dry-run"
       ? { products }
-      : mergePass(products, file.entries, allowed, {
+      : mergePass(products, appliedEntries, allowed, {
           createMissing,
           imageExists: options.imageExists,
           photos: options.photos,
@@ -859,7 +871,13 @@ export function planMasterImport(
       : Array.isArray(hideScope)
         ? absentFromMaster.filter((slug) => hideScope.includes(slug))
         : [];
-  const hiddenByAbsence = [...new Set(requested)];
+  const hiddenByAbsence = [
+    ...new Set(
+      only
+        ? requested.filter((slug) => only.has(slug.trim().toLowerCase()))
+        : requested,
+    ),
+  ];
   const hiddenSet = new Set(hiddenByAbsence);
   // A product whose own photo file is gone cannot be sold or shown truthfully:
   // it is hidden (never deleted) and reported, so the owner either restores the
@@ -867,7 +885,12 @@ export function planMasterImport(
   const photos = options.photos;
   const hiddenByMissingPhoto = photos
     ? afterImport
-        .filter((product) => !product.hidden && !hasPhotoFile(product.image, photos))
+        .filter(
+          (product) =>
+            !product.hidden &&
+            (!only || only.has(product.slug.trim().toLowerCase())) &&
+            !hasPhotoFile(product.image, photos),
+        )
         .map((product) => product.slug)
     : [];
   const photoHiddenSet = new Set(hiddenByMissingPhoto);

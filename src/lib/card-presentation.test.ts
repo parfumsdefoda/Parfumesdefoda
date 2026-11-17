@@ -101,6 +101,13 @@ describe("isPremiumProduct", () => {
     expect(isPremiumProduct({ featured: true })).toBe(true);
     expect(isPremiumProduct({ featured: false })).toBe(false);
   });
+
+  it("returns false while the premium flag is off (data untouched)", () => {
+    expect(isPremiumProduct({ featured: true }, { premium: false })).toBe(false);
+    expect(isPremiumProduct({ featured: true }, { premium: true })).toBe(true);
+    expect(isPremiumProduct({ featured: true }, {})).toBe(true);
+    expect(isPremiumProduct({ featured: true }, null)).toBe(true);
+  });
 });
 
 // ─── Price ──────────────────────────────────────────────────────────────────

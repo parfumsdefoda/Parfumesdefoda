@@ -18,6 +18,7 @@
  *   npm run master:import
  *   npm run master:import -- --apply
  *   npm run master:import -- --apply --sync-commerce
+ *   npm run master:import -- --only=pf630 --apply --sync-commerce
  */
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -54,6 +55,11 @@ const hideAbsent =
           .map((value) => value.trim())
           .filter(Boolean)
       : undefined;
+const onlyArg = args.find((arg) => arg.startsWith("--only="));
+/** `--only=slug[,slug...]` applies only those rows; everything else is reported and left untouched. */
+const only = onlyArg
+  ? onlyArg.slice("--only=".length).split(",").map((value) => value.trim()).filter(Boolean)
+  : undefined;
 const fileArg = args.find((arg) => arg.startsWith("--file="));
 const csvPath = path.resolve(ROOT, fileArg ? fileArg.slice("--file=".length) : DEFAULT_CSV);
 
@@ -131,6 +137,7 @@ async function main() {
     hideAbsent,
     photos,
     imageExists: photos.imageExists,
+    ...(only ? { only } : {}),
   });
 
   console.log(`\n═══ product-master → products.json (${mode}) ═══`);

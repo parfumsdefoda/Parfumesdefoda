@@ -49,6 +49,7 @@ const defaultSettings: FullSettings = {
   social: {},
   navigation: [],
   footer: { description: "", columns: [] },
+  features: { premium: true, assistant: true },
 };
 
 /**

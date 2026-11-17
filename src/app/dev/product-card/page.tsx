@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/features/products";
+import { loadFullSettings } from "@/services/settings";
+import { isPremiumEnabled } from "@/lib/features";
 import type { Product, ProductSize } from "@/types";
 
 /**
@@ -161,8 +163,15 @@ const STATES: { label: string; product: Product }[] = [
   },
 ];
 
-export default function DevProductCardPage() {
+export default async function DevProductCardPage() {
   if (process.env.NODE_ENV === "production") notFound();
+
+  const settings = await loadFullSettings();
+  const premiumEnabled = isPremiumEnabled(settings);
+  // While the premium flag is off, the premium states are hidden entirely.
+  const states = premiumEnabled
+    ? STATES
+    : STATES.filter(({ product }) => !product.featured);
 
   return (
     <main className="container mx-auto px-4 py-16">
@@ -172,9 +181,9 @@ export default function DevProductCardPage() {
       </p>
 
       <div className="grid grid-cols-2 gap-[var(--space-6)] sm:grid-cols-3 xl:grid-cols-4">
-        {STATES.map(({ label, product }) => (
+        {states.map(({ label, product }) => (
           <div key={product.id} className="flex flex-col gap-2">
-            <ProductCard product={product} loading="eager" />
+            <ProductCard product={product} loading="eager" features={settings.features} />
             <p className="text-caption text-[var(--color-text-muted)]">{label}</p>
           </div>
         ))}

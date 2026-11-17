@@ -10,6 +10,7 @@ import {
   type CatalogControlsLabels,
 } from "./catalog-controls";
 import type { FilterKey } from "@/lib/catalog-filters";
+import type { FeatureFlags } from "@/types/services";
 
 export interface CatalogSectionLabels {
   /** Visually hidden heading for the catalogue section. */
@@ -27,6 +28,7 @@ export interface CatalogSectionProps {
   labels: CatalogSectionLabels;
   /** Filter groups the route owns (a category page pins gender). */
   lockedKeys?: readonly FilterKey[];
+  features?: FeatureFlags;
 }
 
 /**
@@ -43,6 +45,7 @@ export function CatalogSection({
   controlsLabels,
   labels,
   lockedKeys,
+  features,
 }: CatalogSectionProps) {
   return (
     <section className="container mx-auto px-4 pb-[var(--space-section)]">
@@ -76,6 +79,7 @@ export function CatalogSection({
           products={view.products}
           columns={columns}
           labels={cardLabels}
+          features={features}
         />
       )}
     </section>

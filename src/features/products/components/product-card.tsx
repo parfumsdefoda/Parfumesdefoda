@@ -13,6 +13,7 @@ import {
 } from "@/lib/card-presentation";
 import { buildProductImageSources, hasTransparentCutout } from "@/lib/product-image";
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -61,6 +62,8 @@ export interface ProductCardProps {
   deferred?: boolean;
   labels?: Partial<ProductCardLabels>;
   className?: string;
+  /** Premium (فاخر) treatment is rendered only while the feature flag is on. */
+  features?: FeatureFlags;
 }
 
 // ─── Image sizes ────────────────────────────────────────────────────────────
@@ -104,13 +107,14 @@ export function ProductCard({
   deferred = false,
   labels,
   className,
+  features,
 }: ProductCardProps) {
   const copy = { ...DEFAULT_CARD_LABELS, ...labels };
   const badge = cardBadge(product);
   const comingSoon = badge === "coming-soon";
   const outOfStock = badge === "out-of-stock";
   const hasImage = hasProductImage(product);
-  const premium = isPremiumProduct(product);
+  const premium = isPremiumProduct(product, features);
   const price = comingSoon ? null : cardPrice(product, copy.from);
   const href = product.slug ? `/product/${product.slug}` : null;
   const photo = photoClassOf(product);

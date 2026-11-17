@@ -797,6 +797,41 @@ describe("planMasterImport — oil", () => {
   });
 });
 
+describe("planMasterImport — --only", () => {
+  const two = [
+    makeProduct(),
+    makeProduct({ slug: "pf002", sku: "PF002", id: "PF002", name: "عطر آخر" }),
+  ];
+  const twoCsv = csv([
+    "slug,name_ar,price_50",
+    "pf001,اسم أول,700",
+    "pf002,اسم ثاني,800",
+  ]);
+
+  it("applies only the requested slug and reports the rest untouched", () => {
+    const plan = planMasterImport(two, twoCsv, {
+      mode: "sync-commerce",
+      only: ["PF001"],
+    });
+
+    expect(plan.products.find((p) => p.slug === "pf001")?.name).toBe("اسم أول");
+    expect(plan.products.find((p) => p.slug === "pf002")?.name).toBe("عطر آخر");
+    expect(
+      plan.products.find((p) => p.slug === "pf002")?.sizes.find((s) => s.label === "50 مل")?.price,
+    ).toBe(500);
+    // The report still shows every change in the file.
+    expect(plan.changes.some((c) => c.slug === "pf002")).toBe(true);
+  });
+
+  it("ignores unknown slugs silently under --only", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,name_ar", "pf001,اسم"]), {
+      mode: "sync-commerce",
+      only: ["pf999"],
+    });
+    expect(plan.products[0].name).toBe("عطر تجريبي");
+  });
+});
+
 // ─── Reports ────────────────────────────────────────────────────────────────
 
 describe("planMasterImport — reports", () => {

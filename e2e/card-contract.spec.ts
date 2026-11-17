@@ -112,88 +112,18 @@ test.describe("gallery card", () => {
     expect(after.price).toEqual(before.price);
   });
 
-  test("premium cells wear the gradient shell, glow and full-width CTA", async ({ page }) => {
+  test("premium treatment is absent while the flag is off", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop");
 
-    const premium = page.locator("[data-card]:has([data-premium-badge])").first();
-    await expect(premium).toBeVisible();
-
-    // The old inset frame and its diamond line are gone for good.
+    // `features.premium` is off in data/settings.json: no badge, no gold
+    // shell, no premium hover and no premium meta — every card is regular.
+    await expect(page.locator("[data-premium-badge]")).toHaveCount(0);
     await expect(page.locator("[data-premium-frame]")).toHaveCount(0);
-    await expect(premium.getByText("◆", { exact: false })).toHaveCount(0);
-
-    const badge = premium.locator("[data-premium-badge]");
-    await expect(badge).toBeVisible();
-    await expect(badge).toHaveText("فاخر");
-    await expect(badge.locator("svg")).toHaveCount(1);
-
-    const shell = await premium.evaluate((el) => {
-      const inner = el.firstElementChild as HTMLElement;
-      const style = getComputedStyle(el);
-      const innerStyle = getComputedStyle(inner);
-      return {
-        radius: style.borderTopLeftRadius,
-        padding: style.paddingTop,
-        gradient: style.backgroundImage,
-        shadow: style.boxShadow,
-        innerRadius: innerStyle.borderTopLeftRadius,
-        innerWidth: inner.getBoundingClientRect().width,
-      };
-    });
-
-    expect(shell.radius).toBe("16px");
-    expect(shell.padding).toBe("2px");
-    expect(shell.gradient).toContain("linear-gradient");
-    expect(shell.shadow).not.toBe("none");
-    expect(shell.innerRadius).toBe("14px");
-
-    // The CTA is visible from the start, ink/gold, and inset only by the text
-    // block's 14px padding — i.e. effectively full width.
-    const cta = premium.getByRole("button", { name: /أضف إلى السلة/ });
-    await expect(cta).toBeVisible();
-    const button = await cta.evaluate((el) => {
-      const style = getComputedStyle(el);
-      return {
-        width: el.getBoundingClientRect().width,
-        height: el.getBoundingClientRect().height,
-        background: style.backgroundColor,
-        colour: style.color,
-      };
-    });
-    // 14px padding on each side plus the inner card's 1px border.
-    expect(button.width).toBeCloseTo(shell.innerWidth - 30, 0);
-    expect(button.height).toBeGreaterThanOrEqual(43);
-    expect(button.background).toBe("rgb(22, 18, 14)");
-    expect(button.colour).toBe("rgb(232, 199, 102)");
-
-    // The shell stays still under reduced motion, but the glow still deepens.
-    await premium.hover();
-    await page.waitForTimeout(250);
-    const hovered = await premium.evaluate((el) => ({
-      shadow: getComputedStyle(el).boxShadow,
-      transform: getComputedStyle(el).transform,
-    }));
-    expect(hovered.shadow).not.toBe(shell.shadow);
-    expect(hovered.transform).toBe("none");
-
-    // A premium cell never grows its row: it matches the regular cells beside it.
-    const rows = await page.locator("[data-card]").evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const box = node.getBoundingClientRect();
-        return {
-          top: Math.round(box.top),
-          height: Math.round(box.height),
-          premium: Boolean(node.querySelector("[data-premium-badge]")),
-        };
-      }),
+    await expect(page.locator("[data-card].pf-gold-surface")).toHaveCount(0);
+    const badges = await page.locator("[data-card]").evaluateAll((nodes) =>
+      nodes.map((node) => node.querySelector("[data-premium-badge]") !== null),
     );
-    const target = rows.find((row) => row.premium);
-    expect(target).toBeDefined();
-    const sameRow = rows.filter((row) => Math.abs(row.top - target!.top) <= 2);
-    expect(sameRow.some((row) => !row.premium)).toBe(true);
-    for (const row of sameRow) {
-      expect(Math.abs(row.height - target!.height), "row height").toBeLessThanOrEqual(1);
-    }
+    expect(badges.every((value) => value === false)).toBe(true);
   });
 });

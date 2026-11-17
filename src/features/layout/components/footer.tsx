@@ -98,7 +98,7 @@ export function Footer({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {/* Brand */}
             <div className="flex flex-col gap-3">
               <p className="text-body font-bold">{storeName}</p>

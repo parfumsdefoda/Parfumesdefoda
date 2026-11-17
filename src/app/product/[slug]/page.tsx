@@ -154,6 +154,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         related={related.products}
         relatedIsAlternatives={related.variant === "alternatives"}
         siteUrl={siteUrl}
+        features={settings.features}
         categoryLabel={categoryLabel}
         shippingFee={shippingFee}
         whatsapp={settings.contact.whatsapp || undefined}

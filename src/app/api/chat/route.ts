@@ -70,6 +70,15 @@ Never include product codes that are not in the catalog provided below.
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  // While the assistant feature is off, this endpoint does not exist: it
+  // returns 404 before the body is read, so no model is called and no
+  // shopper text is ever logged or stored.
+  const { loadFullSettings } = await import("@/services/settings");
+  const { isAssistantEnabled } = await import("@/lib/features");
+  if (!isAssistantEnabled(await loadFullSettings())) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   // A third-party page must not be able to spend the store's AI credits (or
   // probe the assistant) on a visitor's behalf. Same guard as /api/orders.
   if (!isSameOriginRequest(request)) {

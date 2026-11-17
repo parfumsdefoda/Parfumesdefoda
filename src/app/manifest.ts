@@ -18,7 +18,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   return {
     name: "Parfums De Foda",
     short_name: "PDF",
-    description: "عطور فاخرة — Parfums De Foda",
+    description: "عطور شرقية وغربية وزيوت عطرية — Parfums De Foda",
     lang: "ar",
     dir: "rtl",
     start_url: "/",

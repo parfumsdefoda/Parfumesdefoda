@@ -25,6 +25,7 @@ export async function loadFullSettings(): Promise<FullSettings> {
     social: {},
     navigation: [],
     footer: { description: "", columns: [] },
+    features: { premium: true, assistant: true },
   };
 
   try {
@@ -76,6 +77,7 @@ export async function loadFullSettings(): Promise<FullSettings> {
             }))
           : defaults.footer.columns,
       },
+      features: (settings.features as FullSettings["features"]) ?? { premium: true, assistant: true },
     };
   } catch {
     return defaults;

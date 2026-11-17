@@ -310,10 +310,11 @@ describe("buildFacets", () => {
 // ─── View ───────────────────────────────────────────────────────────────────
 
 describe("buildCatalogView", () => {
-  it("puts featured first and sold-out / coming-soon last", () => {
+  it("keeps the master order and puts sold-out / coming-soon last", () => {
     const view = buildCatalogView(CATALOGUE, state());
     expect(view.total).toBe(6);
-    expect(view.products[0].id).toBe("amwag");
+    // The default sort is the owner's catalogue order; featured never ranks.
+    expect(view.products[0].id).toBe("african");
     expect(view.products.slice(-2).map((p) => p.id)).toEqual(["sold-out", "coming"]);
   });
 

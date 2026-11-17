@@ -83,6 +83,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         cardLabels={buildCardLabels(locale)}
         controlsLabels={buildControlsLabels(locale)}
         labels={buildSectionLabels(locale)}
+        features={settings.features}
       />
     </div>
   );

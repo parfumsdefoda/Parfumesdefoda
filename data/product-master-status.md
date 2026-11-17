@@ -1,6 +1,6 @@
 # حالة ملف المنتجات الرئيسي / Product master status
 
-آخر تحديث / generated: 2026-11-07
+آخر تحديث / generated: 2026-11-17
 
 | الحقل / field | مكتمل / filled | الإجمالي / total | النسبة / share |
 | --- | ---: | ---: | ---: |

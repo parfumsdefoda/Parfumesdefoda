@@ -64,7 +64,7 @@ export interface CatalogState {
   q: string;
 }
 
-export const DEFAULT_SORT: SortOption = "featured";
+export const DEFAULT_SORT: SortOption = "default";
 
 /** The URL state of an untouched catalogue. */
 export const EMPTY_CATALOG_STATE: CatalogState = {
@@ -93,7 +93,7 @@ const ALLOWED: Record<Exclude<FilterKey, "size">, readonly string[]> = {
   performance: PERFORMANCES,
 };
 
-const SORT_OPTIONS: readonly SortOption[] = ["featured", "price-asc", "price-desc", "alphabetical"];
+const SORT_OPTIONS: readonly SortOption[] = ["default", "price-asc", "price-desc", "alphabetical"];
 
 /** Longest search query we keep — a URL is not a text field. */
 export const MAX_QUERY_LENGTH = 80;

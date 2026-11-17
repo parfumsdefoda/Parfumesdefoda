@@ -82,7 +82,8 @@ test.describe("single-row header", () => {
       expect(g.background, `${width}px background`).toBe("rgb(255, 255, 255)");
       expect(g.borderBottom, `${width}px border`).toBe("1px");
       expect(g.brand).toBe("PARFUMS DE FODA");
-      expect(g.links, `${width}px nav links`).toBe(6);
+      // Five links since RUN 1.5 removed the featured (عطور مميزة) entry.
+      expect(g.links, `${width}px nav links`).toBe(5);
       expect(g.houses, `${width}px houses menu`).toBe(1);
 
       // RTL: the logo is at the inline start (right), the actions at the end

@@ -4,6 +4,7 @@ import { hasProductImage } from "@/lib/card-presentation";
 import { orderForCatalog } from "@/lib/catalog-order";
 import type { GridColumns } from "@/lib/grid-columns";
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
 
 export interface ProductGridProps {
   /** Products to display, already filtered and sorted. */
@@ -15,6 +16,7 @@ export interface ProductGridProps {
   columns?: GridColumns;
   labels?: Partial<ProductCardLabels>;
   className?: string;
+  features?: FeatureFlags;
 }
 
 /**
@@ -54,6 +56,7 @@ export function ProductGrid({
   columns = DEFAULT_COLUMNS,
   labels,
   className,
+  features,
 }: ProductGridProps) {
   const ordered = orderForCatalog(products);
   // The first card is the mobile LCP element on a catalogue page. It is already
@@ -88,6 +91,7 @@ export function ProductGrid({
           key={product.id}
           product={product}
           labels={labels}
+          features={features}
           // Above-the-fold images: the first row ships with the derived assets
           // and high fetch priority. Everything after stays lazy so a
           // 40-product grid does not fetch 40 images.

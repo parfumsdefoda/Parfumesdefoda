@@ -126,6 +126,7 @@ export default async function CategoryPage({
         controlsLabels={buildControlsLabels(locale)}
         labels={buildSectionLabels(locale)}
         lockedKeys={["gender"]}
+        features={settings.features}
       />
     </div>
   );

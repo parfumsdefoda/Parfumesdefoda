@@ -1,14 +1,3 @@
-Derived photos without alpha that cannot be normalised onto white.
-They stay `cover` until the owner supplies a cut-out.
-
-pf090	/products/PF090.png	gradient	backdrop #c4bfbd	lightness 0.527	variance 84.2
-pf290	/products/PF290.png	gradient	backdrop #0e0b02	lightness 0.003	variance 75.3
-pf480	/products/PF480.png	gradient	backdrop #23070a	lightness 0.005	variance 25.2
-pf570	/products/PF570.png	gradient	backdrop #48583a	lightness 0.087	variance 46.7
-pf571	/products/PF571.png	gradient	backdrop #0f0e0d	lightness 0.004	variance 28.5
-pf572	/products/PF572.png	gradient	backdrop #d9d7d1	lightness 0.680	variance 59.5
-pf600	/products/PF600.png	gradient	backdrop #77542a	lightness 0.104	variance 53.6
-pf630	/products/PF630.png	gradient	backdrop #48634c	lightness 0.108	variance 29.6
-pf680	/products/PF680.png	gradient	backdrop #e9e9e9	lightness 0.815	variance 9.9
-pf700	/products/PF700.png	gradient	backdrop #d8aead	lightness 0.479	variance 52.2
-pf720	/products/PF720.png	gradient	backdrop #6a90a9	lightness 0.259	variance 52.6
+# Products whose photo cannot be normalised automatically.
+# Give each one a transparent PNG/WebP cut-out at the same file path,
+# then run: npm run build:images -- --slug=<slug> --force
