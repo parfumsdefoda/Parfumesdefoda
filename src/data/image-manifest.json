@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-17T23:30:50.403Z",
+  "generatedAt": "2026-11-18T22:47:50.234Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -1110,11 +1110,11 @@
     },
     "pf390": {
       "source": "/products/PF390.webp",
-      "sourceHash": "d837879235efd9077e8b25561a293cb5c0dd35bf33c5d247ac76ab50f1335446",
+      "sourceHash": "310f26f51dbda7affa62440630b806ae6a61827a53cb6e568b59c24f78537053",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2125,
+      "canvas": 756,
       "files": [
         {
           "w": 400,
@@ -1226,11 +1226,11 @@
     },
     "pf430": {
       "source": "/products/PF430.webp",
-      "sourceHash": "89e1884e186968af34aaab80a7ca84eea5b0e13ed318622f6a49a4420fac47c5",
+      "sourceHash": "8393294651234c1d50998374d55edd15682bb182e9759730cf91656abed02481",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2103,
+      "canvas": 578,
       "files": [
         {
           "w": 400,
@@ -1704,29 +1704,30 @@
     },
     "pf600": {
       "source": "/products/PF600.webp",
-      "sourceHash": "ee8a68036f191f7a82ec94c721c79659d3c99ea5a4c065e97dcdc8a41992896b",
-      "background": "coloured",
-      "mode": "framed",
+      "sourceHash": "0d38ab6d7cbc62e52954d986dec7d75fc4cba3b047fa4110200a5d41b1b8789b",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 650,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf600/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf600/framed-400.webp"
+          "avif": "/products/derived/pf600/card-400.avif",
+          "webp": "/products/derived/pf600/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf600/framed-800.avif",
-          "h": 534,
-          "webp": "/products/derived/pf600/framed-800.webp"
+          "avif": "/products/derived/pf600/card-800.avif",
+          "webp": "/products/derived/pf600/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf600/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf600/framed-1200.webp"
+          "avif": "/products/derived/pf600/pdp-1200.avif",
+          "webp": "/products/derived/pf600/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf600/pdp-2000.webp"
         }
       ]
     },
@@ -1877,11 +1878,11 @@
     },
     "pf660": {
       "source": "/products/PF660.webp",
-      "sourceHash": "ba02e8396f299027b30a5a4ffbde9d4f52ef5904ae568ab8ccd9738b66a0c202",
-      "background": "pure-white",
+      "sourceHash": "db85647473db754675e14e51bc9a1f24c28ad69124d19fc9cf5e978b82064b78",
+      "background": "transparent",
       "mode": "cutout",
-      "blend": "multiply",
-      "canvas": 2078,
+      "blend": "normal",
+      "canvas": 1422,
       "files": [
         {
           "w": 400,
@@ -1934,29 +1935,30 @@
     },
     "pf700": {
       "source": "/products/PF700.webp",
-      "sourceHash": "a75d8b5071553ec9249658faad85bd068a897aea3cbf1fb0c4e7ffb60185f4ea",
-      "background": "coloured",
-      "mode": "framed",
+      "sourceHash": "47aa8affc6f35775334a61f946acfb8f50c3a19cdb06b57a450339089c716ed3",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 631,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf700/framed-400.avif",
-          "h": 500,
-          "webp": "/products/derived/pf700/framed-400.webp"
+          "avif": "/products/derived/pf700/card-400.avif",
+          "webp": "/products/derived/pf700/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf700/framed-800.avif",
-          "h": 1000,
-          "webp": "/products/derived/pf700/framed-800.webp"
+          "avif": "/products/derived/pf700/card-800.avif",
+          "webp": "/products/derived/pf700/card-800.webp"
         },
         {
-          "w": 1080,
-          "avif": "/products/derived/pf700/framed-1200.avif",
-          "h": 1350,
-          "webp": "/products/derived/pf700/framed-1200.webp"
+          "w": 1200,
+          "avif": "/products/derived/pf700/pdp-1200.avif",
+          "webp": "/products/derived/pf700/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf700/pdp-2000.webp"
         }
       ]
     },

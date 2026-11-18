@@ -65,7 +65,7 @@ export function Breadcrumbs({
               ) : (
                 <span
                   aria-current={last ? "page" : undefined}
-                  className="font-medium text-[var(--ink)]"
+                  className="block max-w-[140px] truncate font-medium text-[var(--ink)] sm:max-w-[320px]"
                 >
                   {item.label}
                 </span>

@@ -3,10 +3,11 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * The single-row header.
  *
- * 76px on white, sticky, one palette: logo at the inline start, the links in
- * the centre and search/cart/WhatsApp at the inline end. The suite runs with
- * `reducedMotion: "reduce"` globally (playwright.config.ts), so the tests that
- * are ABOUT motion opt back in with `emulateMedia`.
+ * RUN 1.6: below 1024px 76px (logo inline-start, tools inline-end); from
+ * 1024px ONE 64px row, nav inline-start, logo dead-centre, tools inline-end.
+ * The suite runs with `reducedMotion: "reduce"` globally
+ * (playwright.config.ts), so the tests that are ABOUT motion opt back in
+ * with `emulateMedia`.
  */
 
 const MENU = "القائمة";
@@ -37,7 +38,7 @@ test.describe("single-row header", () => {
 
 
 
-  test("is one 76px sticky row with no overlap from 1024 to 1440", async ({ page }) => {
+  test("is one 64px row, logo centred, no overlap from 1024 to 1440 (RUN 1.6)", async ({ page }) => {
     test.setTimeout(90_000);
     for (const width of [1024, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -47,61 +48,72 @@ test.describe("single-row header", () => {
       await expect(header).toHaveCount(1);
       const g = await header.evaluate((el) => {
         const nav = el.querySelector("nav") as HTMLElement;
-        const logo = el.querySelector("a[aria-label]") as HTMLElement;
-        const actions = nav.parentElement?.lastElementChild as HTMLElement;
+        const logos = el.querySelectorAll('a[aria-label="Parfums De Foda"]');
+        const logo = logos[1] ?? logos[0];
         const brand = logo.lastElementChild as HTMLElement;
-        const whatsapp = el.querySelector('a[href*="wa.me"]') as HTMLElement;
+        const whatsapp = Array.from(el.querySelectorAll('a[href*="wa.me"]')).find(
+          (n) => getComputedStyle(n).display !== "none",
+        ) as HTMLElement;
         const box = (node: Element) => node.getBoundingClientRect();
         const style = getComputedStyle(el);
+        // Bounding-box intersection check over the visible header children.
+        const overlap = (a: Element, b: Element) => {
+          const x = box(a), y = box(b);
+          return Math.max(0, Math.min(x.right, y.right) - Math.max(x.left, y.left)) > 1 &&
+            Math.max(0, Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top)) > 1;
+        };
+        const kids = Array.from(el.querySelectorAll("nav, a, button")).filter(
+          (n) => getComputedStyle(n).display !== "none",
+        );
+        let overlaps = 0;
+        for (let i = 0; i < kids.length; i += 1) {
+          for (let j = i + 1; j < kids.length; j += 1) {
+            if (kids[i].contains(kids[j]) || kids[j].contains(kids[i])) continue;
+            if (overlap(kids[i], kids[j])) overlaps += 1;
+          }
+        }
         return {
           height: box(el).height,
-          rowHeight: (el.firstElementChild as HTMLElement).getBoundingClientRect().height,
           position: style.position,
           background: style.backgroundColor,
           borderBottom: style.borderBottomWidth,
-          logoStart: box(logo).left,
-          navEnd: box(nav).right,
-          navStart: box(nav).left,
-          actionsEnd: box(actions).right,
+          logoCenter: box(logo).left + box(logo).width / 2,
+          viewportCenter: innerWidth / 2,
           navGap: getComputedStyle(nav).columnGap,
           brandSize: getComputedStyle(brand).fontSize,
           brandTracking: getComputedStyle(brand).letterSpacing,
           whatsappWidth: box(whatsapp).width,
-          links: nav.querySelectorAll("a").length,
-          houses: Array.from(nav.querySelectorAll("button")).filter((b) =>
-            b.textContent?.includes("الدور"),
-          ).length,
-          brand: brand.textContent?.trim(),
+          whatsappBg: getComputedStyle(whatsapp).backgroundColor,
+          whatsappColor: getComputedStyle(whatsapp).color,
+          whatsappRadius: getComputedStyle(whatsapp).borderRadius,
+          whatsappHeight: box(whatsapp).height,
+          links: Array.from(nav.querySelectorAll("a")).map((a) => a.textContent?.trim()),
+          houses: nav.querySelectorAll("button").length,
+          overlaps,
         };
       });
 
-      expect(g.height, `${width}px header height`).toBe(76);
-      // The 1px bottom border sits inside the 76px box; the row fills the rest.
-      expect(g.rowHeight, `${width}px row height`).toBe(g.height - 1);
+      expect(g.height, `${width}px header height`).toBe(64);
       expect(g.position, `${width}px position`).toBe("sticky");
       expect(g.background, `${width}px background`).toBe("rgb(255, 255, 255)");
       expect(g.borderBottom, `${width}px border`).toBe("1px");
-      expect(g.brand).toBe("PARFUMS DE FODA");
-      // Five links since RUN 1.5 removed the featured (عطور مميزة) entry.
-      expect(g.links, `${width}px nav links`).toBe(5);
-      expect(g.houses, `${width}px houses menu`).toBe(1);
+      expect(g.overlaps, `${width}px overlaps`).toBe(0);
+      expect(Math.abs(g.logoCenter - g.viewportCenter), `${width}px logo centred`).toBeLessThanOrEqual(2);
+      expect(g.houses, `${width}px houses menu gone`).toBe(0);
+      expect(g.links.length, `${width}px nav links`).toBeGreaterThanOrEqual(3);
+      expect(g.links.length, `${width}px nav links max`).toBeLessThanOrEqual(4);
+      expect(g.links).not.toContain("المتجر");
+      expect(g.links).toContain("رجالي");
+      expect(g.links).toContain("حريمي");
+      expect(g.links).toContain("للجنسين");
+      // Green button, purple label, square corners, 40px tall.
+      expect(g.whatsappBg, `${width}px whatsapp bg`).toBe("rgb(156, 214, 118)");
+      expect(g.whatsappColor, `${width}px whatsapp color`).not.toBe("rgb(255, 255, 255)");
+      expect(g.whatsappRadius, `${width}px whatsapp radius`).toBe("0px");
+      expect(g.whatsappHeight, `${width}px whatsapp height`).toBe(40);
 
-      // RTL: the logo is at the inline start (right), the actions at the end
-      // (left), and the centred nav never enters either neighbour's box.
-      expect(g.logoStart - g.navEnd, `${width}px logo/nav gap`).toBeGreaterThanOrEqual(12);
-      expect(g.navStart - g.actionsEnd, `${width}px nav/actions gap`).toBeGreaterThanOrEqual(12);
-
-      if (width < 1280) {
-        expect(g.navGap).toBe("12px");
-        expect(g.brandSize).toBe("16px");
-        expect(g.brandTracking).toBe("3px");
-        // Icon-only WhatsApp pill: no label before xl.
-        expect(g.whatsappWidth).toBeLessThan(60);
-      } else {
-        expect(g.navGap).toBe("20px");
-        expect(g.brandSize).toBe("18px");
-        expect(g.brandTracking).toBe("4px");
-        expect(g.whatsappWidth).toBeGreaterThanOrEqual(120);
+      if (width < 1180) {
+        expect(g.whatsappWidth, `${width}px icon-only`).toBeLessThan(60);
       }
     }
   });
@@ -134,8 +146,9 @@ test.describe("single-row header", () => {
     const sheet = page.locator('[data-slot="sheet-content"]');
     await expect(sheet).toBeVisible();
     await expect(
-      sheet.getByRole("link", { name: "المتجر" }),
-    ).toHaveAttribute("href", "/shop");
+      sheet.getByRole("link", { name: "رجالي" }),
+    ).toHaveAttribute("href", "/shop/men");
+    await expect(sheet.getByRole("link", { name: "المتجر" })).toHaveCount(0);
   });
 
   test("hides on scroll down and returns on scroll up", async ({ page }) => {

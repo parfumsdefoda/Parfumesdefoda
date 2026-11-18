@@ -16,6 +16,13 @@ import { hasAnyStock } from "./card-presentation";
 
 export const BEST_SELLER_LIMIT = 12;
 
+/**
+ * RUN 1.6: the homepage renders enough cards for two full auto-fill rows at
+ * the widest viewport (8 cols × 2 = 16) plus headroom; mobile shows the
+ * first 12 and desktop trims to exactly 2 rows (see home-grid-trim).
+ */
+export const HOME_GRID_LIMIT = 24;
+
 function soldCount(counts: Record<string, number>, product: Product): number {
   const value = counts[product.id] ?? counts[product.sku] ?? 0;
   return Number.isFinite(value) && value > 0 ? value : 0;

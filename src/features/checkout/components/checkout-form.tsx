@@ -411,7 +411,7 @@ export function CheckoutForm({
         </div>
         {total !== undefined && (
           <div className="sticky bottom-0 z-30 -mx-4 border-t border-[var(--line)] bg-[var(--paper)] p-3 lg:hidden">
-            <div className="mx-auto flex max-w-[1280px] items-center gap-3">
+            <div className="mx-auto flex max-w-[1100px] items-center gap-3">
               <span className="flex-1 text-caption font-bold">الإجمالي: {formatPrice(total)}</span>
               <Button type="submit" size="lg" disabled={isSubmitting || disabled}>{submitLabel}</Button>
             </div>

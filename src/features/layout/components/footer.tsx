@@ -23,18 +23,21 @@ export interface FooterProps {
 }
 
 /**
- * Footer — the quiet close of every page.
+ * Footer — RUN 1.6: brand green, big logo, contact column only.
  *
- * Dark purple surface, one gold hairline on top, two short columns on a
- * desktop and a single column on a phone: the brand column and the contact
- * column. Nothing here is invented: the contact details come from
- * data/contact.json and the facts line from the shipping helper. The help
- * column (المساعدة) was removed; /faq and /shipping-returns remain as pages
- * but are no longer linked from the footer.
+ * `bg [--brand-green]` (the token derived from theme.json, never a raw hex),
+ * purple text throughout (`--purple-950` body, brand purple headings), a 1px
+ * purple hairline on top and no gold. The text heading "Parfums De Foda" is
+ * replaced by the logo at ~120px high on desktop / ~88px on mobile.
  *
- * The contact column keeps `id="contact"`, so every existing `/#contact` link
- * (navigation data, WhatsApp messages) still lands on something real now that
- * the homepage no longer carries a contact section.
+ * Logo treatment: the SVG (`public/logos/logo.svg`) is a transparent vector
+ * whose green fill is the same hue as the footer background, so it is seated
+ * on an ivory (paper) plate with a 1px purple border — a deliberate plate,
+ * never a stray white box. The /#contact anchor stays on the contact column.
+ *
+ * The help column (المساعدة) is gone: /faq, /shipping-returns and /contact
+ * remain as pages, but nothing in the footer links to them. The brand
+ * tagline and the cash/shipping line do not render here either.
  */
 export function Footer({
   storeName = "Parfums De Foda",
@@ -59,14 +62,29 @@ export function Footer({
     contactLinks.push({ label: contact.phone, url: `tel:${contact.phone}` });
   }
 
+  const logo = (
+    <span
+      className="inline-flex items-center justify-center border border-[var(--purple-950)] bg-[var(--boutique-white)] px-4 py-3"
+      role="img"
+      aria-label={storeName}
+    >
+      <span
+        aria-hidden="true"
+        className="block h-[88px] w-[88px] bg-contain bg-center bg-no-repeat lg:h-[120px] lg:w-[120px]"
+        style={{ backgroundImage: "url(/logos/logo.svg)" }}
+      />
+    </span>
+  );
+
   return (
     <footer
       // The phone bar on a product page watches this marker and steps aside
       // while the footer is on screen, so it never covers it.
       data-page-end
-      className={`border-t border-[var(--brand-gold)] bg-[var(--purple-950)] text-[var(--color-on-dark)] ${className ?? ""}`}
+      data-footer="green"
+      className={`border-t border-[var(--purple-950)] bg-[var(--brand-green)] text-[var(--purple-950)] ${className ?? ""}`}
     >
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-12">
+      <div className="mx-auto w-full max-w-[1280px] px-4 py-7 lg:py-8">
         {reduced ? (
           <div
             id="contact"
@@ -76,27 +94,20 @@ export function Footer({
               <a
                 key={link.label}
                 href={link.url}
-                className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                className="inline-block -my-1.5 py-1.5 text-caption font-medium text-[var(--purple-950)] transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-950)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand-green)]"
               >
                 {link.label}
               </a>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
-            {/* Brand */}
-            <div className="flex flex-col gap-3">
-              <p className="text-body font-bold">{storeName}</p>
-              {description && (
-                <p className="max-w-xs text-caption leading-relaxed text-[var(--color-on-dark-muted)]">
-                  {description}
-                </p>
-              )}
-            </div>
+          <div className="grid grid-cols-1 items-center gap-8 sm:grid-cols-2">
+            {/* Brand — the logo, big */}
+            <div className="flex justify-center sm:justify-start">{logo}</div>
 
             {/* Contact — keeps the /#contact anchor alive */}
-            <div id="contact" className="scroll-mt-24">
-              <h2 className="mb-3 text-caption font-bold">{contactTitle}</h2>
+            <div id="contact" className="scroll-mt-24 text-center sm:text-start">
+              <h2 className="mb-3 text-caption font-bold text-[var(--brand-purple)]">{contactTitle}</h2>
               <ul className="flex flex-col gap-2">
                 {contactLinks.map((link) => (
                   <li key={link.label}>
@@ -108,19 +119,24 @@ export function Footer({
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="inline-block -my-1.5 break-all py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                      className="inline-block -my-1.5 break-all py-1.5 text-caption font-medium text-[var(--purple-950)] transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-950)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand-green)]"
                     >
                       {link.label}
                     </a>
                   </li>
                 ))}
               </ul>
+              {description && (
+                <p className="mt-4 max-w-xs text-caption font-medium leading-relaxed text-[var(--purple-950)]">
+                  {description}
+                </p>
+              )}
             </div>
           </div>
         )}
 
-        <div className="mt-10 border-t border-[var(--color-on-dark-border)] pt-6">
-          <p className="text-center text-caption text-[var(--color-on-dark-muted)]">
+        <div className="mt-7 border-t border-[var(--purple-950)]/30 pt-4">
+          <p className="text-center text-caption font-medium text-[var(--purple-950)]">
             © {new Date().getFullYear()} {storeName} — {rights}
           </p>
         </div>

@@ -35,7 +35,7 @@ export function CartPageClient({
   const blocked = isCartCheckoutBlocked(lines);
 
   return (
-    <section className="mx-auto w-full max-w-[1280px] px-4 py-[var(--space-section)]">
+    <section className="mx-auto w-full max-w-[1100px] px-4 py-[var(--space-section)]">
       <h1 className="mb-8 text-title-2 font-bold text-[var(--ink)]">سلة التسوق</h1>
       {lines.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">

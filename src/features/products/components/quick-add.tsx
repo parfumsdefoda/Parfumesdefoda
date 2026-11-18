@@ -143,7 +143,8 @@ export function QuickAdd({
         className={cn(
           featured
             ? "h-11 w-full rounded-lg bg-[var(--boutique-ink)] px-4 text-[14px] font-bold text-[var(--gold-300)] hover:bg-[var(--gold-700)]"
-            : "quick-add-btn rounded-pill shadow-soft",
+            : "quick-add-btn rounded-none",
+          // (RUN 1.6 F6: radius 0, no shadow inside a cell.)
         )}
       >
         {featured ? (

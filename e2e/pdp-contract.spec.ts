@@ -75,7 +75,7 @@ test.describe("product page", () => {
 
   test("premium treatment is off on the PDP (the product name is owner data)", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/product/pf240");
+    await page.goto("/product/pf091");
 
     // The product NAME still contains "(فاخر)" — owner data, never edited —
     // but while the premium flag is off the page carries no premium frame,
@@ -102,9 +102,10 @@ test.describe("product page", () => {
         innerBorder: inner.borderInlineEndWidth,
       };
     });
-    expect(borders.radius).toBe("16px");
+    // RUN 1.6 F6: radius 0 everywhere.
+    expect(borders.radius).toBe("0px");
     expect(borders.shadow).toBe("none");
-    expect(borders.innerRadius).toBe("14px");
+    expect(borders.innerRadius).toBe("0px");
     expect(borders.innerBorder).toBe("1px");
   });
 });

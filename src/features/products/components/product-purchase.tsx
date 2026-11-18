@@ -46,10 +46,11 @@ export function ProductPurchase({
   const cart = useCart();
   const { showToast } = useToast();
 
-  // Only the sizes a shopper can buy today are offered: a sold-out volume is
-  // not a choice, it is a dead end. Small → large, regardless of how the
+  // RUN 1.6: every size is shown; sold-out ones are disabled. A product with
+  // no buyable size (e.g. a fully out-of-stock one) shows its sizes disabled
+  // and has no add-to-cart button. Small → large, regardless of how the
   // catalogue stores them.
-  const sizes = sortSizesByVolume(product.sizes.filter((size) => size.inStock));
+  const sizes = sortSizesByVolume(product.sizes);
 
   const [selected, setSelected] = useState<string>(() => {
     const firstInStock = sizes.find((size) => size.inStock);
@@ -111,7 +112,7 @@ export function ProductPurchase({
     };
   }, []);
 
-  const showBar = ctaPast && !footerReachedBar;
+  const showBar = ctaPast && !footerReachedBar && buyable.length > 0;
 
   // The floating advisor reads this offset (CSS custom property) so it sits
   // above the phone purchase bar instead of covering its CTA.
@@ -250,17 +251,19 @@ export function ProductPurchase({
       )}
 
       <div ref={ctaRef} data-purchase-cta>
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          onClick={add}
-          disabled={!canBuy}
-          aria-label={canBuy ? labels.addToCart : labels.outOfStock}
-          className="w-full font-bold"
-        >
-          {canBuy ? labels.addToCart : labels.outOfStock}
-        </Button>
+        {buyable.length > 0 && (
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            onClick={add}
+            disabled={!canBuy}
+            aria-label={canBuy ? labels.addToCart : labels.outOfStock}
+            className="w-full font-bold"
+          >
+            {canBuy ? labels.addToCart : labels.outOfStock}
+          </Button>
+        )}
       </div>
 
       {/* Phone-only bar: same size, same price, same line in the cart. */}
@@ -286,16 +289,18 @@ export function ProductPurchase({
               </p>
             )}
           </div>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={add}
-            disabled={!canBuy}
-            tabIndex={showBar ? 0 : -1}
-            className="shrink-0 font-bold"
-          >
-            {canBuy ? labels.addToCart : labels.outOfStock}
-          </Button>
+          {buyable.length > 0 && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={add}
+              disabled={!canBuy}
+              tabIndex={showBar ? 0 : -1}
+              className="shrink-0 font-bold"
+            >
+              {canBuy ? labels.addToCart : labels.outOfStock}
+            </Button>
+          )}
         </div>
       </div>
     </>

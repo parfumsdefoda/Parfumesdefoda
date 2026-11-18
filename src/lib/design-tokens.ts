@@ -189,6 +189,11 @@ export function buildContrastPairs(palette: Palette = PALETTE): ContrastPair[] {
     ["positive text on surface", palette.positive, palette.surface],
     ["white on positive (success state)", palette["brand-white"], palette.positive],
     ["white on purple-950 (dark section)", palette["brand-white"], palette["purple-950"]],
+    // RUN 1.6: footer is brand green with purple text; the WhatsApp button is
+    // the same pair (green fill, purple label) — both must clear 4.5:1.
+    ["footer body text on brand green", palette["purple-950"], palette["brand-green"]],
+    ["footer heading on brand green", palette["brand-purple"], palette["brand-green"]],
+    ["WhatsApp label on brand green", palette["purple-950"], palette["brand-green"]],
     // The floating header capsule, measured against the two surfaces it
     // actually floats over: the purple-950 hero (dark tone) and the ivory page
     // behind the white card grid (light tone).

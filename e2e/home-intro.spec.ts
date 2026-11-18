@@ -55,6 +55,7 @@ test.describe("home structure (RUN 1.5)", () => {
     await expect(page.getByText("تسوّق حسب القسم")).toHaveCount(0);
   });
 
+  // RUN 1.6: 24 rendered, 12 visible on mobile, exactly 2 full rows on desktop.
   test("the grid starts directly under the header and shows 12 products", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "networkidle" });
@@ -68,7 +69,12 @@ test.describe("home structure (RUN 1.5)", () => {
     expect(Math.round(gridBox!.y)).toBe(Math.round(headerBox!.y + headerBox!.height));
 
     const cards = page.locator("section[aria-label] [data-card]");
-    await expect(cards).toHaveCount(12);
+    await expect(cards).toHaveCount(24);
+    const visible = await cards.evaluateAll((els) =>
+      els.filter((el) => (el as HTMLElement).offsetParent !== null).length,
+    );
+    expect(visible).toBeGreaterThanOrEqual(8);
+    expect(visible % 2).toBe(0);
   });
 
   test("one full-width hairline row عرض كل المنتجات after the grid", async ({ page }) => {

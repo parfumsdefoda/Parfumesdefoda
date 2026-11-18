@@ -111,7 +111,7 @@ export function ProductDetailPage({
     : null;
 
   return (
-    <article className="mx-auto w-full max-w-[1280px] px-4 py-[var(--space-8)]">
+    <article className="mx-auto w-full max-w-[1200px] px-4 py-[var(--space-8)]">
       <Breadcrumbs
         items={[
           { label: labels.breadcrumbHome, href: "/" },
@@ -131,7 +131,7 @@ export function ProductDetailPage({
       />
 
       <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-        <div className="md:sticky md:top-24 md:self-start">
+        <div className="w-full max-w-[560px] md:sticky md:top-24 md:self-start">
           <ProductGallery
             images={images}
             name={product.name}
@@ -141,10 +141,10 @@ export function ProductDetailPage({
           />
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex max-w-[520px] flex-col gap-5">
           <ProductMetaLine parts={metaParts} premium={premium} />
 
-          <h1 className="text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
+          <h1 className="break-words text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
 
           {comingSoon ? (
             <div className="border border-[var(--line-soft)] bg-[var(--paper)] p-4">

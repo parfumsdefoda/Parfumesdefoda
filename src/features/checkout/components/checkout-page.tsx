@@ -148,7 +148,7 @@ export function CheckoutPageClient({
 
   if (cart.items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-[var(--space-section)] text-center">
+      <div className="mx-auto w-full max-w-[1100px] px-4 py-[var(--space-section)] text-center">
           <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--bg-secondary)]">
             <ShoppingBag className="h-10 w-10 text-[var(--neutral-300)]" />
           </div>
@@ -167,7 +167,7 @@ export function CheckoutPageClient({
   }
 
   return (
-      <section className="container mx-auto px-4 py-[var(--space-section)]">
+      <section className="mx-auto w-full max-w-[1100px] px-4 py-[var(--space-section)]">
         {/* Back link */}
         <Link
           href="/"

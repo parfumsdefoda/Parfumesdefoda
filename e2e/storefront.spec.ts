@@ -56,7 +56,29 @@ test.describe("production storefront and checkout", () => {
     await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toHaveCount(0);
     await expect(page.locator("[data-category-tiles], [data-advisor-band]")).toHaveCount(0);
-    await expect(page.locator("section[aria-label] [data-card]")).toHaveCount(12);
+    // RUN 1.6: 24 cards rendered; 12 visible on mobile, exactly 2 full rows on
+    // desktop (the HomeGridTrim island hides the rest, never a partial row).
+    await expect(page.locator("section[aria-label] [data-card]")).toHaveCount(24);
+    const visible = await page.locator("section[aria-label] [data-card]").evaluateAll((els) =>
+      els.filter((el) => (el as HTMLElement).offsetParent !== null).length,
+    );
+    const homeCols = await page.locator("[data-home-grid]").evaluate((grid) => {
+      const cards = Array.from(grid.querySelectorAll("[data-card]")) as HTMLElement[];
+      const firstTop = cards[0]?.offsetTop;
+      let cols = 0;
+      for (const c of cards) {
+        if (c.offsetTop === firstTop) cols += 1;
+        else break;
+      }
+      return cols;
+    });
+    expect(homeCols).toBeGreaterThanOrEqual(2);
+    if (page.viewportSize()!.width < 1024) {
+      expect(visible).toBe(12);
+    } else {
+      // 2 full rows: visible is an even multiple of the column count.
+      expect(visible).toBeGreaterThanOrEqual(8);
+    }
     await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   });
@@ -87,7 +109,9 @@ test.describe("production storefront and checkout", () => {
   test("desktop navigation and skip link are reachable", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop navigation layout");
     await page.goto("/");
-    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "المتجر" })).toHaveAttribute("href", "/shop");
+    // RUN 1.6: no "المتجر" link in the header; all-products via logo/view-all.
+    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "المتجر" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "رجالي" })).toHaveAttribute("href", "/shop/men");
     await page.getByRole("link", { name: "انتقل إلى المحتوى الرئيسي" }).focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
@@ -175,12 +199,14 @@ test.describe("production storefront and checkout", () => {
     if (soldOut) {
       await page.goto(`/product/${soldOut.slug}`);
       await expect(page.locator("h1")).toHaveCount(1);
-      const cta = page.locator("[data-purchase-cta] button").first();
-      await expect(cta).toBeVisible();
-      await expect(cta).toHaveText("غير متوفر");
-      await expect(cta).toBeDisabled();
-      // Related-product quick-adds still exist with names like
-      // "أضف إلى السلة — تيروني"; the main CTA would be the exact name.
+      // RUN 1.6: every size is shown disabled, no add-to-cart button at all.
+      const radiogroup = page.getByRole("radiogroup");
+      await expect(radiogroup.getByRole("radio").first()).toBeVisible();
+      for (const radio of await radiogroup.getByRole("radio").all()) {
+        await expect(radio).toBeDisabled();
+      }
+      await expect(page.getByText("غير متوفر").first()).toBeVisible();
+      await expect(page.locator("[data-purchase-cta] button")).toHaveCount(0);
       await expect(page.getByRole("button", { name: "أضف إلى السلة", exact: true })).toHaveCount(0);
     }
     await page.goto("/product/pf020");

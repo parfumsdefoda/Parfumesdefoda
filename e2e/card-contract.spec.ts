@@ -51,11 +51,14 @@ test.describe("gallery card", () => {
       };
     });
 
-    // The 2px shell and the 14px inner are both real, so rows stay equal.
-    expect(geometry.cellRadius).toBe("16px");
+    // RUN 1.6 F6: radius 0 everywhere; the 2px shell still keeps rows equal.
+    expect(geometry.cellRadius).toBe("0px");
     expect(geometry.cellPadding).toBe("2px");
-    expect(geometry.innerRadius).toBe("14px");
+    expect(geometry.innerRadius).toBe("0px");
     expect(geometry.innerWidth).toBeCloseTo(geometry.cellWidth - 4, 0);
+    // F2 density: at 1440 the auto-fill track lands in the 240–300px band.
+    expect(geometry.cellWidth).toBeGreaterThanOrEqual(240);
+    expect(geometry.cellWidth).toBeLessThanOrEqual(300);
 
     // Regular cells keep the hairline and no elevation.
     expect(geometry.cellShadow).toBe("none");
@@ -125,5 +128,37 @@ test.describe("gallery card", () => {
       nodes.map((node) => node.querySelector("[data-premium-badge]") !== null),
     );
     expect(badges.every((value) => value === false)).toBe(true);
+  });
+
+  test("every element inside a cell has radius 0, no shadow and one background (F6)", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/shop");
+    const cell = page.locator("[data-card]:not(:has([data-premium-badge]))").first();
+    await expect(cell).toBeVisible();
+    const bad = await cell.evaluate((el) => {
+      const out: string[] = [];
+      const paper = getComputedStyle(el.querySelector("div:first-child") as HTMLElement).backgroundColor;
+      for (const node of Array.from(el.querySelectorAll("*")).slice(0, 40)) {
+        const style = getComputedStyle(node);
+        const radius = style.borderTopLeftRadius;
+        if (radius !== "0px") out.push(`radius ${radius} on ${node.tagName}`);
+        if (style.boxShadow !== "none") out.push(`shadow on ${node.tagName}`);
+      }
+      // The text block shares the card background (no lighter strip): its
+      // effective background walks up to the inner card.
+      const textBlock = (el.querySelector("[data-card-stage]") as HTMLElement).nextElementSibling as HTMLElement;
+      let effective = textBlock;
+      while (effective && getComputedStyle(effective).backgroundColor === "rgba(0, 0, 0, 0)") {
+        effective = effective.parentElement as HTMLElement;
+      }
+      if (effective && getComputedStyle(effective).backgroundColor !== paper) {
+        out.push("text block background differs");
+      }
+      // Hairlines: the card border and the cell border.
+      const inner = el.firstElementChild as HTMLElement;
+      if (getComputedStyle(inner).borderTopWidth === "0px") out.push("hairline missing");
+      return out;
+    });
+    expect(bad).toEqual([]);
   });
 });

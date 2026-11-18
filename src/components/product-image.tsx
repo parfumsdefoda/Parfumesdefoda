@@ -91,12 +91,12 @@ export function ProductImage({
     <span
       className={cn(
         "relative block overflow-hidden",
-        tone === "dark" ? "premium-stage" : "bg-[var(--paper)]",
+        tone === "dark" ? "premium-stage" : "bg-transparent",
         frame === "stage" ? "aspect-[4/5] w-full" : "h-full w-full",
         frameClassName,
       )}
     >
-      {frame === "stage" && (
+      {frame === "stage" && tier !== "card" && (
         <span
           aria-hidden="true"
           data-ground=""
@@ -107,7 +107,9 @@ export function ProductImage({
               : "bg-[var(--neutral-300)] opacity-50",
           )}
         />
-      )}
+      )
+      /* RUN 1.6 F6: inside a grid card the ground shadow would break the
+         radius-0 / one-paper-colour contract, so cards get no ground span. */}
 
       {sources ? (
         <picture>

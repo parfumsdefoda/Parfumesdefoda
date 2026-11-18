@@ -68,8 +68,8 @@ export interface ProductCardProps {
 
 // ─── Image sizes ────────────────────────────────────────────────────────────
 
-/** 2 / 3 / 4 columns up to a 1920px container. */
-export const CARD_IMAGE_SIZES = "(max-width: 767px) 50vw, (max-width: 1099px) 33vw, 25vw";
+/** RUN 1.6: 2 / 3 columns below 1024, then 240px auto-fill tracks. */
+export const CARD_IMAGE_SIZES = "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 300px";
 
 type PhotoClass = "transparent" | "white" | "scene";
 
@@ -126,7 +126,9 @@ export function ProductCard({
       data-card-state={comingSoon || outOfStock ? "static" : "live"}
       data-photo={photo}
       className={cn(
-        "group relative rounded-[16px] p-[2px]",
+        // RUN 1.6 F6: radius 0 everywhere (the old rounded-[16px]/[14px] was
+        // the rounded corners + shadow look in the owner's screenshot).
+        "group relative rounded-none p-[2px]",
         premium
           ? "pf-gold-surface pf-gold-glow"
           : "bg-transparent transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none",
@@ -135,7 +137,7 @@ export function ProductCard({
     >
       <div
         className={cn(
-          "flex h-full flex-col overflow-hidden rounded-[14px] border",
+          "flex h-full flex-col overflow-hidden rounded-none border bg-[var(--boutique-white)]",
           premium
             ? "border-transparent bg-[image:var(--premium-surface)]"
             : "border-[var(--boutique-line)] bg-[var(--boutique-white)]",
@@ -172,7 +174,7 @@ export function ProductCard({
           {premium && (
             <span
               data-premium-badge=""
-              className="pf-gold-surface absolute top-3 start-3 z-20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[14px] font-bold text-[var(--boutique-ink)]"
+              className="pf-gold-surface absolute top-3 start-3 z-20 inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-[14px] font-bold text-[var(--boutique-ink)]"
             >
               <Star aria-hidden="true" className="size-3.5 fill-current" />
               {copy.premium}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { availabilityRank, orderForCatalog } from "./catalog-order";
+import { availabilityRank, orderForCatalog, outOfStockProducts } from "./catalog-order";
 import type { Product } from "@/types";
 
 function product(
@@ -106,5 +106,32 @@ describe("orderForCatalog", () => {
     const copy = [...list];
     orderForCatalog(list);
     expect(list).toEqual(copy);
+  });
+});
+
+describe("outOfStockProducts", () => {
+  it("returns only the sold-out products, never coming-soon ones", () => {
+    const list = [
+      product("sold", { inStock: false, sizes: [{ label: "50 مل", price: 500, inStock: false }] }),
+      product("live"),
+      product("soon", { image: "/products/placeholder-unavailable.webp", inStock: false }),
+    ];
+    expect(outOfStockProducts(list).map((p) => p.id)).toEqual(["sold"]);
+  });
+
+  it("finds the six owner-flagged products in the real catalogue", async () => {
+    const { default: products } = await import("../../data/products.json");
+    const sold = outOfStockProducts(products);
+    expect(sold).toHaveLength(6);
+    // Every one of them is still visible (hidden=false) and sinks to the end
+    // of the catalogue order.
+    expect(sold.every((p) => p.hidden !== true)).toBe(true);
+    const ordered = orderForCatalog(products as never);
+    const firstSold = ordered.findIndex((p) => sold.some((s) => s.id === p.id));
+    const lastLive = ordered
+      .map((p, i) => ({ p, i }))
+      .filter(({ p }) => availabilityRank(p) === 0)
+      .pop()?.i;
+    expect(firstSold).toBeGreaterThan(lastLive!);
   });
 });

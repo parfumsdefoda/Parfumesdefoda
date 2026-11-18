@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, MessageCircle, Search, ShoppingCart, X } from "lucide-react";
-import { Popover } from "@base-ui/react/popover";
+import { Menu, MessageCircle, Search, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -14,14 +13,8 @@ import { preloadCartDrawer } from "@/features/cart/components/cart-shell";
 import { HeaderSearch } from "@/features/search/components/header-search";
 import type { NavLink } from "@/lib/site-nav";
 
-export interface HouseLink {
-  label: string;
-  href: string;
-}
-
 export interface HeaderLabels {
   nav: string;
-  houses: string;
   search: string;
   searchPlaceholder: string;
   searchSubmit: string;
@@ -39,11 +32,10 @@ export interface HeaderLabels {
 export interface HeaderBarProps {
   storeName: string;
   nav: NavLink[];
-  houses: HouseLink[];
   labels: HeaderLabels;
   /** Checkout wears a reduced bar: logo + a way back to the cart, nothing else. */
   reduced?: boolean;
-  /** wa.me link from data/contact.json; the desktop pill and the mobile menu end with it. */
+  /** wa.me link from data/contact.json; the desktop button and the mobile menu end with it. */
   whatsappHref?: string;
   /** Cash-on-delivery + shipping note, already resolved from the helpers. */
   menuNote?: string;
@@ -61,18 +53,24 @@ function isActiveRoute(pathname: string, href: string): boolean {
 }
 
 /**
- * HeaderBar — one row, 76px, on white.
+ * HeaderBar — RUN 1.6 single row.
  *
- * RTL order: the logo block sits at the inline start, the nav in the centre and
- * the actions at the inline end. The old logo-over-nav stack is gone; nothing
- * inside the row is absolutely positioned, so the wordmark cannot cover the
- * links at any width. The cart drawer trigger, the search panel, the houses
- * menu and the scroll hide keep their previous behaviour.
+ * Below 1024px the bar is exactly what it was: 76px, logo at the inline start,
+ * search/cart/hamburger at the inline end. From 1024px there is ONE 64px
+ * row: nav links at the inline start, the logo lockup dead-centre (a
+ * 3-column grid puts it on the geometric centre), and the tools at the
+ * inline end — the green WhatsApp button, search, cart. No second row, no
+ * hairline crossing the logo, nothing absolutely positioned.
+ *
+ * The smart-hide, the search panel and the mobile sheet keep their behaviour.
+ * The houses (الدور) dropdown and the "المتجر" link are gone; all-products
+ * stays reachable through the logo, the "عرض كل المنتجات" row and the
+ * breadcrumbs. The logo is `public/logos/logo.svg` — a transparent vector,
+ * so it needs no multiply/plate treatment on paper.
  */
 export function HeaderBar({
   storeName,
   nav,
-  houses,
   labels,
   reduced = false,
   whatsappHref,
@@ -82,7 +80,6 @@ export function HeaderBar({
   const pathname = usePathname() ?? "/";
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [housesAnchor, setHousesAnchor] = useState<HTMLButtonElement | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
@@ -215,205 +212,178 @@ export function HeaderBar({
     noResults: labels.searchNoResults,
   };
 
+  const logoLockup = (
+    <Link
+      href="/"
+      aria-label={storeName}
+      className="flex shrink-0 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+    >
+      <span className="grid size-[42px] shrink-0 place-items-center overflow-hidden lg:size-[44px]">
+        <span
+          aria-hidden="true"
+          className="block size-8 bg-contain bg-center bg-no-repeat lg:size-11"
+          style={{ backgroundImage: "url(/logos/logo.svg)" }}
+        />
+      </span>
+      <span
+        aria-hidden="true"
+        className="hidden font-serif text-[16px] leading-none tracking-[3px] text-[var(--boutique-ink)] sm:block xl:text-[18px] xl:tracking-[4px]"
+      >
+        PARFUMS DE FODA
+      </span>
+    </Link>
+  );
+
+  const whatsappButton = whatsappHref ? (
+    <a
+      href={whatsappHref}
+      target="_blank"
+      rel="noreferrer"
+      className="hidden h-10 items-center justify-center gap-2 rounded-none border border-[var(--purple-950)] bg-[var(--brand-green)] px-4 text-[14px] font-bold text-[var(--purple-950)] transition-colors hover:bg-[var(--brand-green)] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 lg:inline-flex"
+    >
+      <MessageCircle aria-hidden="true" className="size-4 shrink-0" />
+      {/* Icon-only below 1180px (label shows from the `min-[1180px]` step). */}
+      <span className="hidden min-[1180px]:inline">{labels.whatsapp}</span>
+    </a>
+  ) : null;
+
+  const searchButton = (
+    <Button
+      ref={searchTriggerRef}
+      variant="ghost"
+      size="icon"
+      onClick={() => {
+        reveal();
+        if (searchOpen) closeSearch();
+        else setSearchOpen(true);
+      }}
+      aria-label={labels.search}
+      aria-expanded={searchOpen}
+      aria-controls="mobile-search-panel"
+      className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0"
+    >
+      {searchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
+    </Button>
+  );
+
+  const cartButton = (
+    <button
+      type="button"
+      onClick={cart.openDrawer}
+      onPointerEnter={preloadCartDrawer}
+      onPointerDown={preloadCartDrawer}
+      onFocus={preloadCartDrawer}
+      aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
+      className="relative inline-flex h-11 items-center gap-2 rounded-full bg-[var(--cream)] px-3 text-[14px] font-medium text-[var(--boutique-ink)] transition-colors hover:bg-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+    >
+      <ShoppingCart aria-hidden="true" className="size-4" />
+      <span className="hidden xl:inline">{labels.cart}</span>
+      {cart.totalItems > 0 && (
+        <span
+          aria-hidden="true"
+          className="absolute -top-1 -start-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--gold-500)] px-1 text-[14px] font-bold tabular-nums text-[var(--boutique-ink)]"
+        >
+          {cart.totalItems > 99 ? "٩٩+" : formatNumber(cart.totalItems)}
+        </span>
+      )}
+    </button>
+  );
+
+  const menuButton = (
+    <Button
+      ref={menuTriggerRef}
+      variant="ghost"
+      size="icon"
+      onClick={() => {
+        reveal();
+        setMenuOpen(true);
+      }}
+      aria-label={labels.menu}
+      aria-expanded={menuOpen}
+      aria-haspopup="dialog"
+      className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0 lg:hidden"
+    >
+      <Menu aria-hidden="true" />
+    </Button>
+  );
+
+  const navList = (
+    <nav aria-label={labels.nav} className="hidden min-w-0 items-center gap-5 lg:flex 2xl:gap-[30px]">
+      {nav.map((item) => {
+        const active = isActiveRoute(pathname, item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "relative inline-flex shrink-0 items-center pb-1 text-[14px] font-medium transition-colors xl:text-[16px]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+              active
+                ? "text-[var(--gold-700)]"
+                : "text-[var(--boutique-ink)] hover:text-[var(--gold-700)]",
+            )}
+          >
+            {item.label}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute inset-x-0 bottom-0 h-0.5 origin-center bg-[var(--gold-500)] transition-transform duration-200",
+                active ? "scale-x-100" : "scale-x-0",
+              )}
+            />
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
   return (
     <header
       ref={headerRef}
       data-scrolled="false"
       data-hidden="false"
       className={cn(
-        "site-header sticky top-0 z-40 h-[76px] border-b border-[var(--boutique-line)] bg-[var(--boutique-white)]",
+        "site-header sticky top-0 z-40 h-[76px] border-b border-[var(--boutique-line)] bg-[var(--boutique-white)] lg:h-[64px]",
         "transition-[translate] duration-[var(--duration-base)] ease-[var(--ease-apple)]",
         "data-[hidden=true]:-translate-y-full",
         "motion-reduce:transition-none motion-reduce:data-[hidden=true]:translate-y-0",
       )}
     >
-      <div className="mx-auto flex h-full w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:gap-5 lg:px-8 2xl:gap-6 2xl:px-10">
-        {/* ─── Logo block (inline start) ─── */}
-        <Link
-          href="/"
-          aria-label={storeName}
-          className="flex shrink-0 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-        >
-          <span className="grid size-[42px] shrink-0 place-items-center overflow-hidden rounded-xl border border-[var(--boutique-line)] bg-[var(--boutique-white)]">
-            <span
-              aria-hidden="true"
-              className="block size-8 bg-contain bg-center bg-no-repeat"
-              style={{ backgroundImage: "url(/logos/logo.svg)" }}
-            />
-          </span>
-          <span
-            aria-hidden="true"
-            className="hidden font-serif text-[16px] leading-none tracking-[3px] text-[var(--boutique-ink)] sm:block xl:text-[18px] xl:tracking-[4px]"
-          >
-            PARFUMS DE FODA
-          </span>
-        </Link>
-
-        {reduced ? (
+      {reduced ? (
+        <div className="mx-auto flex h-full w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:gap-5 lg:px-8">
+          {logoLockup}
           <Link
             href="/checkout"
             className="ms-auto text-[14px] font-medium text-[var(--boutique-ink)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
           >
             {labels.backToCart}
           </Link>
-        ) : (
-          <>
-            {/* ─── Centre nav ─── */}
-            <nav
-              aria-label={labels.nav}
-              className="hidden min-w-0 flex-1 items-center justify-center gap-3 lg:flex xl:gap-5 2xl:gap-[30px]"
-            >
-              {nav.map((item) => {
-                const active = isActiveRoute(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "relative inline-flex shrink-0 items-center pb-1 text-[14px] font-medium transition-colors xl:text-[16px]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                      active
-                        ? "text-[var(--gold-700)]"
-                        : "text-[var(--boutique-ink)] hover:text-[var(--gold-700)]",
-                    )}
-                  >
-                    {item.label}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "absolute inset-x-0 bottom-0 h-0.5 origin-center bg-[var(--gold-500)] transition-transform duration-200",
-                        active ? "scale-x-100" : "scale-x-0",
-                      )}
-                    />
-                  </Link>
-                );
-              })}
-
-              {houses.length > 0 && (
-                <button
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-expanded={housesAnchor !== null}
-                  onClick={(event) => {
-                    reveal();
-                    setHousesAnchor((current) => (current ? null : event.currentTarget));
-                  }}
-                  className="inline-flex shrink-0 items-center gap-1 pb-1 text-[14px] font-medium xl:text-[16px] text-[var(--boutique-ink)] transition-colors hover:text-[var(--gold-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-                >
-                  {labels.houses}
-                  <ChevronDown aria-hidden="true" className="size-4" />
-                </button>
-              )}
-
-              {housesAnchor && (
-                <Popover.Root
-                  open
-                  onOpenChange={(open) => {
-                    if (!open) setHousesAnchor(null);
-                  }}
-                >
-                  <Popover.Portal>
-                    <Popover.Positioner
-                      anchor={housesAnchor}
-                      side="bottom"
-                      align="start"
-                      sideOffset={10}
-                      className="z-50"
-                    >
-                      <Popover.Popup
-                        initialFocus
-                        finalFocus={() => housesAnchor}
-                        className="pf-panel-shadow flex w-44 flex-col rounded-xl border border-[var(--boutique-line)] bg-[var(--boutique-white)] p-2 text-[14px]"
-                      >
-                        {houses.map((house) => (
-                          <Link
-                            key={house.href}
-                            href={house.href}
-                            onClick={() => setHousesAnchor(null)}
-                            className="rounded-lg px-2.5 py-2 text-[14px] text-[var(--boutique-ink)] transition-colors hover:bg-[var(--cream)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
-                          >
-                            {house.label}
-                          </Link>
-                        ))}
-                      </Popover.Popup>
-                    </Popover.Positioner>
-                  </Popover.Portal>
-                </Popover.Root>
-              )}
-            </nav>
-
-            {/* ─── Actions (inline end) ─── */}
-            <div className="ms-auto flex shrink-0 items-center gap-2 xl:gap-3">
-              <Button
-                ref={searchTriggerRef}
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  reveal();
-                  if (searchOpen) closeSearch();
-                  else setSearchOpen(true);
-                }}
-                aria-label={labels.search}
-                aria-expanded={searchOpen}
-                aria-controls="mobile-search-panel"
-                className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0"
-              >
-                {searchOpen ? <X aria-hidden="true" /> : <Search aria-hidden="true" />}
-              </Button>
-
-              <button
-                type="button"
-                onClick={cart.openDrawer}
-                onPointerEnter={preloadCartDrawer}
-                onPointerDown={preloadCartDrawer}
-                onFocus={preloadCartDrawer}
-                aria-label={`${labels.cart}${cart.totalItems > 0 ? ` (${formatNumber(cart.totalItems)})` : ""}`}
-                className="relative inline-flex h-11 items-center gap-2 rounded-full bg-[var(--cream)] px-3 text-[14px] font-medium text-[var(--boutique-ink)] transition-colors hover:bg-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-              >
-                <ShoppingCart aria-hidden="true" className="size-4" />
-                <span className="hidden xl:inline">{labels.cart}</span>
-                {cart.totalItems > 0 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute -top-1 -start-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--gold-500)] px-1 text-[14px] font-bold tabular-nums text-[var(--boutique-ink)]"
-                  >
-                    {cart.totalItems > 99 ? "٩٩+" : formatNumber(cart.totalItems)}
-                  </span>
-                )}
-              </button>
-
-              {whatsappHref && (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden size-11 items-center justify-center gap-2 rounded-full bg-[var(--boutique-ink)] text-[14px] font-medium text-[var(--gold-300)] transition-colors hover:bg-[var(--gold-700)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 lg:inline-flex xl:size-auto xl:px-4"
-                >
-                  <MessageCircle aria-hidden="true" className="size-4" />
-                  <span className="hidden xl:inline">{labels.whatsapp}</span>
-                </a>
-              )}
-
-              <Button
-                ref={menuTriggerRef}
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  reveal();
-                  setMenuOpen(true);
-                }}
-                aria-label={labels.menu}
-                aria-expanded={menuOpen}
-                aria-haspopup="dialog"
-                className="size-11 rounded-full text-[var(--boutique-ink)] hover:bg-[var(--cream)] focus-visible:ring-offset-0 lg:hidden"
-              >
-                <Menu aria-hidden="true" />
-              </Button>
+        </div>
+      ) : (
+        <>
+          {/* Mobile / tablet row — unchanged (logo inline-start, tools inline-end). */}
+          <div className="mx-auto flex h-full w-full max-w-[1440px] items-center gap-4 px-4 sm:px-6 lg:hidden">
+            {logoLockup}
+            <div className="ms-auto flex shrink-0 items-center gap-2">
+              {searchButton}
+              {cartButton}
+              {menuButton}
             </div>
-          </>
-        )}
-      </div>
+          </div>
+
+          {/* Desktop row — one row: nav inline-start, logo centred, tools inline-end. */}
+          <div className="mx-auto hidden h-full w-full max-w-[1920px] grid-cols-[1fr_auto_1fr] items-center px-8 lg:grid 2xl:px-10">
+            <div className="flex min-w-0 items-center justify-start gap-5 2xl:gap-[30px]">{navList}</div>
+            <div className="justify-self-center">{logoLockup}</div>
+            <div className="flex shrink-0 items-center justify-end gap-2 xl:gap-3">
+              {whatsappButton}
+              {searchButton}
+              {cartButton}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ─── Search panel: full width, under the bar ─── */}
       {searchOpen && (
@@ -484,7 +454,7 @@ export function HeaderBar({
             </form>
 
             <nav aria-label={labels.nav} className="flex flex-col px-4">
-              {[...nav, ...houses].map((item) => {
+              {nav.map((item) => {
                 const active = isActiveRoute(pathname, item.href);
                 return (
                   <Link
@@ -509,7 +479,7 @@ export function HeaderBar({
                   href={whatsappHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--boutique-ink)] text-[14px] font-medium text-[var(--gold-300)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
+                  className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-none border border-[var(--purple-950)] bg-[var(--brand-green)] text-[14px] font-bold text-[var(--purple-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]"
                 >
                   <MessageCircle aria-hidden="true" className="size-4" />
                   {labels.whatsapp}

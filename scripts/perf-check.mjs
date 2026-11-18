@@ -8,7 +8,7 @@ const targets = [
   { route: "/", minPerf: 90, indexable: true },
   { route: "/shop", minPerf: 85, indexable: true },
   { route: "/shop/men", minPerf: 85, indexable: true },
-  { route: "/product/pf090", minPerf: 90, indexable: true },
+  { route: "/product/pf020", minPerf: 90, indexable: true },
   { route: "/product/pf230", minPerf: 90, indexable: true },
   { route: "/cart", minPerf: 85, indexable: false },
   { route: "/checkout", minPerf: 85, indexable: false },

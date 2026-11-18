@@ -8,7 +8,6 @@ import type { CartCatalogProduct } from "@/lib/cart-utils";
 import { t } from "@/lib/locale";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
-import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
 import { themeAttributes } from "@/lib/theme-runtime";
 import { SiteShell } from "@/features/layout";
@@ -192,7 +191,6 @@ export default async function RootLayout({
      once per request rather than by each page. A category with no visible
      products is not rendered as a dead link. */
   const navLabels: PrimaryNavLabels = {
-    shop: t(localeMessages, "nav.shop", "المتجر"),
     men: t(localeMessages, "nav.men", "رجالي"),
     women: genderPublicLabel("نسائي"),
     unisex: t(localeMessages, "nav.unisex", "للجنسين"),
@@ -213,13 +211,6 @@ export default async function RootLayout({
     hidden: product.hidden,
     sizes: product.sizes.map(({ label, price, inStock }) => ({ label, price, inStock })),
   }));
-
-  const houseLinks = Object.entries(PUBLIC_TIER_LABELS)
-    .filter(([, label]) => label !== null)
-    .map(([house, label]) => ({
-      label: label as string,
-      href: `/shop?tier=${encodeURIComponent(house)}`,
-    }));
 
   /* Footer: brand column + the "تواصل معنا" contact column only. The help
      column (المساعدة) was removed; /faq and /shipping-returns still exist as
@@ -264,7 +255,6 @@ export default async function RootLayout({
 
   const headerLabels = {
     nav: t(localeMessages, "header.nav", "القائمة الرئيسية"),
-    houses: t(localeMessages, "nav.houses", "الدور"),
     search: t(localeMessages, "header.search", "بحث"),
     searchPlaceholder: t(
       localeMessages,
@@ -355,7 +345,6 @@ export default async function RootLayout({
             header={{
               storeName: settings.store.name,
               nav: headerNav,
-              houses: houseLinks,
               labels: headerLabels,
               whatsappHref: settings.contact.whatsapp
                 ? `https://wa.me/${settings.contact.whatsapp}`

@@ -4,7 +4,7 @@ import { loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { t } from "@/lib/locale";
-import { selectBestSellers, BEST_SELLER_LIMIT } from "@/lib/best-sellers";
+import { selectBestSellers, BEST_SELLER_LIMIT, HOME_GRID_LIMIT } from "@/lib/best-sellers";
 import { getSiteUrl } from "@/lib/seo";
 import { buildCardLabels, columnsFor } from "@/features/catalog/catalog-props";
 import { ProductGrid } from "@/features/products/components/product-grid";
@@ -52,7 +52,7 @@ export default async function HomePage() {
 
   const title = t(locale, "home.pageTitle", "Parfums De Foda | العطور");
   const viewAll = t(locale, "home.viewAllProducts", "عرض كل المنتجات");
-  const visible = selectBestSellers(products, {}, BEST_SELLER_LIMIT);
+  const visible = selectBestSellers(products, {}, HOME_GRID_LIMIT);
 
   return (
     <div className="overflow-x-clip bg-[var(--paper)]">
@@ -64,6 +64,7 @@ export default async function HomePage() {
           columns={columnsFor(settings)}
           labels={buildCardLabels(locale)}
           features={settings.features}
+          home
         />
       </section>
 

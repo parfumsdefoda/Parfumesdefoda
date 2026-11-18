@@ -5,6 +5,12 @@
  * URL slug (`/shop/men`) to the value stored in `data/products.json`
  * (`رجالي`) lives here and nowhere else. The header, the footer, the category
  * pages and the sitemap all read it.
+ *
+ * RUN 1.6: the header carries only the three categories and — when the
+ * catalogue fills it — the oils link. "المتجر" (/shop) stays reachable through
+ * the logo, the "عرض كل المنتجات" row and breadcrumbs; it is no longer a
+ * header link, and the houses (الدور) dropdown is gone (the tier filter
+ * stays inside the filters drawer).
  */
 
 import { PRODUCT_FORMS } from "./product-vocabulary";
@@ -58,7 +64,7 @@ export interface NavLink {
   href: string;
 }
 
-export type PrimaryNavLabels = Record<"shop" | CategorySlug, string> & {
+export type PrimaryNavLabels = Record<CategorySlug, string> & {
   /** Only shown when the catalogue actually has a visible oil product. */
   oils?: string;
 };
@@ -73,19 +79,19 @@ export interface PrimaryNavOptions {
 }
 
 /**
- * The header's primary links.
+ * The header's primary links: the three categories and, when a visible oil
+ * product exists, "زيوت عطرية".
  *
- * A category with no visible products is dropped rather than linked to an empty
- * page — the count comes from the same filtered product list the catalogue uses.
- * "زيوت عطرية" is only offered when an oil product exists, so it is never a
- * dead end.
+ * A category with no visible products is dropped rather than linked to an
+ * empty page — the count comes from the same filtered product list the
+ * catalogue uses.
  */
 export function buildPrimaryNav(
   counts: Record<string, number>,
   labels: PrimaryNavLabels,
   options: PrimaryNavOptions = {},
 ): NavLink[] {
-  const links: NavLink[] = [{ label: labels.shop, href: "/shop" }];
+  const links: NavLink[] = [];
   for (const route of CATEGORY_ROUTES) {
     if ((counts[route.gender] ?? 0) === 0) continue;
     links.push({
