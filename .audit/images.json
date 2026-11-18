@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-11-17T23:34:31.972Z",
+  "generatedAt": "2026-11-18T22:47:32.494Z",
   "totals": {
     "products": 79,
     "referencedImages": 79,
     "onDiskImages": 76,
-    "totalBytes": 3360986,
-    "totalMb": 3.21,
+    "totalBytes": 2987564,
+    "totalMb": 2.85,
     "byClass": {
-      "transparent": 69,
-      "pure-white": 1,
+      "transparent": 72,
+      "pure-white": 0,
       "off-white": 0,
-      "coloured": 6
+      "coloured": 4
     },
-    "squareCount": 42,
-    "nonSquareCount": 34,
-    "withRealTransparency": 69,
-    "needsRetouch": 6,
+    "squareCount": 41,
+    "nonSquareCount": 35,
+    "withRealTransparency": 72,
+    "needsRetouch": 4,
     "unreferencedByClass": {
       "transparent": 0,
       "pure-white": 0,
@@ -61,16 +61,12 @@
   ],
   "heaviest": [
     {
-      "path": "/products/PF660.webp",
-      "bytes": 208486
-    },
-    {
-      "path": "/products/PF700.webp",
-      "bytes": 150400
-    },
-    {
       "path": "/products/PF571.webp",
       "bytes": 138460
+    },
+    {
+      "path": "/products/PF660.webp",
+      "bytes": 114648
     },
     {
       "path": "/products/PF630.webp",
@@ -99,6 +95,10 @@
     {
       "path": "/products/PF490.webp",
       "bytes": 69450
+    },
+    {
+      "path": "/products/PF320.webp",
+      "bytes": 68338
     }
   ],
   "images": [
@@ -1027,22 +1027,22 @@
         "pf390"
       ],
       "format": "webp",
-      "width": 1600,
-      "height": 1600,
-      "bytes": 60668,
+      "width": 452,
+      "height": 552,
+      "bytes": 17996,
       "hasAlpha": true,
-      "transparentPixels": 1628876,
+      "transparentPixels": 135542,
       "background": "transparent",
       "sampleColour": null,
-      "square": true,
+      "square": false,
       "subject": {
-        "x": 379,
-        "y": 22,
-        "width": 845,
-        "height": 1530,
-        "widthPct": 52.8,
-        "heightPct": 95.6,
-        "areaPct": 50.5
+        "x": 73,
+        "y": 5,
+        "width": 305,
+        "height": 544,
+        "widthPct": 67.5,
+        "heightPct": 98.6,
+        "areaPct": 66.5
       }
     },
     {
@@ -1123,22 +1123,22 @@
         "pf430"
       ],
       "format": "webp",
-      "width": 1600,
-      "height": 1600,
-      "bytes": 60312,
+      "width": 500,
+      "height": 500,
+      "bytes": 11260,
       "hasAlpha": true,
-      "transparentPixels": 1872604,
+      "transparentPixels": 198305,
       "background": "transparent",
       "sampleColour": null,
       "square": true,
       "subject": {
-        "x": 504,
-        "y": 51,
-        "width": 570,
-        "height": 1514,
-        "widthPct": 35.6,
-        "heightPct": 94.6,
-        "areaPct": 33.7
+        "x": 175,
+        "y": 36,
+        "width": 157,
+        "height": 416,
+        "widthPct": 31.4,
+        "heightPct": 83.2,
+        "areaPct": 26.1
       }
     },
     {
@@ -1538,22 +1538,22 @@
         "pf600"
       ],
       "format": "webp",
-      "width": 1600,
-      "height": 1067,
-      "bytes": 68828,
-      "hasAlpha": false,
-      "transparentPixels": 0,
-      "background": "coloured",
-      "sampleColour": "#805F39",
+      "width": 375,
+      "height": 500,
+      "bytes": 12700,
+      "hasAlpha": true,
+      "transparentPixels": 102979,
+      "background": "transparent",
+      "sampleColour": null,
       "square": false,
       "subject": {
-        "x": 0,
-        "y": 0,
-        "width": 1600,
-        "height": 1067,
-        "widthPct": 100,
-        "heightPct": 100,
-        "areaPct": 100
+        "x": 55,
+        "y": 16,
+        "width": 264,
+        "height": 468,
+        "widthPct": 70.4,
+        "heightPct": 93.6,
+        "areaPct": 65.9
       }
     },
     {
@@ -1682,22 +1682,22 @@
         "pf660"
       ],
       "format": "webp",
-      "width": 1283,
-      "height": 1600,
-      "bytes": 208486,
-      "hasAlpha": false,
-      "transparentPixels": 0,
-      "background": "pure-white",
-      "sampleColour": "#FFFFFF",
+      "width": 1199,
+      "height": 1312,
+      "bytes": 114648,
+      "hasAlpha": true,
+      "transparentPixels": 1060253,
+      "background": "transparent",
+      "sampleColour": null,
       "square": false,
       "subject": {
-        "x": 0,
-        "y": 104,
-        "width": 1283,
-        "height": 1496,
-        "widthPct": 100,
-        "heightPct": 93.5,
-        "areaPct": 93.5
+        "x": 325,
+        "y": 126,
+        "width": 573,
+        "height": 1024,
+        "widthPct": 47.8,
+        "heightPct": 78,
+        "areaPct": 37.3
       }
     },
     {
@@ -1737,22 +1737,22 @@
         "pf700"
       ],
       "format": "webp",
-      "width": 1080,
-      "height": 1350,
-      "bytes": 150400,
-      "hasAlpha": false,
-      "transparentPixels": 0,
-      "background": "coloured",
-      "sampleColour": "#CBAAA9",
+      "width": 375,
+      "height": 500,
+      "bytes": 18668,
+      "hasAlpha": true,
+      "transparentPixels": 95103,
+      "background": "transparent",
+      "sampleColour": null,
       "square": false,
       "subject": {
-        "x": 0,
-        "y": 0,
-        "width": 1080,
-        "height": 1350,
-        "widthPct": 100,
-        "heightPct": 100,
-        "areaPct": 100
+        "x": 92,
+        "y": 29,
+        "width": 267,
+        "height": 454,
+        "widthPct": 71.2,
+        "heightPct": 90.8,
+        "areaPct": 64.6
       }
     },
     {

@@ -421,7 +421,7 @@
     "id": "PF091",
     "sku": "PF091",
     "slug": "pf091",
-    "name": "أمواج انترلود (فاخر)",
+    "name": "أمواج انترلود",
     "brand": "Parfums De Foda",
     "description": "",
     "image": "/products/PF091.webp",
@@ -474,7 +474,7 @@
       "base": []
     },
     "seo": {
-      "title": "أمواج انترلود (فاخر) | Parfums De Foda",
+      "title": "أمواج انترلود | Parfums De Foda",
       "description": ""
     }
   },
@@ -739,25 +739,25 @@
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true
+        "inStock": false
       },
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true
+        "inStock": false
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -1310,7 +1310,7 @@
     "id": "PF240",
     "sku": "PF240",
     "slug": "pf240",
-    "name": "تيروني (فاخر)",
+    "name": "تيروني",
     "brand": "Parfums De Foda",
     "description": "",
     "image": "/products/PF240.webp",
@@ -1358,6 +1358,7 @@
       "middle": [],
       "base": []
     },
+    "hidden": true,
     "seo": {
       "title": "تيروني | Parfums De Foda",
       "description": ""
@@ -2751,29 +2752,29 @@
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true,
+        "inStock": false,
         "ml": 100
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true,
+        "inStock": false,
         "ml": 50
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true,
+        "inStock": false,
         "ml": 30
       },
       {
         "label": "10 مل",
         "price": 120,
-        "inStock": true,
+        "inStock": false,
         "ml": 10
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -3706,7 +3707,7 @@
       "base": []
     },
     "seo": {
-      "title": "فالانتينو جرين ستارفاجانزا | Parfums De Foda",
+      "title": "فالانتينو دونا بورن ان روما جرين سترافاجانزا | Parfums De Foda",
       "description": ""
     }
   },
@@ -3885,7 +3886,7 @@
       "base": []
     },
     "seo": {
-      "title": "عود عمان | Parfums De Foda",
+      "title": "عود عمانى | Parfums De Foda",
       "description": ""
     }
   },
@@ -3917,23 +3918,23 @@
       {
         "label": "12 مل",
         "price": 850,
-        "inStock": true,
+        "inStock": false,
         "ml": 12
       },
       {
         "label": "6 مل",
         "price": 500,
-        "inStock": true,
+        "inStock": false,
         "ml": 6
       },
       {
         "label": "3 مل",
         "price": 350,
-        "inStock": true,
+        "inStock": false,
         "ml": 3
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -4031,29 +4032,29 @@
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true,
+        "inStock": false,
         "ml": 100
       },
       {
         "label": "50 مل",
         "price": 500,
-        "inStock": true,
+        "inStock": false,
         "ml": 50
       },
       {
         "label": "30 مل",
         "price": 350,
-        "inStock": true,
+        "inStock": false,
         "ml": 30
       },
       {
         "label": "10 مل",
         "price": 180,
-        "inStock": true,
+        "inStock": false,
         "ml": 10
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -4068,7 +4069,7 @@
     "id": "PF740",
     "sku": "PF740",
     "slug": "pf740",
-    "name": "ناين بى ام",
+    "name": "ناين بي إم ريبل",
     "brand": "Parfums De Foda",
     "description": "",
     "image": "/products/PF740.webp",
@@ -4120,7 +4121,7 @@
       "base": []
     },
     "seo": {
-      "title": "ناين بى ام | Parfums De Foda",
+      "title": "ناين بي إم ريبل | Parfums De Foda",
       "description": ""
     }
   },
@@ -4193,11 +4194,11 @@
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true,
+        "inStock": false,
         "ml": 100
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -4277,11 +4278,11 @@
       {
         "label": "100 مل",
         "price": 700,
-        "inStock": true,
+        "inStock": false,
         "ml": 100
       }
     ],
-    "inStock": true,
+    "inStock": false,
     "notes": {
       "top": [],
       "middle": [],
@@ -4296,7 +4297,7 @@
     "id": "PF840",
     "sku": "PF840",
     "slug": "pf840",
-    "name": "أمواج جوبيليشن",
+    "name": "أمواج جوبيليشن حريمي",
     "brand": "Parfums De Foda",
     "description": "",
     "image": "/products/PF840.webp",
@@ -4330,7 +4331,7 @@
       "base": []
     },
     "seo": {
-      "title": "أمواج جوبيليشن | Parfums De Foda",
+      "title": "أمواج جوبيليشن حريمي | Parfums De Foda",
       "description": ""
     }
   },
