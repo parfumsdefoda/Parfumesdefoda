@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-18T22:47:50.234Z",
+  "generatedAt": "2026-11-19T18:08:58.312Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
@@ -2191,6 +2191,64 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf860/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf880": {
+      "source": "/products/PF880.webp",
+      "sourceHash": "feb3b96f4c119e2c7278ccc16954750125f2a8a107b805190d3ceb338f3d10bf",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 1296,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf880/card-400.avif",
+          "webp": "/products/derived/pf880/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf880/card-800.avif",
+          "webp": "/products/derived/pf880/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf880/pdp-1200.avif",
+          "webp": "/products/derived/pf880/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf880/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf900": {
+      "source": "/products/PF900.webp",
+      "sourceHash": "980833db13eadc54f20333bb71504727bf542d35fb40888a9fca73a8154f4b35",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 1304,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf900/card-400.avif",
+          "webp": "/products/derived/pf900/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf900/card-800.avif",
+          "webp": "/products/derived/pf900/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf900/pdp-1200.avif",
+          "webp": "/products/derived/pf900/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf900/pdp-2000.webp"
         }
       ]
     }

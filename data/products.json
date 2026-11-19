@@ -4378,6 +4378,126 @@
     }
   },
   {
+    "id": "PF880",
+    "sku": "PF880",
+    "slug": "pf880",
+    "name": "وود اند مود يونيك لكجري",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF880.webp",
+    "gallery": [
+      "/products/PF880.webp"
+    ],
+    "gender": "للجنسين",
+    "type": "غربي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء صاروخي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 81,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 850,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 600,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 400,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 150,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "وود اند مود يونيك لكجري | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
+    "id": "PF900",
+    "sku": "PF900",
+    "slug": "pf900",
+    "name": "أومبر ليفانت",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF900.webp",
+    "gallery": [
+      "/products/PF900.webp"
+    ],
+    "gender": "للجنسين",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "performance": "أداء صاروخي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 82,
+    "sizes": [
+      {
+        "label": "100 مل",
+        "price": 850,
+        "inStock": true,
+        "ml": 100
+      },
+      {
+        "label": "50 مل",
+        "price": 600,
+        "inStock": true,
+        "ml": 50
+      },
+      {
+        "label": "30 مل",
+        "price": 400,
+        "inStock": true,
+        "ml": 30
+      },
+      {
+        "label": "10 مل",
+        "price": 150,
+        "inStock": true,
+        "ml": 10
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "أومبر ليفانت | Parfums De Foda",
+      "description": ""
+    }
+  },
+  {
     "id": "PF231",
     "sku": "PF231",
     "slug": "pf231",
@@ -4562,5 +4682,63 @@
       "title": "عنبر عود | Parfums De Foda",
       "description": ""
     }
+  },
+  {
+    "id": "PF090",
+    "sku": "PF090",
+    "slug": "pf090",
+    "name": "أمواج انترلود",
+    "brand": "Parfums De Foda",
+    "description": "",
+    "image": "/products/PF090.webp",
+    "gallery": [
+      "/products/PF090.webp"
+    ],
+    "gender": "رجالي",
+    "type": "شرقي",
+    "house": "نيش",
+    "oily": false,
+    "fodaOriginal": false,
+    "season": "شتوي",
+    "performance": "أداء قوي",
+    "featured": false,
+    "badge": "",
+    "rating": 0,
+    "reviews": 0,
+    "status": "active",
+    "sortOrder": 5,
+    "sizes": [
+      {
+        "label": "10 مل",
+        "price": 120,
+        "inStock": true
+      },
+      {
+        "label": "30 مل",
+        "price": 350,
+        "inStock": true
+      },
+      {
+        "label": "50 مل",
+        "price": 500,
+        "inStock": true
+      },
+      {
+        "label": "100 مل",
+        "price": 700,
+        "inStock": true
+      }
+    ],
+    "inStock": true,
+    "notes": {
+      "top": [],
+      "middle": [],
+      "base": []
+    },
+    "seo": {
+      "title": "أمواج انترلود | Parfums De Foda",
+      "description": ""
+    },
+    "hidden": true
   }
 ]
