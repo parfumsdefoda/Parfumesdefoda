@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T22:47:32.494Z",
+  "generatedAt": "2026-11-19T18:07:45.559Z",
   "totals": {
     "products": 79,
     "referencedImages": 79,
@@ -17,7 +17,7 @@
     "withRealTransparency": 72,
     "needsRetouch": 4,
     "unreferencedByClass": {
-      "transparent": 0,
+      "transparent": 2,
       "pure-white": 0,
       "off-white": 0,
       "coloured": 0
@@ -47,8 +47,24 @@
     "noImage": [],
     "photoPending": [],
     "multiImage": [],
-    "unreferenced": [],
-    "unreferencedDetails": []
+    "unreferenced": [
+      "/products/PF880.webp",
+      "/products/PF900.webp"
+    ],
+    "unreferencedDetails": [
+      {
+        "path": "/products/PF880.webp",
+        "background": "transparent",
+        "bytes": 26876,
+        "square": false
+      },
+      {
+        "path": "/products/PF900.webp",
+        "background": "transparent",
+        "bytes": 23192,
+        "square": false
+      }
+    ]
   },
   "duplicates": [
     {
