@@ -4,7 +4,10 @@ import { expect, test, type Page } from "@playwright/test";
  * The single-row header.
  *
  * RUN 1.6: below 1024px 76px (logo inline-start, tools inline-end); from
- * 1024px ONE 64px row, nav inline-start, logo dead-centre, tools inline-end.
+ * 1024px ONE 64px row, logo inline-start, nav dead-centre, tools inline-end.
+ * The header shows the logo only — no wordmark text (the old centred lockup
+ * with "PARFUMS DE FODA" beside the mark is gone; the image's alt carries
+ * the accessible name).
  * The suite runs with `reducedMotion: "reduce"` globally
  * (playwright.config.ts), so the tests that are ABOUT motion opt back in
  * with `emulateMedia`.
@@ -17,13 +20,24 @@ async function hidden(page: Page) {
 }
 
 test.describe("single-row header", () => {
-  test("carries no product imagery anywhere in the header", async ({ page }) => {
+  test("carries the logo image only — no product imagery, no wordmark", async ({ page }) => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
     const header = page.locator("header.site-header");
     await expect(header).toHaveCount(1);
-    // No <img> at all: the brand mark is a CSS background.
-    await expect(header.locator("img")).toHaveCount(0);
+    // The brand mark is a real <img> now (next/image): exactly one, and it
+    // is the logo with the store's accessible name.
+    const logo = header.locator('img[alt="Parfums De Foda"]');
+    await expect(logo).toHaveCount(1);
+    await expect(logo).toHaveAttribute("src", /logo\.svg/);
+    await expect(header.locator("img")).toHaveCount(1);
+    // The logo link goes home and its name is the image's alt (no aria-label).
+    await expect(logo).toHaveAttribute("src", /logo\.svg/);
+    const logoLink = header.locator('a[href="/"]').first();
+    await expect(logoLink).toHaveAttribute("href", "/");
+    await expect(logoLink).not.toHaveAttribute("aria-label", /.+/);
+    // No wordmark text remains anywhere in the header.
+    await expect(header.getByText("PARFUMS DE FODA")).toHaveCount(0);
 
     // And no background-image pointing at the catalogue either.
     const productBackgrounds = await header.evaluate((element) =>
@@ -38,7 +52,7 @@ test.describe("single-row header", () => {
 
 
 
-  test("is one 64px row, logo centred, no overlap from 1024 to 1440 (RUN 1.6)", async ({ page }) => {
+  test("is one 64px row, logo at the start, nav centred, no overlap 1024–1440", async ({ page }) => {
     test.setTimeout(90_000);
     for (const width of [1024, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -48,9 +62,11 @@ test.describe("single-row header", () => {
       await expect(header).toHaveCount(1);
       const g = await header.evaluate((el) => {
         const nav = el.querySelector("nav") as HTMLElement;
-        const logos = el.querySelectorAll('a[aria-label="Parfums De Foda"]');
-        const logo = logos[1] ?? logos[0];
-        const brand = logo.lastElementChild as HTMLElement;
+        // The bar renders the lockup twice (mobile row + desktop row); only
+        // one is visible at a given width — measure that one.
+        const logo = Array.from(el.querySelectorAll('img[alt="Parfums De Foda"]')).find(
+          (candidate) => candidate.getBoundingClientRect().width > 0,
+        ) as HTMLElement;
         const whatsapp = Array.from(el.querySelectorAll('a[href*="wa.me"]')).find(
           (n) => getComputedStyle(n).display !== "none",
         ) as HTMLElement;
@@ -77,11 +93,13 @@ test.describe("single-row header", () => {
           position: style.position,
           background: style.backgroundColor,
           borderBottom: style.borderBottomWidth,
-          logoCenter: box(logo).left + box(logo).width / 2,
-          viewportCenter: innerWidth / 2,
+          // clientWidth excludes the scrollbar: rects are viewport-relative,
+          // so centres/gaps must be measured against the visible area.
+          logoRightGap: document.documentElement.clientWidth - box(logo).right,
+          logoHeight: box(logo).height,
+          navCenter: box(nav).left + box(nav).width / 2,
+          viewportCenter: document.documentElement.clientWidth / 2,
           navGap: getComputedStyle(nav).columnGap,
-          brandSize: getComputedStyle(brand).fontSize,
-          brandTracking: getComputedStyle(brand).letterSpacing,
           whatsappWidth: box(whatsapp).width,
           whatsappBg: getComputedStyle(whatsapp).backgroundColor,
           whatsappColor: getComputedStyle(whatsapp).color,
@@ -98,7 +116,11 @@ test.describe("single-row header", () => {
       expect(g.background, `${width}px background`).toBe("rgb(255, 255, 255)");
       expect(g.borderBottom, `${width}px border`).toBe("1px");
       expect(g.overlaps, `${width}px overlaps`).toBe(0);
-      expect(Math.abs(g.logoCenter - g.viewportCenter), `${width}px logo centred`).toBeLessThanOrEqual(2);
+      // RTL: inline-start is the right edge; the logo sits 32px (px-8) from it.
+      expect(Math.abs(g.logoRightGap - 32), `${width}px logo at start`).toBeLessThanOrEqual(2);
+      expect(g.logoHeight, `${width}px logo height`).toBe(48);
+      // The nav is now the centred column, not the logo.
+      expect(Math.abs(g.navCenter - g.viewportCenter), `${width}px nav centred`).toBeLessThanOrEqual(4);
       expect(g.houses, `${width}px houses menu gone`).toBe(0);
       expect(g.links.length, `${width}px nav links`).toBeGreaterThanOrEqual(3);
       expect(g.links.length, `${width}px nav links max`).toBeLessThanOrEqual(4);
@@ -125,20 +147,21 @@ test.describe("single-row header", () => {
     const header = page.locator("header.site-header");
     const g = await header.evaluate((el) => {
       const nav = el.querySelector("nav") as HTMLElement;
-      const logo = el.querySelector("a[aria-label]") as HTMLElement;
-      const brand = logo.lastElementChild as HTMLElement;
+      const logo = Array.from(el.querySelectorAll('img[alt="Parfums De Foda"]')).find(
+        (candidate) => candidate.getBoundingClientRect().width > 0,
+      ) as HTMLElement;
       return {
         height: el.getBoundingClientRect().height,
         navDisplay: getComputedStyle(nav).display,
-        brandDisplay: getComputedStyle(brand).display,
         logoLeft: logo.getBoundingClientRect().left,
+        logoHeight: logo.getBoundingClientRect().height,
         menu: el.querySelector('[aria-label="القائمة"]')?.getBoundingClientRect().width ?? 0,
       };
     });
 
     expect(g.height).toBe(76);
     expect(g.navDisplay).toBe("none");
-    expect(g.brandDisplay).toBe("none");
+    expect(g.logoHeight).toBe(40);
     expect(g.menu).toBeGreaterThanOrEqual(44);
     expect(g.logoLeft).toBeGreaterThan(200);
 

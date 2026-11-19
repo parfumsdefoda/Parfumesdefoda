@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, MessageCircle, Search, ShoppingCart, X } from "lucide-react";
@@ -57,10 +58,11 @@ function isActiveRoute(pathname: string, href: string): boolean {
  *
  * Below 1024px the bar is exactly what it was: 76px, logo at the inline start,
  * search/cart/hamburger at the inline end. From 1024px there is ONE 64px
- * row: nav links at the inline start, the logo lockup dead-centre (a
- * 3-column grid puts it on the geometric centre), and the tools at the
+ * row: the logo at the inline start (right in RTL), the nav links centred
+ * (a 3-column grid puts them on the geometric centre), and the tools at the
  * inline end — the green WhatsApp button, search, cart. No second row, no
- * hairline crossing the logo, nothing absolutely positioned.
+ * hairline crossing the logo, nothing absolutely positioned. The header shows
+ * the logo only — no wordmark text beside it.
  *
  * The smart-hide, the search panel and the mobile sheet keep their behaviour.
  * The houses (الدور) dropdown and the "المتجر" link are gone; all-products
@@ -212,25 +214,23 @@ export function HeaderBar({
     noResults: labels.searchNoResults,
   };
 
+  /* Logo only — no wordmark. The image's alt is the link's accessible name.
+     The SVG's intrinsic ratio (127.559 x 113.386) is ~1.13:1, so 48px tall
+     is ~54px wide; height drives it, width follows, nothing stretches. */
   const logoLockup = (
     <Link
       href="/"
-      aria-label={storeName}
-      className="flex shrink-0 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+      className="inline-flex shrink-0 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
     >
-      <span className="grid size-[42px] shrink-0 place-items-center overflow-hidden lg:size-[44px]">
-        <span
-          aria-hidden="true"
-          className="block size-8 bg-contain bg-center bg-no-repeat lg:size-11"
-          style={{ backgroundImage: "url(/logos/logo.svg?v=20261119)" }}
-        />
-      </span>
-      <span
-        aria-hidden="true"
-        className="hidden font-serif text-[16px] leading-none tracking-[3px] text-[var(--boutique-ink)] sm:block xl:text-[18px] xl:tracking-[4px]"
-      >
-        PARFUMS DE FODA
-      </span>
+      <Image
+        src="/logos/logo.svg?v=20261119"
+        alt={storeName}
+        width={54}
+        height={48}
+        priority
+        sizes="54px"
+        className="h-10 w-auto lg:h-12"
+      />
     </Link>
   );
 
@@ -372,10 +372,10 @@ export function HeaderBar({
             </div>
           </div>
 
-          {/* Desktop row — one row: nav inline-start, logo centred, tools inline-end. */}
+          {/* Desktop row — one row: logo inline-start, nav centred, tools inline-end. */}
           <div className="mx-auto hidden h-full w-full max-w-[1920px] grid-cols-[1fr_auto_1fr] items-center px-8 lg:grid 2xl:px-10">
-            <div className="flex min-w-0 items-center justify-start gap-5 2xl:gap-[30px]">{navList}</div>
-            <div className="justify-self-center">{logoLockup}</div>
+            <div className="flex min-w-0 items-center justify-start">{logoLockup}</div>
+            <div className="flex min-w-0 items-center justify-center gap-5 2xl:gap-[30px]">{navList}</div>
             <div className="flex shrink-0 items-center justify-end gap-2 xl:gap-3">
               {whatsappButton}
               {searchButton}
