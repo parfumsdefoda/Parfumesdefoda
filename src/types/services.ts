@@ -94,7 +94,6 @@ export interface FilterData {
   categories: string[];
   badges: string[];
   genders: string[];
-  types: string[];
 }
 
 // ─── Content ───

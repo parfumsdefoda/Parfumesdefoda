@@ -9,8 +9,8 @@
  * RUN 1.6: the header carries only the three categories and — when the
  * catalogue fills it — the oils link. "المتجر" (/shop) stays reachable through
  * the logo, the "عرض كل المنتجات" row and breadcrumbs; it is no longer a
- * header link, and the houses (الدور) dropdown is gone (the tier filter
- * stays inside the filters drawer).
+ * header link, and the houses (الدور) dropdown is gone (the tier/house
+ * filter no longer exists at all; the house still shows on cards and the PDP).
  */
 
 import { PRODUCT_FORMS } from "./product-vocabulary";

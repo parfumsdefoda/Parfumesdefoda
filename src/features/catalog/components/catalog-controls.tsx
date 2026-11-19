@@ -23,7 +23,6 @@ import {
   removeFacetValue,
   parseCatalogState,
   serializeCatalogState,
-  setAvailable,
   setSort,
   toggleFacetValue,
   type CatalogState,
@@ -36,11 +35,6 @@ import type { SortOption } from "@/lib/sort-helpers";
 
 export interface CatalogGroupLabels {
   gender: string;
-  style: string;
-  form: string;
-  tier: string;
-  performance: string;
-  size: string;
   foda: string;
 }
 
@@ -50,7 +44,6 @@ export interface CatalogControlsLabels {
   clearSearch: string;
   filters: string;
   clearAll: string;
-  availableOnly: string;
   /** Unit shown after the result count, e.g. "منتج". */
   resultUnit: string;
   sort: string;
@@ -71,7 +64,6 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   clearSearch: "مسح البحث",
   filters: "الفلاتر والترتيب",
   clearAll: "مسح الكل",
-  availableOnly: "المتوفر فقط",
   resultUnit: "منتج",
   sort: "الترتيب",
   sortFeatured: "الافتراضي",
@@ -82,11 +74,6 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   remove: "إزالة",
   groups: {
     gender: "الجنس",
-    style: "النوع",
-    form: "الصيغة",
-    tier: "الدار",
-    performance: "الأداء",
-    size: "المقاس",
     foda: "عطور فوده الأصلية",
   },
 };
@@ -195,7 +182,7 @@ export function CatalogControls({
       </div>
 
       {/* Active chips */}
-      {(activeValues.length > 0 || state.available || state.q) && (
+      {(activeValues.length > 0 || state.q) && (
         <div className="flex flex-wrap items-center gap-2">
           {activeValues.map(({ key, value }) => (
             <button
@@ -209,17 +196,6 @@ export function CatalogControls({
               <X aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           ))}
-          {state.available && (
-            <button
-              type="button"
-              onClick={() => commit(setAvailable(state, false))}
-              aria-label={`${labels.remove} ${labels.availableOnly}`}
-              className="inline-flex items-center gap-1.5 border border-[var(--line)] bg-transparent px-2.5 py-1.5 text-[14px] text-[var(--ink)] transition-colors hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-            >
-              {labels.availableOnly}
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
-            </button>
-          )}
           {state.q && (
             <button
               type="button"
@@ -286,28 +262,6 @@ export function CatalogControls({
                   </AccordionItem>
                 );
               })}
-
-              <AccordionItem value="available" className="border-b border-[var(--line)]">
-                <AccordionTrigger className="py-4 text-[14px] font-medium hover:no-underline">
-                  {labels.availableOnly}
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="flex items-center gap-2.5 py-1">
-                    <Checkbox
-                      id="catalog-available"
-                      checked={state.available}
-                      onCheckedChange={() => commit(setAvailable(state, !state.available))}
-                      aria-label={labels.availableOnly}
-                    />
-                    <Label
-                      htmlFor="catalog-available"
-                      className="cursor-pointer text-[14px] font-normal text-[var(--ink)]"
-                    >
-                      {labels.availableOnly}
-                    </Label>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
 
               <AccordionItem value="sort" className="border-b border-[var(--line)]">
                 <AccordionTrigger className="py-4 text-[14px] font-medium hover:no-underline">

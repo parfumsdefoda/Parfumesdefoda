@@ -441,16 +441,16 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await expect(page.getByRole("dialog")).toBeHidden();
   });
 
-  test("size filter narrows the grid and an impossible search shows the empty state", async ({ page }) => {
-    // Read the catalogue size from the page instead of hardcoding 40: the
-    // owner's master decides how many products are on site.
+  test("a legacy size parameter is ignored and an impossible search shows the empty state", async ({ page }) => {
+    // The المقاس group was removed: ?size=50 مل is no longer read, so the
+    // link must load the whole catalogue rather than narrowing or crashing.
     await page.goto("/shop");
     const count = page.locator('p[aria-live="polite"]').first();
     const fullCatalogue = (await count.textContent())?.trim() ?? "";
     await expect(count).not.toHaveText("٠ منتج");
 
     await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
-    await expect(count).not.toHaveText("٠ منتج");
+    await expect(count).toHaveText(fullCatalogue);
 
     await page.goto(`/shop?q=${encodeURIComponent("zzzzzzz")}`);
     await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible({

@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = t(
     locale,
     "shop.description",
-    "كل العطور في مكان واحد — تصفّح حسب الجنس، النوع، الدار والمقاس.",
+    "كل العطور في مكان واحد — تصفّح حسب الجنس.",
   );
   return {
     title,

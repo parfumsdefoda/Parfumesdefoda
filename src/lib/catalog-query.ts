@@ -6,22 +6,26 @@
  * count is computed against every OTHER active filter, so the numbers tell the
  * shopper what would happen if they added that option rather than echoing the
  * current result set.
+ *
+ * The visible facets are gender (الجنس) and the foda-original collection
+ * (عطور فوده الأصلية). The internal form narrowing (الصيغة, for the oils nav
+ * link) is applied to every count but is not itself a facet. Products are
+ * never hidden for being out of stock — they sort last and carry the
+ * "غير متوفر" state on their card.
  */
 
 import type { Product } from "@/types";
-import { GENDERS, PERFORMANCES, PRODUCT_FORMS, PRODUCT_TYPES } from "./product-vocabulary";
+import { GENDERS } from "./product-vocabulary";
 import {
   FILTER_KEYS,
-  FILTERABLE_TIERS,
   FODA_FILTER_VALUE,
   facetValueLabel,
+  matchesInternalForm,
   productFacetValue,
   type CatalogState,
   type FilterKey,
 } from "./catalog-filters";
-import { hasAnyStock, sizeMlFromLabel } from "./card-presentation";
 import { orderForCatalog } from "./catalog-order";
-import { isUnavailableProduct } from "./product-availability";
 import { productMatchesQuery } from "./search-helpers";
 import { sortProducts } from "./sort-helpers";
 
@@ -52,57 +56,22 @@ export interface CatalogView {
 
 // ─── Matching ───────────────────────────────────────────────────────────────
 
-/**
- * Every buyable bottle volume in the catalogue, smallest first.
- *
- * Derived from the products, so an oil's 3/6/12 مل appears the moment it is in
- * stock — no constant to edit, and a sold-out volume is not offered as a dead
- * end. Labels come from the data ("12 مل"), never rebuilt by hand.
- */
-export function catalogueSizeLabels(products: Product[]): string[] {
-  const byVolume = new Map<number, string>();
-  for (const product of products) {
-    for (const size of product.sizes) {
-      if (!size.inStock) continue;
-      const ml = sizeMlFromLabel(size.label);
-      if (ml === null) continue;
-      if (!byVolume.has(ml)) byVolume.set(ml, size.label);
-    }
-  }
-  return [...byVolume.entries()].sort((a, b) => a[0] - b[0]).map(([, label]) => label);
-}
-
-/** The catalogue's option vocabulary per group. */
-function optionValues(products: Product[], key: FilterKey): string[] {
+/** The catalogue's option vocabulary per visible group. */
+function optionValues(key: FilterKey): string[] {
   switch (key) {
     case "gender":
       return [...GENDERS];
-    case "style":
-      return [...PRODUCT_TYPES];
-    case "form":
-      return [...PRODUCT_FORMS];
-    case "tier":
-      return [...FILTERABLE_TIERS];
-    case "performance":
-      return [...PERFORMANCES];
     case "foda":
       // A one-value group: `presentOptions` keeps it only while a visible
       // product actually carries the flag, so the group is never a dead end.
       return [FODA_FILTER_VALUE];
-    case "size":
-      return catalogueSizeLabels(products);
     default:
       return [];
   }
 }
 
-/** True when a product matches one value of one group. */
+/** True when a product matches one value of one visible group. */
 export function matchesFacetValue(product: Product, key: FilterKey, value: string): boolean {
-  if (key === "size") {
-    // Availability-based: the size has to be one a shopper can actually buy
-    // today, so a sold-out size never matches its own filter.
-    return product.sizes.some((size) => size.label === value && size.inStock);
-  }
   const field = productFacetValue(product, key);
   return field !== null && field === value;
 }
@@ -110,23 +79,17 @@ export function matchesFacetValue(product: Product, key: FilterKey, value: strin
 /**
  * Does the product survive the whole state?
  *
- * `except` leaves one group (or the availability toggle) out, which is exactly
- * how facet counts are computed.
+ * The internal form narrowing always applies (it has no facet of its own, so
+ * there is no `except` for it). `except` leaves one visible group out, which
+ * is exactly how facet counts are computed.
  */
 export function productMatchesState(
   product: Product,
   state: CatalogState,
-  except?: FilterKey | "available",
+  except?: FilterKey,
 ): boolean {
   if (state.q && !productMatchesQuery(product, state.q)) return false;
-
-  if (
-    except !== "available" &&
-    state.available &&
-    (isUnavailableProduct(product) || !hasAnyStock(product))
-  ) {
-    return false;
-  }
+  if (!matchesInternalForm(product, state.form)) return false;
 
   for (const key of FILTER_KEYS) {
     if (key === except) continue;
@@ -149,7 +112,7 @@ export function filterCatalog(products: Product[], state: CatalogState): Product
 
 /** Option values that exist anywhere in the catalogue, so nothing is a dead end. */
 function presentOptions(products: Product[], key: FilterKey): string[] {
-  return optionValues(products, key).filter((value) =>
+  return optionValues(key).filter((value) =>
     products.some((product) => matchesFacetValue(product, key, value)),
   );
 }
@@ -167,26 +130,22 @@ export function buildFacets(
   /** Groups the page has locked, e.g. gender on `/shop/men`. */
   hidden: readonly FilterKey[] = [],
 ): FacetGroup[] {
-  return (
-    FILTER_KEYS.filter((key) => !hidden.includes(key))
-      .map((key) => {
-        const pool = products.filter((product) => productMatchesState(product, state, key));
+  return FILTER_KEYS.filter((key) => !hidden.includes(key))
+    .map((key) => {
+      const pool = products.filter((product) => productMatchesState(product, state, key));
 
-        return {
-          key,
-          options: presentOptions(products, key).map((value) => ({
-            value,
-            // Tier labels go through PUBLIC_TIER_LABELS, so `دووب` is not an
-            // option at all; every other label is the catalogue's own value.
-            label: facetValueLabel(key, value),
-            count: pool.filter((product) => matchesFacetValue(product, key, value)).length,
-          })),
-        };
-      })
-      // "الصيغة" is only a real choice when both formats are sold; a one-option
-      // group wastes a tap and looks like a bug.
-      .filter((group) => group.options.length > (group.key === "form" ? 1 : 0))
-  );
+      return {
+        key,
+        options: presentOptions(products, key).map((value) => ({
+          value,
+          label: facetValueLabel(key, value),
+          count: pool.filter((product) => matchesFacetValue(product, key, value)).length,
+        })),
+      };
+    })
+    // A group with no option at all (the foda collection when no visible
+    // product carries the flag) is not offered — never a dead end.
+    .filter((group) => group.options.length > 0);
 }
 
 // ─── View ───────────────────────────────────────────────────────────────────
