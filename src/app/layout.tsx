@@ -100,7 +100,7 @@ function JsonLd() {
     "@type": "Organization",
     name: "Parfums De Foda",
     url: siteUrl,
-    logo: `${siteUrl}/logos/logo.svg?v=20261119`,
+    logo: `${siteUrl}/logos/logo.svg?v=20261119-2`,
     description: "متجر عطور شرقية وغربية وزيوت عطرية",
     address: {
       "@type": "PostalAddress",

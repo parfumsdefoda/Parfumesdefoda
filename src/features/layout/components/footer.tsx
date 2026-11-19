@@ -30,10 +30,10 @@ export interface FooterProps {
  * purple hairline on top and no gold. The text heading "Parfums De Foda" is
  * replaced by the logo at ~120px high on desktop / ~88px on mobile.
  *
- * Logo treatment: the SVG (`public/logos/logo.svg`) is a transparent vector
- * whose green fill is the same hue as the footer background, so it is seated
- * on an ivory (paper) plate with a 1px purple border — a deliberate plate,
- * never a stray white box. The /#contact anchor stays on the contact column.
+ * Logo treatment: the SVG (`public/logos/logo.svg`) now ships with its own
+ * brand-green plate (opaque rect behind the purple mark), seated on an ivory
+ * (paper) plate with a 1px purple border — a deliberate plate, never a stray
+ * white box. The /#contact anchor stays on the contact column.
  *
  * The help column (المساعدة) is gone: /faq, /shipping-returns and /contact
  * remain as pages, but nothing in the footer links to them. The brand
@@ -71,7 +71,7 @@ export function Footer({
       <span
         aria-hidden="true"
         className="block h-[88px] w-[88px] bg-contain bg-center bg-no-repeat lg:h-[120px] lg:w-[120px]"
-        style={{ backgroundImage: "url(/logos/logo.svg?v=20261119)" }}
+        style={{ backgroundImage: "url(/logos/logo.svg?v=20261119-2)" }}
       />
     </span>
   );
