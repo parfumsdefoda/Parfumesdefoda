@@ -67,9 +67,9 @@ function isActiveRoute(pathname: string, href: string): boolean {
  * The smart-hide, the search panel and the mobile sheet keep their behaviour.
  * The houses (الدور) dropdown and the "المتجر" link are gone; all-products
  * stays reachable through the logo, the "عرض كل المنتجات" row and the
- * breadcrumbs. The logo is `public/logos/logo.svg` — it ships with its own
- * brand-green plate (opaque rect behind the purple mark), so on the white
- * bar it reads as a green tile; no multiply/plate treatment needed.
+ * breadcrumbs. The header uses `public/logos/logo-header.svg` — the
+ * transparent variant of the logo (no baked-in plate), so the purple mark
+ * sits directly on the white bar with no frame and no tile.
  */
 export function HeaderBar({
   storeName,
@@ -224,7 +224,7 @@ export function HeaderBar({
       className="inline-flex shrink-0 items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
     >
       <Image
-        src="/logos/logo.svg?v=20261119-2"
+        src="/logos/logo-header.svg?v=20261119-2"
         alt={storeName}
         width={54}
         height={48}
