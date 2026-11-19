@@ -77,3 +77,6 @@ data/products.backup.json
 
 # archived product photos from an image swap (local only, never committed)
 /.backups/
+
+# design reference material (local only, never committed)
+/Ref/
