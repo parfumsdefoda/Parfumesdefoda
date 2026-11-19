@@ -31,9 +31,9 @@ export interface FooterProps {
  * replaced by the logo at ~120px high on desktop / ~88px on mobile.
  *
  * Logo treatment: the SVG (`public/logos/logo.svg`) now ships with its own
- * brand-green plate (opaque rect behind the purple mark), seated on an ivory
- * (paper) plate with a 1px purple border — a deliberate plate, never a stray
- * white box. The /#contact anchor stays on the contact column.
+ * brand-green plate (opaque rect behind the purple mark). It sits bare on
+ * the green footer — no stroke, no outer frame, no plate. The /#contact
+ * anchor stays on the contact column.
  *
  * The help column (المساعدة) is gone: /faq, /shipping-returns and /contact
  * remain as pages, but nothing in the footer links to them. The brand
@@ -64,7 +64,7 @@ export function Footer({
 
   const logo = (
     <span
-      className="inline-flex items-center justify-center border border-[var(--purple-950)] bg-[var(--boutique-white)] px-4 py-3"
+      className="inline-flex items-center justify-center"
       role="img"
       aria-label={storeName}
     >
