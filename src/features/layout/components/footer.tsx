@@ -71,7 +71,7 @@ export function Footer({
       <span
         aria-hidden="true"
         className="block h-[88px] w-[88px] bg-contain bg-center bg-no-repeat lg:h-[120px] lg:w-[120px]"
-        style={{ backgroundImage: "url(/logos/logo.svg)" }}
+        style={{ backgroundImage: "url(/logos/logo.svg?v=20261119)" }}
       />
     </span>
   );

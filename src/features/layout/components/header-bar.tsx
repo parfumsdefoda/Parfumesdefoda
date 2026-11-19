@@ -222,7 +222,7 @@ export function HeaderBar({
         <span
           aria-hidden="true"
           className="block size-8 bg-contain bg-center bg-no-repeat lg:size-11"
-          style={{ backgroundImage: "url(/logos/logo.svg)" }}
+          style={{ backgroundImage: "url(/logos/logo.svg?v=20261119)" }}
         />
       </span>
       <span
