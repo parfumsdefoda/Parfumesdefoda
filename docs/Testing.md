@@ -158,3 +158,28 @@ These need the real deployment and stay on the launch checklist:
 - the 308 redirects at the edge, custom domain and DNS
 - field performance (CrUX) and real devices
 - the AI advisor with a funded key (local runs use the deterministic fallback)
+
+
+### Gallery state checks (R2-3)
+
+`e2e/gallery-states.spec.ts` runs axe (WCAG 2.1 A/AA) over the six states that
+only exist after an interaction — cart drawer, search panel, mobile menu, size
+chooser, checkout with errors, 404 — plus a keyboard-only purchase (tab to the
+checked size, ArrowLeft moves it, tab to the CTA, Enter opens the drawer), a
+reduced-motion assertion (no transform on a hovered card) and a 200% zoom
+reflow check on `/`, `/shop`, a PDP and `/checkout` (no horizontal scroll at a
+640px viewport).
+
+Measured Lighthouse medians (mobile, three runs, production build):
+
+| Route | Perf | A11y | LCP | CLS | TBT |
+|---|---|---|---|---|---|
+| `/` | 100 | 100 | 0.91s (H1) | 0.002 | 28ms |
+| `/shop` | 89 | 100 | 3.80s | 0.001 | 48ms |
+| `/product/pf020` | 91 | 100 | 3.57s | 0.002 | 36ms |
+| `/product/pf240` | 90 | 100 | 3.66s | 0.002 | 36ms |
+| `/cart` (empty) | 100 | 100 | 0.91s | 0.003 | 25ms |
+| `/checkout` (empty) | 100 | 100 | 0.91s | 0.002 | 26ms |
+
+The PDP LCP element is the derived product photo (`framed-1200.avif`); on `/` it
+is still the hero H1, which R1-4 removes.

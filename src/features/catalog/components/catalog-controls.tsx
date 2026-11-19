@@ -1,13 +1,18 @@
 "use client";
 
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
-import { SearchBar } from "@/features/search";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/currency";
 import {
@@ -18,8 +23,6 @@ import {
   removeFacetValue,
   parseCatalogState,
   serializeCatalogState,
-  setAvailable,
-  setQuery,
   setSort,
   toggleFacetValue,
   type CatalogState,
@@ -32,11 +35,7 @@ import type { SortOption } from "@/lib/sort-helpers";
 
 export interface CatalogGroupLabels {
   gender: string;
-  style: string;
-  form: string;
-  tier: string;
-  performance: string;
-  size: string;
+  foda: string;
 }
 
 export interface CatalogControlsLabels {
@@ -45,7 +44,6 @@ export interface CatalogControlsLabels {
   clearSearch: string;
   filters: string;
   clearAll: string;
-  availableOnly: string;
   /** Unit shown after the result count, e.g. "منتج". */
   resultUnit: string;
   sort: string;
@@ -64,9 +62,8 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   searchPlaceholder: "ابحث عن عطرك...",
   search: "بحث",
   clearSearch: "مسح البحث",
-  filters: "الفلاتر",
+  filters: "الفلاتر والترتيب",
   clearAll: "مسح الكل",
-  availableOnly: "المتوفر فقط",
   resultUnit: "منتج",
   sort: "الترتيب",
   sortFeatured: "الافتراضي",
@@ -77,18 +74,9 @@ export const DEFAULT_CONTROLS_LABELS: CatalogControlsLabels = {
   remove: "إزالة",
   groups: {
     gender: "الجنس",
-    style: "النوع",
-    form: "الصيغة",
-    tier: "الدار",
-    performance: "الأداء",
-    size: "المقاس",
+    foda: "عطور فوده الأصلية",
   },
 };
-
-/** The desktop checkbox panel is fetched on the first pill click. */
-const FilterPopover = lazy(() => import("./filter-popover"));
-
-const SEARCH_DEBOUNCE_MS = 250;
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -105,15 +93,22 @@ export interface CatalogControlsProps {
   lockedKeys?: readonly FilterKey[];
 }
 
+interface SortChoice {
+  value: SortOption;
+  label: string;
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * CatalogControls — filters, sort and search, driven by the URL.
+ * CatalogControls — one bar and one drawer, driven by the URL.
  *
- * Every change rewrites the query string (`router.replace`, no scroll) and the
- * server renders the new grid, so a view is shareable, reloadable and
- * back-button friendly. Nothing is filtered in the browser: the controls only
- * describe the state they were given.
+ * The bar holds only the count and a single "الفلاتر والترتيب" trigger: no search
+ * field, no row of pills, no per-group popover. The drawer opens from the inline
+ * end at every width, lists the groups as hairline accordions with their live
+ * counts, then the sort radios, and closes on the purple "عرض N منتج". Every
+ * change rewrites the query string (`router.replace`, no scroll) and the server
+ * renders the new grid, so a view stays shareable and back-button friendly.
  */
 export function CatalogControls({
   state,
@@ -126,22 +121,8 @@ export function CatalogControls({
   const router = useRouter();
   const pathname = usePathname() || "/";
 
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const sheetTriggerRef = useRef<HTMLButtonElement>(null);
-  const [openGroup, setOpenGroup] = useState<{
-    key: FilterKey;
-    anchor: HTMLButtonElement;
-  } | null>(null);
-
-  // Search is the one field that needs a local value while typing. The URL
-  // stays authoritative: when the query string changes underneath (back,
-  // a link), the field follows it during render — not in an effect.
-  const [query, setQueryValue] = useState(state.q);
-  const [seenQuery, setSeenQuery] = useState(state.q);
-  if (state.q !== seenQuery) {
-    setSeenQuery(state.q);
-    setQueryValue(state.q);
-  }
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const commit = useCallback(
     (next: CatalogState) => {
@@ -153,193 +134,55 @@ export function CatalogControls({
     [lockedKeys, pathname, router],
   );
 
-  // Debounce the search into the URL. The timer reads the *live* query string
-  // when it fires, so a filter toggled while the shopper is still typing is
-  // never dropped by a stale closure.
-  useEffect(() => {
-    if (query === state.q) return;
-    const timer = setTimeout(() => {
-      const current = parseCatalogState(
-        Object.fromEntries(new URLSearchParams(window.location.search)),
-      );
-      if (current.q === query.trim()) return;
-      commit(setQuery(current, query));
-    }, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [query, state.q, commit]);
-
   const activeCount = countActiveFilters(state, lockedKeys);
-  const openFacet = openGroup ? facets.find((group) => group.key === openGroup.key) : undefined;
   const activeValues = FILTER_KEYS.filter((key) => !lockedKeys.includes(key)).flatMap((key) =>
     state[key].map((value) => ({ key, value })),
   );
   const showResults = labels.showResults.replace("{count}", formatNumber(total));
 
   const toggle = (key: FilterKey, value: string) => commit(toggleFacetValue(state, key, value));
-
   const clearAll = () => commit(clearCatalogFilters(state));
 
-  // ─── Pieces ───
+  const sortChoices: SortChoice[] = [
+    { value: "price-asc", label: labels.sortPriceAsc },
+    { value: "price-desc", label: labels.sortPriceDesc },
+    { value: "alphabetical", label: labels.sortName },
+  ];
 
-  const availableToggle = (
-    <div className="flex items-center gap-2.5">
-      <Checkbox
-        id="catalog-available"
-        checked={state.available}
-        onCheckedChange={() => commit(setAvailable(state, !state.available))}
-        aria-label={labels.availableOnly}
-      />
-      <Label
-        htmlFor="catalog-available"
-        className="cursor-pointer text-caption font-normal text-[var(--color-text)]"
-      >
-        {labels.availableOnly}
-      </Label>
-    </div>
-  );
-
-  const optionsFor = (group: FacetGroup, variant: "popover" | "sheet") => (
-    <div
-      role="group"
-      aria-label={labels.groups[group.key]}
-      className={cn("flex flex-col gap-1", variant === "sheet" && "gap-3")}
-    >
-      {group.options.map((option, index) => (
-        <FacetRow
-          key={option.value}
-          id={`catalog-${group.key}-${variant}-${index}`}
-          group={group.key}
-          option={option}
-          checked={state[group.key].includes(option.value)}
-          onToggle={() => toggle(group.key, option.value)}
-        />
-      ))}
-    </div>
-  );
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    triggerRef.current?.focus();
+  };
 
   return (
     <div className="mb-8 flex flex-col gap-4">
-      {/* Search · count · sort */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
-          <SearchBar
-            value={query}
-            onChange={setQueryValue}
-            placeholder={labels.searchPlaceholder}
-            label={labels.search}
-            clearLabel={labels.clearSearch}
-            className="w-full md:w-72"
-          />
-          <Button
-            ref={sheetTriggerRef}
-            variant="secondary"
-            className="shrink-0 lg:hidden"
-            onClick={() => setSheetOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={sheetOpen}
-          >
-            <SlidersHorizontal aria-hidden="true" />
-            <span>{labels.filters}</span>
-            {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-[var(--color-brand)] px-1.5 text-caption font-bold text-[var(--color-on-brand)]">
-                {formatNumber(activeCount)}
-              </span>
-            )}
-          </Button>
-        </div>
-
-        <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p aria-live="polite" className="text-caption text-[var(--color-text-muted)]">
-            {formatNumber(total)} {labels.resultUnit}
-          </p>
-          <div className="relative">
-            <label htmlFor="catalog-sort" className="sr-only">
-              {labels.sort}
-            </label>
-            <select
-              id="catalog-sort"
-              value={state.sort}
-              onChange={(event) => commit(setSort(state, event.target.value as SortOption))}
-              className={cn(
-                "h-11 appearance-none rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)]",
-                "ps-4 pe-9 text-caption font-medium text-[var(--color-text)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-              )}
-            >
-              <option value="featured">{labels.sortFeatured}</option>
-              <option value="price-asc">{labels.sortPriceAsc}</option>
-              <option value="price-desc">{labels.sortPriceDesc}</option>
-              <option value="alphabetical">{labels.sortName}</option>
-            </select>
-            <ChevronDown
-              aria-hidden="true"
-              className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop filter bar */}
-      <div className="hidden flex-wrap items-center gap-2 lg:flex">
-        {facets.map((group) => {
-          const active = state[group.key].length;
-          const expanded = openGroup?.key === group.key;
-          return (
-            <button
-              key={group.key}
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={expanded}
-              onClick={(event) => {
-                const anchor = event.currentTarget;
-                setOpenGroup((current) =>
-                  current?.key === group.key ? null : { key: group.key, anchor },
-                );
-              }}
-              className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-pill border px-4 text-caption font-medium",
-                "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                active > 0
-                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-brand)]"
-                  : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
-              )}
-            >
-              <span>{labels.groups[group.key]}</span>
-              {active > 0 && (
-                <span className="text-caption font-bold tabular-nums">{formatNumber(active)}</span>
-              )}
-              <ChevronDown aria-hidden="true" className="h-4 w-4" />
-            </button>
-          );
-        })}
-
-        {openGroup && openFacet && (
-          <Suspense fallback={null}>
-            <FilterPopover
-              anchor={openGroup.anchor}
-              group={openFacet}
-              title={labels.groups[openFacet.key]}
-              active={state[openFacet.key]}
-              onToggle={(value) => commit(toggleFacetValue(state, openFacet.key, value))}
-              onClose={() => setOpenGroup(null)}
-            />
-          </Suspense>
-        )}
-
-        <div className="inline-flex h-10 items-center rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-4">
-          {availableToggle}
-        </div>
-
-        {activeCount > 0 && (
-          <Button variant="tertiary" onClick={clearAll}>
-            {labels.clearAll}
-          </Button>
-        )}
+      {/* Count · single drawer trigger */}
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] pb-3">
+        <p
+          aria-live="polite"
+          className="text-[14px] tabular-nums text-[var(--ink-muted)]"
+        >
+          {formatNumber(total)} {labels.resultUnit}
+        </p>
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={drawerOpen}
+          className="inline-flex h-11 items-center gap-2 border border-[var(--line)] bg-transparent px-4 text-[14px] font-medium text-[var(--ink)] transition-colors duration-100 hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+        >
+          <span>{labels.filters}</span>
+          {activeCount > 0 && (
+            <span className="min-w-4 text-center text-[14px] font-bold tabular-nums text-[var(--purple-700)]">
+              {formatNumber(activeCount)}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Active chips */}
-      {(activeValues.length > 0 || state.available || state.q) && (
+      {(activeValues.length > 0 || state.q) && (
         <div className="flex flex-wrap items-center gap-2">
           {activeValues.map(({ key, value }) => (
             <button
@@ -347,32 +190,18 @@ export function CatalogControls({
               type="button"
               onClick={() => commit(removeFacetValue(state, key, value))}
               aria-label={`${labels.remove} ${facetValueLabel(key, value)}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 border border-[var(--line)] bg-transparent px-2.5 py-1.5 text-[14px] text-[var(--ink)] transition-colors hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
             >
               {facetValueLabel(key, value)}
               <X aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           ))}
-          {state.available && (
-            <button
-              type="button"
-              onClick={() => commit(setAvailable(state, false))}
-              aria-label={`${labels.remove} ${labels.availableOnly}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
-            >
-              {labels.availableOnly}
-              <X aria-hidden="true" className="h-3.5 w-3.5" />
-            </button>
-          )}
           {state.q && (
             <button
               type="button"
-              onClick={() => {
-                setQueryValue("");
-                commit(setQuery(state, ""));
-              }}
+              onClick={() => commit({ ...state, q: "" })}
               aria-label={`${labels.remove} ${state.q}`}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-caption text-[var(--color-text)] transition-colors hover:border-[var(--ui-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1.5 border border-[var(--line)] bg-transparent px-2.5 py-1.5 text-[14px] text-[var(--ink)] transition-colors hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
             >
               «{state.q}»
               <X aria-hidden="true" className="h-3.5 w-3.5" />
@@ -381,57 +210,109 @@ export function CatalogControls({
         </div>
       )}
 
-      {/* Mobile / tablet filter sheet */}
-      {/* Closing returns focus to the button that opened the sheet. */}
+      {/* The one drawer — same component on phone and desktop */}
       <Sheet
-        open={sheetOpen}
+        open={drawerOpen}
         onOpenChange={(open) => {
-          setSheetOpen(open);
-          if (!open) sheetTriggerRef.current?.focus();
+          if (!open) closeDrawer();
+          else setDrawerOpen(true);
         }}
       >
         <SheetContent
-          side="bottom"
-          // The bottom side sets h-auto, so a fixed h-[88vh] never applies and the
-          // sheet grew to its full content height: on a 375x812 phone the facets
-          // started ~470px above the viewport with no scroll container, making
-          // them unreachable. max-h caps the sheet and lets the middle pane scroll.
-          className="max-h-[88svh] gap-0 rounded-t-card p-0"
+          side="left"
+          // The sheet's own `data-[side=left]:w-3/4` wins over a plain w-full,
+          // so the width is set through the same variant: full-bleed on phones,
+          // the sheet's 384px column from sm up.
+          className="gap-0 bg-[var(--paper)] p-0 data-[side=left]:w-full sm:data-[side=left]:w-[384px]"
         >
-          <SheetHeader className="border-b border-[var(--color-border)] px-4 py-3">
-            <SheetTitle className="text-body font-bold">{labels.filters}</SheetTitle>
+          <SheetHeader className="border-b border-[var(--line)] px-5 py-4">
+            <SheetTitle className="text-[15px] font-semibold">{labels.filters}</SheetTitle>
           </SheetHeader>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-4">
-            {facets.map((group) => (
-              <section
-                key={group.key}
-                className="border-b border-[var(--color-border)] py-4 last:border-b-0"
-              >
-                <h3 className="mb-3 text-caption font-bold text-[var(--color-text)]">
-                  {labels.groups[group.key]}
-                </h3>
-                {optionsFor(group, "sheet")}
-              </section>
-            ))}
-            <section className="py-4">{availableToggle}</section>
+          <div className="min-h-0 flex-1 overflow-y-auto px-5">
+            <Accordion className="w-full">
+              {facets.map((group) => {
+                const active = state[group.key].length;
+                return (
+                  <AccordionItem key={group.key} value={group.key} className="border-b border-[var(--line)]">
+                    <AccordionTrigger className="py-4 text-[14px] font-medium hover:no-underline">
+                      <span className="flex items-center gap-2">
+                        {labels.groups[group.key]}
+                        {active > 0 && (
+                          <span className="text-[14px] font-bold tabular-nums text-[var(--purple-700)]">
+                            {formatNumber(active)}
+                          </span>
+                        )}
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div role="group" aria-label={labels.groups[group.key]} className="flex flex-col">
+                        {group.options.map((option, index) => (
+                          <FacetRow
+                            key={option.value}
+                            id={`catalog-${group.key}-${index}`}
+                            group={group.key}
+                            option={option}
+                            checked={state[group.key].includes(option.value)}
+                            onToggle={() => toggle(group.key, option.value)}
+                          />
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+
+              <AccordionItem value="sort" className="border-b border-[var(--line)]">
+                <AccordionTrigger className="py-4 text-[14px] font-medium hover:no-underline">
+                  {labels.sort}
+                </AccordionTrigger>
+                <AccordionContent className="pb-4">
+                  <div role="radiogroup" aria-label={labels.sort} className="flex flex-col">
+                    {sortChoices.map((choice) => {
+                      const selected = state.sort === choice.value;
+                      return (
+                        <button
+                          key={choice.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={selected}
+                          onClick={() => commit(setSort(state, choice.value))}
+                          className={cn(
+                            "flex items-center justify-between gap-3 border-b border-[var(--line)] py-2.5 text-start text-[14px] last:border-b-0",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
+                            selected ? "font-semibold text-[var(--ink)]" : "text-[var(--ink-muted)]",
+                          )}
+                        >
+                          {choice.label}
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "h-3.5 w-3.5 border border-[var(--ink)]",
+                              selected ? "bg-[var(--purple-700)]" : "bg-transparent",
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
 
-          <SheetFooter className="border-t border-[var(--color-border)] px-4 py-3">
-            <Button
-              variant="primary"
-              className="w-full font-bold"
-              onClick={() => {
-                setSheetOpen(false);
-                sheetTriggerRef.current?.focus();
-              }}
-            >
+          <div className="border-t border-[var(--line)] px-5 py-4">
+            <Button variant="primary" className="w-full font-semibold" onClick={closeDrawer}>
               {showResults}
             </Button>
-            <Button variant="tertiary" onClick={clearAll}>
+            <button
+              type="button"
+              onClick={clearAll}
+              className="mt-3 w-full py-1 text-[14px] text-[var(--ink-muted)] underline-offset-4 hover:text-[var(--ink)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+            >
               {labels.clearAll}
-            </Button>
-          </SheetFooter>
+            </button>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
@@ -458,8 +339,7 @@ function FacetRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 rounded-control px-1.5 py-1.5",
-        "hover:bg-[var(--ui-surface-muted)]",
+        "flex items-center gap-2.5 py-1.5",
         empty && "opacity-50",
       )}
       data-filter-group={group}
@@ -474,13 +354,13 @@ function FacetRow({
       <Label
         htmlFor={id}
         className={cn(
-          "flex-1 text-caption font-normal text-[var(--color-text)]",
+          "flex-1 text-[14px] font-normal text-[var(--ink)]",
           empty ? "cursor-not-allowed" : "cursor-pointer",
         )}
       >
         {option.label}
       </Label>
-      <span className="text-caption tabular-nums text-[var(--color-text-muted)]">
+      <span className="text-[14px] tabular-nums text-[var(--ink-muted)]">
         {formatNumber(option.count)}
       </span>
     </div>

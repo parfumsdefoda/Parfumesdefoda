@@ -32,6 +32,6 @@
     "slow": "0.5s ease",
     "fast": "0.15s ease"
   },
-  "palette": "noir-or",
+  "palette": "brand",
   "motion": "moderate"
 }

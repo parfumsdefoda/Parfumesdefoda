@@ -1,9 +1,9 @@
-import type { FullSettings, ContactInfo, SocialLinks, FooterColumn, FooterLink } from "@/types/services";
+import type { FullSettings, ContactInfo, SocialLinks } from "@/types/services";
 import { readJsonFile } from "@/lib/json-loader";
 
 // Re-export types for backward compatibility
 export type { FullSettings, ContactInfo, SocialLinks } from "@/types/services";
-export type { NavItem, FooterColumn, FooterLink, FooterData } from "@/types/services";
+export type { NavItem, FooterData } from "@/types/services";
 
 /**
  * Load store settings, contact, social, navigation, and footer data
@@ -24,7 +24,8 @@ export async function loadFullSettings(): Promise<FullSettings> {
     contact: { whatsapp: "", email: "", phone: "" },
     social: {},
     navigation: [],
-    footer: { description: "", columns: [] },
+    footer: { description: "" },
+    features: { premium: true, assistant: true },
   };
 
   try {
@@ -65,17 +66,8 @@ export async function loadFullSettings(): Promise<FullSettings> {
         : defaults.navigation,
       footer: {
         description: (footer.description as string) ?? defaults.footer.description,
-        columns: Array.isArray(footer.columns)
-          ? footer.columns.map((col: FooterColumn) => ({
-              title: col.title,
-              links: col.links.map((link: FooterLink) => ({
-                label: link.label,
-                ...(link.path ? { href: link.path } : {}),
-                ...(link.url ? { url: link.url } : {}),
-              })),
-            }))
-          : defaults.footer.columns,
       },
+      features: (settings.features as FullSettings["features"]) ?? { premium: true, assistant: true },
     };
   } catch {
     return defaults;

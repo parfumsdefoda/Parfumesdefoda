@@ -40,7 +40,7 @@ describe("products data integrity", () => {
 
   it("returns the full list with no filters and the default (featured) sort", () => {
     const filtered = filterCatalog(products, EMPTY_CATALOG_STATE);
-    const sorted = sortProducts(filtered, "featured");
+    const sorted = sortProducts(filtered, "default");
     // An empty state and the featured sort must keep every product.
     expect(filtered).toHaveLength(products.length);
     expect(sorted).toHaveLength(products.length);

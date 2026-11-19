@@ -14,5 +14,9 @@
   "shipping": {
     "cost": 100
   },
-  "heroProducts": []
+  "heroProducts": [],
+  "features": {
+    "premium": false,
+    "assistant": false
+  }
 }

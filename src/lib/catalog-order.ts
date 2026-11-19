@@ -38,3 +38,13 @@ export function orderForCatalog(
     (a, b) => availabilityRank(a) - availabilityRank(b),
   );
 }
+
+/**
+ * The sold-out products in a catalogue (rank 1): visible, not coming soon,
+ * and with no size in stock. Tests use this instead of hardcoded slugs.
+ */
+export function outOfStockProducts<
+  T extends Pick<Product, "image" | "inStock" | "status" | "sizes">,
+>(products: readonly T[]): T[] {
+  return products.filter((product) => availabilityRank(product) === 1);
+}

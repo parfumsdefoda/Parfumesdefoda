@@ -51,21 +51,15 @@ export interface NavItem {
   href: string;
 }
 
-export interface FooterLink {
-  label: string;
-  href?: string;
-  url?: string;
-  path?: string;
-}
-
-export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
-}
-
 export interface FooterData {
   description: string;
-  columns: FooterColumn[];
+}
+
+export interface FeatureFlags {
+  /** Premium (فاخر) card/PDP treatment. Absent means enabled. */
+  premium?: boolean;
+  /** Floating advisor/assistant. Absent means enabled. */
+  assistant?: boolean;
 }
 
 export interface FullSettings {
@@ -89,6 +83,8 @@ export interface FullSettings {
   social: SocialLinks;
   navigation: NavItem[];
   footer: FooterData;
+  /** Feature toggles. Absent flags mean enabled (backward compatible). */
+  features: FeatureFlags;
 }
 
 // ─── Filters ───
@@ -98,7 +94,6 @@ export interface FilterData {
   categories: string[];
   badges: string[];
   genders: string[];
-  types: string[];
 }
 
 // ─── Content ───

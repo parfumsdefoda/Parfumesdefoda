@@ -192,7 +192,11 @@ describe("planMasterImport — classification and enrichment", () => {
     });
     expect(plan.products[0].concentration).toBe("parfum");
     expect(plan.products[0].description).toBe("وصف موجود");
-    expect(plan.changes).toEqual([]);
+    // The report is always complete: the description would move under
+    // --sync-commerce (blank means ""), but --apply does not write it.
+    expect(plan.changes).toEqual([
+      { slug: "pf001", field: "description", group: "commerce", from: "وصف موجود", to: "" },
+    ]);
   });
 
   it("rejects an unknown enum with the line number and leaves the product untouched", () => {
@@ -280,12 +284,49 @@ describe("planMasterImport — commerce is gated", () => {
     expect(plan.products[0].sizes).toHaveLength(2);
   });
 
-  it("a blank avail cell keeps the current availability", () => {
+  it("a blank avail cell on a priced size makes it unavailable", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,price_50,avail_50", "pf001,500,"]), {
+      mode: "sync-commerce",
+    });
+    expect(plan.products[0].sizes.find((size) => size.label === "50 مل")?.inStock).toBe(false);
+    expect(
+      plan.changes.some(
+        (change) => change.field === "sizes.50 مل.inStock" && change.group === "commerce",
+      ),
+    ).toBe(true);
+  });
+
+  it("a size with no price anywhere is removed", () => {
     const plan = planMasterImport([makeProduct()], csv(["slug,avail_50", "pf001,"]), {
       mode: "sync-commerce",
     });
-    expect(plan.products[0].sizes[1].inStock).toBe(true);
-    expect(plan.changes.filter((change) => change.group === "commerce")).toEqual([]);
+    expect(plan.products[0].sizes.some((size) => size.label === "50 مل")).toBe(false);
+    expect(
+      plan.changes.some(
+        (change) => change.field === "sizes.50 مل" && change.group === "commerce",
+      ),
+    ).toBe(true);
+  });
+
+  it("--apply never prunes sizes", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,avail_50", "pf001,"]), {
+      mode: "apply",
+    });
+    expect(plan.products[0].sizes.some((size) => size.label === "50 مل")).toBe(true);
+    expect(plan.products[0].sizes.find((size) => size.label === "50 مل")?.inStock).toBe(true);
+  });
+
+  it("a blank description cell clears the description under sync-commerce", () => {
+    const product = makeProduct({ description: "وصف موجود" });
+    const plan = planMasterImport([product], csv(["slug,concentration,description_ar", "pf001,,"]), {
+      mode: "sync-commerce",
+    });
+    expect(plan.products[0].description).toBe("");
+    expect(
+      plan.changes.some(
+        (change) => change.field === "description" && change.group === "commerce",
+      ),
+    ).toBe(true);
   });
 
   it("rejects a non-numeric price", () => {
@@ -348,7 +389,7 @@ describe("planMasterImport — --create-missing", () => {
     expect(created).toMatchObject({
       id: "PF999",
       name: "عطر جديد",
-      image: "/products/PF999.png",
+      image: "/products/PF999.webp",
       description: "وصف المنتج",
       sortOrder: 2,
       gender: "رجالي",
@@ -797,6 +838,41 @@ describe("planMasterImport — oil", () => {
   });
 });
 
+describe("planMasterImport — --only", () => {
+  const two = [
+    makeProduct(),
+    makeProduct({ slug: "pf002", sku: "PF002", id: "PF002", name: "عطر آخر" }),
+  ];
+  const twoCsv = csv([
+    "slug,name_ar,price_50",
+    "pf001,اسم أول,700",
+    "pf002,اسم ثاني,800",
+  ]);
+
+  it("applies only the requested slug and reports the rest untouched", () => {
+    const plan = planMasterImport(two, twoCsv, {
+      mode: "sync-commerce",
+      only: ["PF001"],
+    });
+
+    expect(plan.products.find((p) => p.slug === "pf001")?.name).toBe("اسم أول");
+    expect(plan.products.find((p) => p.slug === "pf002")?.name).toBe("عطر آخر");
+    expect(
+      plan.products.find((p) => p.slug === "pf002")?.sizes.find((s) => s.label === "50 مل")?.price,
+    ).toBe(500);
+    // The report still shows every change in the file.
+    expect(plan.changes.some((c) => c.slug === "pf002")).toBe(true);
+  });
+
+  it("ignores unknown slugs silently under --only", () => {
+    const plan = planMasterImport([makeProduct()], csv(["slug,name_ar", "pf001,اسم"]), {
+      mode: "sync-commerce",
+      only: ["pf999"],
+    });
+    expect(plan.products[0].name).toBe("عطر تجريبي");
+  });
+});
+
 // ─── Reports ────────────────────────────────────────────────────────────────
 
 describe("planMasterImport — reports", () => {
@@ -847,18 +923,18 @@ describe("planMasterImport — placeholder images", () => {
   it("points a placeholder at the real photo that exists on disk", () => {
     const plan = planMasterImport([placeholder], csv(["slug,on_site", "pf001,نعم"]), {
       mode: "apply",
-      imageExists: (path) => path === "/products/PF001.png",
+      imageExists: (path) => path === "/products/PF001.webp",
     });
 
     expect(plan.imageFixes).toEqual([
       {
         slug: "pf001",
         from: "/products/placeholder-unavailable.webp",
-        to: "/products/PF001.png",
+        to: "/products/PF001.webp",
       },
     ]);
-    expect(plan.products[0].image).toBe("/products/PF001.png");
-    expect(plan.products[0].gallery).toEqual(["/products/PF001.png"]);
+    expect(plan.products[0].image).toBe("/products/PF001.webp");
+    expect(plan.products[0].gallery).toEqual(["/products/PF001.webp"]);
   });
 
   it("never touches a product that already has a real image", () => {
@@ -1178,8 +1254,10 @@ describe("planMasterImport — the photo gate", () => {
     });
 
     expect(plan.photoSkips).toEqual([]);
-    expect(plan.changes).toHaveLength(1);
-    expect(plan.products[0].sizes[1]).toMatchObject({ label: "50 مل", price: 700 });
+    // The price moves and the missing avail takes the size off sale (blank
+    // availability is unavailable).
+    expect(plan.changes).toHaveLength(2);
+    expect(plan.products[0].sizes[1]).toMatchObject({ label: "50 مل", price: 700, inStock: false });
   });
 
   it("skips the row ENTIRELY when the photo is missing — no price, no flags", () => {
@@ -1229,11 +1307,11 @@ describe("planMasterImport — the photo gate", () => {
         "slug,sku,name_ar,gender,scent_style,tier,performance,price_50,avail_50",
         "pf999,PF999,عطر جديد,رجالي,شرقي,نيش,أداء قوي,600,نعم",
       ]),
-      { mode: "apply", createMissing: true, photos: gate({ "PF999.png": 320 }) },
+      { mode: "apply", createMissing: true, photos: gate({ "PF999.webp": 320 }) },
     );
 
     expect(plan.creations).toEqual([]);
-    expect(plan.photoSkips[0]).toMatchObject({ status: "too-small", file: "PF999.png" });
+    expect(plan.photoSkips[0]).toMatchObject({ status: "too-small", file: "PF999.webp" });
     expect(plan.photoSkips[0].detail).toContain("320px");
   });
 
@@ -1246,7 +1324,7 @@ describe("planMasterImport — the photo gate", () => {
     });
 
     expect(plan.photoSkips).toEqual([]);
-    expect(plan.changes).toHaveLength(1);
+    expect(plan.changes).toHaveLength(2); // price + availability off
     expect(plan.products[0].sizes[1].price).toBe(700);
     expect(plan.warnings.some((warning) => warning.message.includes("photo is small"))).toBe(true);
   });
@@ -1263,7 +1341,7 @@ describe("planMasterImport — the photo gate", () => {
 
     expect(plan.creations).toEqual([]);
     expect(plan.refusals).toEqual([]);
-    expect(plan.photoSkips[0]).toMatchObject({ slug: "pf999", file: "PF999.png" });
+    expect(plan.photoSkips[0]).toMatchObject({ slug: "pf999", file: "PF999.webp" });
     expect(plan.products).toHaveLength(1);
   });
 

@@ -27,7 +27,7 @@ const TARGETS = [
   { route: "/", budget: 240 },
   { route: "/shop", budget: 240 },
   { route: "/shop/men", budget: 240 },
-  { route: "/product/pf090", budget: 240 },
+  { route: "/product/pf020", budget: 240 },
   { route: "/product/pf680", budget: 240 },
   { route: "/cart", budget: 240 },
   { route: "/checkout", budget: 260 },

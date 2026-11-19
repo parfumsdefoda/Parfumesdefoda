@@ -57,9 +57,15 @@ describe("buildProductOffer", () => {
     });
   });
 
-  it("has no offer when every size is sold out", () => {
+  it("is OutOfStock when every size is sold out (RUN 1.6)", () => {
     const soldOut = product({ sizes: [size("50 مل", 400, false)] });
-    expect(buildProductOffer(soldOut)).toBeUndefined();
+    expect(buildProductOffer(soldOut)).toEqual({
+      priceCurrency: "EGP",
+      lowPrice: 400,
+      highPrice: 400,
+      offerCount: 1,
+      availability: "https://schema.org/OutOfStock",
+    });
   });
 });
 
@@ -91,11 +97,11 @@ describe("buildProductJsonLd", () => {
     expect(() => JSON.parse(JSON.stringify(jsonLd))).not.toThrow();
   });
 
-  it("omits offers for a product nobody can buy", () => {
+  it("marks a product nobody can buy as OutOfStock (RUN 1.6)", () => {
     const coming = buildProductJsonLd(
-      product({ sizes: [size("50 مل", 0, false)] }),
+      product({ sizes: [size("50 مل", 400, false)] }),
       SITE,
     );
-    expect(coming.offers).toBeUndefined();
+    expect(coming.offers?.availability).toBe("https://schema.org/OutOfStock");
   });
 });

@@ -4,12 +4,12 @@ import { lowestBuyablePrice } from "./card-presentation";
 /**
  * How the catalogue can be ordered.
  *
- * `featured` replaces the old sales-count sort: the homepage no longer waits on
- * Redis to render, and "الافتراضي" should mean the owner's lineup (فاخر first,
- * then the catalogue order), not a number nobody can see.
+ * The default order is the owner's catalogue order. The premium (فاخر)
+ * classification never sorts: a legacy `?sort=featured` value is silently
+ * ignored by the parser and lands on the default instead.
  */
 export type SortOption =
-  | "featured"
+  | "default"
   | "price-asc"
   | "price-desc"
   | "alphabetical";
@@ -34,11 +34,6 @@ export function sortProducts(
   const sorted = [...products];
 
   switch (sortBy) {
-    case "featured":
-      return sorted.sort(
-        (a, b) => Number(b.featured) - Number(a.featured),
-      );
-
     case "price-asc":
       return sorted.sort((a, b) => priceOf(a) - priceOf(b));
 

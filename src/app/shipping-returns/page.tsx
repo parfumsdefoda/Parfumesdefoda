@@ -39,10 +39,10 @@ export default async function ShippingReturnsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[820px] px-4 pb-[var(--space-section)] pt-8">
-      <h1 className="mb-2 text-title-3 font-bold text-[var(--color-text)]">
+      <h1 className="mb-2 text-title-3 font-bold text-[var(--ink)]">
         {t(locale, "footer.shippingReturns", "الشحن والإرجاع")}
       </h1>
-      <p className="mb-6 text-caption text-[var(--color-text-muted)]">
+      <p className="mb-6 text-caption text-[var(--ink-muted)]">
         {t(locale, "footer.note", "الدفع عند الاستلام · شحن ثابت {fee} لكل الطلبات").replace(
           "{fee}",
           formatPrice(shippingFee),
@@ -54,7 +54,7 @@ export default async function ShippingReturnsPage() {
         title={t(locale, "policies.title", "السياسات")}
       />
 
-      <p className="mt-8 text-caption text-[var(--color-text-muted)]">
+      <p className="mt-8 text-caption text-[var(--ink-muted)]">
         <Link
           href="/faq"
           className="font-medium text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"

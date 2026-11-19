@@ -42,20 +42,44 @@ async function completeCheckout(page: Page) {
 }
 
 test.describe("production storefront and checkout", () => {
-  test("home has a single heading, a product-free hero, shop CTA, category and best sellers", async ({ page }) => {
+  test("home is header, grid, view-all row — no intro, categories, advisor or claim", async ({ page }) => {
     // networkidle: the catalogue's first row is laid out with its derived images;
     // measuring scrollWidth during that first layout pass reports a phantom
     // horizontal overflow.
     await page.goto("/", { waitUntil: "networkidle" });
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("h1")).toHaveCount(1);
-    // Base-UI renders the CTA as <a href="/shop" role="button">, so it is a
-    // button in the accessibility tree, not a link.
-    await expect(page.getByRole("button", { name: "تسوّق الآن" })).toHaveAttribute("href", "/shop");
-    // The hero is type and CSS only — its full contract lives in e2e/hero.spec.ts.
-    await expect(page.locator("section[aria-labelledby='hero-heading'] img")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toBeVisible();
+    await expect(page.locator("h1")).toHaveText("Parfums De Foda | العطور");
+    // RUN 1.5: the intro bar, the "الأكثر مبيعًا" claim, the categories band
+    // and the advisor band are gone; the grid is the page.
+    await expect(page.locator("section[aria-labelledby='home-intro']")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "الأكثر مبيعًا" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "تسوّق حسب القسم" })).toHaveCount(0);
+    await expect(page.locator("[data-category-tiles], [data-advisor-band]")).toHaveCount(0);
+    // RUN 1.6: 24 cards rendered; 12 visible on mobile, exactly 2 full rows on
+    // desktop (the HomeGridTrim island hides the rest, never a partial row).
+    await expect(page.locator("section[aria-label] [data-card]")).toHaveCount(24);
+    const visible = await page.locator("section[aria-label] [data-card]").evaluateAll((els) =>
+      els.filter((el) => (el as HTMLElement).offsetParent !== null).length,
+    );
+    const homeCols = await page.locator("[data-home-grid]").evaluate((grid) => {
+      const cards = Array.from(grid.querySelectorAll("[data-card]")) as HTMLElement[];
+      const firstTop = cards[0]?.offsetTop;
+      let cols = 0;
+      for (const c of cards) {
+        if (c.offsetTop === firstTop) cols += 1;
+        else break;
+      }
+      return cols;
+    });
+    expect(homeCols).toBeGreaterThanOrEqual(2);
+    if (page.viewportSize()!.width < 1024) {
+      expect(visible).toBe(12);
+    } else {
+      // 2 full rows: visible is an even multiple of the column count.
+      expect(visible).toBeGreaterThanOrEqual(8);
+    }
+    await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   });
 
@@ -69,8 +93,12 @@ test.describe("production storefront and checkout", () => {
     await expect(page.locator('[aria-labelledby="faq-heading"]')).toHaveCount(0);
     await expect(page.locator('[aria-labelledby="trust-heading"]')).toHaveCount(0);
 
-    // The full page still exists and is linked from the footer.
-    await page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }).click();
+    // The footer help column was removed: the page still exists, it is just
+    // no longer linked from the footer.
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }),
+    ).toHaveCount(0);
+    await page.goto("/faq");
     await expect(page).toHaveURL(/\/faq$/);
     await expect(
       page.getByRole("heading", { name: "الأسئلة الشائعة", level: 1 }),
@@ -78,14 +106,18 @@ test.describe("production storefront and checkout", () => {
     await expect(page.locator('[aria-labelledby="faq-heading"]').first()).toBeVisible();
   });
 
-  test("desktop navigation, skip link, and footer links are reachable", async ({ page, isMobile }) => {
+  test("desktop navigation and skip link are reachable", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop navigation layout");
     await page.goto("/");
-    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "المتجر" })).toHaveAttribute("href", "/shop");
+    // RUN 1.6: no "المتجر" link in the header; all-products via logo/view-all.
+    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "المتجر" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "القائمة الرئيسية" }).getByRole("link", { name: "رجالي" })).toHaveAttribute("href", "/shop/men");
     await page.getByRole("link", { name: "انتقل إلى المحتوى الرئيسي" }).focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("#main-content")).toBeFocused();
-    await expect(page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" })).toHaveAttribute("href", "/faq");
+    await expect(
+      page.getByRole("contentinfo").getByRole("link", { name: "الأسئلة الشائعة" }),
+    ).toHaveCount(0);
   });
 
   test("mobile menu opens, traps focus, closes with Escape, and returns focus", async ({ page, isMobile }) => {
@@ -110,16 +142,20 @@ test.describe("production storefront and checkout", () => {
   test("shop filters are URL-driven, search normalizes Arabic, and category routes lock gender", async ({ page }) => {
     await page.goto("/shop");
     await expect(page.locator("h1")).toHaveCount(1);
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    // Real key events, not fill(): WebKit drops the input event that fill()
-    // synthesises on a type=search field, so the controlled value never commits.
-    await search.pressSequentially("افريكان");
-    // The site search is a GET form (action="/shop" name="q"); it commits on submit.
-    await search.press("Enter");
-    await expect(page).toHaveURL(/q=/, { timeout: 10_000 });
+    // The catalogue bar no longer carries a search field: the query lives in
+    // the URL and is typed in the header's search panel, so the contract is the
+    // URL, not a toolbar input.
+    await page.goto(`/shop?q=${encodeURIComponent("افريكان")}`);
+    await expect(page).toHaveURL(/q=/);
     await expect(page.getByRole("link", { name: /أفريكان ليذر/ }).first()).toBeVisible();
-    await page.getByLabel("الترتيب").selectOption("price-desc");
+
+    // Sort moved inside the one drawer, as a radio group driven by the URL.
+    await page.getByRole("button", { name: /^الفلاتر/ }).click();
+    const drawer = page.getByRole("dialog");
+    await drawer.getByRole("button", { name: "الترتيب" }).click();
+    await drawer.getByRole("radio", { name: "الأعلى سعرًا" }).click();
     await expect(page).toHaveURL(/sort=price-desc/);
+    await page.keyboard.press("Escape");
     for (const [path, heading] of [["/shop/men", "رجالي"], ["/shop/women", "حريمي"], ["/shop/unisex", "للجنسين"]]) {
       await page.goto(path);
       await expect(page.locator("h1")).toHaveText(heading);
@@ -129,7 +165,7 @@ test.describe("production storefront and checkout", () => {
   });
 
   test("PDP size selector, cart drawer, accordion, gallery, related products, and WhatsApp link", async ({ page }) => {
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("h1")).toHaveCount(1);
     const sizes = page.getByRole("radiogroup", { name: "اختر الحجم" }).getByRole("radio");
     await expect(sizes).toHaveCount(4);
@@ -138,10 +174,13 @@ test.describe("production storefront and checkout", () => {
     await expect(sizes.nth(1)).toHaveAttribute("aria-checked", "true");
     await page.getByRole("button", { name: "أضف إلى السلة", exact: true }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByRole("dialog").getByText("أمواج انترلود").first()).toBeVisible();
+    await expect(page.getByRole("dialog").getByText("أفريكان ليذر").first()).toBeVisible();
     await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "وصف العطر" }).click();
-    await expect(page.getByText(/أمواج انترلود/).first()).toBeVisible();
+    // The catalogue carries no descriptions (all master cells are empty), so
+    // the وصف العطر section does not render — the الفصل والأداء section is the
+    // one that carries facts on every page.
+    await page.getByRole("button", { name: "الفصل والأداء" }).click();
+    await expect(page.getByText(/شتوي/).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "عطور مشابهة" })).toBeVisible();
     await expect(page.getByRole("link", { name: /اسأل عن هذا العطر/ })).toHaveAttribute("href", /wa\.me/);
     await page.getByRole("button", { name: /تكبير الصورة/ }).first().click();
@@ -160,15 +199,17 @@ test.describe("production storefront and checkout", () => {
     if (soldOut) {
       await page.goto(`/product/${soldOut.slug}`);
       await expect(page.locator("h1")).toHaveCount(1);
-      const cta = page.locator("[data-purchase-cta] button").first();
-      await expect(cta).toBeVisible();
-      await expect(cta).toHaveText("غير متوفر");
-      await expect(cta).toBeDisabled();
-      // Related-product quick-adds still exist with names like
-      // "أضف إلى السلة — تيروني"; the main CTA would be the exact name.
+      // RUN 1.6: every size is shown disabled, no add-to-cart button at all.
+      const radiogroup = page.getByRole("radiogroup");
+      await expect(radiogroup.getByRole("radio").first()).toBeVisible();
+      for (const radio of await radiogroup.getByRole("radio").all()) {
+        await expect(radio).toBeDisabled();
+      }
+      await expect(page.getByText("غير متوفر").first()).toBeVisible();
+      await expect(page.locator("[data-purchase-cta] button")).toHaveCount(0);
       await expect(page.getByRole("button", { name: "أضف إلى السلة", exact: true })).toHaveCount(0);
     }
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("picture source[type='image/avif']").first()).toHaveAttribute("srcset", /products\/derived/);
     const requestedOriginals: string[] = [];
     page.on("request", (request) => {
@@ -260,7 +301,7 @@ test.describe("production storefront and checkout", () => {
     const sitemap = await request.get("/sitemap.xml");
     expect(sitemap.ok()).toBeTruthy();
     const sitemapText = await sitemap.text();
-    expect(sitemapText).toContain("/product/pf090");
+    expect(sitemapText).toContain("/product/pf020");
     // The sitemap lists every visible product: coming-soon pages exist and
     // answer 200, while hidden products (none in the catalogue today) must
     // never appear.
@@ -277,7 +318,7 @@ test.describe("production storefront and checkout", () => {
     );
     expect(sitemapText).not.toContain("/product/does-not-exist");
     expect((await request.get("/robots.txt")).ok()).toBeTruthy();
-    for (const path of ["/", "/shop", "/shop/women", "/product/pf090"]) {
+    for (const path of ["/", "/shop", "/shop/women", "/product/pf020"]) {
       await page.goto(path);
       await expect(page.locator("html")).toHaveAttribute("lang", "ar");
       await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -303,17 +344,17 @@ test.describe("production storefront and checkout", () => {
     const page = await context.newPage();
     await page.goto("/");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.getByRole("button", { name: "تسوّق الآن" })).toHaveAttribute("href", "/shop");
+    await expect(page.getByRole("link", { name: "عرض كل المنتجات" })).toHaveAttribute("href", "/shop");
     await page.goto("/shop");
     await expect(page.locator("h1")).toBeVisible();
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "مسار التنقل" })).toBeVisible();
     await context.close();
   });
 
   test("indexable pages pass serious and critical axe checks", async ({ page }) => {
-    for (const path of ["/", "/shop", "/product/pf090", "/cart", "/checkout", "/checkout/success", "/faq", "/contact"]) {
+    for (const path of ["/", "/shop", "/product/pf020", "/cart", "/checkout", "/checkout/success", "/faq", "/contact"]) {
       if (path === "/cart" || path === "/checkout") await seedCart(page);
       await page.goto(path);
       const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
@@ -336,7 +377,7 @@ test.describe("production storefront and checkout", () => {
     for (const [path, name] of [
       ["/", "home"],
       ["/shop", "shop"],
-      ["/product/pf090", "product-pf090"],
+      ["/product/pf020", "product-pf020"],
       ["/checkout", "checkout"],
     ] as const) {
       // networkidle keeps the capture out of the first-layout pass, when the
@@ -358,10 +399,9 @@ test.describe("production storefront and checkout", () => {
       await expect(page).toHaveScreenshot(`${name}.png`, {
         animations: "disabled",
         fullPage: true,
-        // Footer and the floating advisor are chrome, not page content: the
-        // greeting bubble appears on a timer and would otherwise enter the
-        // baseline at an arbitrary scroll position.
-        mask: [page.locator("footer"), page.locator('button[aria-label*="المساعد"]')],
+        // The footer is chrome, not page content: it would otherwise depend
+        // on the viewport rather than on the page being captured.
+        mask: [page.locator("footer")],
         maxDiffPixelRatio: 0.015,
       });
     }
@@ -379,8 +419,12 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await trigger.click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toBeVisible();
-    await expect(sheet.getByRole("heading", { name: "الفلاتر" })).toBeVisible();
+    await expect(
+      sheet.getByRole("heading", { name: /^الفلاتر/ }),
+    ).toBeVisible();
 
+    // The groups are accordions and start closed, like the design system says.
+    await sheet.getByRole("button", { name: "الجنس" }).click();
     await sheet.getByRole("checkbox", { name: "رجالي" }).click();
     await expect(page).toHaveURL(/gender=/);
     await sheet.getByRole("button", { name: /عرض .* منتج/ }).click();
@@ -397,28 +441,25 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
     await expect(page.getByRole("dialog")).toBeHidden();
   });
 
-  test("size filter narrows the grid and an impossible search shows the empty state", async ({ page }) => {
-    // Read the catalogue size from the page instead of hardcoding 40: the
-    // owner's master decides how many products are on site.
+  test("a legacy size parameter is ignored and an impossible search shows the empty state", async ({ page }) => {
+    // The المقاس group was removed: ?size=50 مل is no longer read, so the
+    // link must load the whole catalogue rather than narrowing or crashing.
     await page.goto("/shop");
     const count = page.locator('p[aria-live="polite"]').first();
     const fullCatalogue = (await count.textContent())?.trim() ?? "";
     await expect(count).not.toHaveText("٠ منتج");
 
     await page.goto(`/shop?size=${encodeURIComponent("50 مل")}`);
-    await expect(count).not.toHaveText("٠ منتج");
+    await expect(count).toHaveText(fullCatalogue);
 
-    const search = page.getByRole("searchbox", { name: "بحث" }).first();
-    await search.pressSequentially("zzzzzzz");
-    await search.press("Enter");
-    // Enter with no highlighted suggestion is a native form submit, so this is
-    // a full document navigation to /shop?q=… (not a client transition) on a
-    // dynamic page; 5 s is tight when the suite runs in parallel.
+    await page.goto(`/shop?q=${encodeURIComponent("zzzzzzz")}`);
     await expect(page.getByText("لا توجد منتجات مطابقة")).toBeVisible({
       timeout: 15_000,
     });
     await page.getByRole("link", { name: "مسح الفلاتر" }).click();
-    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden();
+    await expect(page.getByText("لا توجد منتجات مطابقة")).toBeHidden({
+      timeout: 15_000,
+    });
     await expect(page).toHaveURL(/\/shop$/);
     await expect(count).toHaveText(fullCatalogue);
   });
@@ -568,7 +609,7 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
 
   test("indexable pages carry a unique title and exactly one h1", async ({ page }) => {
     const seen = new Set<string>();
-    for (const path of ["/", "/shop", "/shop/men", "/product/pf090", "/faq", "/contact"]) {
+    for (const path of ["/", "/shop", "/shop/men", "/product/pf020", "/faq", "/contact"]) {
       await page.goto(path);
       const title = ((await page.locator("title").textContent()) ?? "").trim();
       const description = await page.locator("meta[name='description']").getAttribute("content");
@@ -582,7 +623,7 @@ test.describe("release coverage: filters, cart limits, phones, sticky bar", () =
 
   test("sticky PDP bar appears after the CTA scrolls away and retracts at the footer", async ({ page, isMobile }) => {
     test.skip(!isMobile, "the sticky bar is phone-only");
-    await page.goto("/product/pf090");
+    await page.goto("/product/pf020");
     const bar = page.locator("[data-sticky-bar]");
 
     await expect(bar).toHaveAttribute("data-visible", "false");

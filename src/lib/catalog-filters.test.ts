@@ -5,11 +5,9 @@ import {
   countActiveFilters,
   facetValueLabel,
   isDefaultCatalogState,
-  isSizeFilterValue,
   parseCatalogState,
   removeFacetValue,
   serializeCatalogState,
-  setAvailable,
   setQuery,
   setSort,
   toggleFacetValue,
@@ -27,12 +25,8 @@ describe("parseCatalogState", () => {
   });
 
   it("ignores a value the catalogue does not know", () => {
-    const state = parseCatalogState({
-      gender: "رجالي,غير-موجود",
-      performance: "أداء قوي,أداء خرافي",
-    });
+    const state = parseCatalogState({ gender: "رجالي,غير-موجود" });
     expect(state.gender).toEqual(["رجالي"]);
-    expect(state.performance).toEqual(["أداء قوي"]);
   });
 
   it("ignores a legacy season parameter completely", () => {
@@ -43,42 +37,42 @@ describe("parseCatalogState", () => {
     expect(parseCatalogState({ season: "شتوي" })).not.toHaveProperty("season");
   });
 
-  it("never accepts دووب as a tier filter", () => {
-    expect(parseCatalogState({ tier: "دووب" }).tier).toEqual([]);
-    expect(parseCatalogState({ tier: "نيش,دووب" }).tier).toEqual(["نيش"]);
+  it("ignores every removed filter parameter", () => {
+    // النوع (style) / الدار (tier) / الأداء (performance) / المقاس (size) /
+    // المتوفر فقط (available) are no longer filters. Old links carrying them
+    // must load unfiltered by them instead of crashing or narrowing.
+    const legacy = parseCatalogState({
+      style: "شرقي",
+      tier: "نيش",
+      performance: "أداء قوي",
+      size: "50 مل",
+      available: "1",
+    });
+    expect(legacy).toEqual(EMPTY_CATALOG_STATE);
+    expect(legacy).not.toHaveProperty("style");
+    expect(legacy).not.toHaveProperty("tier");
+    expect(legacy).not.toHaveProperty("performance");
+    expect(legacy).not.toHaveProperty("size");
+    expect(legacy).not.toHaveProperty("available");
+  });
+
+  it("keeps the internal form narrowing for the oils nav link", () => {
+    expect(parseCatalogState({ form: "زيت عطري" }).form).toEqual(["زيت عطري"]);
+    expect(parseCatalogState({ form: "بخاخ,عطر" }).form).toEqual(["عطر"]);
   });
 
   it("ignores a non-volume size and an unknown sort", () => {
     const state = parseCatalogState({ size: "كبير", sort: "cheapest" });
-    expect(state.size).toEqual([]);
-    expect(state.sort).toBe("featured");
+    expect(state.sort).toBe("default");
   });
 
-  it("reads any volume label the data can carry, oil sizes included", () => {
-    expect(parseCatalogState({ size: "100 مل,50 مل,30 مل,12 مل,10 مل,6 مل,3 مل" }).size).toEqual([
-      "100 مل",
-      "50 مل",
-      "30 مل",
-      "12 مل",
-      "10 مل",
-      "6 مل",
-      "3 مل",
-    ]);
-  });
-
-  it("reads the الصيغة group and drops an unknown value", () => {
-    expect(parseCatalogState({ form: "عطر" }).form).toEqual(["عطر"]);
-    expect(parseCatalogState({ form: "بخاخ,زيت عطري" }).form).toEqual(["زيت عطري"]);
+  it("silently ignores a legacy premium sort value", () => {
+    const state = parseCatalogState({ sort: "featured" });
+    expect(state.sort).toBe("default");
   });
 
   it("accepts a known sort", () => {
     expect(parseCatalogState({ sort: "price-asc" }).sort).toBe("price-asc");
-  });
-
-  it("only treats available=1 as the availability toggle", () => {
-    expect(parseCatalogState({ available: "1" }).available).toBe(true);
-    expect(parseCatalogState({ available: "0" }).available).toBe(false);
-    expect(parseCatalogState({ available: "نعم" }).available).toBe(false);
   });
 
   it("trims and caps the search query", () => {
@@ -102,25 +96,37 @@ describe("serializeCatalogState", () => {
       ...EMPTY_CATALOG_STATE,
       q: "عود",
       sort: "price-desc",
-      performance: ["أداء قوي"],
       gender: ["رجالي"],
     };
-    const withSize = new URLSearchParams(serializeCatalogState({ ...state, size: ["30 مل"] }));
-    expect(withSize.get("size")).toBe("30 مل");
     expect(serializeCatalogState(state)).toBe(
       new URLSearchParams([
         ["gender", "رجالي"],
-        ["performance", "أداء قوي"],
         ["sort", "price-desc"],
         ["q", "عود"],
       ]).toString(),
     );
   });
 
-  it("never writes a legacy season into the URL", () => {
+  it("writes the internal form narrowing back so the oils link survives", () => {
+    expect(serializeCatalogState({ ...EMPTY_CATALOG_STATE, form: ["زيت عطري"] })).toBe(
+      new URLSearchParams([["form", "زيت عطري"]]).toString(),
+    );
+  });
+
+  it("never writes removed parameters into the URL", () => {
     const legacy = { ...EMPTY_CATALOG_STATE, gender: ["رجالي"] } as CatalogState & {
+      style?: string[];
+      tier?: string[];
+      performance?: string[];
+      size?: string[];
+      available?: boolean;
       season?: string[];
     };
+    legacy.style = ["شرقي"];
+    legacy.tier = ["نيش"];
+    legacy.performance = ["أداء قوي"];
+    legacy.size = ["50 مل"];
+    legacy.available = true;
     legacy.season = ["شتوي"];
     expect(serializeCatalogState(legacy)).toBe(`gender=${encodeURIComponent("رجالي")}`);
   });
@@ -128,12 +134,8 @@ describe("serializeCatalogState", () => {
   it("round-trips through the parser", () => {
     const state: CatalogState = {
       gender: ["نسائي"],
-      style: ["شرقي"],
       form: ["زيت عطري"],
-      tier: ["نيش"],
-      performance: ["أداء قوي"],
-      size: ["100 مل"],
-      available: true,
+      foda: ["الأصلية"],
       sort: "alphabetical",
       q: "أفريكان",
     };
@@ -155,62 +157,54 @@ describe("transitions", () => {
     expect(removeFacetValue(state, "gender", "رجالي").gender).toEqual(["نسائي"]);
   });
 
-  it("keeps the sort when clearing the filters", () => {
+  it("keeps the sort when clearing the filters (and clears the internal form)", () => {
     const state: CatalogState = {
       ...EMPTY_CATALOG_STATE,
       gender: ["رجالي"],
+      form: ["زيت عطري"],
       q: "عود",
-      available: true,
       sort: "price-asc",
     };
     const cleared = clearCatalogFilters(state);
     expect(cleared.sort).toBe("price-asc");
+    expect(cleared.form).toEqual([]);
     expect(isDefaultCatalogState(cleared)).toBe(true);
   });
 
-  it("counts filter values plus the availability toggle", () => {
+  it("only counts visible filter values", () => {
     const state: CatalogState = {
       ...EMPTY_CATALOG_STATE,
       gender: ["رجالي", "نسائي"],
-      available: true,
+      form: ["زيت عطري"],
     };
-    expect(countActiveFilters(state)).toBe(3);
-    expect(countActiveFilters({ ...state, q: "عود" })).toBe(3);
-    expect(isDefaultCatalogState({ ...state, q: "عود" })).toBe(false);
+    // The internal oils narrowing is not a shopper-chosen filter.
+    expect(countActiveFilters(state)).toBe(2);
+    expect(countActiveFilters({ ...state, q: "عود" })).toBe(2);
+    expect(isDefaultCatalogState(state)).toBe(false);
+  });
+
+  it("reads and writes the foda facet and counts it", () => {
+    expect(parseCatalogState({ foda: "الأصلية" }).foda).toEqual(["الأصلية"]);
+    expect(parseCatalogState({ foda: "foda" }).foda).toEqual([]);
+    expect(serializeCatalogState({ ...EMPTY_CATALOG_STATE, foda: ["الأصلية"] })).toBe(
+      `foda=${encodeURIComponent("الأصلية")}`,
+    );
+    expect(countActiveFilters({ ...EMPTY_CATALOG_STATE, foda: ["الأصلية"] })).toBe(1);
   });
 
   it("setters return new objects", () => {
     expect(setSort(EMPTY_CATALOG_STATE, "alphabetical").sort).toBe("alphabetical");
     expect(setQuery(EMPTY_CATALOG_STATE, " عود ").q).toBe("عود");
-    expect(setAvailable(EMPTY_CATALOG_STATE, true).available).toBe(true);
-  });
-});
-
-describe("size group", () => {
-  it("accepts every volume label, including oil sizes", () => {
-    expect(isSizeFilterValue("12 مل")).toBe(true);
-    expect(isSizeFilterValue("3 مل")).toBe(true);
-    expect(isSizeFilterValue("100 مل")).toBe(true);
-    expect(isSizeFilterValue("كبير")).toBe(false);
-    expect(isSizeFilterValue("مل")).toBe(false);
   });
 });
 
 describe("facetValueLabel", () => {
-  it("shows a size with Arabic-Indic digits", () => {
-    expect(facetValueLabel("size", "50 مل")).toBe("٥٠ مل");
-  });
-
-  it("labels a tier through the public lookup", () => {
-    expect(facetValueLabel("tier", "نيش")).toBe("نيش");
-  });
-
   it("maps internal women enum to the public label", () => {
     expect(facetValueLabel("gender", "نسائي")).toBe("حريمي");
   });
 
   it("falls back to the catalogue value", () => {
     expect(facetValueLabel("gender", "للجنسين")).toBe("للجنسين");
-    expect(facetValueLabel("form", "زيت عطري")).toBe("زيت عطري");
+    expect(facetValueLabel("foda", "الأصلية")).toBe("الأصلية فقط");
   });
 });

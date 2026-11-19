@@ -47,12 +47,17 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   async redirects() {
-    return CATALOG_QUERY_KEYS.map((key) => ({
-      source: "/",
-      has: [{ type: "query" as const, key }],
-      destination: "/shop",
-      permanent: true,
-    }));
+    return [
+      // Removed product: pf090's URL permanently points at pf091.
+      { source: "/product/pf090", destination: "/product/pf091", permanent: true },
+      { source: "/product/PF090", destination: "/product/pf091", permanent: true },
+      ...CATALOG_QUERY_KEYS.map((key) => ({
+        source: "/",
+        has: [{ type: "query" as const, key }],
+        destination: "/shop",
+        permanent: true,
+      })),
+    ];
   },
 
   // Image optimization

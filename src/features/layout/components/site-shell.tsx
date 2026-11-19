@@ -37,7 +37,7 @@ export function SiteShell({ header, footer, cart, children }: SiteShellProps) {
           #main-content is a silent no-op and keyboard users stay at the top.
           The header floats, so the page carries its offset — the homepage hero
           eats it back with a negative margin and runs under the capsule. */}
-      <main id="main-content" tabIndex={-1} className="flex-1 pt-[var(--header-offset)]">
+      <main id="main-content" tabIndex={-1} className="flex-1">
         {children}
       </main>
       <Footer {...footer} reduced={reduced} />

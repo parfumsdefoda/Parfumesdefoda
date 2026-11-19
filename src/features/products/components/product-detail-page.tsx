@@ -18,6 +18,7 @@ import { imageSlug } from "@/lib/product-image";
 import { isComingSoon } from "@/lib/product-availability";
 import { categoryHref, CATEGORY_ROUTES } from "@/lib/site-nav";
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
 
 export interface ProductDetailLabels {
   breadcrumbHome: string;
@@ -61,6 +62,7 @@ export interface ProductDetailPageProps {
   shippingFee: string;
   whatsapp?: string;
   siteUrl: string;
+  features?: FeatureFlags;
 }
 
 /**
@@ -86,9 +88,10 @@ export function ProductDetailPage({
   shippingFee,
   whatsapp,
   siteUrl,
+  features,
 }: ProductDetailPageProps) {
   const comingSoon = isComingSoon(product);
-  const premium = isPremiumProduct(product);
+  const premium = isPremiumProduct(product, features);
   const metaParts = cardMetaParts(product, { premium });
   const notes = product.notes;
   const hasNotes = notes.top.length > 0 || notes.middle.length > 0 || notes.base.length > 0;
@@ -108,7 +111,7 @@ export function ProductDetailPage({
     : null;
 
   return (
-    <article className="mx-auto w-full max-w-[1280px] px-4 py-[var(--space-8)]">
+    <article className="mx-auto w-full max-w-[1200px] px-4 py-[var(--space-8)]">
       <Breadcrumbs
         items={[
           { label: labels.breadcrumbHome, href: "/" },
@@ -128,7 +131,7 @@ export function ProductDetailPage({
       />
 
       <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-        <div className="md:sticky md:top-24 md:self-start">
+        <div className="w-full max-w-[560px] md:sticky md:top-24 md:self-start">
           <ProductGallery
             images={images}
             name={product.name}
@@ -138,13 +141,13 @@ export function ProductDetailPage({
           />
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex max-w-[520px] flex-col gap-5">
           <ProductMetaLine parts={metaParts} premium={premium} />
 
-          <h1 className="text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
+          <h1 className="break-words text-title-1 font-bold text-[var(--color-text)]">{product.name}</h1>
 
           {comingSoon ? (
-            <div className="rounded-card border border-dashed border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
+            <div className="border border-[var(--line-soft)] bg-[var(--paper)] p-4">
               <p className="text-body font-bold text-[var(--color-text)]">
                 {labels.comingSoonTitle}
               </p>
@@ -288,7 +291,7 @@ export function ProductDetailPage({
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             <CardSpotlight />
             {related.map((item) => (
-              <ProductCard key={item.id} product={item} labels={cardLabels} />
+              <ProductCard key={item.id} product={item} labels={cardLabels} features={features} />
             ))}
           </div>
         </section>

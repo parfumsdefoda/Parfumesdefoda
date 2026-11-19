@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getChatCompletion, loadCatalog } = vi.hoisted(() => ({
+const { getChatCompletion, loadCatalog, loadFullSettings } = vi.hoisted(() => ({
   getChatCompletion: vi.fn(),
   loadCatalog: vi.fn(),
+  loadFullSettings: vi.fn(),
 }));
 
 vi.mock("@/lib/ai-provider", () => ({
@@ -13,6 +14,12 @@ vi.mock("@/lib/product-grounding", () => ({
   validateProductCodes: (codes: string[]) => codes,
   prioritySortCodes: (codes: string[]) => codes,
   loadCatalog: (...args: unknown[]) => loadCatalog(...args),
+}));
+vi.mock("@/services/settings", () => ({
+  loadFullSettings: (...args: unknown[]) => loadFullSettings(...args),
+}));
+vi.mock("@/lib/features", () => ({
+  isAssistantEnabled: () => true,
 }));
 vi.mock("@/lib/rate-limiter", () => ({
   checkRateLimit: () => ({ allowed: true, remaining: 19, retryAfterMs: 0 }),
@@ -36,6 +43,8 @@ beforeEach(() => {
   vi.spyOn(console, "info").mockImplementation(() => {});
   getChatCompletion.mockReset();
   loadCatalog.mockReset();
+  loadFullSettings.mockReset();
+  loadFullSettings.mockResolvedValue({ features: { premium: false, assistant: true } });
   getChatCompletion.mockResolvedValue({ reply: "رد عربي", recommended_product_codes: [] });
   loadCatalog.mockResolvedValue({ products: [], validIds: new Set() });
 });
@@ -43,6 +52,12 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("POST /api/chat input and privacy boundaries", () => {
+  it("serves the assistant when the flag is on", async () => {
+    const response = await POST(request(JSON.stringify({ messages: [{ role: "user", content: "عطر" }] })));
+    expect(response.status).toBe(200);
+    expect(loadFullSettings).toHaveBeenCalled();
+  });
+
   it("rejects a cross-site origin (BUG-006 regression)", async () => {
     const crossSite = new Request("http://localhost:3000/api/chat", {
       method: "POST",

@@ -159,13 +159,13 @@ export function HeaderSearch({
         </label>
         <div
           className={cn(
-            "flex items-center gap-1 rounded-pill border",
+            "flex items-center gap-1 border",
             "transition-[width,background-color,border-color] duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
             // Desktop: the capsule's own tone tokens, so the field reads on
             // glass in both tones and never looks disabled.
             variant === "desktop"
               ? "h-9 w-[190px] border-[var(--header-field-border)] bg-[var(--header-field)] focus-within:w-[320px] focus-within:bg-[var(--header-field-strong)]"
-              : "h-11 w-full border-[var(--color-border-strong)] bg-[var(--color-surface)]",
+              : "h-11 w-full border-[var(--ink)] bg-[var(--paper)]",
           )}
         >
           <Search
@@ -174,7 +174,7 @@ export function HeaderSearch({
               "ms-3 size-4 shrink-0",
               variant === "desktop"
                 ? "text-[var(--header-fg-muted)]"
-                : "text-[var(--color-text-muted)]",
+                : "text-[var(--ink-muted)]",
             )}
           />
           <input
@@ -213,17 +213,17 @@ export function HeaderSearch({
               "h-full w-full min-w-0 bg-transparent px-1 text-caption focus-visible:outline-none",
               variant === "desktop"
                 ? "text-[var(--header-fg)] placeholder:text-[var(--header-fg-muted)]"
-                : "text-[var(--color-text)] placeholder:text-[var(--color-text-muted)]",
+                : "text-[var(--ink)] placeholder:text-[var(--ink-muted)]",
             )}
           />
           <button
             type="submit"
             aria-label={labels.submit}
             className={cn(
-              "me-1 inline-flex size-8 shrink-0 items-center justify-center rounded-pill transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]",
+              "me-1 inline-flex size-8 shrink-0 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)]",
               variant === "desktop"
                 ? "text-[var(--header-fg-muted)] hover:text-[var(--header-fg)]"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-brand)]",
+                : "text-[var(--ink-muted)] hover:text-[var(--color-brand)]",
             )}
           >
             <Search aria-hidden="true" className="size-4" />
@@ -241,7 +241,7 @@ export function HeaderSearch({
           role="listbox"
           aria-label={labels.suggestions}
           className={cn(
-            "absolute inset-x-0 top-full z-50 overflow-hidden rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lifted",
+            "absolute inset-x-0 top-full z-50 overflow-hidden border border-[var(--line)] bg-[var(--paper)]",
             // The desktop list opens BELOW the floating capsule, not on top of
             // its bottom hairline: the pill sits 12px inside the capsule, so
             // the gap has to clear the capsule's own edge.
@@ -249,7 +249,7 @@ export function HeaderSearch({
           )}
         >
           {showEmpty ? (
-            <p className="px-4 py-3 text-caption text-[var(--color-text-muted)]">
+            <p className="px-4 py-3 text-caption text-[var(--ink-muted)]">
               {labels.noResults}
             </p>
           ) : (
@@ -267,13 +267,13 @@ export function HeaderSearch({
                   className={cn(
                     "flex w-full flex-col items-start gap-0.5 px-4 py-2.5 text-start transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]",
-                    active === position && "bg-[var(--color-surface-muted)]",
+                    active === position && "bg-[var(--paper-deep)]",
                   )}
                 >
-                  <span className="text-caption font-bold text-[var(--color-text)]">
+                  <span className="text-caption font-bold text-[var(--ink)]">
                     {item.name}
                   </span>
-                  <span className="text-caption text-[var(--color-text-muted)]">{item.meta}</span>
+                  <span className="text-caption text-[var(--ink-muted)]">{item.meta}</span>
                 </button>
               ))}
               {query.trim() !== "" && (
@@ -285,9 +285,9 @@ export function HeaderSearch({
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => go("__all__")}
                   className={cn(
-                    "flex w-full items-center gap-2 border-t border-[var(--color-border)] px-4 py-3 text-caption font-bold text-[var(--color-brand)] transition-colors",
+                    "flex w-full items-center gap-2 border-t border-[var(--line)] px-4 py-3 text-caption font-bold text-[var(--color-brand)] transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-focus)]",
-                    active === matches.length && "bg-[var(--color-surface-muted)]",
+                    active === matches.length && "bg-[var(--paper-deep)]",
                   )}
                 >
                   <Search aria-hidden="true" className="size-4" />

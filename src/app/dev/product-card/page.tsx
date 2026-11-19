@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/features/products";
+import { loadFullSettings } from "@/services/settings";
+import { isPremiumEnabled } from "@/lib/features";
 import type { Product, ProductSize } from "@/types";
 
 /**
@@ -23,7 +25,7 @@ function fixture(overrides: Partial<Product> & { id: string; name: string }): Pr
     slug: `dev-${overrides.id}`,
     brand: "Parfums De Foda",
     description: "سطر تجريبي لصفحة المراجعة فقط.",
-    image: "/products/PF020.png",
+    image: "/products/PF020.webp",
     gender: "للجنسين",
     type: "شرقي",
     house: "نيش",
@@ -55,7 +57,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-alpha",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "تيروني (فاخر)",
       featured: true,
     }),
@@ -65,7 +67,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-framed",
       slug: "pf091",
-      image: "/products/PF091.png",
+      image: "/products/PF091.webp",
       name: "أمواج انترلود (فاخر)",
       featured: true,
     }),
@@ -75,7 +77,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-sold-out",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "فاخر غير متوفر",
       featured: true,
       inStock: false,
@@ -87,7 +89,7 @@ const STATES: { label: string; product: Product }[] = [
     product: fixture({
       id: "premium-oil",
       slug: "pf240",
-      image: "/products/PF240.png",
+      image: "/products/PF240.webp",
       name: "زيت فاخر",
       featured: true,
       oily: true,
@@ -161,8 +163,15 @@ const STATES: { label: string; product: Product }[] = [
   },
 ];
 
-export default function DevProductCardPage() {
+export default async function DevProductCardPage() {
   if (process.env.NODE_ENV === "production") notFound();
+
+  const settings = await loadFullSettings();
+  const premiumEnabled = isPremiumEnabled(settings);
+  // While the premium flag is off, the premium states are hidden entirely.
+  const states = premiumEnabled
+    ? STATES
+    : STATES.filter(({ product }) => !product.featured);
 
   return (
     <main className="container mx-auto px-4 py-16">
@@ -172,9 +181,9 @@ export default function DevProductCardPage() {
       </p>
 
       <div className="grid grid-cols-2 gap-[var(--space-6)] sm:grid-cols-3 xl:grid-cols-4">
-        {STATES.map(({ label, product }) => (
+        {states.map(({ label, product }) => (
           <div key={product.id} className="flex flex-col gap-2">
-            <ProductCard product={product} loading="eager" />
+            <ProductCard product={product} loading="eager" features={settings.features} />
             <p className="text-caption text-[var(--color-text-muted)]">{label}</p>
           </div>
         ))}
