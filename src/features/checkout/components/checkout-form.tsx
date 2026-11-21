@@ -394,11 +394,6 @@ export function CheckoutForm({
 
           <Separator className="my-4" />
 
-          <div className="border border-[var(--line)] bg-[var(--paper-deep)] p-4">
-            <p className="font-bold">الدفع عند الاستلام</p>
-            <p className="mt-1 text-caption text-[var(--ink-muted)]">تدفع عند وصول الطلب.</p>
-          </div>
-
           <Button
             type="submit"
             className="w-full h-12 rounded-full text-caption font-bold"
