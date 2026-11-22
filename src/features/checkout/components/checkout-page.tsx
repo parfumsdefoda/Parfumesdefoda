@@ -49,7 +49,7 @@ const CHECKOUT_LINE_LABELS: CartLineLabels = {
 /**
  * CheckoutPageClient — full checkout page with two-column RTL layout.
  * Right column: checkout form.
- * Left column: order summary with payment method.
+ * Left column: order summary.
  */
 export function CheckoutPageClient({
   shipping,
@@ -258,10 +258,6 @@ export function CheckoutPageClient({
 
               {/* Totals */}
               <CartTotals subtotal={subtotal} shipping={shippingCost} labels={{ subtotal: "المجموع الفرعي", shipping: "مصاريف الشحن", total: "الإجمالي" }} />
-              <div className="mt-3 flex items-center justify-between text-caption">
-                <span className="text-[var(--neutral-500)]">طريقة الدفع</span>
-                <span className="text-[var(--neutral-700)]">{PAYMENT_METHOD}</span>
-              </div>
               {cartBlocked && (
                 <p role="alert" className="mt-4 border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-3 text-caption text-[var(--color-danger)]">
                   احذف أو صحح الأسطر غير الصالحة قبل إتمام الطلب.
