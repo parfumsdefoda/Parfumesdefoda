@@ -84,7 +84,6 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
               <ol className="space-y-2 text-caption text-[var(--ink-muted)]">
                 <li>١. نتواصل معك عبر واتساب لتأكيد الطلب.</li>
                 <li>٢. نجهز الطلب ونرسله إليك.</li>
-                <li>٣. تدفع عند استلام الطلب.</li>
               </ol>
             </section>
           </>
