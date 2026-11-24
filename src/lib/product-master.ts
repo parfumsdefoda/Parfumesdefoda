@@ -771,6 +771,13 @@ interface PassContext {
    * (the master decides the description, blank included).
    */
   hasDescription: boolean;
+  /**
+   * The whole file's rows, used ONLY to place the catalogue in the file's
+   * order. `--only` narrows which rows are merged, never where the products
+   * sit: ordering by the applied subset would float the refreshed rows to the
+   * top of the shop.
+   */
+  orderEntries?: MasterRowEntry[];
 }
 
 interface PassResult {
@@ -869,6 +876,8 @@ export function planMasterImport(
           includeCreates: true,
           sizes: header.sizes,
           hasDescription: !header.absent.includes("description_ar"),
+          // `--only` merges a subset but must keep the whole file's order.
+          orderEntries: file.entries,
         });
 
   const masterSlugs = new Set(
@@ -1705,10 +1714,11 @@ function mergePass(
   // on the sequence. Products the file does not mention keep their relative
   // order after the master's rows (they are never deleted).
   const createdBySlug = new Map(created.map((product) => [product.slug, product]));
-  const inMaster = new Set(entries.map((entry) => entry.row.slug.trim()));
+  const orderEntries = ctx.orderEntries ?? entries;
+  const inMaster = new Set(orderEntries.map((entry) => entry.row.slug.trim()));
   const seenOrder = new Set<string>();
   const ordered: Product[] = [];
-  for (const entry of entries) {
+  for (const entry of orderEntries) {
     const slug = entry.row.slug.trim();
     if (seenOrder.has(slug)) continue;
     seenOrder.add(slug);

@@ -871,6 +871,33 @@ describe("planMasterImport — --only", () => {
     });
     expect(plan.products[0].name).toBe("عطر تجريبي");
   });
+
+  // Refresh 5: `--only=pf920,pf940` put the two new rows at the TOP of
+  // /shop, because the catalogue was rebuilt in the order of the APPLIED
+  // subset instead of the file's own row order.
+  it("keeps the file's row order instead of floating the applied rows first", () => {
+    const three = [
+      makeProduct(),
+      makeProduct({ slug: "pf002", sku: "PF002", id: "PF002", name: "عطر ثاني" }),
+      makeProduct({ slug: "pf003", sku: "PF003", id: "PF003", name: "عطر ثالث" }),
+    ];
+    const plan = planMasterImport(
+      three,
+      csv([
+        "slug,name_ar",
+        "pf001,اسم أول",
+        "pf002,اسم ثاني",
+        "pf003,اسم ثالث",
+      ]),
+      { mode: "sync-commerce", only: ["pf003"] },
+    );
+
+    expect(plan.products.map((product) => product.slug)).toEqual([
+      "pf001",
+      "pf002",
+      "pf003",
+    ]);
+  });
 });
 
 // ─── Reports ────────────────────────────────────────────────────────────────
