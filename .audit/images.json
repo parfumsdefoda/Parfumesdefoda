@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-11-19T18:07:45.559Z",
+  "generatedAt": "2026-11-24T21:45:45.309Z",
   "totals": {
-    "products": 79,
-    "referencedImages": 79,
-    "onDiskImages": 76,
-    "totalBytes": 2987564,
-    "totalMb": 2.85,
+    "products": 84,
+    "referencedImages": 84,
+    "onDiskImages": 81,
+    "totalBytes": 3086184,
+    "totalMb": 2.94,
     "byClass": {
-      "transparent": 72,
+      "transparent": 76,
       "pure-white": 0,
       "off-white": 0,
-      "coloured": 4
+      "coloured": 5
     },
-    "squareCount": 41,
-    "nonSquareCount": 35,
-    "withRealTransparency": 72,
-    "needsRetouch": 4,
+    "squareCount": 42,
+    "nonSquareCount": 39,
+    "withRealTransparency": 76,
+    "needsRetouch": 5,
     "unreferencedByClass": {
-      "transparent": 2,
+      "transparent": 0,
       "pure-white": 0,
       "off-white": 0,
       "coloured": 0
@@ -45,26 +45,12 @@
       }
     ],
     "noImage": [],
-    "photoPending": [],
-    "multiImage": [],
-    "unreferenced": [
-      "/products/PF880.webp",
-      "/products/PF900.webp"
+    "photoPending": [
+      "pf090"
     ],
-    "unreferencedDetails": [
-      {
-        "path": "/products/PF880.webp",
-        "background": "transparent",
-        "bytes": 26876,
-        "square": false
-      },
-      {
-        "path": "/products/PF900.webp",
-        "background": "transparent",
-        "bytes": 23192,
-        "square": false
-      }
-    ]
+    "multiImage": [],
+    "unreferenced": [],
+    "unreferencedDetails": []
   },
   "duplicates": [
     {
@@ -1961,6 +1947,126 @@
         "widthPct": 78.7,
         "heightPct": 71.8,
         "areaPct": 56.5
+      }
+    },
+    {
+      "path": "/products/PF880.webp",
+      "products": [
+        "pf880"
+      ],
+      "format": "webp",
+      "width": 750,
+      "height": 1000,
+      "bytes": 26876,
+      "hasAlpha": true,
+      "transparentPixels": 341982,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": false,
+      "subject": {
+        "x": 95,
+        "y": 34,
+        "width": 560,
+        "height": 933,
+        "widthPct": 74.7,
+        "heightPct": 93.3,
+        "areaPct": 69.7
+      }
+    },
+    {
+      "path": "/products/PF900.webp",
+      "products": [
+        "pf900"
+      ],
+      "format": "webp",
+      "width": 750,
+      "height": 1000,
+      "bytes": 23192,
+      "hasAlpha": true,
+      "transparentPixels": 445993,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": false,
+      "subject": {
+        "x": 180,
+        "y": 31,
+        "width": 390,
+        "height": 939,
+        "widthPct": 52,
+        "heightPct": 93.9,
+        "areaPct": 48.8
+      }
+    },
+    {
+      "path": "/products/PF920.webp",
+      "products": [
+        "pf920"
+      ],
+      "format": "webp",
+      "width": 409,
+      "height": 610,
+      "bytes": 23332,
+      "hasAlpha": true,
+      "transparentPixels": 153559,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": false,
+      "subject": {
+        "x": 89,
+        "y": 8,
+        "width": 198,
+        "height": 561,
+        "widthPct": 48.4,
+        "heightPct": 92,
+        "areaPct": 44.5
+      }
+    },
+    {
+      "path": "/products/PF940.webp",
+      "products": [
+        "pf940"
+      ],
+      "format": "webp",
+      "width": 440,
+      "height": 567,
+      "bytes": 13876,
+      "hasAlpha": true,
+      "transparentPixels": 121549,
+      "background": "transparent",
+      "sampleColour": null,
+      "square": false,
+      "subject": {
+        "x": 88,
+        "y": 23,
+        "width": 324,
+        "height": 507,
+        "widthPct": 73.6,
+        "heightPct": 89.4,
+        "areaPct": 65.8
+      }
+    },
+    {
+      "path": "/products/placeholder-unavailable.webp",
+      "products": [
+        "pf090"
+      ],
+      "format": "webp",
+      "width": 800,
+      "height": 800,
+      "bytes": 11344,
+      "hasAlpha": false,
+      "transparentPixels": 0,
+      "background": "coloured",
+      "sampleColour": "#D3CFD1",
+      "square": true,
+      "subject": {
+        "x": 0,
+        "y": 0,
+        "width": 800,
+        "height": 800,
+        "widthPct": 100,
+        "heightPct": 100,
+        "areaPct": 100
       }
     }
   ]
