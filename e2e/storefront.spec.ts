@@ -354,6 +354,9 @@ test.describe("production storefront and checkout", () => {
   });
 
   test("indexable pages pass serious and critical axe checks", async ({ page }) => {
+    // Eight pages, each with a full axe pass: WebKit needs more than the
+    // 30 s default when three projects share the machine.
+    test.setTimeout(90_000);
     for (const path of ["/", "/shop", "/product/pf020", "/cart", "/checkout", "/checkout/success", "/faq", "/contact"]) {
       if (path === "/cart" || path === "/checkout") await seedCart(page);
       await page.goto(path);
@@ -373,6 +376,9 @@ test.describe("production storefront and checkout", () => {
     // fails on every page for reasons unrelated to the app. Keep the check
     // local; CI still runs every functional and axe assertion.
     test.skip(process.env.CI === "true", "visual baselines are platform-specific");
+    // Four full-page captures plus the image settle below need more than the
+    // 30 s default when three projects run in parallel on one machine.
+    test.setTimeout(180_000);
     await seedCart(page);
     for (const [path, name] of [
       ["/", "home"],
@@ -384,6 +390,13 @@ test.describe("production storefront and checkout", () => {
       // derived images and the CSS are still settling.
       await page.goto(path, { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
+      // The cart hydrates from localStorage after mount, so /checkout first
+      // paints its "empty cart" panel. Under load the capture could land there
+      // and compare a viewport-sized empty panel against the whole page: wait
+      // for the form's submit action, which only exists with a seeded cart.
+      if (path === "/checkout") {
+        await expect(page.getByRole("button", { name: /تأكيد الطلب/ }).first()).toBeVisible();
+      }
       // `networkidle` can fire while images are still decoding; a full-page
       // capture then catches half-painted cards (the PDP flaked this way).
       await page.evaluate(async () => {
@@ -397,6 +410,9 @@ test.describe("production storefront and checkout", () => {
         await Promise.all(Array.from(document.images).map(settle));
       });
       await expect(page).toHaveScreenshot(`${name}.png`, {
+        // A full-page compare of a 9000 px catalogue page on WebKit takes
+        // longer than the 12 s expect default under parallel load.
+        timeout: 45_000,
         animations: "disabled",
         fullPage: true,
         // The footer is chrome, not page content: it would otherwise depend

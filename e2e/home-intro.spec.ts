@@ -102,12 +102,15 @@ test.describe("home structure (RUN 1.5)", () => {
     await expect(footer.getByRole("heading", { name: "تواصل معنا" })).toHaveCount(1);
   });
 
-  test("the header stays text only", async ({ page }) => {
+  test("the header carries no product imagery", async ({ page }) => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
     const header = page.locator("header.site-header");
-    expect(await productImages("header.site-header", page)).toEqual([]);
-    await expect(header.locator("img")).toHaveCount(0);
+    // The bar shows the brand mark and nothing else — no bottle photography.
+    const images = await productImages("header.site-header", page);
+    expect(images.filter((entry) => entry.includes("/products/"))).toEqual([]);
+    expect(images.length).toBeGreaterThan(0);
+    expect(images.every((entry) => /logo-header\.svg/.test(entry))).toBe(true);
   });
 
   test("no horizontal overflow at any width", async ({ page }) => {

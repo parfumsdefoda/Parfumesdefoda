@@ -1,3 +1,6 @@
 # Refresh 5 — decisions
 
 - Photos arrived as `public/products/PF920.webp` / `PF940.webp` (not `.png`); the photo gate accepts PNG or WebP (scripts/lib/product-photos.mjs), PF880/PF900 already use `.webp`, so the `.webp` originals are treated as the expected photos and no rename is needed.
+- Two header E2E specs (`header.spec.ts`, `home-intro.spec.ts`) still asserted the old wordmark header, which the owner intentionally replaced with a logo-only header (8423198, 8e55f75); they were updated to assert the single `logo-header.svg` and the four visual baselines regenerated once.
+- The homepage grid got a visually hidden h2 (the cards are h3), because Lighthouse reported a broken heading order (a11y 98) after the hidden-h1 redesign; `sr-only` is absolutely positioned so the grid still starts at the header and the baselines do not move.
+- The visual-snapshot E2E waits for the checkout form before capturing: `/checkout` paints an empty-cart panel until the cart hydrates from localStorage, and under parallel load the capture could compare that panel with the full page. No assertion or threshold was relaxed; that test and the eight-page axe loop get longer Playwright timeouts (and the image compare a 45 s timeout) because WebKit does not finish them inside the 12 s/30 s defaults when three projects share the machine.

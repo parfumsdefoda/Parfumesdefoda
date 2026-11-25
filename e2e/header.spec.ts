@@ -28,11 +28,23 @@ test.describe("single-row header", () => {
     // The brand mark is a real <img> now (next/image): exactly one, and it
     // is the logo with the store's accessible name.
     const logo = header.locator('img[alt="Parfums De Foda"]');
-    await expect(logo).toHaveCount(1);
-    await expect(logo).toHaveAttribute("src", /logo\.svg/);
-    await expect(header.locator("img")).toHaveCount(1);
+    await expect(logo).not.toHaveCount(0);
+    // The mark is the transparent header cut (`logo-header.svg`), and the
+    // MOBILE and DESKTOP rows each render their own copy — exactly one is
+    // visible at any width, so the shopper never sees the brand twice.
+    const logoSources = await logo.evaluateAll((nodes) => nodes.map((node) => node.getAttribute("src") ?? ""));
+    expect(logoSources.length).toBeGreaterThan(0);
+    for (const source of logoSources) expect(source).toMatch(/logo-header\.svg/);
+    const visibleLogos = await logo.evaluateAll(
+      (nodes) => nodes.filter((node) => node.getClientRects().length > 0).length,
+    );
+    expect(visibleLogos).toBe(1);
+    // Every image in the bar is that logo — no product photography.
+    const headerImages = await header
+      .locator("img")
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("src") ?? ""));
+    expect(headerImages.every((source) => /logo-header\.svg/.test(source))).toBe(true);
     // The logo link goes home and its name is the image's alt (no aria-label).
-    await expect(logo).toHaveAttribute("src", /logo\.svg/);
     const logoLink = header.locator('a[href="/"]').first();
     await expect(logoLink).toHaveAttribute("href", "/");
     await expect(logoLink).not.toHaveAttribute("aria-label", /.+/);
