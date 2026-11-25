@@ -4,7 +4,7 @@ import { loadVisibleProducts } from "@/services/products";
 import { loadFullSettings } from "@/services/settings";
 import { loadLocale } from "@/services/localization";
 import { t } from "@/lib/locale";
-import { selectBestSellers, BEST_SELLER_LIMIT, HOME_GRID_LIMIT } from "@/lib/best-sellers";
+import { selectBestSellers, HOME_GRID_LIMIT } from "@/lib/best-sellers";
 import { getSiteUrl } from "@/lib/seo";
 import { buildCardLabels, columnsFor } from "@/features/catalog/catalog-props";
 import { ProductGrid } from "@/features/products/components/product-grid";
@@ -52,6 +52,7 @@ export default async function HomePage() {
 
   const title = t(locale, "home.pageTitle", "Parfums De Foda | العطور");
   const viewAll = t(locale, "home.viewAllProducts", "عرض كل المنتجات");
+  const gridHeading = t(locale, "home.gridHeading", "المنتجات");
   const visible = selectBestSellers(products, {}, HOME_GRID_LIMIT);
 
   return (
@@ -59,6 +60,10 @@ export default async function HomePage() {
       <h1 className="sr-only">{title}</h1>
 
       <section aria-label={title}>
+        {/* The cards carry h3 names: the section needs an h2 between the page's
+            h1 and them, or the document's heading order breaks. `sr-only` is
+            absolutely positioned, so the grid still starts at the header. */}
+        <h2 className="sr-only">{gridHeading}</h2>
         <ProductGrid
           products={visible}
           columns={columnsFor(settings)}

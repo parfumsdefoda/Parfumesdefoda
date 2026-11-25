@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { Maximize2 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { hasTransparentCutout } from "@/lib/product-image";
 import { cn } from "@/lib/utils";
 
 export interface GalleryImage {
