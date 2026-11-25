@@ -2,9 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Axe over the states this phase introduced: the two header tones, the premium
- * card (dark stage + gold ring), the PDP gallery stage and the mobile menu
- * sheet. Nothing here replaces the whole-site axe run in storefront.spec.ts —
+ * Axe over the states the boutique phase introduced: the single-row header, the
+ * premium card (gradient shell + glow), the PDP gallery stage and the mobile
+ * menu sheet. Nothing here replaces the whole-site axe run in storefront.spec.ts —
  * it pins the surfaces that changed, so a future tweak cannot quietly drop
  * contrast or a landmark.
  */
@@ -25,18 +25,18 @@ async function expectNoViolations(page: Page, label: string) {
 }
 
 test.describe("ui-luxury accessibility", () => {
-  test("homepage with the dark header over the hero", async ({ page }) => {
+  test("homepage with the paper header", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/", { waitUntil: "networkidle" });
-    await expect(page.locator("header.site-header")).toHaveAttribute("data-tone", "dark");
-    await expectNoViolations(page, "homepage (dark header)");
+    await expect(page.locator("header.site-header")).toBeVisible();
+    await expectNoViolations(page, "homepage (paper header)");
   });
 
-  test("catalogue with the light header and the card grid", async ({ page }) => {
+  test("catalogue with the paper header and the card grid", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
-    await expect(page.locator("header.site-header")).toHaveAttribute("data-tone", "light");
-    await expectNoViolations(page, "catalogue (light header)");
+    await expect(page.locator("header.site-header")).toBeVisible();
+    await expectNoViolations(page, "catalogue (paper header)");
   });
 
   test("premium PDP with the dark gallery stage", async ({ page }) => {
@@ -56,7 +56,11 @@ test.describe("ui-luxury accessibility", () => {
   test("open search suggestions", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
-    const input = page.getByRole("combobox").first();
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    const input = page.locator("#mobile-search-panel").getByRole("combobox").first();
     await input.click();
     await input.fill("عود");
     await expect(input).toHaveAttribute("aria-expanded", "true");

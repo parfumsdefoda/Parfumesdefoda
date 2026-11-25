@@ -30,14 +30,14 @@ describe("selectBestSellers", () => {
     expect(row.map((p) => p.id)).toEqual(["B", "C", "A"]);
   });
 
-  it("falls back to featured, then sortOrder, when there are no counts", () => {
+  it("falls back to master order when there are no counts (featured never ranks)", () => {
     const products = [
       product({ id: "A", sortOrder: 3 }),
       product({ id: "B", featured: true, sortOrder: 9 }),
       product({ id: "C", sortOrder: 1 }),
     ];
     const row = selectBestSellers(products, {});
-    expect(row.map((p) => p.id)).toEqual(["B", "C", "A"]);
+    expect(row.map((p) => p.id)).toEqual(["C", "A", "B"]);
   });
 
   it("never shows hidden, unphotographed or unbuyable products", () => {
@@ -66,6 +66,7 @@ describe("selectBestSellers", () => {
   it("ignores negative or non-numeric counts", () => {
     const products = [product({ id: "A" }), product({ id: "B", featured: true })];
     const row = selectBestSellers(products, { A: -5, B: Number.NaN });
-    expect(row.map((p) => p.id)).toEqual(["B", "A"]);
+    // featured does not rank: both count as zero sales, name order decides.
+    expect(row.map((p) => p.id)).toEqual(["A", "B"]);
   });
 });

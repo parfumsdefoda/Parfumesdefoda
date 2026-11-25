@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Trash2 } from "lucide-react";
+import { Send, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChatMessageData } from "../types";
@@ -16,20 +16,24 @@ interface ChatWindowProps {
   error: string | null;
   onSendMessage: (content: string) => void;
   onClearMessages: () => void;
-  /** Called when a recommended product card is clicked — the widget minimizes (conversation stays in memory) */
+  onClose: () => void;
+  closeLabel: string;
+  /** Called when a recommended product card is clicked — the panel closes. */
   onNavigateToProduct?: () => void;
 }
+
+const SUGGESTIONS = ["رجالي للصيف", "هدية", "ثبات قوي"];
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * ChatWindow — the chat interface with message list, input, and product cards.
+ * ChatWindow — header, transcript, suggestions and input.
  *
- * Features:
- *   - Auto-scroll to bottom on new messages
- *   - Product cards rendered inline for recommendations (data comes from the API)
- *   - RTL Arabic UI
- *   - No provider dependencies — works standalone
+ * The old purple sheet chrome is replaced by the boutique card: an ink header
+ * with the gold avatar and two lines of copy, cream assistant bubbles, ink user
+ * bubbles, gold-outlined suggestion chips that disappear after the first
+ * message, and a round input with an ink send button. Auto-scroll, the product
+ * recommendations, the clear action and the error row are unchanged.
  */
 export function ChatWindow({
   messages,
@@ -37,18 +41,18 @@ export function ChatWindow({
   error,
   onSendMessage,
   onClearMessages,
+  onClose,
+  closeLabel,
   onNavigateToProduct,
 }: ChatWindowProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -65,64 +69,55 @@ export function ChatWindow({
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[var(--bg-primary)]">
+    <div className="flex min-h-0 flex-1 flex-col">
       {/* ─── Header ─── */}
-      <div className="flex items-center justify-between border-b border-[var(--neutral-100)] px-4 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-accent)] shadow-soft">
-            <span className="text-body text-white" aria-hidden="true">✨</span>
-          </div>
-          <div>
-            <h2 className="text-caption font-bold text-[var(--neutral-800)]">
-              مساعد العطور
-            </h2>
-            <div className="flex items-center gap-1">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" />
-              <p className="text-caption text-[var(--neutral-400)]">
-                Parfums De Foda
-              </p>
-            </div>
-          </div>
+      <div className="flex items-center gap-3 bg-[var(--boutique-ink)] px-4 py-3 text-[var(--boutique-white)]">
+        <span
+          aria-hidden="true"
+          className="pf-gold-surface grid size-9 shrink-0 place-items-center rounded-full text-[var(--boutique-ink)]"
+        >
+          <Sparkles className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[15px] font-bold leading-tight">مساعد الذوق</h2>
+          <p className="text-[14px] leading-snug text-[var(--gold-300)]">
+            يرشّح لك العطر في ثوانٍ
+          </p>
         </div>
         {messages.length > 0 && (
-          <Button
-            variant="ghost"
-            size="icon-xs"
+          <button
+            type="button"
             onClick={onClearMessages}
             aria-label="مسح المحادثة"
-            className="text-[var(--neutral-400)] hover:text-[var(--neutral-600)]"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--gold-300)] transition-colors hover:bg-[var(--gold-700)] hover:text-[var(--boutique-white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-300)]"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+            <Trash2 aria-hidden="true" className="size-4" />
+          </button>
         )}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={closeLabel}
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--gold-300)] transition-colors hover:bg-[var(--gold-700)] hover:text-[var(--boutique-white)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-300)]"
+        >
+          <X aria-hidden="true" className="size-5" />
+        </button>
       </div>
 
-      {/* ─── Messages ─── */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+      {/* ─── Transcript ─── */}
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[var(--boutique-white)] px-4 py-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)]/10 shadow-soft">
-              <span className="text-title-2" aria-hidden="true">🌸</span>
-            </div>
-            <p className="text-caption font-bold text-[var(--neutral-700)] mb-1">
-              أهلاً بيك! 👋
+          <div className="flex flex-col items-start gap-3">
+            <p className="rounded-[14px] rounded-br-[4px] bg-[var(--cream)] px-3.5 py-2.5 text-[14px] leading-[1.7] text-[var(--boutique-ink)]">
+              أهلاً بيك! قولي إيه اللي بتدور عليه، وأرشّح لك عطر من التشكيلة.
             </p>
-            <p className="text-caption text-[var(--neutral-400)] max-w-[240px]">
-              أنا مساعد العطور الافتراضي. قولي إيه اللي بتدور عليه وهأرشحلك أحلى عطر يناسبك!
-            </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-              {["عطر شتوي", "هدية لحد", "عطر رجالي", "عطر حريمي"].map((suggestion) => (
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTIONS.map((suggestion) => (
                 <button
                   key={suggestion}
                   type="button"
                   onClick={() => onSendMessage(suggestion)}
-                  className={cn(
-                    "rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
-                    "px-3 py-1.5 text-caption font-medium text-[var(--neutral-600)]",
-                    "hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]",
-                    "transition-colors",
-                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]",
-                  )}
+                  className="rounded-full border border-[var(--gold-500)] bg-[var(--boutique-white)] px-3 py-1.5 text-[14px] font-medium text-[var(--gold-700)] transition-colors hover:bg-[var(--gold-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
                 >
                   {suggestion}
                 </button>
@@ -134,24 +129,18 @@ export function ChatWindow({
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={cn(
-              "flex",
-              msg.role === "user" ? "justify-end" : "justify-start",
-            )}
+            className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
           >
             <div
               className={cn(
-                "max-w-[85%] rounded-2xl px-4 py-2.5",
+                "max-w-[85%] px-3.5 py-2.5 text-[14px] leading-[1.7]",
                 msg.role === "user"
-                  ? "bg-[var(--color-accent)] text-white rounded-br-md"
-                  : "bg-[var(--bg-secondary)] text-[var(--neutral-700)] rounded-bl-md border border-[var(--neutral-100)]",
+                  ? "rounded-[14px] rounded-bl-[4px] bg-[var(--boutique-ink)] text-[var(--boutique-white)]"
+                  : "rounded-[14px] rounded-br-[4px] bg-[var(--cream)] text-[var(--boutique-ink)]",
               )}
             >
-              <p className="text-caption whitespace-pre-wrap">
-                {msg.content}
-              </p>
+              <p className="whitespace-pre-wrap">{msg.content}</p>
 
-              {/* Product recommendation cards */}
               {msg.products && msg.products.length > 0 && (
                 <div className="mt-3 flex flex-col gap-2">
                   {msg.products.map((product) => (
@@ -169,7 +158,7 @@ export function ChatWindow({
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-md bg-[var(--bg-secondary)] border border-[var(--neutral-100)]">
+            <div className="rounded-[14px] rounded-br-[4px] bg-[var(--cream)]">
               <TypingIndicator />
             </div>
           </div>
@@ -178,18 +167,17 @@ export function ChatWindow({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ─── Error ─── */}
       {error && (
-        <div className="mx-3 mb-2 rounded-lg bg-red-50 px-3 py-2 text-caption text-red-600" role="alert">
+        <div
+          className="mx-4 mb-1 rounded-lg border border-[var(--gold-700)] bg-[var(--cream)] px-3 py-2 text-[14px] text-[var(--gold-700)]"
+          role="alert"
+        >
           {error}
         </div>
       )}
 
       {/* ─── Input ─── */}
-      <form
-        onSubmit={handleSubmit}
-        className="border-t border-[var(--neutral-100)] px-3 py-2.5"
-      >
+      <form onSubmit={handleSubmit} className="border-t border-[var(--boutique-line)] px-3 py-3">
         <div className="flex items-center gap-2">
           <input
             ref={inputRef}
@@ -199,30 +187,16 @@ export function ChatWindow({
             placeholder="اكتب رسالتك هنا..."
             disabled={isLoading}
             aria-label="رسالتك"
-            className={cn(
-              "flex-1 rounded-full border border-[var(--neutral-200)] bg-[var(--bg-secondary)]",
-              "px-4 py-2 text-caption text-[var(--neutral-700)]",
-              "placeholder:text-[var(--neutral-400)]",
-              "focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/30",
-              "disabled:opacity-50",
-              "transition-colors",
-            )}
+            className="h-11 min-w-0 flex-1 rounded-full border border-[var(--boutique-line)] bg-[var(--boutique-white)] px-4 text-[14px] text-[var(--boutique-ink)] placeholder:text-[var(--boutique-ink)]/50 focus:border-[var(--gold-500)] focus:outline-none focus:ring-1 focus:ring-[var(--gold-500)]/40 disabled:opacity-50"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!input.trim() || isLoading}
-            className={cn(
-              "h-9 w-9 rounded-full shrink-0",
-              "bg-[var(--color-accent)] text-white",
-              "hover:bg-[var(--purple-700)]",
-              "hover:shadow-soft",
-              "disabled:opacity-40",
-              "transition-all duration-200",
-            )}
             aria-label="إرسال"
+            className="size-11 shrink-0 rounded-full bg-[var(--boutique-ink)] text-[var(--gold-300)] hover:bg-[var(--gold-700)] disabled:opacity-40"
           >
-            <Send className="h-4 w-4" />
+            <Send className="size-4" />
           </Button>
         </div>
       </form>

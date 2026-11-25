@@ -1,15 +1,7 @@
-import Link from "next/link";
-
 export interface FooterLink {
   label: string;
-  href?: string;
   /** External link (WhatsApp, mail, tel). Opened in a new tab. */
   url?: string;
-}
-
-export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
 }
 
 export interface FooterContact {
@@ -22,39 +14,35 @@ export interface FooterProps {
   storeName?: string;
   /** One line about the store, from data/footer.json. */
   description?: string
-  /** Shop and help columns; contact is rendered from `contact`. */
-  columns?: FooterColumn[];
   contact?: FooterContact;
-  /**
-   * The facts line: cash on delivery + the flat shipping fee, already
-   * formatted from data/settings.json. Never build this string in the footer.
-   */
-  note?: string;
   contactTitle?: string;
   rights?: string;
-  /** Checkout keeps only the contact line — no shop or help links. */
+  /** Checkout keeps only the contact line. */
   reduced?: boolean;
   className?: string;
 }
 
 /**
- * Footer — the quiet close of every page.
+ * Footer — RUN 1.6: brand green, big logo, contact column only.
  *
- * Dark purple surface, one gold hairline on top, four short columns on a
- * desktop and a single column on a phone. Nothing here is invented: the links
- * are the catalogue routes, the help routes and the contact details from
- * data/contact.json; the facts line comes from the shipping helper.
+ * `bg [--brand-green]` (the token derived from theme.json, never a raw hex),
+ * purple text throughout (`--purple-950` body, brand purple headings), a 1px
+ * purple hairline on top and no gold. The text heading "Parfums De Foda" is
+ * replaced by the logo at ~120px high on desktop / ~88px on mobile.
  *
- * The contact column keeps `id="contact"`, so every existing `/#contact` link
- * (navigation data, WhatsApp messages) still lands on something real now that
- * the homepage no longer carries a contact section.
+ * Logo treatment: the SVG (`public/logos/logo.svg`) now ships with its own
+ * brand-green plate (opaque rect behind the purple mark). It sits bare on
+ * the green footer — no stroke, no outer frame, no plate. The /#contact
+ * anchor stays on the contact column.
+ *
+ * The help column (المساعدة) is gone: /faq, /shipping-returns and /contact
+ * remain as pages, but nothing in the footer links to them. The brand
+ * tagline and the cash/shipping line do not render here either.
  */
 export function Footer({
   storeName = "Parfums De Foda",
   description,
-  columns = [],
   contact,
-  note,
   contactTitle = "تواصل معنا",
   rights = "جميع الحقوق محفوظة",
   reduced = false,
@@ -74,14 +62,29 @@ export function Footer({
     contactLinks.push({ label: contact.phone, url: `tel:${contact.phone}` });
   }
 
+  const logo = (
+    <span
+      className="inline-flex items-center justify-center"
+      role="img"
+      aria-label={storeName}
+    >
+      <span
+        aria-hidden="true"
+        className="block h-[88px] w-[88px] bg-contain bg-center bg-no-repeat lg:h-[120px] lg:w-[120px]"
+        style={{ backgroundImage: "url(/logos/logo.svg?v=20261119-2)" }}
+      />
+    </span>
+  );
+
   return (
     <footer
       // The phone bar on a product page watches this marker and steps aside
       // while the footer is on screen, so it never covers it.
       data-page-end
-      className={`border-t border-[var(--brand-gold)] bg-[var(--purple-950)] text-[var(--color-on-dark)] ${className ?? ""}`}
+      data-footer="green"
+      className={`border-t border-[var(--purple-950)] bg-[var(--brand-green)] text-[var(--purple-950)] ${className ?? ""}`}
     >
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-12">
+      <div className="mx-auto w-full max-w-[1280px] px-4 py-7 lg:py-8">
         {reduced ? (
           <div
             id="contact"
@@ -91,60 +94,20 @@ export function Footer({
               <a
                 key={link.label}
                 href={link.url}
-                className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                className="inline-block -my-1.5 py-1.5 text-caption font-medium text-[var(--purple-950)] transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-950)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand-green)]"
               >
                 {link.label}
               </a>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Brand */}
-            <div className="flex flex-col gap-3">
-              <p className="text-body font-bold">{storeName}</p>
-              {description && (
-                <p className="max-w-xs text-caption leading-relaxed text-[var(--color-on-dark-muted)]">
-                  {description}
-                </p>
-              )}
-            </div>
-
-            {columns.map((column) => (
-              <nav key={column.title} aria-label={column.title}>
-                <h2 className="mb-3 text-caption font-bold">{column.title}</h2>
-                <ul className="flex flex-col gap-2">
-                  {column.links.map((link) => (
-                    <li key={`${column.title}-${link.label}`}>
-                      {link.href ? (
-                        <Link
-                          href={link.href}
-                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <a
-                          href={link.url}
-                          target={link.url?.startsWith("http") ? "_blank" : undefined}
-                          rel={
-                            link.url?.startsWith("http")
-                              ? "noopener noreferrer"
-                              : undefined
-                          }
-                          className="inline-block -my-1.5 py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
-                        >
-                          {link.label}
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
+          <div className="grid grid-cols-1 items-center gap-8 sm:grid-cols-2">
+            {/* Brand — the logo, big */}
+            <div className="flex justify-center sm:justify-start">{logo}</div>
 
             {/* Contact — keeps the /#contact anchor alive */}
-            <div id="contact" className="scroll-mt-24">
-              <h2 className="mb-3 text-caption font-bold">{contactTitle}</h2>
+            <div id="contact" className="scroll-mt-24 text-center sm:text-start">
+              <h2 className="mb-3 text-caption font-bold text-[var(--brand-purple)]">{contactTitle}</h2>
               <ul className="flex flex-col gap-2">
                 {contactLinks.map((link) => (
                   <li key={link.label}>
@@ -156,25 +119,24 @@ export function Footer({
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="inline-block -my-1.5 break-all py-1.5 text-caption text-[var(--color-on-dark-muted)] transition-colors hover:text-[var(--color-on-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-gold)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--purple-950)]"
+                      className="inline-block -my-1.5 break-all py-1.5 text-caption font-medium text-[var(--purple-950)] transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-950)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--brand-green)]"
                     >
                       {link.label}
                     </a>
                   </li>
                 ))}
               </ul>
-
-              {note && (
-                <p className="mt-4 max-w-[15rem] text-caption leading-relaxed text-[var(--color-on-dark-muted)]">
-                  {note}
+              {description && (
+                <p className="mt-4 max-w-xs text-caption font-medium leading-relaxed text-[var(--purple-950)]">
+                  {description}
                 </p>
               )}
             </div>
           </div>
         )}
 
-        <div className="mt-10 border-t border-[var(--color-on-dark-border)] pt-6">
-          <p className="text-center text-caption text-[var(--color-on-dark-muted)]">
+        <div className="mt-7 border-t border-[var(--purple-950)]/30 pt-4">
+          <p className="text-center text-caption font-medium text-[var(--purple-950)]">
             © {new Date().getFullYear()} {storeName} — {rights}
           </p>
         </div>

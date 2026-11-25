@@ -60,12 +60,23 @@ function productImages(product: Product, siteUrl: string): string[] {
 /**
  * The offer block, or nothing.
  *
- * A product with no buyable size has no price to advertise; shipping a fake
- * "0 EGP" AggregateOffer would be worse than omitting the offers entirely.
+ * RUN 1.6: a fully out-of-stock product still carries an offer, marked
+ * OutOfStock, with its range taken from the listed sizes — the structured
+ * data states the truth (it is unavailable) instead of omitting the offer.
  */
 export function buildProductOffer(product: Product): ProductOffer | undefined {
   const buyable = product.sizes.filter((size) => size.inStock);
-  if (buyable.length === 0) return undefined;
+  if (buyable.length === 0) {
+    if (product.sizes.length === 0) return undefined;
+    const listed = product.sizes.map((size) => size.price);
+    return {
+      priceCurrency: EGP,
+      lowPrice: Math.min(...listed),
+      highPrice: Math.max(...listed),
+      offerCount: listed.length,
+      availability: "https://schema.org/OutOfStock",
+    };
+  }
 
   const prices = buyable.map((size) => size.price);
   return {

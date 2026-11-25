@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils"
 const buttonVariants = cva(
   [
     "group/button relative inline-flex shrink-0 items-center justify-center gap-2",
-    "rounded-pill border border-transparent bg-clip-padding",
+    "rounded-none border border-transparent bg-clip-padding",
     "text-caption font-medium whitespace-nowrap select-none",
     "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
     "outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ui-surface)]",

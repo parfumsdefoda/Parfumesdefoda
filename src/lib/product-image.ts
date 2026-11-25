@@ -53,6 +53,20 @@ const TIER_MAX_WIDTH: Record<ImageTier, number> = {
 };
 
 /**
+ * Cache-busting version for the derived assets.
+ *
+ * A replaced original gets a new file name (`/products/PF091.webp`), but a
+ * derivative keeps its path (`/products/derived/pf091/card-800.webp`), so a
+ * browser or CDN would keep the old bytes. Bump this whenever
+ * `npm run build:images` rewrites the derivatives.
+ */
+export const IMAGE_CACHE_VERSION = "2026-11-18";
+
+function versioned(url: string): string {
+  return `${url}?v=${IMAGE_CACHE_VERSION}`;
+}
+
+/**
  * Manifest key for any product image path.
  *
  * `/products/PF020.png` → `pf020`, `/products/PF091.png` → `pf091`. Gallery
@@ -104,7 +118,7 @@ export interface ProductImageSources {
 function toSrcSet(files: ManifestFile[], format: "avif" | "webp"): string {
   return files
     .filter((file) => file[format])
-    .map((file) => `${file[format]} ${file.w}w`)
+    .map((file) => `${versioned(file[format] as string)} ${file.w}w`)
     .join(", ");
 }
 
@@ -131,7 +145,7 @@ export function buildProductImageSources(
   return {
     avif: toSrcSet(files, "avif"),
     webp,
-    src: largest.webp as string,
+    src: versioned(largest.webp as string),
     srcSet: webp,
     width: largest.w,
     height: largest.h ?? largest.w,

@@ -1,99 +1,102 @@
 /**
  * Catalogue state — the URL is the single source of truth.
  *
- * Every filter, the sort and the search query live in the query string, so a
- * catalogue view is shareable, survives a reload and works with back/forward.
- * The server parses it and renders the grid; the client only rewrites the URL.
+ * Every visible filter, the sort and the search query live in the query
+ * string, so a catalogue view is shareable, survives a reload and works with
+ * back/forward. The server parses it and renders the grid; the client only
+ * rewrites the URL.
+ *
+ * The filter drawer offers exactly two groups: gender (الجنس) and the
+ * foda-original collection (عطور فوده الأصلية), plus the sort. The former
+ * type / house / performance / size / in-stock groups were removed — the
+ * product FIELDS (type, house, performance, sizes, availability) still exist
+ * and still drive the cards, the PDP, the cart and checkout; only the
+ * filtering UI and logic went.
  *
  * Rules:
  * - Unknown values are ignored, never applied. A hand-edited URL can only ever
- *   produce a valid state — a legacy `?season=شتوي` link still loads, and the
- *   season is simply not a filter any more (the data stays optional).
+ *   produce a valid state. Legacy removed parameters (`style`, `tier`,
+ *   `performance`, `size`, `available`, `season`) are not even read, so an old
+ *   shared link still loads and simply does not filter by them.
  * - The serialised form is deterministic (fixed key order, no empty values), so
  *   the same view always has the same URL and a link never accumulates noise.
- * - Values are the catalogue's own Arabic labels (the data is the vocabulary);
- *   tiers come from PUBLIC_TIER_LABELS, so `دووب` can never be a filter.
+ * - Values are the catalogue's own Arabic labels (the data is the vocabulary).
+ * - `form` (الصيغة) is NOT a visible group. It is parsed, applied and written
+ *   back so the header's "زيوت عطرية" link (`/shop?form=زيت عطري`) keeps
+ *   landing on oils; it never appears in the drawer, the chips or the counts.
  *
  * Pure and client-safe.
  */
 
 import type { Product } from "@/types";
-import { GENDERS, PERFORMANCES, PRODUCT_FORMS, PRODUCT_TYPES } from "./product-vocabulary";
-import { PUBLIC_TIER_LABELS, type House } from "./product-labels";
+import { GENDERS, PRODUCT_FORMS } from "./product-vocabulary";
 import { productForm } from "./card-presentation";
-import { formatSizeLabel } from "./currency";
 import { genderPublicLabel } from "./site-nav";
 
 import type { SortOption } from "./sort-helpers";
 
-// ─── Size group ─────────────────────────────────────────────────────────────
+// ─── Groups ─────────────────────────────────────────────────────────────────
 
 /**
- * A bottle size label, e.g. "50 مل" or "12 مل".
- *
- * The catalogue's volumes are DATA: a 12/6/3 مل oil may appear at any time, so
- * the URL accepts any `<number> مل` value and the options themselves are built
- * from the products (see `catalogueSizeLabels`). Matching is availability-based:
- * a product matches a size only when that size is actually in stock.
+ * The visible filter groups, in URL order. Gender and the foda collection
+ * are facets; `form` below is internal narrowing, not a group.
  */
-export const SIZE_LABEL_PATTERN = /^\d+(?:[.,]\d+)?\s*مل$/;
-
-export function isSizeFilterValue(value: string): boolean {
-  return SIZE_LABEL_PATTERN.test(value.trim());
-}
-
-// ─── State ──────────────────────────────────────────────────────────────────
-
-/** Every filter group, in URL order. `available` is a toggle, not a list. */
-export const FILTER_KEYS = ["gender", "style", "form", "tier", "performance", "size"] as const;
+export const FILTER_KEYS = ["gender", "foda"] as const;
 
 export type FilterKey = (typeof FILTER_KEYS)[number];
 
+/** Narrowing that is parsed/applied/serialised but never shown as a group. */
+export const INTERNAL_FILTER_KEYS = ["form"] as const;
+
+export type InternalFilterKey = (typeof INTERNAL_FILTER_KEYS)[number];
+
+/** Every key the URL carries, in serialisation order. */
+const ALL_KEYS = [...FILTER_KEYS, ...INTERNAL_FILTER_KEYS] as const;
+
+type AnyKey = (typeof ALL_KEYS)[number];
+
+/**
+ * The single value of the "foda" facet — the foda-original collection. It is a
+ * facet (not a toggle) so it inherits counts, chips and the empty-state hiding
+ * of every other facet, and the group vanishes when no visible product carries
+ * the flag. The label is rendered by `facetValueLabel`.
+ */
+export const FODA_FILTER_VALUE = "الأصلية" as const;
+
+// ─── State ──────────────────────────────────────────────────────────────────
+
 export interface CatalogState {
   gender: string[];
-  style: string[];
-  /** "عطر" / "زيت عطري" — only offered when both exist. */
+  /**
+   * "عطر" / "زيت عطري" — internal only (the oils nav link). Parsed and
+   * applied, but no group in the drawer offers it.
+   */
   form: string[];
-  tier: string[];
-  performance: string[];
-  /** Bottle sizes (see isSizeFilterValue). */
-  size: string[];
-  /** "المتوفر فقط" */
-  available: boolean;
+  /** "عطور فوده الأصلية" — the `fodaOriginal` flag, as a one-value facet. */
+  foda: string[];
   sort: SortOption;
   q: string;
 }
 
-export const DEFAULT_SORT: SortOption = "featured";
+export const DEFAULT_SORT: SortOption = "default";
 
 /** The URL state of an untouched catalogue. */
 export const EMPTY_CATALOG_STATE: CatalogState = {
   gender: [],
-  style: [],
   form: [],
-  tier: [],
-  performance: [],
-  size: [],
-  available: false,
+  foda: [],
   sort: DEFAULT_SORT,
   q: "",
 };
 
-/** Tiers that may appear as a filter — `دووب` has no public label. */
-export const FILTERABLE_TIERS = (Object.keys(PUBLIC_TIER_LABELS) as House[]).filter(
-  (house) => PUBLIC_TIER_LABELS[house] !== null,
-);
-
-/** Fixed vocabularies. `size` is validated by pattern instead (data-driven). */
-const ALLOWED: Record<Exclude<FilterKey, "size">, readonly string[]> = {
+/** The vocabularies a value must belong to (one per key). */
+const ALLOWED: Record<AnyKey, readonly string[]> = {
   gender: GENDERS,
-  style: PRODUCT_TYPES,
+  foda: [FODA_FILTER_VALUE],
   form: PRODUCT_FORMS,
-  tier: FILTERABLE_TIERS,
-  performance: PERFORMANCES,
 };
 
-const SORT_OPTIONS: readonly SortOption[] = ["featured", "price-asc", "price-desc", "alphabetical"];
+const SORT_OPTIONS: readonly SortOption[] = ["default", "price-asc", "price-desc", "alphabetical"];
 
 /** Longest search query we keep — a URL is not a text field. */
 export const MAX_QUERY_LENGTH = 80;
@@ -105,14 +108,12 @@ function firstValue(value: string | string[] | undefined): string {
   return value ?? "";
 }
 
-function readList(params: CatalogSearchParams, key: FilterKey): string[] {
-  const allowed = key === "size" ? null : ALLOWED[key];
+function readList(params: CatalogSearchParams, key: AnyKey): string[] {
+  const allowed = ALLOWED[key];
   const parts = firstValue(params[key])
     .split(",")
     .map((value) => value.trim())
-    .filter(
-      (value) => value !== "" && (allowed ? allowed.includes(value) : isSizeFilterValue(value)),
-    );
+    .filter((value) => value !== "" && allowed.includes(value));
   return [...new Set(parts)];
 }
 
@@ -120,7 +121,9 @@ function readList(params: CatalogSearchParams, key: FilterKey): string[] {
  * Read a catalogue state from the query string.
  *
  * Anything the catalogue does not recognise is dropped silently, and repeated
- * values are collapsed — a malformed link degrades to a working page.
+ * values are collapsed — a malformed link degrades to a working page. Removed
+ * filter parameters (`style`, `tier`, `performance`, `size`, `available`,
+ * `season`) are not read at all.
  */
 export function parseCatalogState(params: CatalogSearchParams): CatalogState {
   const sortRaw = firstValue(params.sort).trim();
@@ -130,12 +133,8 @@ export function parseCatalogState(params: CatalogSearchParams): CatalogState {
 
   return {
     gender: readList(params, "gender"),
-    style: readList(params, "style"),
     form: readList(params, "form"),
-    tier: readList(params, "tier"),
-    performance: readList(params, "performance"),
-    size: readList(params, "size"),
-    available: firstValue(params.available) === "1",
+    foda: readList(params, "foda"),
     sort,
     q: firstValue(params.q).trim().slice(0, MAX_QUERY_LENGTH),
   };
@@ -155,12 +154,11 @@ export function serializeCatalogState(
 ): string {
   const params = new URLSearchParams();
 
-  for (const key of FILTER_KEYS) {
-    if (omit.includes(key)) continue;
+  for (const key of ALL_KEYS) {
+    if ((omit as readonly AnyKey[]).includes(key)) continue;
     const values = state[key].filter((value) => value !== "");
     if (values.length > 0) params.set(key, values.join(","));
   }
-  if (state.available) params.set("available", "1");
   if (state.sort !== DEFAULT_SORT) params.set("sort", state.sort);
   if (state.q) params.set("q", state.q);
 
@@ -175,7 +173,7 @@ export function catalogHref(state: CatalogState, basePath = "/shop"): string {
 
 // ─── Transitions ────────────────────────────────────────────────────────────
 
-/** Add or remove one value of a group. */
+/** Add or remove one value of a visible group. */
 export function toggleFacetValue(state: CatalogState, key: FilterKey, value: string): CatalogState {
   const current = state[key];
   const next = current.includes(value)
@@ -184,7 +182,7 @@ export function toggleFacetValue(state: CatalogState, key: FilterKey, value: str
   return { ...state, [key]: next };
 }
 
-/** Drop one value of a group (a chip's ×). */
+/** Drop one value of a visible group (a chip's ×). */
 export function removeFacetValue(state: CatalogState, key: FilterKey, value: string): CatalogState {
   return { ...state, [key]: state[key].filter((entry) => entry !== value) };
 }
@@ -197,51 +195,44 @@ export function setQuery(state: CatalogState, q: string): CatalogState {
   return { ...state, q: q.trim().slice(0, MAX_QUERY_LENGTH) };
 }
 
-export function setAvailable(state: CatalogState, available: boolean): CatalogState {
-  return { ...state, available };
-}
-
-/** Every filter and the search cleared; the sort is preserved. */
+/** Every filter (including the internal form narrowing) and the search cleared; the sort is preserved. */
 export function clearCatalogFilters(state: CatalogState): CatalogState {
   return { ...EMPTY_CATALOG_STATE, sort: state.sort };
 }
 
-/** How many filter values (plus the availability toggle) are active. */
+/** How many visible filter values are active (the internal form never counts). */
 export function countActiveFilters(state: CatalogState, omit: readonly FilterKey[] = []): number {
-  const values = FILTER_KEYS.reduce(
+  return FILTER_KEYS.reduce(
     (sum, key) => (omit.includes(key) ? sum : sum + state[key].length),
     0,
   );
-  return values + (state.available ? 1 : 0);
 }
 
-/** True when nothing narrows the catalogue. */
+/** True when nothing narrows the catalogue (the internal form included). */
 export function isDefaultCatalogState(state: CatalogState): boolean {
-  return countActiveFilters(state) === 0 && state.q === "";
+  return countActiveFilters(state) === 0 && state.form.length === 0 && state.q === "";
 }
 
 // ─── Labels ─────────────────────────────────────────────────────────────────
 
-/** Display label for one filter value. */
+/** Display label for one visible filter value. */
 export function facetValueLabel(key: FilterKey, value: string): string {
-  if (key === "tier") {
-    return PUBLIC_TIER_LABELS[value as House] ?? value;
-  }
   if (key === "gender") {
     return genderPublicLabel(value);
   }
-  if (key === "size") return formatSizeLabel(value);
+  if (key === "foda") return "الأصلية فقط";
   return value;
 }
 
-/** The product fields a facet compares against (size is computed). */
-export function productFacetValue(
-  product: Product,
-  key: Exclude<FilterKey, "size">,
-): string | null {
-  if (key === "gender") return product.gender;
-  if (key === "style") return product.type;
-  if (key === "form") return productForm(product);
-  if (key === "tier") return product.house;
-  return product.performance;
+/** The product field a visible facet compares against. */
+export function productFacetValue(product: Product, key: FilterKey): string | null {
+  if (key === "foda") return product.fodaOriginal ? FODA_FILTER_VALUE : null;
+  return product.gender;
+}
+
+/** Whether a product matches the internal form narrowing (the oils link). */
+export function matchesInternalForm(product: Product, form: readonly string[]): boolean {
+  if (form.length === 0) return true;
+  const productValue = productForm(product);
+  return form.some((value) => value === productValue);
 }

@@ -8,6 +8,8 @@
  */
 
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
+import { featureFlags } from "./features";
 import type { ProductForm } from "./product-vocabulary";
 import { concentrationLabel, publicTierLabel } from "./product-labels";
 import { isComingSoon, isUnavailableProduct } from "./product-availability";
@@ -38,7 +40,13 @@ export function hasPremiumInName(name: string): boolean {
  * Premium is a FRAME, not a badge: the gold ring replaces the old gold pill, so
  * the same flag can style a card, a PDP stage and (later) any other surface.
  */
-export function isPremiumProduct(product: Pick<Product, "featured">): boolean {
+export function isPremiumProduct(
+  product: Pick<Product, "featured">,
+  features?: FeatureFlags | null,
+): boolean {
+  // While the premium flag is off the classification renders nowhere.
+  // The owner's `is_featured` data itself is never touched.
+  if (!featureFlags({ features: features ?? undefined }).premium) return false;
   return product.featured === true;
 }
 
@@ -107,14 +115,17 @@ export interface CardPrice {
 }
 
 /**
- * The price line: "من ١٢٠ ج.م" when the product has several sizes (the number
- * is the cheapest one on sale), "١٢٠ ج.م" when it has exactly one.
+ * The price line: "من ١٢٠ ج.م" when the product has more than one size a
+ * shopper can buy (the number is the cheapest one on sale), "١٢٠ ج.م" when
+ * exactly one size is buyable — showing a "من" for a bottle the shopper
+ * cannot buy would mean a price the store cannot honour.
  */
 export function cardPrice(product: Pick<Product, "sizes">, fromLabel = "من"): CardPrice | null {
   const amount = lowestInStockPrice(product);
   if (amount === null) return null;
+  const buyable = product.sizes.filter((size) => size.inStock).length;
   return {
-    prefix: product.sizes.length > 1 ? fromLabel : null,
+    prefix: buyable > 1 ? fromLabel : null,
     amount,
   };
 }

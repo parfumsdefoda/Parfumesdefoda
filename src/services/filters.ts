@@ -7,7 +7,8 @@ export type { FilterData } from "@/types/services";
 
 /**
  * Load all filter-related data using server-side file reading.
- * Derives filter groups from data/filters.json, categories.json, and badges.json.
+ * Derives the gender group from data/filters.json, plus categories.json and
+ * badges.json.
  */
 export async function loadFilterData(): Promise<FilterData> {
   const defaults: FilterData = {
@@ -15,7 +16,6 @@ export async function loadFilterData(): Promise<FilterData> {
     categories: [],
     badges: [],
     genders: [],
-    types: [],
   };
 
   try {
@@ -48,16 +48,12 @@ export async function loadFilterData(): Promise<FilterData> {
     const genderFilters = filterList
       .filter((f) => f.group === "الجنس")
       .map((f) => f.label);
-    const typeFilters = filterList
-      .filter((f) => f.group === "النوع" || f.group === "الفئة")
-      .map((f) => f.label);
 
     return {
       filters: filterList,
       categories: categoryList,
       badges: badgeList,
       genders: genderFilters,
-      types: typeFilters,
     };
   } catch {
     return defaults;

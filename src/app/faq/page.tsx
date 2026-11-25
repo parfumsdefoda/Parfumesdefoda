@@ -30,10 +30,10 @@ export default async function FaqPage() {
 
   return (
     <div className="mx-auto w-full max-w-[820px] px-4 pb-[var(--space-section)] pt-8">
-      <h1 className="mb-2 text-title-3 font-bold text-[var(--color-text)]">
+      <h1 className="mb-2 text-title-3 font-bold text-[var(--ink)]">
         {t(locale, "faq.title", "الأسئلة الشائعة")}
       </h1>
-      <p className="mb-8 text-caption text-[var(--color-text-muted)]">
+      <p className="mb-8 text-caption text-[var(--ink-muted)]">
         {t(locale, "faq.lead", "كل ما تحتاج معرفته قبل الطلب.")}
       </p>
 
@@ -42,7 +42,7 @@ export default async function FaqPage() {
         title={t(locale, "faq.title", "الأسئلة الشائعة")}
       />
 
-      <p className="mt-8 text-caption text-[var(--color-text-muted)]">
+      <p className="mt-8 text-caption text-[var(--ink-muted)]">
         <Link
           href="/contact"
           className="font-medium text-[var(--color-brand)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"

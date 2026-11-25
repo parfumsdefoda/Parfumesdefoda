@@ -1,51 +1,55 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The floating glass header.
+ * The single-row header.
  *
- * Two tones, one capsule, no product imagery. The suite runs with
- * `reducedMotion: "reduce"` globally (playwright.config.ts), so the tests that
- * are ABOUT motion opt back in with `emulateMedia`.
+ * RUN 1.6: below 1024px 76px (logo inline-start, tools inline-end); from
+ * 1024px ONE 64px row, logo inline-start, nav dead-centre, tools inline-end.
+ * The header shows the logo only — no wordmark text (the old centred lockup
+ * with "PARFUMS DE FODA" beside the mark is gone; the image's alt carries
+ * the accessible name).
+ * The suite runs with `reducedMotion: "reduce"` globally
+ * (playwright.config.ts), so the tests that are ABOUT motion opt back in
+ * with `emulateMedia`.
  */
 
 const MENU = "القائمة";
-
-async function tone(page: Page) {
-  return page.locator("header.site-header").getAttribute("data-tone");
-}
 
 async function hidden(page: Page) {
   return page.locator("header.site-header").getAttribute("data-hidden");
 }
 
-/**
- * The capsule's painted alpha.
- *
- * Chrome serialises a `color-mix(… transparent)` as `color(srgb 1 1 1 / 0.88)`
- * and older engines as `rgba(…, 0.88)`, so both spellings are read.
- */
-async function capsuleAlpha(page: Page) {
-  return page.evaluate(() => {
-    const el = document.querySelector("header > div > div") as Element;
-    const color = getComputedStyle(el).backgroundColor;
-    const legacy = color.match(/rgba?\(([^)]+)\)/);
-    if (legacy) {
-      const parts = legacy[1].split(",").map((part) => Number(part.trim()));
-      return parts.length === 4 ? parts[3] : 1;
-    }
-    const modern = color.match(/\/\s*([\d.]+)\s*\)/);
-    return modern ? Number(modern[1]) : 1;
-  });
-}
-
-test.describe("floating header", () => {
-  test("carries no product imagery anywhere in the header", async ({ page }) => {
+test.describe("single-row header", () => {
+  test("carries the logo image only — no product imagery, no wordmark", async ({ page }) => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
     const header = page.locator("header.site-header");
     await expect(header).toHaveCount(1);
-    // No <img> at all: the brand mark is a CSS background.
-    await expect(header.locator("img")).toHaveCount(0);
+    // The brand mark is a real <img> now (next/image): exactly one, and it
+    // is the logo with the store's accessible name.
+    const logo = header.locator('img[alt="Parfums De Foda"]');
+    await expect(logo).not.toHaveCount(0);
+    // The mark is the transparent header cut (`logo-header.svg`), and the
+    // MOBILE and DESKTOP rows each render their own copy — exactly one is
+    // visible at any width, so the shopper never sees the brand twice.
+    const logoSources = await logo.evaluateAll((nodes) => nodes.map((node) => node.getAttribute("src") ?? ""));
+    expect(logoSources.length).toBeGreaterThan(0);
+    for (const source of logoSources) expect(source).toMatch(/logo-header\.svg/);
+    const visibleLogos = await logo.evaluateAll(
+      (nodes) => nodes.filter((node) => node.getClientRects().length > 0).length,
+    );
+    expect(visibleLogos).toBe(1);
+    // Every image in the bar is that logo — no product photography.
+    const headerImages = await header
+      .locator("img")
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("src") ?? ""));
+    expect(headerImages.every((source) => /logo-header\.svg/.test(source))).toBe(true);
+    // The logo link goes home and its name is the image's alt (no aria-label).
+    const logoLink = header.locator('a[href="/"]').first();
+    await expect(logoLink).toHaveAttribute("href", "/");
+    await expect(logoLink).not.toHaveAttribute("aria-label", /.+/);
+    // No wordmark text remains anywhere in the header.
+    await expect(header.getByText("PARFUMS DE FODA")).toHaveCount(0);
 
     // And no background-image pointing at the catalogue either.
     const productBackgrounds = await header.evaluate((element) =>
@@ -56,31 +60,130 @@ test.describe("floating header", () => {
     expect(productBackgrounds).toEqual([]);
   });
 
-  test("is dark over the hero and light everywhere else", async ({ page }) => {
-    await page.goto("/", { waitUntil: "networkidle" });
-    expect(await tone(page)).toBe("dark");
 
-    // Past the hero: the island flips the attribute, no re-render.
-    await page.evaluate(() => window.scrollTo(0, 1400));
-    await expect.poll(async () => tone(page), { timeout: 5000 }).toBe("light");
 
-    // And back up again.
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await expect.poll(async () => tone(page), { timeout: 5000 }).toBe("dark");
 
-    await page.goto("/shop", { waitUntil: "networkidle" });
-    expect(await tone(page)).toBe("light");
+
+  test("is one 64px row, logo at the start, nav centred, no overlap 1024–1440", async ({ page }) => {
+    test.setTimeout(90_000);
+    for (const width of [1024, 1280, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/shop", { waitUntil: "networkidle" });
+
+      const header = page.locator("header.site-header");
+      await expect(header).toHaveCount(1);
+      const g = await header.evaluate((el) => {
+        const nav = el.querySelector("nav") as HTMLElement;
+        // The bar renders the lockup twice (mobile row + desktop row); only
+        // one is visible at a given width — measure that one.
+        const logo = Array.from(el.querySelectorAll('img[alt="Parfums De Foda"]')).find(
+          (candidate) => candidate.getBoundingClientRect().width > 0,
+        ) as HTMLElement;
+        const whatsapp = Array.from(el.querySelectorAll('a[href*="wa.me"]')).find(
+          (n) => getComputedStyle(n).display !== "none",
+        ) as HTMLElement;
+        const box = (node: Element) => node.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        // Bounding-box intersection check over the visible header children.
+        const overlap = (a: Element, b: Element) => {
+          const x = box(a), y = box(b);
+          return Math.max(0, Math.min(x.right, y.right) - Math.max(x.left, y.left)) > 1 &&
+            Math.max(0, Math.min(x.bottom, y.bottom) - Math.max(x.top, y.top)) > 1;
+        };
+        const kids = Array.from(el.querySelectorAll("nav, a, button")).filter(
+          (n) => getComputedStyle(n).display !== "none",
+        );
+        let overlaps = 0;
+        for (let i = 0; i < kids.length; i += 1) {
+          for (let j = i + 1; j < kids.length; j += 1) {
+            if (kids[i].contains(kids[j]) || kids[j].contains(kids[i])) continue;
+            if (overlap(kids[i], kids[j])) overlaps += 1;
+          }
+        }
+        return {
+          height: box(el).height,
+          position: style.position,
+          background: style.backgroundColor,
+          borderBottom: style.borderBottomWidth,
+          // clientWidth excludes the scrollbar: rects are viewport-relative,
+          // so centres/gaps must be measured against the visible area.
+          logoRightGap: document.documentElement.clientWidth - box(logo).right,
+          logoHeight: box(logo).height,
+          navCenter: box(nav).left + box(nav).width / 2,
+          viewportCenter: document.documentElement.clientWidth / 2,
+          navGap: getComputedStyle(nav).columnGap,
+          whatsappWidth: box(whatsapp).width,
+          whatsappBg: getComputedStyle(whatsapp).backgroundColor,
+          whatsappColor: getComputedStyle(whatsapp).color,
+          whatsappRadius: getComputedStyle(whatsapp).borderRadius,
+          whatsappHeight: box(whatsapp).height,
+          links: Array.from(nav.querySelectorAll("a")).map((a) => a.textContent?.trim()),
+          houses: nav.querySelectorAll("button").length,
+          overlaps,
+        };
+      });
+
+      expect(g.height, `${width}px header height`).toBe(64);
+      expect(g.position, `${width}px position`).toBe("sticky");
+      expect(g.background, `${width}px background`).toBe("rgb(255, 255, 255)");
+      expect(g.borderBottom, `${width}px border`).toBe("1px");
+      expect(g.overlaps, `${width}px overlaps`).toBe(0);
+      // RTL: inline-start is the right edge; the logo sits 32px (px-8) from it.
+      expect(Math.abs(g.logoRightGap - 32), `${width}px logo at start`).toBeLessThanOrEqual(2);
+      expect(g.logoHeight, `${width}px logo height`).toBe(48);
+      // The nav is now the centred column, not the logo.
+      expect(Math.abs(g.navCenter - g.viewportCenter), `${width}px nav centred`).toBeLessThanOrEqual(4);
+      expect(g.houses, `${width}px houses menu gone`).toBe(0);
+      expect(g.links.length, `${width}px nav links`).toBeGreaterThanOrEqual(3);
+      expect(g.links.length, `${width}px nav links max`).toBeLessThanOrEqual(4);
+      expect(g.links).not.toContain("المتجر");
+      expect(g.links).toContain("رجالي");
+      expect(g.links).toContain("حريمي");
+      expect(g.links).toContain("للجنسين");
+      // Green button, purple label, square corners, 40px tall.
+      expect(g.whatsappBg, `${width}px whatsapp bg`).toBe("rgb(156, 214, 118)");
+      expect(g.whatsappColor, `${width}px whatsapp color`).not.toBe("rgb(255, 255, 255)");
+      expect(g.whatsappRadius, `${width}px whatsapp radius`).toBe("0px");
+      expect(g.whatsappHeight, `${width}px whatsapp height`).toBe(40);
+
+      if (width < 1180) {
+        expect(g.whatsappWidth, `${width}px icon-only`).toBeLessThan(60);
+      }
+    }
   });
 
-  test("renders the correct tone in the server HTML (no flash)", async ({ page }) => {
-    const response = await page.goto("/shop");
-    const html = (await response?.text()) ?? "";
-    // The header's first paint is already the light tone on a non-hero route.
-    expect(html).toMatch(/data-tone="light"/);
+  test("on a phone keeps the logo and actions on one row without the nav", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/shop", { waitUntil: "networkidle" });
 
-    const home = await page.goto("/");
-    const homeHtml = (await home?.text()) ?? "";
-    expect(homeHtml).toMatch(/data-tone="dark"/);
+    const header = page.locator("header.site-header");
+    const g = await header.evaluate((el) => {
+      const nav = el.querySelector("nav") as HTMLElement;
+      const logo = Array.from(el.querySelectorAll('img[alt="Parfums De Foda"]')).find(
+        (candidate) => candidate.getBoundingClientRect().width > 0,
+      ) as HTMLElement;
+      return {
+        height: el.getBoundingClientRect().height,
+        navDisplay: getComputedStyle(nav).display,
+        logoLeft: logo.getBoundingClientRect().left,
+        logoHeight: logo.getBoundingClientRect().height,
+        menu: el.querySelector('[aria-label="القائمة"]')?.getBoundingClientRect().width ?? 0,
+      };
+    });
+
+    expect(g.height).toBe(76);
+    expect(g.navDisplay).toBe("none");
+    expect(g.logoHeight).toBe(40);
+    expect(g.menu).toBeGreaterThanOrEqual(44);
+    expect(g.logoLeft).toBeGreaterThan(200);
+
+    await page.getByRole("button", { name: "القائمة" }).click();
+    const sheet = page.locator('[data-slot="sheet-content"]');
+    await expect(sheet).toBeVisible();
+    await expect(
+      sheet.getByRole("link", { name: "رجالي" }),
+    ).toHaveAttribute("href", "/shop/men");
+    await expect(sheet.getByRole("link", { name: "المتجر" })).toHaveCount(0);
   });
 
   test("hides on scroll down and returns on scroll up", async ({ page }) => {
@@ -102,8 +205,18 @@ test.describe("floating header", () => {
       )
       .toBe("true");
 
-    await page.evaluate(() => window.scrollTo(0, 500));
-    await expect.poll(async () => hidden(page), { timeout: 5000 }).toBe("false");
+    // Same two-sample reading for the way back up: the jump starts from the
+    // poll's own 900, so the last direction the listener sees is always up.
+    await expect
+      .poll(
+        async () => {
+          await page.evaluate(() => window.scrollTo(0, 700));
+          await page.evaluate(() => window.scrollTo(0, 500));
+          return hidden(page);
+        },
+        { timeout: 5000 },
+      )
+      .toBe("false");
   });
 
   test("stays put while the search has focus", async ({ page }) => {
@@ -112,8 +225,14 @@ test.describe("floating header", () => {
     await page.goto("/shop", { waitUntil: "networkidle" });
 
     // Focus first (the bar is visible at the top), then scroll: an open search
-    // must keep the capsule on screen even while the page scrolls down.
-    await page.getByRole("combobox").first().click();
+    // must keep the header on screen even while the page scrolls down.
+    // Under load the trigger can be clicked before hydration attaches its
+    // handler, so open the panel with a retry rather than a single click.
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    await page.locator("#mobile-search-panel").getByRole("combobox").first().click();
     await page.evaluate(() => window.scrollTo(0, 900));
     await page.waitForTimeout(500);
     expect(await hidden(page)).toBe("false");
@@ -125,7 +244,13 @@ test.describe("floating header", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/shop", { waitUntil: "networkidle" });
 
-    const input = page.getByRole("combobox").first();
+    // Under load the trigger can be clicked before hydration attaches its
+    // handler, so open the panel with a retry rather than a single click.
+    await expect(async () => {
+      await page.getByRole("button", { name: "بحث" }).first().click();
+      await expect(page.locator("#mobile-search-panel")).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15000 });
+    const input = page.locator("#mobile-search-panel").getByRole("combobox").first();
     await input.click();
     await input.fill("عود");
     await expect(input).toHaveAttribute("aria-expanded", "true");
@@ -212,61 +337,7 @@ test.describe("floating header", () => {
     }
   });
 
-  test("the capsule has a solid fallback for reduced transparency and no blur", async ({
-    page,
-  }) => {
-    await page.goto("/shop", { waitUntil: "networkidle" });
 
-    const state = await page.evaluate(() => ({
-      reduceTransparency: matchMedia("(prefers-reduced-transparency: reduce)").matches,
-      rules: Array.from(document.styleSheets)
-        .flatMap((sheet) => {
-          try {
-            return Array.from(sheet.cssRules).map((rule) => rule.cssText);
-          } catch {
-            return [];
-          }
-        })
-        .join("\n"),
-    }));
-    const alpha = await capsuleAlpha(page);
 
-    // The default token is translucent glass...
-    expect(state.rules).toMatch(/--header-surface:\s*color-mix\([^;]*transparent\)/);
-    // ...and both fallbacks (no backdrop-filter, reduced transparency) replace
-    // it with a solid surface rather than leaving text on an unknown backdrop.
-    expect(state.rules).toContain("prefers-reduced-transparency");
-    expect(state.rules).toMatch(/--header-surface:\s*var\(--color-surface\)/);
 
-    // Whatever the engine reports, the painted capsule agrees with it.
-    if (state.reduceTransparency) expect(alpha).toBe(1);
-    else expect(alpha).toBeLessThan(1);
-  });
-
-  test("is glass when transparency is allowed and solid when it is not", async ({
-    page,
-    context,
-    browserName,
-  }) => {
-    test.skip(
-      browserName !== "chromium",
-      "Emulation.setEmulatedMedia is a Chromium protocol command",
-    );
-    await page.goto("/shop", { waitUntil: "networkidle" });
-
-    const cdp = await context.newCDPSession(page);
-    const emulate = (value: "no-preference" | "reduce") =>
-      cdp.send("Emulation.setEmulatedMedia", {
-        features: [{ name: "prefers-reduced-transparency", value }],
-      });
-
-    // `Emulation.setEmulatedMedia` lands asynchronously in the renderer, so the
-    // painted alpha is polled rather than read on the next line; the assertion
-    // itself is unchanged (glass when allowed, solid when not).
-    await emulate("no-preference");
-    await expect.poll(() => capsuleAlpha(page), { timeout: 5000 }).toBeLessThan(1);
-
-    await emulate("reduce");
-    await expect.poll(() => capsuleAlpha(page), { timeout: 5000 }).toBe(1);
-  });
 });

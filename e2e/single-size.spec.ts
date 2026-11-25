@@ -17,6 +17,13 @@ const arabicLabel = (label: string) =>
 const multi = products.find(
   (item) => !item.hidden && item.sizes.filter((size) => size.inStock).length > 1,
 );
+/** An oil that comes in a single size (refresh-5 added one at 12 مل). */
+const oil = products.find(
+  (item) => !item.hidden && item.oily && item.inStock && item.sizes.length === 1,
+);
+const regular = products.find(
+  (item) => !item.hidden && !item.oily && item.inStock && item.sizes.length === 1,
+);
 
 test.describe("single-size products", () => {
   test.skip(!single, "the catalogue carries no single-size product yet");
@@ -64,6 +71,48 @@ test.describe("single-size products", () => {
     await page.goto("/cart", { waitUntil: "networkidle" });
     await expect(page.locator("main")).toContainText(arabicLabel(single!.sizes[0].label));
   });
+
+  for (const [kind, product] of [
+    ["oil", oil],
+    ["non-oil", regular],
+  ] as const) {
+    test(`a single-size ${kind} product prices, offers and adds without a chooser`, async ({
+      page,
+      isMobile,
+    }) => {
+      test.skip(!product, `the catalogue carries no single-size ${kind} product`);
+      const price = product!.sizes[0].price.toLocaleString("ar-EG");
+
+      await page.goto(`/shop?q=${encodeURIComponent(product!.name)}`, { waitUntil: "networkidle" });
+      const card = page.locator(`article:has(a[href="/product/${product!.slug}"])`).first();
+      await expect(card).toBeVisible();
+      await expect(card).not.toContainText("من ");
+      await expect(card).toContainText(price);
+
+      if (!isMobile) {
+        await card.hover();
+        await card.getByRole("button", { name: /أضف/ }).first().click();
+        const drawer = page.getByRole("dialog");
+        await expect(drawer).toBeVisible();
+        await expect(drawer).toContainText(arabicLabel(product!.sizes[0].label));
+        await page.keyboard.press("Escape");
+      }
+
+      await page.goto(`/product/${product!.slug}`, { waitUntil: "networkidle" });
+      await expect(page.getByRole("radiogroup", { name: "اختر الحجم" }).getByRole("radio")).toHaveCount(1);
+      const blocks = await page.locator("script[type='application/ld+json']").allTextContents();
+      const offers = blocks
+        .map((block) => JSON.parse(block))
+        .filter((block) => block["@type"] === "Product")
+        .map((block) => block.offers);
+      // One size means one aggregated offer priced at that size.
+      expect(offers).toHaveLength(1);
+      expect(offers[0].offerCount).toBe(1);
+      expect(offers[0].lowPrice).toBe(product!.sizes[0].price);
+      expect(offers[0].highPrice).toBe(product!.sizes[0].price);
+      expect(offers[0].availability).toContain("InStock");
+    });
+  }
 
   test("a multi-size product still asks which size and keeps من", async ({ page, isMobile }) => {
     test.skip(!multi || isMobile, "pointer devices and a multi-size product");

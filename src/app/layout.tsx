@@ -8,12 +8,12 @@ import type { CartCatalogProduct } from "@/lib/cart-utils";
 import { t } from "@/lib/locale";
 import { formatPrice } from "@/lib/currency";
 import { getShippingFee } from "@/lib/shipping";
-import { PUBLIC_TIER_LABELS } from "@/lib/product-labels";
 import { buildPrimaryNav, genderCounts, genderPublicLabel, type PrimaryNavLabels } from "@/lib/site-nav";
 import { themeAttributes } from "@/lib/theme-runtime";
 import { SiteShell } from "@/features/layout";
+import { isAssistantEnabled } from "@/lib/features";
 import { DerivedImageFallback } from "@/components/derived-image-fallback";
-import { ChatAssistant } from "@/features/chat-assistant/components/chat-assistant";
+import { AssistantMount } from "@/features/chat-assistant/components/assistant-mount";
 import "./globals.css";
 
 /**
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     default: "Parfums De Foda",
     template: "%s | Parfums De Foda",
   },
-  description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
-  keywords: ["عطور", "عربية", "فاخرة", "بارفان", "مسك", "عود", "برفانات", "عطور أصلية"],
+  description: "عطور شرقية وغربية وزيوت عطرية بأحجام متعددة",
+  keywords: ["عطور", "عربية", "بارفان", "مسك", "عود", "برفانات", "زيوت عطرية"],
   authors: [{ name: "Parfums De Foda" }],
   robots: {
     index: true,
@@ -62,8 +62,8 @@ export const metadata: Metadata = {
     locale: "ar_AR",
     url: siteUrl,
     siteName: "Parfums De Foda",
-    title: "Parfums De Foda — عطور فاخرة",
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
+    title: "Parfums De Foda | العطور",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية والمسك والعود",
     images: [
       {
         // Social platforms do not render SVG — this is a real 1200x630 PNG
@@ -71,14 +71,14 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Parfums De Foda — عطور فاخرة",
+        alt: "Parfums De Foda | العطور",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Parfums De Foda — عطور فاخرة",
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة والمسك والعود",
+    title: "Parfums De Foda | العطور",
+    description: "عطور شرقية وغربية وزيوت عطرية بأحجام متعددة",
     images: ["/og-image.png"],
   },
   // No site-wide canonical here: a root canonical is inherited by every page,
@@ -100,8 +100,8 @@ function JsonLd() {
     "@type": "Organization",
     name: "Parfums De Foda",
     url: siteUrl,
-    logo: `${siteUrl}/logos/logo.svg`,
-    description: "متجر عطور فاخرة — عطور عربية أصيلة بجودة استثنائية",
+    logo: `${siteUrl}/logos/logo.svg?v=20261119-2`,
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     address: {
       "@type": "PostalAddress",
       addressCountry: "EG",
@@ -118,7 +118,7 @@ function JsonLd() {
     "@type": "WebSite",
     name: "Parfums De Foda",
     url: siteUrl,
-    description: "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     inLanguage: "ar",
     potentialAction: {
       "@type": "SearchAction",
@@ -135,7 +135,7 @@ function JsonLd() {
     "@type": "Store",
     name: "Parfums De Foda",
     url: siteUrl,
-    description: "متجر عطور فاخرة — عطور عربية أصيلة",
+    description: "متجر عطور شرقية وغربية وزيوت عطرية",
     priceRange: "$$",
     openingHours: "Mo-Su 09:00-23:00",
     areaServed: {
@@ -191,7 +191,6 @@ export default async function RootLayout({
      once per request rather than by each page. A category with no visible
      products is not rendered as a dead link. */
   const navLabels: PrimaryNavLabels = {
-    shop: t(localeMessages, "nav.shop", "المتجر"),
     men: t(localeMessages, "nav.men", "رجالي"),
     women: genderPublicLabel("نسائي"),
     unisex: t(localeMessages, "nav.unisex", "للجنسين"),
@@ -213,38 +212,9 @@ export default async function RootLayout({
     sizes: product.sizes.map(({ label, price, inStock }) => ({ label, price, inStock })),
   }));
 
-  const houseLinks = Object.entries(PUBLIC_TIER_LABELS)
-    .filter(([, label]) => label !== null)
-    .map(([house, label]) => ({
-      label: label as string,
-      href: `/shop?tier=${encodeURIComponent(house)}`,
-    }));
-
-  /* Footer columns: the shop routes, the three help routes, and contact — the
-     contact column itself is rendered from data/contact.json by the footer. */
-  const footerColumns = [
-    {
-      title: t(localeMessages, "footer.shopTitle", "المتجر"),
-      links: headerNav.map((link) => ({ label: link.label, href: link.href })),
-    },
-    {
-      title: t(localeMessages, "footer.helpTitle", "المساعدة"),
-      links: [
-        {
-          label: t(localeMessages, "footer.faq", "الأسئلة الشائعة"),
-          href: "/faq",
-        },
-        {
-          label: t(localeMessages, "footer.shippingReturns", "الشحن والإرجاع"),
-          href: "/shipping-returns",
-        },
-        {
-          label: t(localeMessages, "footer.contact", "اتصل بنا"),
-          href: "/contact",
-        },
-      ],
-    },
-  ];
+  /* Footer: brand column + the "تواصل معنا" contact column only. The help
+     column (المساعدة) was removed; /faq and /shipping-returns still exist as
+     pages, they are just no longer linked from the footer. */
 
   /* Cash on delivery is the store's only payment method (content/faq.json) and
      shipping is the flat fee from data/settings.json — no number is typed here. */
@@ -285,7 +255,6 @@ export default async function RootLayout({
 
   const headerLabels = {
     nav: t(localeMessages, "header.nav", "القائمة الرئيسية"),
-    houses: t(localeMessages, "nav.houses", "الدور"),
     search: t(localeMessages, "header.search", "بحث"),
     searchPlaceholder: t(
       localeMessages,
@@ -352,6 +321,8 @@ export default async function RootLayout({
     >
       <head>
         <JsonLd />
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light" />
         {theme.colors.primary && (
           <meta name="theme-color" content={theme.colors.primary} />
         )}
@@ -374,7 +345,6 @@ export default async function RootLayout({
             header={{
               storeName: settings.store.name,
               nav: headerNav,
-              houses: houseLinks,
               labels: headerLabels,
               whatsappHref: settings.contact.whatsapp
                 ? `https://wa.me/${settings.contact.whatsapp}`
@@ -384,9 +354,7 @@ export default async function RootLayout({
             footer={{
               storeName: settings.store.name,
               description: settings.footer.description,
-              columns: footerColumns,
               contact: settings.contact,
-              note: footerNote,
               contactTitle: t(
                 localeMessages,
                 "footer.contactTitle",
@@ -406,27 +374,14 @@ export default async function RootLayout({
               Nothing floats on the page: the header, the hero and the homepage
               band open it through the advisor bus. Wrapped in its own error
               boundary so a failure here never takes down the rest of the site. */}
-          <ChatAssistant
+          <AssistantMount
+            enabled={isAssistantEnabled(settings)}
             labels={{
-              title: t(localeMessages, "advisor.title", "مساعد العطور"),
+              title: t(localeMessages, "advisor.title", "مساعد الذوق"),
               close: t(localeMessages, "advisor.close", "إغلاق"),
             }}
             launcher={{
-              open: t(
-                localeMessages,
-                "advisor.launcher",
-                "اختر عطرك بمساعدة المساعد الذكي",
-              ),
-              greeting: t(
-                localeMessages,
-                "advisor.greeting",
-                "محتار في الاختيار؟ اسألني وأرشّح لك عطراً يناسب ذوقك.",
-              ),
-              dismiss: t(
-                localeMessages,
-                "advisor.dismissGreeting",
-                "إخفاء الترحيب",
-              ),
+              open: t(localeMessages, "advisor.ask", "اسأل المساعد"),
             }}
           />
         </Providers>

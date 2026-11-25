@@ -5,10 +5,9 @@ import type {
   ContactInfo,
   SocialLinks,
   NavItem,
-  FooterColumn,
 } from "@/types/services";
 
-export type { FullSettings, ContactInfo, SocialLinks, NavItem, FooterColumn } from "@/types/services";
+export type { FullSettings, ContactInfo, SocialLinks, NavItem } from "@/types/services";
 
 export interface UseSettingsReturn {
   /** Full settings data */
@@ -29,8 +28,6 @@ export interface UseSettingsReturn {
   social: SocialLinks;
   /** Navigation items */
   navigation: NavItem[];
-  /** Footer columns */
-  footerColumns: FooterColumn[];
   /** Footer description */
   footerDescription: string;
 }
@@ -48,7 +45,8 @@ const defaultSettings: FullSettings = {
   contact: { whatsapp: "", email: "", phone: "" },
   social: {},
   navigation: [],
-  footer: { description: "", columns: [] },
+  footer: { description: "" },
+  features: { premium: true, assistant: true },
 };
 
 /**
@@ -72,7 +70,6 @@ export function useSettings(
     contact: settings.contact,
     social: settings.social,
     navigation: settings.navigation,
-    footerColumns: settings.footer.columns,
     footerDescription: settings.footer.description,
   };
 }

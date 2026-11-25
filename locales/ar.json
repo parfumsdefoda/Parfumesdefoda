@@ -5,8 +5,7 @@
     "shop": "المتجر",
     "men": "رجالي",
     "unisex": "للجنسين",
-    "oils": "زيوت عطرية",
-    "houses": "الدور"
+    "oils": "زيوت عطرية"
   },
   "header": {
     "nav": "القائمة الرئيسية",
@@ -21,8 +20,8 @@
     "backToCart": "العودة للسلة"
   },
   "home": {
-    "pageTitle": "Parfums De Foda — عطور فاخرة",
-    "pageDescription": "اكتشف تشكيلتنا الفاخرة من العطور العربية الأصيلة",
+    "pageTitle": "Parfums De Foda | العطور",
+    "pageDescription": "عطور شرقية وغربية وزيوت عطرية بأحجام متعددة",
     "searchPlaceholder": "ابحث عن عطرك...",
     "addToCart": "أضف إلى السلة",
     "outOfStock": "غير متوفر",
@@ -33,11 +32,8 @@
     "chooseWithAdvisor": "اختر عطرك بالمساعد",
     "heroHeading": "عطر يترك أثرًا قبل أن تتكلم",
     "heroLead": "تشكيلة مختارة من العطور الشرقية والنيش، تُطلب في دقيقة واحدة والدفع عند الاستلام.",
-    "bestSellers": "الأكثر مبيعًا",
-    "viewAll": "عرض الكل",
     "shopByCategory": "تسوّق حسب القسم",
-    "advisorTitle": "محتار في الاختيار؟",
-    "advisorBody": "جاوب على سؤالين والمساعد يرشّح لك عطورًا من التشكيلة نفسها."
+    "viewAllProducts": "عرض كل المنتجات"
   },
   "product": {
     "selectSize": "اختر الحجم",
@@ -90,8 +86,6 @@
   },
   "footer": {
     "rights": "جميع الحقوق محفوظة",
-    "shopTitle": "المتجر",
-    "helpTitle": "المساعدة",
     "contactTitle": "تواصل معنا",
     "faq": "الأسئلة الشائعة",
     "shippingReturns": "الشحن والإرجاع",
@@ -114,11 +108,9 @@
     "phone": "اتصل بنا"
   },
   "advisor": {
-    "title": "مساعد العطور",
+    "title": "مساعد الذوق",
     "close": "إغلاق",
-    "launcher": "اختر عطرك بمساعدة المساعد الذكي",
-    "greeting": "محتار في الاختيار؟ اسألني وأرشّح لك عطراً يناسب ذوقك.",
-    "dismissGreeting": "إخفاء الترحيب"
+    "ask": "اسأل المساعد"
   },
   "shop": {
     "description": "كل العطور في مكان واحد — {count} عطر.",
@@ -132,10 +124,9 @@
   "catalog": {
     "search": "بحث",
     "clearSearch": "مسح البحث",
-    "filters": "الفلاتر",
+    "filters": "الفلاتر والترتيب",
     "clearAll": "مسح الكل",
     "clearFilters": "مسح الفلاتر",
-    "availableOnly": "المتوفر فقط",
     "resultUnit": "منتج",
     "sort": "الترتيب",
     "sortFeatured": "الافتراضي",
@@ -145,11 +136,7 @@
     "showResults": "عرض {count} منتج",
     "remove": "إزالة",
     "groupGender": "الجنس",
-    "groupStyle": "النوع",
-    "groupTier": "الدار",
-    "groupPerformance": "الأداء",
-    "groupSize": "المقاس",
-    "groupForm": "الصيغة",
+    "groupFoda": "عطور فوده الأصلية",
     "emptyTitle": "لا توجد منتجات مطابقة",
     "emptyHint": "جرّب إزالة بعض الفلاتر أو البحث باسم آخر"
   }

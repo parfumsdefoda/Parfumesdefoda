@@ -36,7 +36,7 @@ function product(
 }
 
 describe("sortProducts", () => {
-  it("puts featured products first and keeps the rest in catalogue order", () => {
+  it("keeps the master's catalogue order (featured never sorts)", () => {
     const list = [
       product("a"),
       product("b", { featured: true }),
@@ -44,11 +44,11 @@ describe("sortProducts", () => {
       product("d", { featured: true }),
     ];
 
-    expect(sortProducts(list, "featured").map((p) => p.id)).toEqual([
-      "b",
-      "d",
+    expect(sortProducts(list, "default").map((p) => p.id)).toEqual([
       "a",
+      "b",
       "c",
+      "d",
     ]);
   });
 
@@ -136,7 +136,7 @@ describe("sortProducts", () => {
 
   it("returns a new array for the default sort", () => {
     const list = [product("a")];
-    const sorted = sortProducts(list, "featured");
+    const sorted = sortProducts(list, "default");
     expect(sorted).not.toBe(list);
     expect(sorted).toHaveLength(1);
   });

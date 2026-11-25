@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { Maximize2 } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { hasTransparentCutout } from "@/lib/product-image";
 import { cn } from "@/lib/utils";
 
 export interface GalleryImage {
@@ -31,7 +30,9 @@ export interface ProductGalleryProps {
   images: GalleryImage[];
   name: string;
   labels: ProductGalleryLabels;
-  /** Coming-soon products keep the muted stage — there is no photo yet. */
+  /** The premium label on the stage ("فاخر"). */
+  premiumLabel?: string;
+  /** Coming-soon products keep the empty stage — there is no photo yet. */
   comingSoon?: boolean;
   /**
    * Premium (فاخر): the stage wears the gold ring, and — only when the photo is
@@ -51,6 +52,21 @@ export interface ProductGalleryProps {
  * The photo is a real button, not a div with a click handler, so the keyboard
  * reaches the zoom exactly like a finger does.
  */
+function PremiumOverlay({ label }: { label: string }) {
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        data-premium-frame=""
+        className="pointer-events-none absolute inset-[10px] border border-[var(--brand-gold)]"
+      />
+      <span className="absolute start-3 top-3 border border-[var(--line-soft)] bg-[var(--paper)] px-2 py-1 text-[14px] font-medium text-[var(--color-gold-text)]">
+        ◆ {label}
+      </span>
+    </>
+  );
+}
+
 export function ProductGallery({
   images,
   name,
@@ -64,8 +80,8 @@ export function ProductGallery({
 
   if (comingSoon || images.length === 0) {
     return (
-      <div className="flex aspect-[4/5] w-full items-center justify-center rounded-card bg-[var(--color-surface-muted)]">
-        <span className="rounded-pill border border-[var(--color-border)] px-5 py-2 text-headline font-bold text-[var(--color-text-muted)]">
+      <div className="flex aspect-[4/5] w-full items-center justify-center border border-[var(--line)] bg-[var(--paper)]">
+        <span className="border border-[var(--line-soft)] px-5 py-2 text-[14px] font-medium text-[var(--ink-muted)]">
           {labels.comingSoon}
         </span>
       </div>
@@ -127,7 +143,7 @@ export function ProductGallery({
                 aria-label={`${labels.zoom} — ${name} (${labels.thumbnail.replace("{n}", String(index + 1))})`}
                 className={cn(
                   "block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-                  premium && "premium-frame",
+                  
                 )}
               >
                 <ProductImage
@@ -136,7 +152,7 @@ export function ProductGallery({
                   name={name}
                   tier="pdp"
                   frame="stage"
-                  tone={premium && hasTransparentCutout(image.slug) ? "dark" : "light"}
+                  tone="light"
                   sizes="100vw"
                   priority={index === 0}
                   loading={index === 0 ? "eager" : "lazy"}
@@ -156,16 +172,16 @@ export function ProductGallery({
                 onClick={() => goTo(index)}
                 aria-label={labels.thumbnail.replace("{n}", String(index + 1))}
                 aria-current={index === selected}
-                className="flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                className="flex h-6 w-6 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
               >
                 {/* The dot stays small; the 24px box is the touch target. */}
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "h-2.5 w-2.5 rounded-full transition-colors",
+                    "h-2 w-2 transition-colors",
                     index === selected
                       ? "bg-[var(--color-brand)]"
-                      : "bg-[var(--color-border-strong)]",
+                      : "bg-[var(--line)]",
                   )}
                 />
               </button>
@@ -182,7 +198,7 @@ export function ProductGallery({
           aria-label={labels.zoom}
           className={cn(
             "group relative block w-full rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
-            premium && "premium-frame",
+            
           )}
         >
           <ProductImage
@@ -191,14 +207,14 @@ export function ProductGallery({
             name={name}
             tier="pdp"
             frame="stage"
-            tone={premium && hasTransparentCutout(current.slug) ? "dark" : "light"}
+            tone="light"
             sizes="(max-width: 1280px) 50vw, 600px"
             priority
             decorative
           />
           <span
             aria-hidden="true"
-            className="absolute bottom-3 end-3 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-surface)]/90 text-[var(--color-text)] opacity-0 transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"
+            className="absolute bottom-3 end-3 flex h-9 w-9 items-center justify-center border border-[var(--line)] bg-[var(--paper)] text-[var(--ink)] opacity-0 transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 group-focus-visible:opacity-100"
           >
             <Maximize2 className="h-4 w-4" aria-hidden="true" />
           </span>
@@ -214,7 +230,7 @@ export function ProductGallery({
                 aria-label={labels.thumbnail.replace("{n}", String(index + 1))}
                 aria-pressed={index === selected}
                 className={cn(
-                  "relative h-20 w-20 shrink-0 overflow-hidden rounded-control border transition-colors",
+                  "relative h-20 w-20 shrink-0 overflow-hidden border transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
                   index === selected
                     ? "border-[var(--color-brand)]"

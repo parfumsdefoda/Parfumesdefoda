@@ -59,10 +59,10 @@ export default async function ContactPage() {
 
   return (
     <div className="mx-auto w-full max-w-[720px] px-4 pb-[var(--space-section)] pt-8">
-      <h1 className="mb-2 text-title-3 font-bold text-[var(--color-text)]">
+      <h1 className="mb-2 text-title-3 font-bold text-[var(--ink)]">
         {t(locale, "contact.title", "اتصل بنا")}
       </h1>
-      <p className="mb-8 text-caption text-[var(--color-text-muted)]">
+      <p className="mb-8 text-caption text-[var(--ink-muted)]">
         {t(locale, "contact.description", "تواصل معنا لأي استفسار أو طلب")}
       </p>
 
@@ -74,19 +74,19 @@ export default async function ContactPage() {
               {...(external
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
-              className="flex items-center gap-3 rounded-card border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4 transition-colors hover:border-[var(--color-border-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+              className="flex items-center gap-3 border border-[var(--line)] bg-[var(--paper)] px-4 py-4 transition-colors hover:border-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
             >
               <span
                 aria-hidden="true"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-soft)] text-[var(--color-brand)]"
+                className="flex size-10 shrink-0 items-center justify-center border border-[var(--line)] text-[var(--color-brand)]"
               >
                 <Icon className="h-5 w-5" />
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className="text-caption font-bold text-[var(--color-text)]">
+                <span className="text-caption font-bold text-[var(--ink)]">
                   {label}
                 </span>
-                <span dir="ltr" className="truncate text-caption text-[var(--color-text-muted)]">
+                <span dir="ltr" className="truncate text-caption text-[var(--ink-muted)]">
                   {value}
                 </span>
               </span>

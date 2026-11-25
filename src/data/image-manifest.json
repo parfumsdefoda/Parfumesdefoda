@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-07T11:29:18.769Z",
+  "generatedAt": "2026-11-24T21:45:38.423Z",
   "normalisation": {
     "subjectShare": 0.72,
     "opticalShift": 0.02
   },
   "products": {
     "pf010": {
-      "source": "/products/PF010.png",
-      "sourceHash": "aaebbbc0848e4d027c131feb590203ac2ba1a81a1474a77f7232c71206950062",
+      "source": "/products/PF010.webp",
+      "sourceHash": "7306348929ad119af6e032248a9611c7da86b406debcca96f7f416a735f52dcf",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -36,12 +36,12 @@
       ]
     },
     "pf020": {
-      "source": "/products/PF020.png",
-      "sourceHash": "97d912ed24c442770aa5a3f4d8fd528953f7f78bf2ff5220c6ecc3eecb7c1614",
+      "source": "/products/PF020.webp",
+      "sourceHash": "4cf9667f94adcfbd0df65d0fd1f145c8ed9cc758ac82955d9971e4d2512d6b9f",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2636,
+      "canvas": 2110,
       "files": [
         {
           "w": 400,
@@ -65,12 +65,12 @@
       ]
     },
     "pf040": {
-      "source": "/products/PF040.png",
-      "sourceHash": "e59641aa24f56dcf77fb4930ed4261980401cf651fed044dd3d8cf8c3eb4008e",
+      "source": "/products/PF040.webp",
+      "sourceHash": "3e4364f5a4c608b49d2a837edef39fd006e0b7130a3a1f5f915c5bb1a0c01f91",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2317,
+      "canvas": 1854,
       "files": [
         {
           "w": 400,
@@ -94,8 +94,8 @@
       ]
     },
     "pf050": {
-      "source": "/products/PF050.png",
-      "sourceHash": "a03fbdd6a2523944f956247aaffb8ca0bf626dd04accdad8eb2c8b3d6b7fc7d1",
+      "source": "/products/PF050.webp",
+      "sourceHash": "849bc44ccd0e69dd3d3d1e9d5942f7e522e6a541fd1bd1a27ab5b5e1245fd8df",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -123,12 +123,12 @@
       ]
     },
     "pf060": {
-      "source": "/products/PF060.png",
-      "sourceHash": "fb6f585d041165dcb7acc0a879210435c1b55829c5a30193d1bde236014f0cd5",
-      "background": "pure-white",
+      "source": "/products/PF060.webp",
+      "sourceHash": "4dc19e784160ab788b954ff03e4b8d9b10c54cf1618ba45236957b2b2b2e5fd0",
+      "background": "transparent",
       "mode": "cutout",
-      "blend": "multiply",
-      "canvas": 1039,
+      "blend": "normal",
+      "canvas": 538,
       "files": [
         {
           "w": 400,
@@ -152,12 +152,12 @@
       ]
     },
     "pf070": {
-      "source": "/products/PF070.png",
-      "sourceHash": "8d075c552e313c902d7bfee12e45f2a8c1d9bcabf5f6754cb920b4d3bebc7162",
+      "source": "/products/PF070.webp",
+      "sourceHash": "4171cbebdbea896687a02a3b5fa275f5028e08b61781a44c4bf35bf597f255b7",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2578,
+      "canvas": 2063,
       "files": [
         {
           "w": 400,
@@ -181,12 +181,12 @@
       ]
     },
     "pf080": {
-      "source": "/products/PF080.png",
-      "sourceHash": "d422452a388b0f3672a059bd64f8c84a17e68fd4ba148902eae4137e378f2305",
+      "source": "/products/PF080.webp",
+      "sourceHash": "d439af35765453aa9318b61de349f8c99f999c95c0cd60580ac8b3dc852c9d65",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2665,
+      "canvas": 2133,
       "files": [
         {
           "w": 400,
@@ -209,41 +209,13 @@
         }
       ]
     },
-    "pf090": {
-      "source": "/products/PF090.png",
-      "sourceHash": "c17caf280301c70afa7d7e18d705b4e6aa0ef7d1504010c823b4abf89283b5d3",
-      "background": "coloured",
-      "mode": "framed",
-      "blend": "normal",
-      "canvas": null,
-      "files": [
-        {
-          "w": 400,
-          "avif": "/products/derived/pf090/framed-400.avif",
-          "h": 225,
-          "webp": "/products/derived/pf090/framed-400.webp"
-        },
-        {
-          "w": 800,
-          "avif": "/products/derived/pf090/framed-800.avif",
-          "h": 450,
-          "webp": "/products/derived/pf090/framed-800.webp"
-        },
-        {
-          "w": 1200,
-          "avif": "/products/derived/pf090/framed-1200.avif",
-          "h": 675,
-          "webp": "/products/derived/pf090/framed-1200.webp"
-        }
-      ]
-    },
     "pf091": {
-      "source": "/products/PF091.png",
-      "sourceHash": "2fb108cf8911912e79ebd291c3db71167dcf33a1f9089141a8033eb782c2a3b6",
+      "source": "/products/PF091.webp",
+      "sourceHash": "c6f7bd7a2f98ece59d8930d58e7c42179f3840b5005299483a1f9d3484d3adf7",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2343,
+      "canvas": 1875,
       "files": [
         {
           "w": 400,
@@ -267,12 +239,12 @@
       ]
     },
     "pf100": {
-      "source": "/products/PF100.png",
-      "sourceHash": "9d15f2c8e055bd61c218d45b7d32cd127a3f80ca56fe5a7a60038d7adeb4d178",
+      "source": "/products/PF100.webp",
+      "sourceHash": "35b7f060dc9e41e8e27c01c6db362865cfbc2f1279501acb6a2c7913b21ee6ee",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2375,
+      "canvas": 1901,
       "files": [
         {
           "w": 400,
@@ -296,12 +268,12 @@
       ]
     },
     "pf110": {
-      "source": "/products/PF110.png",
-      "sourceHash": "eff2547aa406f38836dc5d725acfe18e9bef5e0ba1a3b2dcc064fce1fabb5af2",
+      "source": "/products/PF110.webp",
+      "sourceHash": "dc3e90859f5b07c133f28a2694ee2c4957b7ec12d1f06f57ed1ecff8bfa387f2",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2644,
+      "canvas": 2117,
       "files": [
         {
           "w": 400,
@@ -325,8 +297,8 @@
       ]
     },
     "pf120": {
-      "source": "/products/PF120.png",
-      "sourceHash": "800e5f8e0f34337cdd010217433a352295a16f10875e3c3d03c46317892ce3d3",
+      "source": "/products/PF120.webp",
+      "sourceHash": "dd3a61a0a9a3349464c7be6ec1e9104b8209d9e479a6c753764bb02dc4a75f7b",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -354,12 +326,12 @@
       ]
     },
     "pf130": {
-      "source": "/products/PF130.png",
-      "sourceHash": "7a1c841bc895192f9246df9bf657c633ca1aac6b082465bce756275e43d75300",
+      "source": "/products/PF130.webp",
+      "sourceHash": "8377ba709ae91af70f4d4fb79638307d9f74d5434c9481db946dd18a61d3e3fe",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2600,
+      "canvas": 2081,
       "files": [
         {
           "w": 400,
@@ -383,12 +355,12 @@
       ]
     },
     "pf140": {
-      "source": "/products/PF140.png",
-      "sourceHash": "135c717ada5bcc08857e7e3fd7973cff2b5272664ca061b8fcec8ca5e40e08e7",
+      "source": "/products/PF140.webp",
+      "sourceHash": "52ed15f767ca5321d4aedb2bfcff1bb2a8b56ba3f9918113a7925eccfef9e7bf",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2611,
+      "canvas": 2089,
       "files": [
         {
           "w": 400,
@@ -412,12 +384,12 @@
       ]
     },
     "pf150": {
-      "source": "/products/PF150.png",
-      "sourceHash": "1d79e7967924ef9e8ea8459cbf06137f25f3134daee1d502be119ee8f2de5cb6",
+      "source": "/products/PF150.webp",
+      "sourceHash": "9e149ac192d82e3e6574f1a97854923d28fc5d1addb8ce423cafab03641626e3",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2349,
+      "canvas": 1879,
       "files": [
         {
           "w": 400,
@@ -441,8 +413,8 @@
       ]
     },
     "pf160": {
-      "source": "/products/PF160.png",
-      "sourceHash": "74b3cd464ac0161e3ebd6922e196518adab0fca60ef85c9e78efec1291434c7a",
+      "source": "/products/PF160.webp",
+      "sourceHash": "ecc3ba9aa07debbc2837485b372afde1be5b9e4835e6619cb83ccc44a166c840",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -470,12 +442,12 @@
       ]
     },
     "pf170": {
-      "source": "/products/PF170.png",
-      "sourceHash": "680531743da40477ca487d978f7f7a403a7d1218980c2aba5db4bbcb6bc33ae7",
+      "source": "/products/PF170.webp",
+      "sourceHash": "ae95559e2d814bf9e580b802c7f080006b2b6666d80322e1c554f98023504bca",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2603,
+      "canvas": 2083,
       "files": [
         {
           "w": 400,
@@ -499,12 +471,12 @@
       ]
     },
     "pf180": {
-      "source": "/products/PF180.png",
-      "sourceHash": "8b35b20d1b95da96925ae031074bf83209ee638014541eb86ce1b286f0e0fe4e",
+      "source": "/products/PF180.webp",
+      "sourceHash": "7313ab4ff86e8422554b92a2a7b13a4db2f943d80454bb0398bd5c73b929d2f2",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2610,
+      "canvas": 2089,
       "files": [
         {
           "w": 400,
@@ -528,8 +500,8 @@
       ]
     },
     "pf190": {
-      "source": "/products/PF190.png",
-      "sourceHash": "0c01529e8fba02f362cb6b7f1050580bd0e4c58792dee001f36ea214d67c980a",
+      "source": "/products/PF190.webp",
+      "sourceHash": "ae4c64618d2c0c2d21fc5da8d858f4e7772def79360ed57711c02b07eeb92fc0",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -557,8 +529,8 @@
       ]
     },
     "pf200": {
-      "source": "/products/PF200.png",
-      "sourceHash": "4d1c0bdc1c769adcf2de3f87d2e7423e4266fc263518219517c8e20332aea800",
+      "source": "/products/PF200.webp",
+      "sourceHash": "0a2b193d800cbe7b73d934e51b18bf23c6b0fa6daa22698c383280b59f9ba87b",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -586,8 +558,8 @@
       ]
     },
     "pf210": {
-      "source": "/products/PF210.png",
-      "sourceHash": "0ccf900c1a0ae284e04b30ab23e929964cd21626b51b38c51c982a904cd53525",
+      "source": "/products/PF210.webp",
+      "sourceHash": "2b970d2d527eec1cdaca6ff2a509da50a1e6d25c0b6bad165b215643e771775e",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -615,8 +587,8 @@
       ]
     },
     "pf220": {
-      "source": "/products/PF220.png",
-      "sourceHash": "0055ecb1d877f9fc0cdd952520db18c899f7aec9d293ce69abaf833c2c3e78a8",
+      "source": "/products/PF220.webp",
+      "sourceHash": "eb158bee98e328b1f57317977e917bae53255b99735cfcb48ed33de8efe4c21f",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -644,12 +616,12 @@
       ]
     },
     "pf230": {
-      "source": "/products/PF230.png",
-      "sourceHash": "5baad4cbde7f95e89133ec51681133cb71bbe7db7c5b0cee32aae0e8129e3be0",
+      "source": "/products/PF230.webp",
+      "sourceHash": "3448ce7488377496a870ce5da2e9b28ea9359cebd382a29f84d9d41c4ae4a1b5",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2613,
+      "canvas": 2090,
       "files": [
         {
           "w": 400,
@@ -673,12 +645,12 @@
       ]
     },
     "pf240": {
-      "source": "/products/PF240.png",
-      "sourceHash": "176c7253b111213fe99a22dc6b1133c847ed3c66ea3f1579fd26600a56746d2b",
+      "source": "/products/PF240.webp",
+      "sourceHash": "55ddce77a6240749daed205ff287aab5572c09cf97bc51cfdf384fd01b055240",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2369,
+      "canvas": 1896,
       "files": [
         {
           "w": 400,
@@ -702,12 +674,12 @@
       ]
     },
     "pf241": {
-      "source": "/products/PF241.png",
-      "sourceHash": "176c7253b111213fe99a22dc6b1133c847ed3c66ea3f1579fd26600a56746d2b",
+      "source": "/products/PF241.webp",
+      "sourceHash": "55ddce77a6240749daed205ff287aab5572c09cf97bc51cfdf384fd01b055240",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2369,
+      "canvas": 1896,
       "files": [
         {
           "w": 400,
@@ -731,8 +703,8 @@
       ]
     },
     "pf250": {
-      "source": "/products/PF250.png",
-      "sourceHash": "97f59f6cb967b950722e03eb94d9cadcfd7cdd1672652fdc866626b2941d785e",
+      "source": "/products/PF250.webp",
+      "sourceHash": "838d7dcc8b378dfe291dd65e170569411b3a8b23d3697be34a4be6bb04b2a57a",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -760,12 +732,12 @@
       ]
     },
     "pf260": {
-      "source": "/products/PF260.png",
-      "sourceHash": "8e71d1d16b257ddd3d49533907e5ec9881e4504a4a42c712cb952dfa671d51ae",
+      "source": "/products/PF260.webp",
+      "sourceHash": "be10397e8cb70a3e1d0ee7997d090922b00a6ee31325561fc1b059580ccbd64e",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2622,
+      "canvas": 2099,
       "files": [
         {
           "w": 400,
@@ -789,8 +761,8 @@
       ]
     },
     "pf270": {
-      "source": "/products/PF270.png",
-      "sourceHash": "9930f2845da1895531bab7c5e2200bbfe8bdc1cf438aebaef4217e90209bc844",
+      "source": "/products/PF270.webp",
+      "sourceHash": "15ca205c206e1936ad6dde12ef022932202f5922a475e0c4d2915a84a633dc92",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -818,12 +790,12 @@
       ]
     },
     "pf280": {
-      "source": "/products/PF280.png",
-      "sourceHash": "4774ff0b11bf6d8ddc2110066028eb0c1cb2c5d51beabd5ffb20c4c538678f20",
+      "source": "/products/PF280.webp",
+      "sourceHash": "bf19dc9e22ea20770df7e8499ae469d017f8cd3ff7ee63c8991bcfa6c4563518",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2606,
+      "canvas": 2085,
       "files": [
         {
           "w": 400,
@@ -847,36 +819,37 @@
       ]
     },
     "pf290": {
-      "source": "/products/PF290.png",
-      "sourceHash": "68c2a73c2a21151ff34fcfdc86c9396d4133c3ebb3ef7a8955c10695e0fc4008",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF290.webp",
+      "sourceHash": "fe7a8330916c95c7f603b6c4f646bdcd3f8cfb765f3891d9f6769d0ce83250a2",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 651,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf290/framed-400.avif",
-          "h": 533,
-          "webp": "/products/derived/pf290/framed-400.webp"
+          "avif": "/products/derived/pf290/card-400.avif",
+          "webp": "/products/derived/pf290/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf290/framed-800.avif",
-          "h": 1067,
-          "webp": "/products/derived/pf290/framed-800.webp"
+          "avif": "/products/derived/pf290/card-800.avif",
+          "webp": "/products/derived/pf290/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf290/framed-1200.avif",
-          "h": 1600,
-          "webp": "/products/derived/pf290/framed-1200.webp"
+          "avif": "/products/derived/pf290/pdp-1200.avif",
+          "webp": "/products/derived/pf290/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf290/pdp-2000.webp"
         }
       ]
     },
     "pf300": {
-      "source": "/products/PF300.png",
-      "sourceHash": "ff83eb04c77fb1072ef3cd68000f9766deb52571d60767f9238dc587952facd0",
+      "source": "/products/PF300.webp",
+      "sourceHash": "b3d7abf054e1a77af7576d8986999bb90c240574331335fca7c6aa05194266b9",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -904,12 +877,12 @@
       ]
     },
     "pf310": {
-      "source": "/products/PF310.png",
-      "sourceHash": "04f4eb86a2af503000b475568769b402470a6b3ac3785f72747f0d435fbaa0ca",
+      "source": "/products/PF310.webp",
+      "sourceHash": "ada67d67f67edd14114ede594dc0473ac008112245b806b1ae924c41826bf9b7",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2628,
+      "canvas": 2103,
       "files": [
         {
           "w": 400,
@@ -933,12 +906,12 @@
       ]
     },
     "pf320": {
-      "source": "/products/PF320.png",
-      "sourceHash": "5a5a39b572ccfba9003e29fef2043b038dc5228fc5cfae718ffe05a498a47189",
+      "source": "/products/PF320.webp",
+      "sourceHash": "15f11bf186f4fa91ca0014444cca58ed4c60f0147d0608181903311acf2934b9",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2626,
+      "canvas": 2101,
       "files": [
         {
           "w": 400,
@@ -962,12 +935,12 @@
       ]
     },
     "pf330": {
-      "source": "/products/PF330.png",
-      "sourceHash": "3054ee66979d7e031bb94c67a30163c95fc66091281fe0ff00dd980699f3e470",
+      "source": "/products/PF330.webp",
+      "sourceHash": "6e5366463090e3d70abfe75f6cfba5717fc09dd4f365f212e79055f986683ad6",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2613,
+      "canvas": 2090,
       "files": [
         {
           "w": 400,
@@ -991,8 +964,8 @@
       ]
     },
     "pf340": {
-      "source": "/products/PF340.png",
-      "sourceHash": "408bca62f7e25960db00f9d6fe5745d48b5f2f4d8bef033d965caad5409b2cf1",
+      "source": "/products/PF340.webp",
+      "sourceHash": "e7a760546b52f05f5f050c30a158fb1ca68c990b0614a3a73f3c9d19f6c3e8e8",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1020,12 +993,12 @@
       ]
     },
     "pf350": {
-      "source": "/products/PF350.png",
-      "sourceHash": "0eda99a7d7437d8d1cb8cf904075f66e44cbb543ef149aae12c689c6ccd49eec",
+      "source": "/products/PF350.webp",
+      "sourceHash": "3e8e7fca48594a69f45c06641ac69cb5c0139cac8a374919dfdcd77cce6ba79c",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2613,
+      "canvas": 2092,
       "files": [
         {
           "w": 400,
@@ -1049,8 +1022,8 @@
       ]
     },
     "pf360": {
-      "source": "/products/PF360.png",
-      "sourceHash": "f7a9d2d4c0366ee13139b8ccdd76786ed857d006739fa4d9e0fd34dbd9878cda",
+      "source": "/products/PF360.webp",
+      "sourceHash": "5608650952e9b464bc9be6682b561ab20a36f26dc909ea46f1618940ba85bac9",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1078,12 +1051,12 @@
       ]
     },
     "pf370": {
-      "source": "/products/PF370.png",
-      "sourceHash": "e8a301567f8fb4f8cfbea4bf582de846801675dbdff4c24f419c0ba560f800eb",
+      "source": "/products/PF370.webp",
+      "sourceHash": "8cd9eb0275969f6570739ae13946a09c0b2bbbb5eb05f14c8cba7a3cf3e6ecf4",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2607,
+      "canvas": 2086,
       "files": [
         {
           "w": 400,
@@ -1107,12 +1080,12 @@
       ]
     },
     "pf380": {
-      "source": "/products/PF380.png",
-      "sourceHash": "3a020288cb17af4ef0e1194cf128689b43c7161ad6e5f060239431063d8b0e14",
+      "source": "/products/PF380.webp",
+      "sourceHash": "859c657799a7f5ff04f417725aa1926018702947d8d3d3b4e2c9265623490ecc",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2611,
+      "canvas": 2090,
       "files": [
         {
           "w": 400,
@@ -1136,12 +1109,12 @@
       ]
     },
     "pf390": {
-      "source": "/products/PF390.png",
-      "sourceHash": "30dcb31f8d0117f446373eaaaa6a53e09731d59c43303e20cb858c12b4d9c83f",
+      "source": "/products/PF390.webp",
+      "sourceHash": "310f26f51dbda7affa62440630b806ae6a61827a53cb6e568b59c24f78537053",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2656,
+      "canvas": 756,
       "files": [
         {
           "w": 400,
@@ -1165,8 +1138,8 @@
       ]
     },
     "pf400": {
-      "source": "/products/PF400.png",
-      "sourceHash": "355710c307aee2b45d14f3c6516093414678cdc37a6576cbf3483cd8220effe0",
+      "source": "/products/PF400.webp",
+      "sourceHash": "3510e97da1cd959fd2fafc7633afde5a5cb973916807cb9e4feb8654336b9b66",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1194,12 +1167,12 @@
       ]
     },
     "pf410": {
-      "source": "/products/PF410.png",
-      "sourceHash": "a1e72ad635fc0c201019db35e53f6df521e8bae0bf7729ad1c201e4b1084cbc3",
+      "source": "/products/PF410.webp",
+      "sourceHash": "ba6c2972393a5551fbc683c741d59338b04ad2baba75b3a6f715aae41b8605b5",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2358,
+      "canvas": 1888,
       "files": [
         {
           "w": 400,
@@ -1223,8 +1196,8 @@
       ]
     },
     "pf420": {
-      "source": "/products/PF420.png",
-      "sourceHash": "3b5d76bd4a07d66ae04e94ab78750a4ea9ab3f12bae5cb772724814c1f4b3cc1",
+      "source": "/products/PF420.webp",
+      "sourceHash": "fca25e901163e73704b7425cf4c599b94280f9fc0b83b602be79c39efefdd33e",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1252,12 +1225,12 @@
       ]
     },
     "pf430": {
-      "source": "/products/PF430.png",
-      "sourceHash": "db51c80913b209b9127c27b0df6069f4e31b2281dadc383ba1b51b3f8bdc4ac7",
+      "source": "/products/PF430.webp",
+      "sourceHash": "8393294651234c1d50998374d55edd15682bb182e9759730cf91656abed02481",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2628,
+      "canvas": 578,
       "files": [
         {
           "w": 400,
@@ -1281,8 +1254,8 @@
       ]
     },
     "pf440": {
-      "source": "/products/PF440.png",
-      "sourceHash": "1a6a2a67740d387cf78534d68c98d30350f18ccb083580ea674b211d9921502d",
+      "source": "/products/PF440.webp",
+      "sourceHash": "0480b7a58919fffebcb3f9271a9767363a86d6dfd8efeef968cb1ced4d51f75f",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1310,12 +1283,12 @@
       ]
     },
     "pf450": {
-      "source": "/products/PF450.png",
-      "sourceHash": "87bfc3173107b8e36dd5f0438793734c31d82fe30168bcd799e15a1a02be427e",
+      "source": "/products/PF450.webp",
+      "sourceHash": "a519a941180cdb8fc6d1eccb27ca932bf9ed82c120fce27bd0e0642813294b8a",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2344,
+      "canvas": 1876,
       "files": [
         {
           "w": 400,
@@ -1339,8 +1312,8 @@
       ]
     },
     "pf460": {
-      "source": "/products/PF460.png",
-      "sourceHash": "8ba89542c094c680425c19174ae769e89ee1f7c72087dc72f0d83cefba37b24e",
+      "source": "/products/PF460.webp",
+      "sourceHash": "3f47f5be2b19faca5b07b68fe72906699dc636b2e40456356d4c662f49858798",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1368,8 +1341,8 @@
       ]
     },
     "pf470": {
-      "source": "/products/PF470.png",
-      "sourceHash": "3b920024780a027f4fc9a4e73c701609cd86a784ac026818c0e819a0ab1bd4db",
+      "source": "/products/PF470.webp",
+      "sourceHash": "97c1eccec00a669a1997151a4e5bb28493cdc5a7ba2bb4b7fd8149616990916e",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1397,40 +1370,41 @@
       ]
     },
     "pf480": {
-      "source": "/products/PF480.png",
-      "sourceHash": "082d7692133b3db4f64021ec9a92e143d29cd24349e6ab527e634eff6d697e80",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF480.webp",
+      "sourceHash": "f314df94e63335a3b6107d67716ac3247af2fc39021b198dd858a41d9912f54f",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 653,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf480/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf480/framed-400.webp"
+          "avif": "/products/derived/pf480/card-400.avif",
+          "webp": "/products/derived/pf480/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf480/framed-800.avif",
-          "h": 533,
-          "webp": "/products/derived/pf480/framed-800.webp"
+          "avif": "/products/derived/pf480/card-800.avif",
+          "webp": "/products/derived/pf480/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf480/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf480/framed-1200.webp"
+          "avif": "/products/derived/pf480/pdp-1200.avif",
+          "webp": "/products/derived/pf480/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf480/pdp-2000.webp"
         }
       ]
     },
     "pf490": {
-      "source": "/products/PF490.png",
-      "sourceHash": "7333ff48d8f0e4af42472b5d0f49ce140232fb46ddb0837577e31ba51bf38a4b",
+      "source": "/products/PF490.webp",
+      "sourceHash": "159c2b2862b768a04c0457d58dc36e3d195cb7237671d9359d72e1bc29af351f",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2560,
+      "canvas": 2049,
       "files": [
         {
           "w": 400,
@@ -1454,12 +1428,12 @@
       ]
     },
     "pf500": {
-      "source": "/products/PF500.png",
-      "sourceHash": "ec15173ab6436815ea180b12d62579e787aaa6592f644ac896d445f56bb86f0a",
+      "source": "/products/PF500.webp",
+      "sourceHash": "ad388f696d6fc19fd230879f785b79f1222dfb43b639a8d6e527308129393a0e",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2356,
+      "canvas": 1886,
       "files": [
         {
           "w": 400,
@@ -1483,12 +1457,12 @@
       ]
     },
     "pf510": {
-      "source": "/products/PF510.png",
-      "sourceHash": "da00b9d5e233f5bf32f9a4cf9040fac38a90848b108c52ed147393812394201a",
+      "source": "/products/PF510.webp",
+      "sourceHash": "80df9b204026f1244737dc4bb475627fefe0ee2d7e4cb0a5ca31ba817ad68a43",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2535,
+      "canvas": 2029,
       "files": [
         {
           "w": 400,
@@ -1512,12 +1486,12 @@
       ]
     },
     "pf520": {
-      "source": "/products/PF520.png",
-      "sourceHash": "8bc1dbde533be0242c4525d083cc090ecd522699e4d71ec20029d3fbd2bbb7e2",
+      "source": "/products/PF520.webp",
+      "sourceHash": "8f86893c38e035a8d19ef378edb63c1b137ee126fe9dcee65e970db5f15810fe",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2447,
+      "canvas": 1958,
       "files": [
         {
           "w": 400,
@@ -1541,12 +1515,12 @@
       ]
     },
     "pf530": {
-      "source": "/products/PF530.png",
-      "sourceHash": "d34d08abd5a867837c3b19d9e50ab51061c52c152c24667a98e2d772a240e13e",
+      "source": "/products/PF530.webp",
+      "sourceHash": "93c271f1725908fb66dddb8018762e7cf36b7fd7c5a83f0361d1ff754e0a6df6",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2547,
+      "canvas": 2039,
       "files": [
         {
           "w": 400,
@@ -1570,12 +1544,12 @@
       ]
     },
     "pf550": {
-      "source": "/products/PF550.png",
-      "sourceHash": "87f73db3f53bea01638b7e629466aa44192238d94d95380bb12f81ba85471db2",
+      "source": "/products/PF550.webp",
+      "sourceHash": "cb1e47a5217343290323981a6f3025f85685def69651fa2940c1a9d54e199502",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2551,
+      "canvas": 2042,
       "files": [
         {
           "w": 400,
@@ -1599,8 +1573,8 @@
       ]
     },
     "pf560": {
-      "source": "/products/PF560.png",
-      "sourceHash": "8124277051c6c51362438d17817a783480a679bc415e974a2abc65560a14b1e9",
+      "source": "/products/PF560.webp",
+      "sourceHash": "1a20b0ceaaed2ee352429d91261281a16c55318a731b08e8d77cda51fa415a87",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1628,8 +1602,8 @@
       ]
     },
     "pf570": {
-      "source": "/products/PF570.png",
-      "sourceHash": "17af272980c6f891b0d575ba1b6dfc508926bd2beb262a412e931cfb6e64c246",
+      "source": "/products/PF570.webp",
+      "sourceHash": "675677a801ad0d894b30d6dbe9db1ca3deef99d47c34ed25fe1c83f0ebf85702",
       "background": "coloured",
       "mode": "framed",
       "blend": "normal",
@@ -1650,8 +1624,8 @@
       ]
     },
     "pf571": {
-      "source": "/products/PF571.png",
-      "sourceHash": "1a1bbb3102f0c7089fd3a85f88ba124d9df82af9f7233be83ea378e8bea10076",
+      "source": "/products/PF571.webp",
+      "sourceHash": "1f3691834eeb99cc68a21b9ea78201bedf5a5b759aadb2e3a53ecf4cd46c8420",
       "background": "coloured",
       "mode": "framed",
       "blend": "normal",
@@ -1670,16 +1644,16 @@
           "webp": "/products/derived/pf571/framed-800.webp"
         },
         {
-          "w": 1200,
+          "w": 1058,
           "avif": "/products/derived/pf571/framed-1200.avif",
-          "h": 1815,
+          "h": 1600,
           "webp": "/products/derived/pf571/framed-1200.webp"
         }
       ]
     },
     "pf572": {
-      "source": "/products/PF572.png",
-      "sourceHash": "d3332013088596e7bf3541dfaefb0396113a41a7bc8166fbb5d7f73a9bd3f446",
+      "source": "/products/PF572.webp",
+      "sourceHash": "ebee6afcc9c00682f988376f3db7c42d4109bf9bd8bc2eb8734fcc122228fd1b",
       "background": "coloured",
       "mode": "framed",
       "blend": "normal",
@@ -1700,8 +1674,8 @@
       ]
     },
     "pf590": {
-      "source": "/products/PF590.png",
-      "sourceHash": "319a090ea5d9d5a4032fa1699d6fe952a60e2a994552bc77954968c0b2df4b58",
+      "source": "/products/PF590.webp",
+      "sourceHash": "b2062493b21872556dab13e5b67ce15453f44c7892215b134cd29f6b451e10fc",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1729,40 +1703,41 @@
       ]
     },
     "pf600": {
-      "source": "/products/PF600.png",
-      "sourceHash": "c69f20ee3b82c015a155bb60447ab642aa63a9351c88b3eaad96d210f285394a",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF600.webp",
+      "sourceHash": "0d38ab6d7cbc62e52954d986dec7d75fc4cba3b047fa4110200a5d41b1b8789b",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 650,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf600/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf600/framed-400.webp"
+          "avif": "/products/derived/pf600/card-400.avif",
+          "webp": "/products/derived/pf600/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf600/framed-800.avif",
-          "h": 533,
-          "webp": "/products/derived/pf600/framed-800.webp"
+          "avif": "/products/derived/pf600/card-800.avif",
+          "webp": "/products/derived/pf600/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf600/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf600/framed-1200.webp"
+          "avif": "/products/derived/pf600/pdp-1200.avif",
+          "webp": "/products/derived/pf600/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf600/pdp-2000.webp"
         }
       ]
     },
     "pf610": {
-      "source": "/products/PF610.png",
-      "sourceHash": "d93f6eccb99b5b90ff40e9e23ca55a3ddfdedf73d6f27998e03ffb386f33f5aa",
+      "source": "/products/PF610.webp",
+      "sourceHash": "d82532b86656344bfaa44291569fe1377480831ceb4efe4327069f99fc709aef",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2414,
+      "canvas": 1932,
       "files": [
         {
           "w": 400,
@@ -1786,12 +1761,12 @@
       ]
     },
     "pf620": {
-      "source": "/products/PF620.png",
-      "sourceHash": "7c464950ef2bb035dbdf623291c7a69909c72910afaaa7c0061d9a2bd3c2c317",
+      "source": "/products/PF620.webp",
+      "sourceHash": "7a2b892f53f1ba03e6eeef13348e0f1c86e53055f597e2173fba12a18a5ed1cd",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2474,
+      "canvas": 1981,
       "files": [
         {
           "w": 400,
@@ -1815,40 +1790,41 @@
       ]
     },
     "pf630": {
-      "source": "/products/PF630.png",
-      "sourceHash": "5711749af6d65da760ecf9be8d3072956376b9f1eeae5a5c6f168c5c76ad9bfc",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF630.webp",
+      "sourceHash": "560975390bc5f73e6b22f7b74244035a804244ab4a3fc1385e947e8dda4a59c7",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 1300,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf630/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf630/framed-400.webp"
+          "avif": "/products/derived/pf630/card-400.avif",
+          "webp": "/products/derived/pf630/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf630/framed-800.avif",
-          "h": 533,
-          "webp": "/products/derived/pf630/framed-800.webp"
+          "avif": "/products/derived/pf630/card-800.avif",
+          "webp": "/products/derived/pf630/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf630/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf630/framed-1200.webp"
+          "avif": "/products/derived/pf630/pdp-1200.avif",
+          "webp": "/products/derived/pf630/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf630/pdp-2000.webp"
         }
       ]
     },
     "pf640": {
-      "source": "/products/PF640.png",
-      "sourceHash": "98fc3969e0771ee09d03fd3c0beb36277e51a8ec237727b76d83f3126e28a22c",
+      "source": "/products/PF640.webp",
+      "sourceHash": "05ae9546f91d6daeac96ba1c03bd29883669d10cea256b21fcde3b8c3f4be47c",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
-      "canvas": 2436,
+      "canvas": 1950,
       "files": [
         {
           "w": 400,
@@ -1872,8 +1848,8 @@
       ]
     },
     "pf650": {
-      "source": "/products/PF650.png",
-      "sourceHash": "aa16fd4274fea7e86198061535777899397c0b4d8fd2aaf0e58bfa5e961f4101",
+      "source": "/products/PF650.webp",
+      "sourceHash": "67aadf5f5c230d54935d05858d4962d5998b4245b4d7b832cd9ad0809dbf2b42",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -1901,12 +1877,12 @@
       ]
     },
     "pf660": {
-      "source": "/products/PF660.png",
-      "sourceHash": "8d31101a9b12cece819c660b4c0929ecbcc96a7a71a9e67c5ceabbf065eca8f7",
-      "background": "pure-white",
+      "source": "/products/PF660.webp",
+      "sourceHash": "db85647473db754675e14e51bc9a1f24c28ad69124d19fc9cf5e978b82064b78",
+      "background": "transparent",
       "mode": "cutout",
-      "blend": "multiply",
-      "canvas": 2096,
+      "blend": "normal",
+      "canvas": 1422,
       "files": [
         {
           "w": 400,
@@ -1930,8 +1906,8 @@
       ]
     },
     "pf680": {
-      "source": "/products/PF680.png",
-      "sourceHash": "914aabadff5784997ae38ef7b29b13592d41d690c5ff7327389f71f57f2ccc16",
+      "source": "/products/PF680.webp",
+      "sourceHash": "e3f7acd20d18a852dd3de577f9389dad08656af9a280389e25ce7f0bb7a0cc7f",
       "background": "coloured",
       "mode": "framed",
       "blend": "normal",
@@ -1958,64 +1934,66 @@
       ]
     },
     "pf700": {
-      "source": "/products/PF700.png",
-      "sourceHash": "333718594afd49481cd061b26a6a4ecde24fc4479124e6c242846af34edec6b6",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF700.webp",
+      "sourceHash": "47aa8affc6f35775334a61f946acfb8f50c3a19cdb06b57a450339089c716ed3",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 631,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf700/framed-400.avif",
-          "h": 500,
-          "webp": "/products/derived/pf700/framed-400.webp"
+          "avif": "/products/derived/pf700/card-400.avif",
+          "webp": "/products/derived/pf700/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf700/framed-800.avif",
-          "h": 1000,
-          "webp": "/products/derived/pf700/framed-800.webp"
+          "avif": "/products/derived/pf700/card-800.avif",
+          "webp": "/products/derived/pf700/card-800.webp"
         },
         {
-          "w": 1080,
-          "avif": "/products/derived/pf700/framed-1200.avif",
-          "h": 1350,
-          "webp": "/products/derived/pf700/framed-1200.webp"
+          "w": 1200,
+          "avif": "/products/derived/pf700/pdp-1200.avif",
+          "webp": "/products/derived/pf700/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf700/pdp-2000.webp"
         }
       ]
     },
     "pf720": {
-      "source": "/products/PF720.png",
-      "sourceHash": "7d51f7e47b863cf2e01722c193db9893f422d8a8a7cc405963a9aff82cbe1081",
-      "background": "coloured",
-      "mode": "framed",
+      "source": "/products/PF720.webp",
+      "sourceHash": "622365765b66571b1aee3979844016a88c9893f60174a4a136ec9154a1760c9d",
+      "background": "transparent",
+      "mode": "cutout",
       "blend": "normal",
-      "canvas": null,
+      "canvas": 619,
       "files": [
         {
           "w": 400,
-          "avif": "/products/derived/pf720/framed-400.avif",
-          "h": 267,
-          "webp": "/products/derived/pf720/framed-400.webp"
+          "avif": "/products/derived/pf720/card-400.avif",
+          "webp": "/products/derived/pf720/card-400.webp"
         },
         {
           "w": 800,
-          "avif": "/products/derived/pf720/framed-800.avif",
-          "h": 533,
-          "webp": "/products/derived/pf720/framed-800.webp"
+          "avif": "/products/derived/pf720/card-800.avif",
+          "webp": "/products/derived/pf720/card-800.webp"
         },
         {
           "w": 1200,
-          "avif": "/products/derived/pf720/framed-1200.avif",
-          "h": 800,
-          "webp": "/products/derived/pf720/framed-1200.webp"
+          "avif": "/products/derived/pf720/pdp-1200.avif",
+          "webp": "/products/derived/pf720/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf720/pdp-2000.webp"
         }
       ]
     },
     "pf740": {
-      "source": "/products/PF740.png",
-      "sourceHash": "6f67c8d8ebb5feb9e310a418bdd7cdd60ad0011ba241013c83412ae081a599bc",
+      "source": "/products/PF740.webp",
+      "sourceHash": "4283177f00cee4c0f8527e5d4098abc98967c63cd9abda82017b689bac84c84d",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2043,8 +2021,8 @@
       ]
     },
     "pf760": {
-      "source": "/products/PF760.png",
-      "sourceHash": "777fd87783eb6b86d0317c34a6d4ec0cd7458df40bd24b7b4c0aad2f44bdbbbe",
+      "source": "/products/PF760.webp",
+      "sourceHash": "dd79dad97f45c20c413065237045794bb2b82027c9babaaea5c500fc77a73c00",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2072,8 +2050,8 @@
       ]
     },
     "pf780": {
-      "source": "/products/PF780.png",
-      "sourceHash": "ad338e85742413045fbfe7175433e8f6b3129b07ccc4c4f64844a75498974781",
+      "source": "/products/PF780.webp",
+      "sourceHash": "3d778089366f4af01e5d8f5d2738920c470a72e69439d3f455d8d788a409936a",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2101,8 +2079,8 @@
       ]
     },
     "pf800": {
-      "source": "/products/PF800.png",
-      "sourceHash": "bf62b2ce972a4d1c823393aedca8d9e9f544a664b910893056ce6f254f4c3bc1",
+      "source": "/products/PF800.webp",
+      "sourceHash": "1a6d56fc4db5b4c502fee257848fa22ae4ed7e9c14875179f6e9ed665c3d3c02",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2130,8 +2108,8 @@
       ]
     },
     "pf820": {
-      "source": "/products/PF820.png",
-      "sourceHash": "0aed176041c4abe762466c7aea4ee3889af8b3f4627f1bf9a136757802609250",
+      "source": "/products/PF820.webp",
+      "sourceHash": "23e82c25da2c97583291122b34ac169da10d09979555d580b251d79ddc32db13",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2159,8 +2137,8 @@
       ]
     },
     "pf840": {
-      "source": "/products/PF840.png",
-      "sourceHash": "9c3c968a23dc530b64742ff6c457f8af0d24e45d37ed584e6f20bdb33f02b853",
+      "source": "/products/PF840.webp",
+      "sourceHash": "df97a182cf7bc995ba2aaa4fbccdbb10a4978b32b180a605b3d7808e6e280c09",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2188,8 +2166,8 @@
       ]
     },
     "pf860": {
-      "source": "/products/PF860.png",
-      "sourceHash": "8f570829f83f4f050d613ae735ccbf265e3760dd3a7aee942d95b1c1d2f0712e",
+      "source": "/products/PF860.webp",
+      "sourceHash": "c7539a2c4a1ac70a88ee7cb12e0d320f6619f95e0d989574b1782ce7bc87b597",
       "background": "transparent",
       "mode": "cutout",
       "blend": "normal",
@@ -2213,6 +2191,122 @@
         {
           "w": 2000,
           "webp": "/products/derived/pf860/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf880": {
+      "source": "/products/PF880.webp",
+      "sourceHash": "feb3b96f4c119e2c7278ccc16954750125f2a8a107b805190d3ceb338f3d10bf",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 1296,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf880/card-400.avif",
+          "webp": "/products/derived/pf880/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf880/card-800.avif",
+          "webp": "/products/derived/pf880/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf880/pdp-1200.avif",
+          "webp": "/products/derived/pf880/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf880/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf900": {
+      "source": "/products/PF900.webp",
+      "sourceHash": "980833db13eadc54f20333bb71504727bf542d35fb40888a9fca73a8154f4b35",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 1304,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf900/card-400.avif",
+          "webp": "/products/derived/pf900/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf900/card-800.avif",
+          "webp": "/products/derived/pf900/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf900/pdp-1200.avif",
+          "webp": "/products/derived/pf900/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf900/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf920": {
+      "source": "/products/PF920.webp",
+      "sourceHash": "73e994fcbf5839386f9b08ee7a6634b6cfd2066a6a912a9d5dfcf46dc3508153",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 779,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf920/card-400.avif",
+          "webp": "/products/derived/pf920/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf920/card-800.avif",
+          "webp": "/products/derived/pf920/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf920/pdp-1200.avif",
+          "webp": "/products/derived/pf920/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf920/pdp-2000.webp"
+        }
+      ]
+    },
+    "pf940": {
+      "source": "/products/PF940.webp",
+      "sourceHash": "815c3e9c155efaa5856740aa17c32183ca1fead8c234fe15f1447239ceae27a3",
+      "background": "transparent",
+      "mode": "cutout",
+      "blend": "normal",
+      "canvas": 704,
+      "files": [
+        {
+          "w": 400,
+          "avif": "/products/derived/pf940/card-400.avif",
+          "webp": "/products/derived/pf940/card-400.webp"
+        },
+        {
+          "w": 800,
+          "avif": "/products/derived/pf940/card-800.avif",
+          "webp": "/products/derived/pf940/card-800.webp"
+        },
+        {
+          "w": 1200,
+          "avif": "/products/derived/pf940/pdp-1200.avif",
+          "webp": "/products/derived/pf940/pdp-1200.webp"
+        },
+        {
+          "w": 2000,
+          "webp": "/products/derived/pf940/pdp-2000.webp"
         }
       ]
     }

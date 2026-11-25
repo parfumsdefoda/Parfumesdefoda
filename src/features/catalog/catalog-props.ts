@@ -26,6 +26,8 @@ export function buildCardLabels(locale: LocaleMessages): ProductCardLabels {
     chooseSize: t(locale, "product.selectSize", "اختر الحجم"),
     quickAdd: t(locale, "product.quickAddShort", "إضافة سريعة"),
     addedToast: t(locale, "home.addedToast", "تمت إضافة {name} إلى السلة"),
+    premium: t(locale, "product.premium", "فاخر"),
+    addShort: t(locale, "product.addToCartShort", "أضف للسلة"),
   };
 }
 
@@ -34,9 +36,8 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
     searchPlaceholder: t(locale, "home.searchPlaceholder", "ابحث عن عطرك..."),
     search: t(locale, "catalog.search", "بحث"),
     clearSearch: t(locale, "catalog.clearSearch", "مسح البحث"),
-    filters: t(locale, "catalog.filters", "الفلاتر"),
+    filters: t(locale, "catalog.filters", "الفلاتر والترتيب"),
     clearAll: t(locale, "catalog.clearAll", "مسح الكل"),
-    availableOnly: t(locale, "catalog.availableOnly", "المتوفر فقط"),
     resultUnit: t(locale, "catalog.resultUnit", "منتج"),
     sort: t(locale, "catalog.sort", "الترتيب"),
     sortFeatured: t(locale, "catalog.sortFeatured", "الافتراضي"),
@@ -47,11 +48,7 @@ export function buildControlsLabels(locale: LocaleMessages): CatalogControlsLabe
     remove: t(locale, "catalog.remove", "إزالة"),
     groups: {
       gender: t(locale, "catalog.groupGender", "الجنس"),
-      style: t(locale, "catalog.groupStyle", "النوع"),
-      form: t(locale, "catalog.groupForm", "الصيغة"),
-      tier: t(locale, "catalog.groupTier", "الدار"),
-      performance: t(locale, "catalog.groupPerformance", "الأداء"),
-      size: t(locale, "catalog.groupSize", "المقاس"),
+      foda: t(locale, "catalog.groupFoda", "عطور فوده الأصلية"),
     },
   };
 }

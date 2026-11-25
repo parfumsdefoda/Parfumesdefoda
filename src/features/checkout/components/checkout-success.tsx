@@ -50,8 +50,8 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
 
         {summary && (
           <>
-            <div className="mb-6 rounded-card border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
-              <p className="mb-2 text-caption text-[var(--color-text-muted)]">رقم الطلب</p>
+            <div className="mb-6 border border-[var(--line)] bg-[var(--paper-deep)] p-4">
+              <p className="mb-2 text-caption text-[var(--ink-muted)]">رقم الطلب</p>
               <div className="flex items-center justify-center gap-2">
                 <span className="text-headline font-bold tracking-wider text-[var(--color-brand)]" dir="ltr">
                   {summary.orderNumber}
@@ -63,9 +63,9 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
               {copied && <p className="mt-1 text-caption text-[var(--color-success)]" role="status">تم النسخ</p>}
             </div>
 
-            <section className="mb-6 rounded-card border border-[var(--color-border)] p-4 text-start" aria-labelledby="success-summary-title">
+            <section className="mb-6 border border-[var(--line)] p-4 text-start" aria-labelledby="success-summary-title">
               <h2 id="success-summary-title" className="mb-3 text-headline font-bold">ملخص طلبك</h2>
-              <ul className="divide-y divide-[var(--color-border)]">
+              <ul className="divide-y divide-[var(--line)]">
                 {summary.lines.map((line, index) => (
                   <li key={`${line.name}-${line.sizeLabel}-${index}`} className="flex items-start justify-between gap-4 py-3 text-caption">
                     <span className="min-w-0">{line.name} — {formatSizeLabel(line.sizeLabel)} × {formatNumber(line.quantity)}</span>
@@ -73,18 +73,17 @@ export function CheckoutSuccess({ whatsappNumber = "" }: CheckoutSuccessProps) {
                   </li>
                 ))}
               </ul>
-              <div className="mt-3 flex items-center justify-between border-t border-[var(--color-border)] pt-3 font-bold">
+              <div className="mt-3 flex items-center justify-between border-t border-[var(--line)] pt-3 font-bold">
                 <span>الإجمالي شامل الشحن</span>
                 <span className="whitespace-nowrap text-[var(--color-brand)]">{formatPrice(summary.total)}</span>
               </div>
             </section>
 
-            <section className="mb-6 rounded-card bg-[var(--color-surface-muted)] p-4 text-start" aria-labelledby="next-steps-title">
+            <section className="mb-6 bg-[var(--paper-deep)] p-4 text-start" aria-labelledby="next-steps-title">
               <h2 id="next-steps-title" className="mb-3 text-headline font-bold">الخطوات التالية</h2>
-              <ol className="space-y-2 text-caption text-[var(--color-text-muted)]">
+              <ol className="space-y-2 text-caption text-[var(--ink-muted)]">
                 <li>١. نتواصل معك عبر واتساب لتأكيد الطلب.</li>
                 <li>٢. نجهز الطلب ونرسله إليك.</li>
-                <li>٣. تدفع عند استلام الطلب.</li>
               </ol>
             </section>
           </>

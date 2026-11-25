@@ -29,8 +29,8 @@ export interface SizeChooserProps {
  * SizeChooser — the multi-size step of quick add.
  *
  * Loaded as its own chunk the first time a shopper opens it, so a catalogue
- * page never pays for a dialog nobody asked for. Out-of-stock sizes stay
- * visible but disabled and struck, because "which sizes exist" is information.
+ * page never pays for a dialog nobody asked for. Only the sizes in stock are
+ * offered: a sold-out volume is not a choice.
  */
 export default function SizeChooser({
   mode,
@@ -41,7 +41,8 @@ export default function SizeChooser({
   onSelect,
 }: SizeChooserProps) {
   // Same small → large order as the product page, whatever the data stores.
-  const sizes = sortSizesByVolume(rawSizes);
+  // Only the sizes a shopper can buy today appear.
+  const sizes = sortSizesByVolume(rawSizes.filter((size) => size.inStock));
 
   const [selected, setSelected] = useState<string | null>(
     sizes.find((size) => size.inStock)?.label ?? null,
@@ -90,7 +91,7 @@ export default function SizeChooser({
   const panel = (caption: boolean) => (
     <>
       {caption && (
-        <p className="mb-2 text-caption font-medium text-[var(--color-text-muted)]">
+        <p className="mb-2 text-caption font-medium text-[var(--ink-muted)]">
           {labels.chooseSize}
         </p>
       )}
@@ -118,12 +119,12 @@ export default function SizeChooser({
               tabIndex={checked ? 0 : -1}
               onClick={() => setSelected(size.label)}
               className={cn(
-                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-control border px-1 py-2 text-caption text-center",
+                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 border px-1 py-2 text-caption text-center",
                 "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-apple)]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2",
                 checked
-                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--color-text)]"
-                  : "border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--ui-border-strong)]",
+                  ? "border-[var(--color-brand)] bg-[var(--purple-50)] text-[var(--ink)]"
+                  : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ui-border-strong)]",
                 !size.inStock && "cursor-not-allowed opacity-50 line-through",
               )}
             >
@@ -162,7 +163,7 @@ export default function SizeChooser({
             sideOffset={8}
             className="z-50"
           >
-            <Popover.Popup className="w-64 rounded-card border border-[var(--color-border)] bg-[var(--bg-primary)] p-3 text-caption shadow-lifted">
+            <Popover.Popup className="w-64 border border-[var(--line)] bg-[var(--bg-primary)] p-3 text-caption">
               {panel(true)}
             </Popover.Popup>
           </Popover.Positioner>

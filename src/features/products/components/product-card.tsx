@@ -1,20 +1,19 @@
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { ProductImage } from "@/components/product-image";
-import { Badge } from "@/components/ui/badge";
 import { QuickAdd } from "./quick-add";
-import { ProductMetaLine } from "./product-meta";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/currency";
 import {
   cardBadge,
-  cardMetaParts,
   cardPrice,
   hasAnyStock,
   hasProductImage,
   isPremiumProduct,
 } from "@/lib/card-presentation";
-import { hasTransparentCutout } from "@/lib/product-image";
+import { buildProductImageSources, hasTransparentCutout } from "@/lib/product-image";
 import type { Product } from "@/types";
+import type { FeatureFlags } from "@/types/services";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -25,7 +24,7 @@ export interface ProductCardLabels {
   outOfStock: string;
   /** Prefix for a multi-size price ("من ١٢٠ ج.م"). */
   from: string;
-  /** Accessible name of the round quick-add control. */
+  /** Accessible name of the quick-add control. */
   add: string;
   /** Toast text after a successful add. `{name}` is replaced. */
   addedToast: string;
@@ -33,8 +32,12 @@ export interface ProductCardLabels {
   addToCart: string;
   /** Heading of the size chooser. */
   chooseSize: string;
-  /** The word the quick-add circle grows into on hover ("إضافة سريعة"). */
+  /** The row button revealed on hover ("إضافة سريعة"). */
   quickAdd: string;
+  /** The premium label ("فاخر"). */
+  premium: string;
+  /** The featured card's full-width button ("أضف للسلة"). */
+  addShort?: string;
 }
 
 export const DEFAULT_CARD_LABELS: ProductCardLabels = {
@@ -46,6 +49,8 @@ export const DEFAULT_CARD_LABELS: ProductCardLabels = {
   addToCart: "أضف إلى السلة",
   chooseSize: "اختر الحجم",
   quickAdd: "إضافة سريعة",
+  premium: "فاخر",
+  addShort: "أضف للسلة",
 };
 
 export interface ProductCardProps {
@@ -57,34 +62,43 @@ export interface ProductCardProps {
   deferred?: boolean;
   labels?: Partial<ProductCardLabels>;
   className?: string;
+  /** Premium (فاخر) treatment is rendered only while the feature flag is on. */
+  features?: FeatureFlags;
 }
 
 // ─── Image sizes ────────────────────────────────────────────────────────────
 
-/**
- * The grid is fixed at 2 / 3 / 4 columns, so one `sizes` string describes every
- * card on the page: half the viewport on phones, a third on tablets, a quarter
- * on wide screens.
- */
-export const CARD_IMAGE_SIZES = "(max-width: 639px) 50vw, (max-width: 1279px) 33vw, 25vw";
+/** RUN 1.6: 2 / 3 columns below 1024, then 240px auto-fill tracks. */
+export const CARD_IMAGE_SIZES = "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, 300px";
+
+type PhotoClass = "transparent" | "white" | "scene";
+
+/** Contract P: the manifest decides how a photo meets the card. */
+function photoClassOf(product: Product): PhotoClass {
+  if (!hasProductImage(product)) return "scene";
+  const sources = buildProductImageSources(product.slug, "card");
+  if (!sources) return "scene";
+  if (sources.blend === "multiply") return "white";
+  return hasTransparentCutout(product.slug) ? "transparent" : "scene";
+}
+
+const PHOTO_CLASS: Record<PhotoClass, string> = {
+  transparent: "object-contain [filter:drop-shadow(10px_14px_12px_color-mix(in_srgb,var(--ink)_28%,transparent))]",
+  white: "object-contain mix-blend-multiply",
+  scene: "object-cover",
+};
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 /**
- * ProductCard — the catalogue's only product unit.
+ * ProductCard — one cell of the catalogue.
  *
- * Deliberately a Server Component: it renders to HTML with no JavaScript of
- * its own. The one interactive part (quick add) is a small client island, so a
- * grid of 40 products no longer hydrates 40 stateful cards.
- *
- * Anatomy (RTL):
- *   image stage (4:5, muted surface, one optional badge, premium gold ring)
- *   meta line  → ◆ فاخر · tier · style  (or tier · style · format)
- *   name       → the card's real link
- *   price      → brand purple, "من" when several sizes exist
- *
- * The image itself is covered by an absolutely positioned link so the whole
- * stage is clickable; quick add is a *sibling* of that link, never nested in it.
+ * Every card is a 2px shell around a 14px inner: the premium shell is the gold
+ * gradient with a soft glow, the regular one is transparent with a hairline
+ * border, so both rows keep the same height. Premium adds the gradient star
+ * badge on the image, an ink/gold full-width add button and a warmer surface;
+ * the name and image remain the only links, and the quick-add island stays the
+ * only client code.
  */
 export function ProductCard({
   product,
@@ -93,53 +107,50 @@ export function ProductCard({
   deferred = false,
   labels,
   className,
+  features,
 }: ProductCardProps) {
   const copy = { ...DEFAULT_CARD_LABELS, ...labels };
   const badge = cardBadge(product);
   const comingSoon = badge === "coming-soon";
   const outOfStock = badge === "out-of-stock";
   const hasImage = hasProductImage(product);
-  const premium = isPremiumProduct(product);
-  // A premium product that cannot be bought keeps the ring but nothing moves.
-  const premiumMuted = premium && (comingSoon || outOfStock);
-  // The dark stage is only honest behind a real cut-out; a framed or coloured
-  // photo keeps the light stage and shows the ring alone.
-  const darkStage = premium && !premiumMuted && hasImage && hasTransparentCutout(product.slug);
+  const premium = isPremiumProduct(product, features);
   const price = comingSoon ? null : cardPrice(product, copy.from);
-  const meta = cardMetaParts(product, { premium });
   const href = product.slug ? `/product/${product.slug}` : null;
+  const photo = photoClassOf(product);
+  const canAdd = !comingSoon && !outOfStock && hasAnyStock(product);
 
   return (
     <article
       data-card=""
-      // A card nobody can buy keeps its geometry but never lifts or grows.
       data-card-state={comingSoon || outOfStock ? "static" : "live"}
+      data-photo={photo}
       className={cn(
-        "card-shell group relative flex flex-col",
-        premium && "premium-card",
-        deferred && "[content-visibility:auto] [contain-intrinsic-size:auto_32rem]",
+        // RUN 1.6 F6: radius 0 everywhere (the old rounded-[16px]/[14px] was
+        // the rounded corners + shadow look in the owner's screenshot).
+        "group relative rounded-none p-[2px]",
+        premium
+          ? "pf-gold-surface pf-gold-glow"
+          : "bg-transparent transition-transform duration-200 hover:-translate-y-0.5 motion-reduce:transform-none",
         className,
       )}
     >
-      {/* ─── Stage ─── */}
-      <div className="relative">
-        <div
-          className={cn("relative overflow-hidden rounded-card", premium && "premium-frame")}
-          data-premium={premium ? (premiumMuted ? "muted" : "true") : undefined}
-          data-stage={darkStage ? "dark" : "light"}
-        >
+      <div
+        className={cn(
+          "flex h-full flex-col overflow-hidden rounded-none border bg-[var(--boutique-white)]",
+          premium
+            ? "border-transparent bg-[image:var(--premium-surface)]"
+            : "border-[var(--boutique-line)] bg-[var(--boutique-white)]",
+        )}
+      >
+        {/* ─── Image box ─── */}
+        <div data-card-stage="" className="relative aspect-square w-full overflow-hidden">
           {comingSoon ? (
-            <div className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--color-surface-muted)]">
-              <span className="rounded-pill border border-dashed border-[var(--color-border)] px-4 py-1.5 text-caption font-medium text-[var(--color-text-muted)]">
-                {copy.comingSoon}
-              </span>
-            </div>
+            <span className="absolute inset-0 grid place-items-center text-[14px] font-medium text-[var(--boutique-ink)]/60">
+              {copy.comingSoon}
+            </span>
           ) : !hasImage ? (
-            // No file to point at: keep the geometry, drop the broken icon.
-            <div
-              aria-hidden="true"
-              className="aspect-[4/5] w-full bg-[var(--color-surface-muted)]"
-            />
+            <span aria-hidden="true" className="block size-full" />
           ) : (
             <ProductImage
               slug={product.slug}
@@ -147,30 +158,27 @@ export function ProductCard({
               name={product.name}
               tier="card"
               frame="stage"
-              tone={darkStage ? "dark" : "light"}
+              tone="light"
               sizes={CARD_IMAGE_SIZES}
               priority={priority}
               loading={loading}
-              frameClassName={cn(
-                "transition-opacity duration-[var(--duration-base)]",
+              frameClassName="flex size-full items-center justify-center"
+              className={cn(
+                "size-full transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-[1.03] motion-reduce:transform-none",
+                PHOTO_CLASS[photo],
                 outOfStock && "opacity-60",
               )}
-              className={premium ? "premium-bottle card-bottle" : "card-bottle"}
             />
           )}
 
-          {/* Hover decoration: a pointer spotlight and a 1px stage edge. Both
-              are inert (`pointer-events: none`) and above the photo. */}
-          <span aria-hidden="true" data-card-spot="" className="card-spot" />
-          <span aria-hidden="true" className="card-edge" />
-
-          {/* Premium motion: one shine band, two glints. Decoration only. */}
-          {premium && !premiumMuted && (
-            <>
-              <span aria-hidden="true" className="premium-shine" />
-              <span aria-hidden="true" className="premium-glint" data-glint="a" />
-              <span aria-hidden="true" className="premium-glint" data-glint="b" />
-            </>
+          {premium && (
+            <span
+              data-premium-badge=""
+              className="pf-gold-surface absolute top-3 start-3 z-20 inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-[14px] font-bold text-[var(--boutique-ink)]"
+            >
+              <Star aria-hidden="true" className="size-3.5 fill-current" />
+              {copy.premium}
+            </span>
           )}
 
           {href && !comingSoon && (
@@ -178,75 +186,98 @@ export function ProductCard({
               href={href}
               tabIndex={-1}
               aria-hidden="true"
-              className="absolute inset-0 z-10 rounded-card focus-visible:outline-none"
+              className="absolute inset-0 z-10 focus-visible:outline-none"
             />
-          )}
-
-          {/* Coming soon speaks once, from the stage itself. */}
-          {badge === "out-of-stock" && (
-            <div className="absolute top-3 end-3 z-10">
-              <Badge variant="neutral" className="bg-[var(--bg-primary)]/90">
-                {copy.outOfStock}
-              </Badge>
-            </div>
           )}
         </div>
 
-        {/* Quick add — sibling of the overlay link, never inside it. */}
-        {!comingSoon && hasAnyStock(product) && (
-          <QuickAdd
-            product={{
-              id: product.id,
-              slug: product.slug,
-              name: product.name,
-              image: product.image,
-            }}
-            sizes={product.sizes}
-            labels={{
-              add: copy.add,
-              addedToast: copy.addedToast,
-              addToCart: copy.addToCart,
-              chooseSize: copy.chooseSize,
-              quickAdd: copy.quickAdd,
-            }}
-          />
-        )}
-      </div>
-
-      {/* ─── Text ─── */}
-      <div className="flex flex-1 flex-col gap-1 pt-3">
-        {meta.length > 0 && <ProductMetaLine parts={meta} premium={premium} />}
-
-        <h3
-          className={cn(
-            "text-headline font-bold",
-            outOfStock || comingSoon
-              ? "text-[var(--color-text-muted)]"
-              : "text-[var(--color-text)]",
-          )}
-        >
-          {href ? (
-            <Link
-              href={href}
-              className="card-name line-clamp-2 rounded-control transition-colors duration-[var(--duration-fast)] hover:text-[var(--color-brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+        {/* ─── Text block ─── */}
+        <div className={cn("flex flex-1 flex-col px-3 pb-4 pt-4", premium && "px-3.5")}>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <h3
+              className={cn(
+                "line-clamp-2 leading-snug",
+                premium
+                  ? "text-[17px] font-bold"
+                  : "text-[15px] font-semibold",
+                outOfStock || comingSoon ? "text-[var(--boutique-ink)]/60" : "text-[var(--boutique-ink)]",
+              )}
             >
-              {product.name}
-            </Link>
-          ) : (
-            <span className="line-clamp-2">{product.name}</span>
-          )}
-        </h3>
+              {href ? (
+                <Link
+                  href={href}
+                  className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus)] focus-visible:ring-offset-2"
+                >
+                  {product.name}
+                </Link>
+              ) : (
+                product.name
+              )}
+            </h3>
 
-        {price && (
-          <p className="mt-auto text-body font-bold text-[var(--color-brand)]">
-            {price.prefix && (
-              <span className="me-1 font-medium text-[var(--color-text-muted)]">
-                {price.prefix}
-              </span>
+            {price ? (
+              <p
+                data-card-price=""
+                className={cn(
+                  "text-[14px]",
+                  premium
+                    ? "font-medium text-[var(--gold-700)]"
+                    : "font-medium text-[var(--boutique-ink)]/70",
+                )}
+              >
+                {price.prefix && <span className="me-1">{price.prefix}</span>}
+                <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
+              </p>
+            ) : (
+              outOfStock && (
+                <p className="text-[14px] font-medium text-[var(--boutique-ink)]/70">
+                  {copy.outOfStock}
+                </p>
+              )
             )}
-            <span className="whitespace-nowrap tabular-nums">{formatPrice(price.amount)}</span>
-          </p>
-        )}
+          </div>
+
+          {/* Regular cards reserve the hover row; featured always shows its button. */}
+          <div
+            data-card-action=""
+            className={cn(
+              "flex items-center justify-center",
+              premium ? "mt-auto pt-3" : "mt-2 h-11",
+            )}
+          >
+            {canAdd && (
+              <QuickAdd
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  image: product.image,
+                }}
+                sizes={product.sizes}
+                variant={premium ? "featured" : "compact"}
+                labels={{
+                  add: copy.add,
+                  addedToast: copy.addedToast,
+                  addToCart: copy.addToCart,
+                  chooseSize: copy.chooseSize,
+                  quickAdd: copy.quickAdd,
+                  addShort: copy.addShort,
+                }}
+                className={cn(
+                  premium
+                    ? "mt-auto w-full"
+                    : [
+                        "flex w-full justify-center",
+                        "opacity-0 transition-opacity duration-200 ease-[var(--ease-apple)] motion-reduce:transition-none",
+                        "group-hover:opacity-100 group-focus-within:opacity-100",
+                        "pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto",
+                        "[@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:opacity-100",
+                      ],
+                )}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </article>
   );
