@@ -67,8 +67,15 @@ export default async function HomePage() {
     unisex: t(locale, "nav.unisex", "للجنسين"),
   };
 
+  // Temporarily hidden at the owner's request (Nov 27): the hero banner and
+  // the smart-advisor band. Flip back to true to restore them; nothing else
+  // was touched.
+  const SHOW_HERO_BANNER = false;
+  const SHOW_ADVISOR_BAND = false;
+
   return (
     <>
+      {SHOW_HERO_BANNER && (
       <HeroSection
         heading={t(locale, "home.heroHeading", "عطر يترك أثرًا قبل أن تتكلم")}
         lead={t(
@@ -79,6 +86,7 @@ export default async function HomePage() {
         shopCta={t(locale, "home.shopNow", "تسوّق الآن")}
         advisorCta={t(locale, "home.chooseWithAdvisor", "اختر عطرك بالمساعد")}
       />
+      )}
 
       <BestSellersSection
         products={bestSellers}
@@ -99,6 +107,7 @@ export default async function HomePage() {
         }))}
       />
 
+      {SHOW_ADVISOR_BAND && (
       <AdvisorBand
         title={t(locale, "home.advisorTitle", "محتار في الاختيار؟")}
         body={t(
@@ -108,6 +117,7 @@ export default async function HomePage() {
         )}
         cta={t(locale, "home.advisorCta", "اختر عطرك")}
       />
+      )}
 
       {/*
        * The advisor band and the footer are both --purple-950, and the band is

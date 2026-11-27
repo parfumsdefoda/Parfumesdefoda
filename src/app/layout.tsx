@@ -340,6 +340,10 @@ export default async function RootLayout({
       : {}
   ) as React.CSSProperties;
 
+  // Temporarily hidden at the owner's request (Nov 27). See the comment
+  // below where the assistant mounts.
+  const SHOW_CHAT_ASSISTANT = false;
+
   return (
     <html
       lang="ar"
@@ -406,6 +410,10 @@ export default async function RootLayout({
               Nothing floats on the page: the header, the hero and the homepage
               band open it through the advisor bus. Wrapped in its own error
               boundary so a failure here never takes down the rest of the site. */}
+          {/* Temporarily disabled at the owner's request (Nov 27): set
+              SHOW_CHAT_ASSISTANT back to true to restore the floating
+              launcher and panel. Routes and code are untouched. */}
+          {SHOW_CHAT_ASSISTANT && (
           <ChatAssistant
             labels={{
               title: t(localeMessages, "advisor.title", "مساعد العطور"),
@@ -429,6 +437,7 @@ export default async function RootLayout({
               ),
             }}
           />
+          )}
         </Providers>
       </body>
     </html>
