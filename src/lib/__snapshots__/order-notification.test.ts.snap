@@ -72,7 +72,7 @@ exports[`formatOrderNotification > snapshots escaped RTL HTML with a complete it
   <p>المجموع الفرعي: <strong>٢٣٬٨٠٠ ج.م</strong></p>
   <p>الشحن: <strong>١٠٠ ج.م</strong></p>
   <p>الإجمالي: <strong>٢٣٬٩٠٠ ج.م</strong></p>
-  <p>طريقة الدفع: الدفع عند الاستلام</p>
+  <p>طريقة الدفع: يُرَتَّب عبر واتساب</p>
 </body>
 </html>"
 `;
@@ -130,5 +130,5 @@ exports[`formatOrderNotification > snapshots the full WhatsApp plain text includ
 المجموع الفرعي: ٢٣٬٨٠٠ ج.م
 الشحن: ١٠٠ ج.م
 الإجمالي: ٢٣٬٩٠٠ ج.م
-طريقة الدفع: الدفع عند الاستلام"
+طريقة الدفع: يُرَتَّب عبر واتساب"
 `;

@@ -395,8 +395,8 @@ export function CheckoutForm({
           <Separator className="my-4" />
 
           <div className="rounded-control border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-4">
-            <p className="font-bold">الدفع عند الاستلام</p>
-            <p className="mt-1 text-caption text-[var(--color-text-muted)]">تدفع عند وصول الطلب.</p>
+            <p className="font-bold">تأكيد الطلب عبر واتساب</p>
+            <p className="mt-1 text-caption text-[var(--color-text-muted)]">بعد إرسال الطلب هنتواصل معاك على واتساب لتأكيده وترتيب الدفع.</p>
           </div>
 
           <Button

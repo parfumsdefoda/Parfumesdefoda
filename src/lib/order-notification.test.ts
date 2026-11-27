@@ -24,7 +24,7 @@ const order: Order = {
   subtotal: 23800,
   shippingCost: 100,
   total: 23900,
-  paymentMethod: "الدفع عند الاستلام",
+  paymentMethod: "يُرَتَّب عبر واتساب",
   createdAt: "2026-10-28T12:30:00.000Z",
 };
 

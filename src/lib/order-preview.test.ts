@@ -30,7 +30,7 @@ const order: Order = {
   subtotal: 1700,
   shippingCost: 100,
   total: 1800,
-  paymentMethod: "الدفع عند الاستلام",
+  paymentMethod: "يُرَتَّب عبر واتساب",
   createdAt: "2026-10-30T09:00:00.000Z",
 };
 
@@ -49,7 +49,7 @@ describe("writeOrderPreview", () => {
     // Sizes and prices reach the owner in Arabic-Indic numerals.
     expect(text).toContain("١٢ مل");
     expect(text).toContain("١٬٧٠٠ ج.م");
-    expect(text).toContain("الدفع عند الاستلام");
+    expect(text).toContain("يُرَتَّب عبر واتساب");
   });
 
   it("writes the HTML email with customer input escaped", async () => {

@@ -43,7 +43,7 @@ export default async function ShippingReturnsPage() {
         {t(locale, "footer.shippingReturns", "الشحن والإرجاع")}
       </h1>
       <p className="mb-6 text-caption text-[var(--color-text-muted)]">
-        {t(locale, "footer.note", "الدفع عند الاستلام · شحن ثابت {fee} لكل الطلبات").replace(
+        {t(locale, "footer.note", "شحن ثابت {fee} لكل الطلبات").replace(
           "{fee}",
           formatPrice(shippingFee),
         )}

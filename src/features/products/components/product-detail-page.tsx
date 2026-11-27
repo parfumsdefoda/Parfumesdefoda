@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Banknote, MessageCircle, Truck } from "lucide-react";
+import { MessageCircle, Truck } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -31,11 +31,9 @@ export interface ProductDetailLabels {
   notesTop: string;
   notesMiddle: string;
   notesBase: string;
-  seasonPerformance: string;
   shippingReturns: string;
   shippingBody: string;
   readPolicy: string;
-  trustCod: string;
   trustShipping: string;
   trustConfirm: string;
   askAbout: string;
@@ -192,10 +190,6 @@ export function ProductDetailPage({
 
               <ul className="flex flex-col gap-2 border-t border-[var(--color-border)] pt-4 text-caption text-[var(--color-text-muted)]">
                 <li className="flex items-center gap-2">
-                  <Banknote className="h-4 w-4" aria-hidden="true" />
-                  {labels.trustCod}
-                </li>
-                <li className="flex items-center gap-2">
                   <Truck className="h-4 w-4" aria-hidden="true" />
                   {labels.trustShipping.replace("{fee}", shippingFee)}
                 </li>
@@ -252,15 +246,6 @@ export function ProductDetailPage({
                 </AccordionContent>
               </AccordionItem>
             )}
-
-            <AccordionItem value="facts">
-              <AccordionTrigger className="py-3 text-body font-bold">
-                {labels.seasonPerformance}
-              </AccordionTrigger>
-              <AccordionContent className="pb-4 text-caption text-[var(--color-text-muted)]">
-                {[product.season, product.performance].filter(Boolean).join(" · ")}
-              </AccordionContent>
-            </AccordionItem>
 
             <AccordionItem value="shipping">
               <AccordionTrigger className="py-3 text-body font-bold">

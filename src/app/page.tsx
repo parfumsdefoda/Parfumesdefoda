@@ -74,7 +74,7 @@ export default async function HomePage() {
         lead={t(
           locale,
           "home.heroLead",
-          "تشكيلة مختارة من العطور الشرقية والنيش، تُطلب في دقيقة واحدة والدفع عند الاستلام.",
+          "تشكيلة مختارة من العطور الشرقية والنيش، تُطلب في دقيقة واحدة.",
         )}
         shopCta={t(locale, "home.shopNow", "تسوّق الآن")}
         advisorCta={t(locale, "home.chooseWithAdvisor", "اختر عطرك بالمساعد")}

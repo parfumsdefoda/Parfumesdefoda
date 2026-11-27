@@ -29,8 +29,8 @@ export interface CheckoutPageClientProps {
 /** Error thrown when the API rejects the order but explains why. */
 class OrderSubmitError extends Error {}
 
-/** Payment is cash on delivery — there is no online payment gateway. */
-const PAYMENT_METHOD = "الدفع عند الاستلام";
+/** No online payment gateway — payment is arranged over WhatsApp after ordering. */
+const PAYMENT_METHOD = "يُرَتَّب عبر واتساب";
 
 const GENERIC_SUBMIT_ERROR =
   "حصلت مشكلة أثناء إرسال الطلب. اتأكد من اتصالك بالإنترنت وجرب تاني، أو تواصل معانا واتساب.";

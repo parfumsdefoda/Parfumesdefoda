@@ -251,7 +251,7 @@ export default async function RootLayout({
   const footerNote = t(
     localeMessages,
     "footer.note",
-    "الدفع عند الاستلام · شحن ثابت {fee} لكل الطلبات",
+    "شحن ثابت {fee} لكل الطلبات",
   ).replace("{fee}", formatPrice(getShippingFee(settings)));
 
   /* Cart chrome text, resolved once here so the drawer mounted by the shell

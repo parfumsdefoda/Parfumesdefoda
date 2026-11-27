@@ -167,23 +167,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
           notesTop: t(locale, "product.notesTop", "المقدمة"),
           notesMiddle: t(locale, "product.notesMiddle", "القلب"),
           notesBase: t(locale, "product.notesBase", "القاعدة"),
-          seasonPerformance: t(
-            locale,
-            "product.seasonPerformance",
-            "الفصل والأداء",
-          ),
           shippingReturns: t(locale, "product.shippingReturns", "الشحن والاسترجاع"),
           shippingBody: t(
             locale,
             "product.shippingBody",
-            "شحن ثابت {fee} لكل الطلبات، والدفع عند الاستلام.",
+            "شحن ثابت {fee} لكل الطلبات.",
           ),
           readPolicy: t(
             locale,
             "product.readPolicy",
             "اقرأ سياسة الشحن والاسترجاع",
           ),
-          trustCod: t(locale, "product.trustCod", "الدفع عند الاستلام"),
           trustShipping: t(
             locale,
             "product.trustShipping",

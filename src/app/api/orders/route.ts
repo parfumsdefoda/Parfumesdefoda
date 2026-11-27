@@ -39,7 +39,7 @@ import type { Order } from "@/types/order";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const DEFAULT_PAYMENT_METHOD = "الدفع عند الاستلام";
+const DEFAULT_PAYMENT_METHOD = "يُرَتَّب عبر واتساب";
 
 /** Persistence is an optional add-on: give it 2s, then move on. */
 const ORDER_STORE_TIMEOUT_MS = 2_000;
